@@ -27,7 +27,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 
   <body>
     <div class="ui container">
-      <h1>Data from sensors</h1>
+      <h1>Data from sensors Olivier</h1>
     </div>
     <?php
     require_once("DBHandler.php");
