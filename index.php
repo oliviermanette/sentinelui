@@ -27,10 +27,15 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 
   <body>
     <div class="ui container">
-      <h1>Data from sensors Olivier</h1>
+    	<?php
+    		//echo $_SESSION['id'];
+    	?>
+     	 <h1>Data from sensors </h1>
     </div>
     <?php
+	ini_set('display_errors', 1);
     require_once("DBHandler.php");
+  
     $host = "92.243.19.37";
     $userName = "admin";
     $password = "eoL4p0w3r";
@@ -38,7 +43,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     $db = new DB($userName, $password, $dbName,$host);
 
     $all_id_sensors = $db->query_select('SELECT id FROM `sensor` WHERE 1',"id");
-    $all_site = $db->query_select('SELECT nom FROM `site` WHERE 1',"nom");
+    $all_site = $db->query_select_light('SELECT id, nom FROM site WHERE owner_id='.$_SESSION['id']);
     $all_equipment = $db->query_select('SELECT nom FROM `structure` WHERE 1',"nom");
     $min_max_date_record = $db->query('SELECT (SELECT Max(date_time) FROM record) AS MaxDateTime,
     (SELECT Min(date_time) FROM record) AS MinDateTime');
@@ -65,11 +70,11 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
               <label>Choose site</label>
               <select class="browser-default custom-select" name="siteDB" id="siteDB">
                 <option selected>Select site</option>
-                <?php foreach($all_site as $site){
-                  echo "<option value='$site'>$site</option>";
+                <?php while($site = $all_site->fetch_object()){
+                  echo "<option value='$site->id'>$site->nom </option>";
                 }
                 ?>
-              </select>
+              </select>         
             </div>
             <!--
             <div class="field">
@@ -83,7 +88,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
               </select>
             </div>
           !-->
-            <div class="field">
+            <div class="field" id="equipmentField">
               <label>Choose equipment</label>
               <select class="browser-default custom-select" name="equipment"  id="equipment">
                 <option selected>Select equipment</option>
@@ -146,7 +151,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 <div class="container">
   <div id="resultcontainer"></div>
 </div>
-
 </body>
 
 <script>
@@ -167,6 +171,20 @@ $(document).on("click", "a[name=download]", function(e) {
   });
 });
 
+$( "#siteDB" ).change(function() {
+	var postData = {
+		'site_id'	:	$( this ).children("option:selected").val()
+	};
+	$.ajax({
+	      type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+	      url         : 'getStructures.php', // the url where we want to POST
+	      data        : postData, // our data object
+	      success:function(data)
+	      {
+	        $('#equipmentField').html(data);
+	      }
+	});
+});  
 
 $(document).ready(function(){
 
@@ -181,7 +199,6 @@ $(document).ready(function(){
       'dateMin' : dateMin,
       'dateMax' : dateMax
     };
-    console.log(formData);
     // process the form
     $.ajax({
       type        : 'GET', // define the type of HTTP verb we want to use (POST for our form)

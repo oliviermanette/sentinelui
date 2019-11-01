@@ -1,4 +1,5 @@
 <?php
+
 if ( !class_exists( 'DB' ) ) {
   class DB {
     public function __construct($user, $password, $database, $host = 'localhost') {
@@ -29,8 +30,16 @@ if ( !class_exists( 'DB' ) ) {
           $results[] = $row->$value_selected;
         }
       }
+	//$this->close();
       return $results;
     }
+
+	public function query_select_light($query){
+		$db = $this->connect();
+	//	$this->close();
+		return $db->query($query);
+	}
+
     public function insert($table, $data, $format) {
       // Check for $table or $data not set
       if ( empty( $table ) || empty( $data ) ) {

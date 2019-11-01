@@ -10,17 +10,16 @@ if (isset($_GET['action'])){
   }
 }
 //After sending the form, we process the data
-if (isset($_GET['site'], $_GET['sensorIDDB'], $_GET['equipment'], $_GET['dateMin'],$_GET['dateMax'], $_GET['typemsg'])){
+if (isset($_GET['site'], $_GET['equipment'], $_GET['dateMin'],$_GET['dateMax'], $_GET['typemsg'])){
   $site = $_GET['site'];
   $equipment = $_GET['equipment'];
-  $sensorID = $_GET['sensorIDDB'];
   $typeMSG =  $_GET['typemsg'];
   $dateMin = $_GET['dateMin'];
   $dateMax = $_GET['dateMax'];
-  initSubmit($site, $equipment, $sensorID, $typeMSG, $dateMin, $dateMax );
+  initSubmit($site, $equipment, $typeMSG, $dateMin, $dateMax );
 }
 
-function initSubmit($site, $equipment, $sensorID, $typeMSG, $dateMin, $dateMax ){
+function initSubmit($site, $equipment, $typeMSG, $dateMin, $dateMax ){
   global $connect;
   $query = "
   SELECT r.sensor_id AS `#sensor`, r.date_time AS `Date-Time`,
