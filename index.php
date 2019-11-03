@@ -35,7 +35,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     <?php
 	ini_set('display_errors', 1);
     require_once("DBHandler.php");
-  
+
     $host = "92.243.19.37";
     $userName = "admin";
     $password = "eoL4p0w3r";
@@ -74,20 +74,9 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                   echo "<option value='$site->id'>$site->nom </option>";
                 }
                 ?>
-              </select>         
-            </div>
-            <!--
-            <div class="field">
-              <label>Choose sensor</label>
-              <select class="browser-default custom-select" name="IDsensors"  id="sensorIDDB">
-                <option selected>Select sensor ID</option>
-                <?php foreach($all_id_sensors as $id){
-                  echo "<option value='$id'>$id</option>";
-                }
-                ?>
               </select>
             </div>
-          !-->
+
             <div class="field" id="equipmentField">
               <label>Choose equipment</label>
               <select class="browser-default custom-select" name="equipment"  id="equipment">
@@ -122,7 +111,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
             <div class="field">
               <label>Choose type</label>
               <select class="browser-default custom-select" id="typemsg">
-                <option selected>Select type</option>
+                <option value="" selected>Select type</option>
                 <option value='choc'>Choc</option>
                 <option value='inclinometre'>Inclinometre</option>
                 <option value='global'>Global</option>
@@ -184,7 +173,7 @@ $( "#siteDB" ).change(function() {
 	        $('#equipmentField').html(data);
 	      }
 	});
-});  
+});
 
 $(document).ready(function(){
 
@@ -199,6 +188,7 @@ $(document).ready(function(){
       'dateMin' : dateMin,
       'dateMax' : dateMax
     };
+    console.log(formData);
     // process the form
     $.ajax({
       type        : 'GET', // define the type of HTTP verb we want to use (POST for our form)

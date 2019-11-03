@@ -35,7 +35,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
   // Validate credentials
   if(empty($email_err) && empty($password_err)){
     // Prepare a select statement
-    $sql = "SELECT id, email, password FROM users WHERE email = ?";
+    $sql = "SELECT id, email, password FROM user WHERE email = ?";
 
     if($stmt = mysqli_prepare($connect, $sql)){
       // Bind variables to the prepared statement as parameters
@@ -54,7 +54,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
           // Bind result variables
           mysqli_stmt_bind_result($stmt, $id, $email, $hashed_password);
           if(mysqli_stmt_fetch($stmt)){
-            $query = "SELECT password FROM users WHERE email LIKE '$email' ";
+            $query = "SELECT password FROM user WHERE email LIKE '$email' ";
             $result = mysqli_query($connect, $query);
             $row = $result->fetch_assoc();
 

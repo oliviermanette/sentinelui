@@ -1,6 +1,7 @@
 <?php
 //fetch.php
 require_once "config.php";
+ini_set('display_errors', 1);
 
 if (isset($_GET['action'])){
   if ($_GET['action'] == "initGroupBy"){
@@ -9,19 +10,19 @@ if (isset($_GET['action'])){
     init();
   }
 }
-//After sending the form, we process the data
+
 if (isset($_GET['site'], $_GET['equipment'], $_GET['dateMin'],$_GET['dateMax'], $_GET['typemsg'])){
-  $site = $_GET['site'];
-  $equipment = $_GET['equipment'];
+  $site_id= $_GET['site'];
+  $equipment_id = $_GET['equipment'];
   $typeMSG =  $_GET['typemsg'];
   $dateMin = $_GET['dateMin'];
   $dateMax = $_GET['dateMax'];
-  initSubmit($site, $equipment, $typeMSG, $dateMin, $dateMax );
+  initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax );
 }
 
-function initSubmit($site, $equipment, $typeMSG, $dateMin, $dateMax ){
+function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
   global $connect;
-  $query = "
+  $query_submit = '
   SELECT r.sensor_id AS `#sensor`, r.date_time AS `Date-Time`,
   r.msg_type AS `Type Message`, s.nom AS `Site`, st.nom AS `Equipement`
   FROM record as r
@@ -29,16 +30,14 @@ function initSubmit($site, $equipment, $typeMSG, $dateMin, $dateMax ){
   on st.id=r.structure_id
   LEFT JOIN site AS s
   ON s.id = st.site_id
-  WHERE
-  ( date( r.date_time) between date('$dateMin') and date('$dateMax'))
-  AND s.nom LIKE '$site'
-  AND r.msg_type LIKE '$typeMSG'
-  AND st.nom LIKE '$equipment'
-  order by  r.date_time desc
-  ";
+  WHERE ';
+  if (!empty($dateMin) && !empty($dateMax)){
+      $query_submit .="(date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) AND ";
+  }
+  $query_submit .="s.id LIKE '%$site_id' AND r.msg_type LIKE '%$typeMSG' AND st.id LIKE '%$equipment_id' order by r.date_time desc";
 
-
-  $result = mysqli_query($connect, $query);
+  echo $query_submit;
+  $result = mysqli_query($connect, $query_submit);
   #echo 'Result : '. $result . "\n";
   if ($result)
   {
