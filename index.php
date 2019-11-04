@@ -176,6 +176,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 <script>
 
 
+/*
 $(document).on("click", "a.download", function(e) {
   e.preventDefault();
 
@@ -204,27 +205,339 @@ $(document).on("click", "a.download", function(e) {
       }
     });
   });
+*/
 
-  $( "#siteDB" ).change(function() {
-    var postData = {
-      'site_id'	:	$( this ).children("option:selected").val()
-    };
-    $.ajax({
-      type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
-      url         : 'getStructures.php', // the url where we want to POST
-      data        : postData, // our data object
+$(document).on("click", "a.download", function(e) {
+  e.preventDefault();
+
+  var id_sensor_request = $(this).data('idsensor');
+  var type_msg_request = $(this).data('typemsg');
+  var time_data_request = $(this).data('date');
+  var site_request = $(this).data('site');
+  var equipement_request = $(this).data('equipement');
+
+  var formData = {
+    'id_sensor_request'              : id_sensor_request,
+    'type_msg_request'              : type_msg_request,
+    'time_data_request'             : time_data_request,
+    'site_request'             : site_request,
+    'equipement_request' : equipement_request
+  };
+  console.log(formData);
+
+  $.ajax({
+    url:"getDataChart.php",
+    method:"POST",
+    data: formData,
       success:function(data)
       {
-        $('#equipmentField').html(data);
+        $('#canvas').html(data);
+          if (type_msg_request == "global"){
+            drawTemperature(data);
+          }else if (type_msg_request == "inclinometre"){
+            drawInclinometer(data);
+          }else if (type_msg_request == "choc"){
+            drawChoc(data);
+          }else if (type_msg_request == "spectre"){
+            drawSubSpectre(data);
+          }
+
       }
     });
   });
 
+  function drawTemperature(data){
+    data = JSON.parse(data);
+    var temperature = [];
+    var nx = [];
+    var ny = [];
+    var nz = [];
+    var date = [];
+    for (var i in data) {
+      temperature.push(data[i].temperature);
+      nx.push(data[i].nx);
+      ny.push(data[i].ny);
+      nz.push(data[i].nz);
+      date.push(data[i].date_d);
+      //marks.push(data[i].marks);
+    }
+
+    console.log(date);
+    var chartdata = {
+      labels: date,
+      datasets : [
+        {
+          labels: date,
+          borderColor: "#3e95cd",
+          backgroundColor: "#f6f6f6",
+          pointBackgroundColor: "#3e95cd",
+          hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
+          hoverBorderColor: 'rgba(200, 200, 200, 1)',
+          data: temperature
+        }
+      ]
+    };
+    var ctx = $("#canvas");
+    var timeFormat = 'YYYY-MM-DD';
+    var barGraph = new Chart(ctx, {
+      type: 'line',
+      data: chartdata,
+
+      options: {
+        scales: {
+          xAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Date'
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Temeprature (°C)'
+            },
+            //type: 'logarithmic',
+          }]
+        },
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Temperature en fonction du temps'
+        }
+      }
+    });
+  }
+
+  function drawInclinometer(data){
+    //console.log(data);
+    data = JSON.parse(data);
+    var nx = [];
+    var ny = [];
+    var nz = [];
+    var date = [];
+    for (var i in data) {
+      nx.push(data[i].nx);
+      ny.push(data[i].ny);
+      nz.push(data[i].nz);
+      date.push(data[i].date_d);
+    }
+
+    //console.log(date);
+    var chartdata = {
+      labels: date,
+      datasets : [
+        {
+          labels: date,
+          fill: false,
+          backgroundColor: 'blue',
+          borderColor: 'blue',
+          data: nx
+        },
+        {
+          labels: date,
+          fill: false,
+          backgroundColor: 'orange',
+          borderColor: 'orange',
+          data: ny
+        },
+        {
+          labels: date,
+          fill: false,
+          backgroundColor: 'green',
+          borderColor: 'green',
+          data: nz
+        }
+      ]
+    };
+    var ctx = $("#canvas");
+    var timeFormat = 'YYYY-MM-DD';
+    var barGraph = new Chart(ctx, {
+      type: 'line',
+      data: chartdata,
+
+      options: {
+        scales: {
+          xAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Date'
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Height (m)'
+            },
+            //type: 'logarithmic',
+          }]
+        },
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Inclinometre en fonction du temps'
+        }
+      }
+    });
+  }
+
+  //Draw choc data
+  function drawChoc(data){
+    data = JSON.parse(data);
+    var amplitude = [];
+    var amplitude_1 = [];
+    var amplitude_2 = [];
+    var time_data = [];
+    var time_1 = [];
+    var time_2 = [];
+    var date = []
+
+    amplitude.push(parseInt(data[1].amplitude_1));
+    amplitude.push(parseInt(data[1].amplitude_2));
+    time_data.push(parseInt(data[1].time_1));
+    time_data.push(parseInt(data[1].time_2));
+    var array_data = []; // create an empty array
+
+    var obj = {x:0,y:0};
+    array_data.push(obj);
+    for(var i=0;i<2;i++)
+    {
+      var obj = {x:time_data[i],y:amplitude[i]};
+      array_data.push(obj);
+    }
+    var obj = {x:time_data[0]+time_data[1],y:0};
+    array_data.push(obj);
+
+    var chartdata = {
+      labels: date,
+      datasets : [
+        {
+          data:array_data,
+          showLine: true,
+        }
+      ]
+    };
+    var ctx = $("#canvas");
+    var barGraph = new Chart(ctx, {
+      type: 'scatter',
+      data: chartdata,
+      options: {
+        scales: {
+          display : true,
+          xAxes: [{
+            ticks: {
+              beginAtZero: true,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Time (μs)'
+            }
+          }],
+          yAxes: [{
+            //reverse: true,
+            //  type:       "time",
+            ticks: {
+              beginAtZero: true,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Amplitude (mg)'
+            }
+          }]
+        },
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Choc '
+        }
+      }
+    });
+  }
+  //Draw a specific subspectre from the sensor
+
+  function drawSubSpectre(data){
+    //console.log(data);
+    data = JSON.parse(data);
+    subspectre_hex = data[0].payload;
+    min_freq = parseInt(data[0].min_freq);
+    max_freq = parseInt(data[0].max_freq);
+    resolution = parseInt(data[0].resolution)
+    subspectre_number = data[0].subspectre_number;
+    var index_start = 2;
+    var index_stop = 4;
+    var new_sub ='';
+    var array_data = [];
+
+    var min_freq_initial = min_freq;
+    for (var i = 0; i < subspectre_hex.length/2; i++){
+      var y_data_amplitude = hex2dec(subspectre_hex.substring(index_start, index_stop))
+      if (i > 0){
+        min_freq = min_freq + resolution;
+      }
+      if (i < (subspectre_hex.length/2)-1){
+        var obj = {x:min_freq,y:y_data_amplitude};
+        array_data.push(obj);
+      }
+      index_start+=2;
+      index_stop+=2;
+    }
+    var title = "Spectre | Resolution = " + String(resolution) + "Hz | Sous spectre = " + String(subspectre_number);
+    var chartdata = {
+      datasets : [
+        {
+          data:array_data,
+          showLine: true,
+        }
+      ]
+    };
+    var ctx = $("#canvas");
+    var barGraph = new Chart(ctx, {
+      type: 'scatter',
+      data: chartdata,
+      options: {
+        scales: {
+          display : true,
+          xAxes: [{
+            ticks: {
+              beginAtZero: false,
+              min: min_freq_initial,
+              max : max_freq,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Frequence (Hz)'
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Amplitude (mg)'
+            },
+          }]
+        },
+        legend: { display: false },
+        title: {
+          display: true,
+          text: title
+        }
+      }
+    });
+  }
+
+  function hex2dec(hex){
+    return parseInt(hex,16);
+  }
   $(document).ready(function(){
 
-    function hex2dec(hex){
-      return parseInt(hex,16);
-    }
+
     //Draw the completre spectrum (5 subspectre assembled)
     function drawCompleteSpectre(data){
       //console.log(data);
@@ -322,271 +635,13 @@ $(document).on("click", "a.download", function(e) {
       });
     }
 
-    //Draw a specific subspectre from the sensor
-    function drawSubSpectre(data){
-      //console.log(data);
-      data = JSON.parse(data);
-      subspectre_hex = data[0].payload;
-      min_freq = parseInt(data[0].min_freq);
-      max_freq = parseInt(data[0].max_freq);
-      resolution = parseInt(data[0].resolution)
-      subspectre_number = data[0].subspectre_number;
-      var index_start = 2;
-      var index_stop = 4;
-      var new_sub ='';
-      var array_data = [];
 
-      var min_freq_initial = min_freq;
-      for (var i = 0; i < subspectre_hex.length/2; i++){
-        var y_data_amplitude = hex2dec(subspectre_hex.substring(index_start, index_stop))
-        if (i > 0){
-          min_freq = min_freq + resolution;
-        }
-        if (i < (subspectre_hex.length/2)-1){
-          var obj = {x:min_freq,y:y_data_amplitude};
-          array_data.push(obj);
-        }
-        index_start+=2;
-        index_stop+=2;
-      }
-      var title = "Spectre | Resolution = " + String(resolution) + "Hz | Sous spectre = " + String(subspectre_number);
-      var chartdata = {
-        datasets : [
-          {
-            data:array_data,
-            showLine: true,
-          }
-        ]
-      };
-      var ctx = $("#canvas");
-      var barGraph = new Chart(ctx, {
-        type: 'scatter',
-        data: chartdata,
-        options: {
-          scales: {
-            display : true,
-            xAxes: [{
-              ticks: {
-                beginAtZero: false,
-                min: min_freq_initial,
-                max : max_freq,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: 'Frequence (Hz)'
-              }
-            }],
-            yAxes: [{
-              ticks: {
-                beginAtZero: false,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: 'Amplitude (mg)'
-              },
-            }]
-          },
-          legend: { display: false },
-          title: {
-            display: true,
-            text: title
-          }
-        }
-      });
-    }
-    //Draw choc data
-    function drawChoc(data){
-      data = JSON.parse(data);
-      var amplitude = [];
-      var amplitude_1 = [];
-      var amplitude_2 = [];
-      var time_data = [];
-      var time_1 = [];
-      var time_2 = [];
-      var date = []
 
-      amplitude.push(parseInt(data[1].amplitude_1));
-      amplitude.push(parseInt(data[1].amplitude_2));
-      time_data.push(parseInt(data[1].time_1));
-      time_data.push(parseInt(data[1].time_2));
-      var array_data = []; // create an empty array
 
-      var obj = {x:0,y:0};
-      array_data.push(obj);
-      for(var i=0;i<2;i++)
-      {
-        var obj = {x:time_data[i],y:amplitude[i]};
-        array_data.push(obj);
-      }
-      var obj = {x:time_data[0]+time_data[1],y:0};
-      array_data.push(obj);
 
-      var chartdata = {
-        labels: date,
-        datasets : [
-          {
-            data:array_data,
-            showLine: true,
-          }
-        ]
-      };
-      var ctx = $("#canvas");
-      var barGraph = new Chart(ctx, {
-        type: 'scatter',
-        data: chartdata,
-        options: {
-          scales: {
-            display : true,
-            xAxes: [{
-              ticks: {
-                beginAtZero: true,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: 'Time (μs)'
-              }
-            }],
-            yAxes: [{
-              //reverse: true,
-              //  type:       "time",
-              ticks: {
-                beginAtZero: true,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: 'Amplitude (mg)'
-              }
-            }]
-          },
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Choc '
-          }
-        }
-      });
-    }
 
-    function drawInclinometer(data){
-      data = JSON.parse(data);
-      var nx = [];
-      var ny = [];
-      var nz = [];
-      var date = [];
-      for (var i in data) {
-        nx.push(data[i].nx);
-        ny.push(data[i].ny);
-        nz.push(data[i].nz);
-        date.push(data[i].date_d);
-      }
 
-      console.log(date);
-      var chartdata = {
-        labels: date,
-        datasets : [
-          {
-            labels: date,
-            fill: false,
-            backgroundColor: 'rgba(200, 200, 200, 0.75)',
-            borderColor: 'rgba(200, 200, 200, 0.75)',
-            hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-            hoverBorderColor: 'rgba(200, 200, 200, 1)',
-            data: nx
-          },
-          {
-            labels: date,
-            fill: false,
-            backgroundColor: 'rgba(200, 200, 200, 0.75)',
-            borderColor: 'rgba(200, 200, 200, 0.75)',
-            hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-            hoverBorderColor: 'rgba(200, 200, 200, 1)',
-            data: ny
-          },
-          {
-            labels: date,
-            fill: false,
-            backgroundColor: 'rgba(200, 200, 200, 0.75)',
-            borderColor: 'rgba(200, 200, 200, 0.75)',
-            hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-            hoverBorderColor: 'rgba(200, 200, 200, 1)',
-            data: nz
-          }
-        ]
-      };
-      var ctx = $("#canvas");
-      var timeFormat = 'YYYY-MM-DD';
-      var barGraph = new Chart(ctx, {
-        type: 'line',
-        data: chartdata,
-
-        options: {
-          scales: {
-            xAxes: [{
-              //reverse: true,
-              //  type:       "time",
-            }]
-          },
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Inclinometre en fonction du temps'
-          }
-        }
-      });
-    }
-
-    function drawTemperature(data){
-      data = JSON.parse(data);
-      var temperature = [];
-      var nx = [];
-      var ny = [];
-      var nz = [];
-      var date = [];
-      for (var i in data) {
-        temperature.push(data[i].temperature);
-        nx.push(data[i].nx);
-        ny.push(data[i].ny);
-        nz.push(data[i].nz);
-        date.push(data[i].date_d);
-        //marks.push(data[i].marks);
-      }
-
-      console.log(date);
-      var chartdata = {
-        labels: date,
-        datasets : [
-          {
-            labels: date,
-            backgroundColor: 'rgba(200, 200, 200, 0.75)',
-            borderColor: 'rgba(200, 200, 200, 0.75)',
-            hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-            hoverBorderColor: 'rgba(200, 200, 200, 1)',
-            data: temperature
-          }
-        ]
-      };
-      var ctx = $("#canvas");
-      var timeFormat = 'YYYY-MM-DD';
-      var barGraph = new Chart(ctx, {
-        type: 'line',
-        data: chartdata,
-
-        options: {
-          scales: {
-            xAxes: [{
-              //reverse: true,
-              //  type:       "time",
-            }]
-          },
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Temperature en fonction du temps'
-          }
-        }
-      });
-    }
-
+    /*
     var id_sensor="6";
     $.ajax({
       type: 'POST',
@@ -599,9 +654,9 @@ $(document).on("click", "a.download", function(e) {
         //drawInclinometer(data);
         //drawChoc(data);
         //drawSubSpectre(data);
-        drawCompleteSpectre(data);
+        //drawCompleteSpectre(data);
       }
-    });
+    });*/
 
     $("#sendData").submit(function(event) {
       event.preventDefault();
@@ -628,6 +683,20 @@ $(document).on("click", "a.download", function(e) {
     });
 
 
+    $( "#siteDB" ).change(function() {
+      var postData = {
+        'site_id'	:	$( this ).children("option:selected").val()
+      };
+      $.ajax({
+        type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+        url         : 'getStructures.php', // the url where we want to POST
+        data        : postData, // our data object
+        success:function(data)
+        {
+          $('#equipmentField').html(data);
+        }
+      });
+    });
 
 
     var dateMin = "";
