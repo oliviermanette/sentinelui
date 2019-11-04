@@ -3,6 +3,7 @@
 require_once "config.php";
 ini_set('display_errors', 1);
 
+
 if (isset($_GET['action'])){
   if ($_GET['action'] == "initGroupBy"){
     initGroupBy();
@@ -36,7 +37,7 @@ function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
   }
   $query_submit .="s.id LIKE '%$site_id' AND r.msg_type LIKE '%$typeMSG' AND st.id LIKE '%$equipment_id' order by r.date_time desc";
 
-  echo $query_submit;
+  #echo $query_submit;
   $result = mysqli_query($connect, $query_submit);
   #echo 'Result : '. $result . "\n";
   if ($result)
@@ -67,7 +68,9 @@ function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
       <td>'.$row["Type Message"].'</td>
       <td>'.$row["Site"].'</td>
       <td>'.$row["Equipement"].'</td>
-      <td><a href="index.php?id_download='.$row["#sensor"].'" data-id='.$row["#sensor"].' id="linkdownload" name="download">Show Data</a>
+      <td><a class=download href="index.php?id_download='.$row["#sensor"].'" data-idsensor='.$row["#sensor"].'
+       data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
+        data-equipement='.urlencode($row["Equipement"]).' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
       </tr>
       ';
     }
@@ -129,7 +132,9 @@ function init() {
       <td>'.$row["Type Message"].'</td>
       <td>'.$row["Site"].'</td>
       <td>'.$row["Equipement"].'</td>
-      <td><a href="index.php?id_download='.$row["#sensor"].'" data-id='.$row["#sensor"].' data-type="all"  data-time='.$row["Date-Time"].'  name="download">Show Data</a>
+      <td><a class=download href="index.php?id_download='.$row["#sensor"].'" data-idsensor='.$row["#sensor"].'
+       data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
+        data-equipement='.urlencode($row["Equipement"]).' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
       </tr>
       ';
     }
@@ -144,26 +149,30 @@ function init() {
   echo "<script type='text/javascript'>
   $(document).ready(function(){ $('#dataTable').DataTable( {
     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, 'All']],
-    'iDisplayLength': 50
+    'iDisplayLength': 20
   } );});</script>";
 
 }
 
-if (isset($_GET['id_download'], $_GET['type_msg'], $_GET['time_data'] )) {
-  $ID_sensor =  $_GET['id_download'];
-  $type_msg =  $_GET['type_msg'];
-  $time_data =  $_GET['time_data'];
+if (isset($_POST['id_sensor_request'], $_POST['type_msg_request'], $_POST['time_data_request'], $_POST['site_request'],$_POST['equipement_request']  )) {
+  $ID_sensor =  $_POST['id_sensor_request'];
+  $type_msg =  $_POST['type_msg_request'];
+  $time_data =  $_POST['time_data_request'];
+  $site =  $_POST['site_request'];
+  $equipement =  $_POST['equipement_request'];
   $query = "
-  SELECT `sensor_id` AS 'Sensor ID', `date_time` AS 'Date-Time', `msg_type` AS 'Type Message',`amplitude_1`, `amplitude_2`, `nx` AS 'X',`ny` AS 'Y',`nz` AS 'Z',`temperature` AS 'Temperature',`battery_state` AS 'Level Battery'
+  SELECT `sensor_id` AS 'Sensor ID', CAST(date_time as DATE) AS 'Date-Time', `msg_type` AS 'Type Message',`amplitude_1`,
+   `amplitude_2`, `time_1`, `time_2`,`nx` AS 'X',`ny` AS 'Y',`nz` AS 'Z',`temperature` AS 'Temperature',`battery_level` AS 'Level Battery'
   FROM `record`
   WHERE sensor_id LIKE '$ID_sensor'
-  AND CAST(date_time as DATE) = '$time_data'
+  AND CAST(date_time as DATE) LIKE '$time_data'
+  AND msg_type LIKE '$type_msg'
   ";
 
   $result = mysqli_query($connect, $query);
   if ($result)
   {
-    $output .= '
+    $output = '
 
     <table id="dataTable" class="display" style="width:100%">
     <thead>
@@ -173,6 +182,8 @@ if (isset($_GET['id_download'], $_GET['type_msg'], $_GET['time_data'] )) {
     <th>Type Message</th>
     <th>Amplitude 1</th>
     <th>Amplitude 2</th>
+    <th>Time 1</th>
+    <th>Time 2</th>
     <th>X</th>
     <th>Y</th>
     <th>Z</th>
@@ -193,6 +204,8 @@ if (isset($_GET['id_download'], $_GET['type_msg'], $_GET['time_data'] )) {
       <td>'.$row["Type Message"].'</td>
       <td>'.$row["amplitude_1"].'</td>
       <td>'.$row["amplitude_2"].'</td>
+      <td>'.$row["time_1"].'</td>
+      <td>'.$row["time_2"].'</td>
       <td>'.$row["X"].'</td>
       <td>'.$row["Y"].'</td>
       <td>'.$row["Z"].'</td>
@@ -256,7 +269,9 @@ function initGroupBy() {
       <td>'.$row["#global"].'</td>
       <td>'.$row["#inclinometre"].'</td>
       <td>'.$row["#choc"].'</td>
-      <td><a  href="index.php?id_download='.$row["Sensor ID"].'" data-id='.$row["Sensor ID"].' data-typemsg="all" id="linkdownload" name="download">Show Data</a>
+      <td><a class=download href="index.php?id_download='.$row["#sensor"].'" data-idsensor='.$row["#sensor"].'
+       data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
+        data-equipement='.$row["Equipement"].' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
       </tr>
       ';
     }
