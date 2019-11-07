@@ -1,0 +1,11 @@
+#Ignore Bootstrap library
+bootstrap/*
+
+#Ignore node_module
+node_modules/*
+
+#Ignore semantic
+semantic/*
+semantic.json
+
+package-lock.json
