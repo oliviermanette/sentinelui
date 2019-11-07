@@ -84,7 +84,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
           <a href="logout.php" class="btn btn-danger">Sign Out of Your Account</a>
         </div>
       </br>
-      <form name="contact-form" class="ui tiny form" action="" method="post" id="sendData">
+      <form name="contact-form" class="ui tiny form" action="" method="post" id="getData">
 
         <div class="ui form">
           <div class="four fields">
@@ -158,6 +158,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
           </div>
         </div>
       </div>
+      <button id="exportData" type="button" name="action" value="exportData" class="btn btn-info" onclick="window.open('csv.php')">Telecharger les données</button>
 
 
       <!--
@@ -656,24 +657,8 @@ $(document).ready(function(){
   var specific_canva = document.getElementById("chart-display-container-specific");
   specific_canva.style.display = "none";
 
-  /*
-  var id_sensor="6";
-  $.ajax({
-  type: 'POST',
-  url: 'getDataChart.php',
-  data        : {sensor_id:id_sensor}, // our data object
-  success: function (data) {
-  //$('#chart-container').html(data);
-  //console.log(data);
-  //drawTemperature(data);
-  //drawInclinometer(data);
-  //drawChoc(data);
-  //drawSubSpectre(data);
-  //drawCompleteSpectre(data);
-}
-});*/
 
-$("#sendData").submit(function(event) {
+$("#getData").submit(function(event) {
   event.preventDefault();
   var drawAll = true;
   // get the form data
@@ -685,7 +670,7 @@ $("#sendData").submit(function(event) {
     'dateMax' : dateMax,
     'drawAll' : drawAll
   };
-  console.log(formData);
+  //console.log(formData);
   // process the form
   $.ajax({
     type        : 'GET', // define the type of HTTP verb we want to use (POST for our form)
@@ -719,9 +704,7 @@ $("#sendData").submit(function(event) {
       var choc_data_json = data['choc_data'];
       var inclinometre_data_json = data['inclinometre_data'];
       var spectre_data_json = data['spectre_data'];
-
       //console.log(spectre_data_json);
-
       drawTemperatureFromData(temperature_data_json,"canvas_temperature");
       drawInclinometerFromData(inclinometre_data_json,"canvas_inclinometre");
       drawSpectreFromData(spectre_data_json,"canvas_spectre");
