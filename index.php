@@ -144,19 +144,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
             <button type="submit" id="submit" class="btn btn-primary">Submit</button>
           </form>
         </div>
-        <div class="form-check">
-          <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" name ="groupby" id="groupby">
-            <label class="custom-control-label" for="groupby">Group Result</label>
-          </div>
-        </div>
-        <div class="form-check">
-          <!-- Default checked -->
-          <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" name ="allmsg" id="allmsg" checked>
-            <label class="custom-control-label" for="allmsg">All messages</label>
-          </div>
-        </div>
       </div>
       <button id="exportData" type="button" class="btn btn-info" onclick="window.open('downloadData.php?exportData=excel')">Export Data Excel</button>
       <button id="exportData" type="button" class="btn btn-info" onclick="window.open('downloadData.php?exportData=csv')">Export Data CSV</button>
@@ -652,6 +639,7 @@ function hex2dec(hex){
 }
 $(document).ready(function(){
 
+  load_data('initGroupBy');
 
   var general_canva = document.getElementById("chart-display-container-all");
   general_canva.style.display = "none";
@@ -659,138 +647,124 @@ $(document).ready(function(){
   specific_canva.style.display = "none";
 
 
-$("#getData").submit(function(event) {
-  event.preventDefault();
-  var drawAll = true;
-  // get the form data
-  var formData = {
-    'site'              : $('#siteDB option:selected').val(),
-    'equipment'              : $('#equipment option:selected').val(),
-    'typemsg'             : $('#typemsg option:selected').val(),
-    'dateMin' : dateMin,
-    'dateMax' : dateMax,
-    'drawAll' : drawAll
-  };
-  //console.log(formData);
-  // process the form
-  $.ajax({
-    type        : 'GET', // define the type of HTTP verb we want to use (POST for our form)
-    url         : 'fetch.php', // the url where we want to POST
-    data        : formData, // our data object
-    async: true,
-    success:function(data)
-    {
-      $('#resultcontainer').html(data);
-    }
-  }),
-  $.ajax({
-    type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
-    url         : 'getDataChart.php', // the url where we want to POST
-    data        : formData, // our data object
-    async: true,
-    success:function(data)
-    {
-      //$('#resultcontainer').html(data);
-      console.log("RESULT DATA : ",data);
-      var specific_canva = document.getElementById("chart-display-container-specific");
-      specific_canva.style.display = "none";
-      var general_canva = document.getElementById("chart-display-container-all");
-      if (general_canva.style.display === "none") {
-        general_canva.style.display = "block";
+  $("#getData").submit(function(event) {
+    event.preventDefault();
+    var drawAll = true;
+    // get the form data
+    var formData = {
+      'site'              : $('#siteDB option:selected').val(),
+      'equipment'              : $('#equipment option:selected').val(),
+      'typemsg'             : $('#typemsg option:selected').val(),
+      'dateMin' : dateMin,
+      'dateMax' : dateMax,
+      'drawAll' : drawAll
+    };
+    //console.log(formData);
+    // process the form
+    $.ajax({
+      type        : 'GET', // define the type of HTTP verb we want to use (POST for our form)
+      url         : 'fetch.php', // the url where we want to POST
+      data        : formData, // our data object
+      async: true,
+      success:function(data)
+      {
+        $('#resultcontainer').html(data);
       }
+    }),
+    $.ajax({
+      type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+      url         : 'getDataChart.php', // the url where we want to POST
+      data        : formData, // our data object
+      async: true,
+      success:function(data)
+      {
+        //$('#resultcontainer').html(data);
+        console.log("RESULT DATA : ",data);
+        var specific_canva = document.getElementById("chart-display-container-specific");
+        specific_canva.style.display = "none";
+        var general_canva = document.getElementById("chart-display-container-all");
+        if (general_canva.style.display === "none") {
+          general_canva.style.display = "block";
+        }
 
-      data = JSON.parse(data);
+        data = JSON.parse(data);
 
-      var temperature_data_json = data['temperature_data'];
-      var choc_data_json = data['choc_data'];
-      var inclinometre_data_json = data['inclinometre_data'];
-      var spectre_data_json = data['spectre_data'];
-      //console.log(spectre_data_json);
-      drawTemperatureFromData(temperature_data_json,"canvas_temperature");
-      drawInclinometerFromData(inclinometre_data_json,"canvas_inclinometre");
-      drawSpectreFromData(spectre_data_json,"canvas_spectre");
-      drawChocFromData(choc_data_json, "canvas_choc")
-      //drawTemperature(data);
-    }
-  })
+        var temperature_data_json = data['temperature_data'];
+        var choc_data_json = data['choc_data'];
+        var inclinometre_data_json = data['inclinometre_data'];
+        var spectre_data_json = data['spectre_data'];
+        //console.log(spectre_data_json);
+        drawTemperatureFromData(temperature_data_json,"canvas_temperature");
+        drawInclinometerFromData(inclinometre_data_json,"canvas_inclinometre");
+        drawSpectreFromData(spectre_data_json,"canvas_spectre");
+        drawChocFromData(choc_data_json, "canvas_choc")
+        //drawTemperature(data);
+      }
+    })
 
-});
-
-
-$( "#siteDB" ).change(function() {
-  var postData = {
-    'site_id'	:	$( this ).children("option:selected").val()
-  };
-  $.ajax({
-    type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
-    url         : 'getStructures.php', // the url where we want to POST
-    data        : postData, // our data object
-    success:function(data)
-    {
-      $('#equipmentField').html(data);
-    }
   });
-});
 
 
-var dateMin = "";
-var dateMax = "";
-$('.ui.calendar#startDate').calendar({
-  type: 'date',
-  onChange: function (date, text) {
-    dateMin = text;
-    dateMin = new Date(dateMin);
-    dateMin= dateMin.toISOString().slice(0,10).replace(/-/g,"-");
-  },
-});
+  $( "#siteDB" ).change(function() {
+    var postData = {
+      'site_id'	:	$( this ).children("option:selected").val()
+    };
+    $.ajax({
+      type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+      url         : 'getStructures.php', // the url where we want to POST
+      data        : postData, // our data object
+      success:function(data)
+      {
+        $('#equipmentField').html(data);
+      }
+    });
+  });
 
-$('.ui.calendar#endDate').calendar({
-  type: 'date',
-  onChange: function (date, text) {
-    dateMax = text;
-    dateMax = new Date(dateMax);
-    dateMax= dateMax.toISOString().slice(0,10).replace(/-/g,"-");
-  },
-});
 
-var typeMSG = "";
-//Init
-if ($("#allmsg").is(':checked')){
-  load_data("", 'init','all');
-}
+  var dateMin = "";
+  var dateMax = "";
+  $('.ui.calendar#startDate').calendar({
+    type: 'date',
+    onChange: function (date, text) {
+      dateMin = text;
+      dateMin = new Date(dateMin);
+      dateMin= dateMin.toISOString().slice(0,10).replace(/-/g,"-");
+    },
+  });
 
-$('input[name="groupby"]').change(function() {
-  if($(this).prop("checked") == false){
-    load_data('','init',typeMSG);
-  }else{
-    load_data("", 'initGroupBy','all');
+  $('.ui.calendar#endDate').calendar({
+    type: 'date',
+    onChange: function (date, text) {
+      dateMax = text;
+      dateMax = new Date(dateMax);
+      dateMax= dateMax.toISOString().slice(0,10).replace(/-/g,"-");
+    },
+  });
+
+  var typeMSG = "";
+
+  function load_data(actionToDo)
+  {
+    $.ajax({
+      url:"fetch.php",
+      method:"GET",
+
+      data:{action:actionToDo},
+      success:function(data)
+      {
+        $('#resultcontainer').html(data);
+      }
+    });
   }
-});
 
-
-function load_data(query_data, actionToDo, type_msg)
-{
-  console.log("ACTION : ",actionToDo);
-  $.ajax({
-    url:"fetch.php",
-    method:"GET",
-
-    data:{query:query_data, action:actionToDo, type_msg:type_msg},
-    success:function(data)
-    {
-      $('#resultcontainer').html(data);
-    }
+  $('#rangestart').calendar({
+    type: 'date',
+    endCalendar: $('#rangeend')
   });
-}
-
-$('#rangestart').calendar({
-  type: 'date',
-  endCalendar: $('#rangeend')
-});
-$('#rangeend').calendar({
-  type: 'date',
-  startCalendar: $('#rangestart')
-});
+  $('#rangeend').calendar({
+    type: 'date',
+    startCalendar: $('#rangestart')
+  });
 
 });
 

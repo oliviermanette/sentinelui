@@ -7,8 +7,6 @@ ini_set('display_errors', 1);
 if (isset($_GET['action'])){
   if ($_GET['action'] == "initGroupBy"){
     initGroupBy();
-  }else if($_GET['action'] == "init"){
-    init();
   }else if($_GET['action'] == "downloadAllData"){
     downloadAllData();
   }
@@ -35,7 +33,7 @@ function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
   ON s.id = st.site_id
   WHERE ';
   if (!empty($dateMin) && !empty($dateMax)){
-      $query_submit .="(date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) AND ";
+    $query_submit .="(date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) AND ";
   }
   $query_submit .="s.id LIKE '%$site_id' AND r.msg_type LIKE '%$typeMSG' AND st.id LIKE '%$equipment_id' order by r.date_time desc";
 
@@ -71,8 +69,8 @@ function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
       <td>'.$row["Site"].'</td>
       <td>'.$row["Equipement"].'</td>
       <td><a class=download href="index.php?id_download='.$row["#sensor"].'" data-idsensor='.$row["#sensor"].'
-       data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
-        data-equipement='.urlencode($row["Equipement"]).' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
+      data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
+      data-equipement='.urlencode($row["Equipement"]).' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
       </tr>
       ';
     }
@@ -135,8 +133,8 @@ function init() {
       <td>'.$row["Site"].'</td>
       <td>'.$row["Equipement"].'</td>
       <td><a class=download href="index.php?id_download='.$row["#sensor"].'" data-idsensor='.$row["#sensor"].'
-       data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
-        data-equipement='.urlencode($row["Equipement"]).' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
+      data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
+      data-equipement='.urlencode($row["Equipement"]).' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
       </tr>
       ';
     }
@@ -169,7 +167,7 @@ if (isset($_POST['id_sensor_request'], $_POST['type_msg_request'], $_POST['time_
   $equipement =  $_POST['equipement_request'];
   $query = "
   SELECT `sensor_id` AS 'Sensor ID', CAST(date_time as DATE) AS 'Date-Time', `msg_type` AS 'Type Message',`amplitude_1`,
-   `amplitude_2`, `time_1`, `time_2`,`nx` AS 'X',`ny` AS 'Y',`nz` AS 'Z',`temperature` AS 'Temperature',`battery_level` AS 'Level Battery'
+  `amplitude_2`, `time_1`, `time_2`,`nx` AS 'X',`ny` AS 'Y',`nz` AS 'Z',`temperature` AS 'Temperature',`battery_level` AS 'Level Battery'
   FROM `record`
   WHERE sensor_id LIKE '$ID_sensor'
   AND CAST(date_time as DATE) LIKE '$time_data'
@@ -234,7 +232,8 @@ function initGroupBy() {
   count(*) AS '#messages',
   sum(case when msg_type = 'global' then 1 else 0 end) AS '#global',
   sum(case when msg_type = 'inclinometre' then 1 else 0 end) AS '#inclinometre',
-  sum(case when msg_type = 'choc' then 1 else 0 end) AS '#choc'
+  sum(case when msg_type = 'choc' then 1 else 0 end) AS '#choc',
+  FLOOR(sum(case when msg_type = 'spectre' then 1 else 0 end)/5) AS '#spectre'
   FROM record AS r
   LEFT JOIN structure AS st
   ON st.id=r.structure_id
@@ -258,6 +257,7 @@ function initGroupBy() {
     <th>#global</th>
     <th>#inclinometre</th>
     <th>#choc</th>
+    <th>#spectre</th>
     <th>Action</th>
     </tr></thead>
     <tbody>
@@ -276,8 +276,9 @@ function initGroupBy() {
       <td>'.$row["#global"].'</td>
       <td>'.$row["#inclinometre"].'</td>
       <td>'.$row["#choc"].'</td>
+      <td>'.$row["#spectre"].'</td>
       <td><a class=download href="index.php?id_download='.$row["Sensor ID"].'" data-idsensor='.$row["Sensor ID"].'  data-site='.$row["Site"].'
-        data-equipement='.$row["Equipement"].' id="linkdownload" name="download">Show Data</a></td>
+      data-equipement='.$row["Equipement"].' id="linkdownload" name="download">Show Data</a></td>
       </tr>
       ';
     }
