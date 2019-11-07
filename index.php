@@ -16,9 +16,12 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
   </head>
   <!-- Script Bootstrap and jquery -->
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="semantic/dist/semantic.min.js"></script>
   <script src="bootstrap/js/bootstrap.min.js"></script>
   <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
 
@@ -26,6 +29,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
   <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 
   <body>
     <div class="ui container">
@@ -71,11 +76,9 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
         (SELECT Min(date_time) FROM record) AS MinDateTime');
         $min_date_time = $min_max_date_record[0]->MinDateTime;
         $max_date_time = $min_max_date_record[0]->MaxDateTime;
-        $min_date_time = strtotime( $min_date_time );
-        $max_date_time = strtotime( $max_date_time );
-        $min_date = date( 'm-d-Y', $min_date_time );
-        $max_date = date( 'm-d-Y', $max_date_time );
-
+        $min_date = date( 'd-m-Y', strtotime($min_date_time) );
+        $max_date = date( 'd-m-Y', strtotime( $max_date_time ));
+        //echo $min_date;
         ?>
 
         <div class="container">
@@ -109,32 +112,14 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                 ?>
               </select>
             </div>
-
             <div class="field">
-              <label>Start date</label>
-              <div class="ui calendar" id="startDate">
-                <div class="ui input left icon">
-                  <i class="calendar icon"></i>
-                  <input type="text" placeholder="Date">
-                </div>
-              </div>
+              <label>Selection data</label>
+              <input type="text" name="daterange" placeholder="range_date" />
             </div>
-
-            <div class="field">
-              <label>End date</label>
-              <div class="ui calendar" id="endDate">
-                <div class="ui input left icon">
-                  <i class="calendar icon"></i>
-                  <input type="text" placeholder="Date">
-                </div>
-              </div>
-            </div>
-
             <div class="field">
               <label>Choose type</label>
               <select class="browser-default custom-select" id="typemsg">
                 <option value="" selected>Select type</option>
-                <option value=''>All</option>
                 <option value='choc'>Choc</option>
                 <option value='inclinometre'>Inclinometre</option>
                 <option value='global'>Global</option>
@@ -723,26 +708,6 @@ $(document).ready(function(){
 
   var dateMin = "";
   var dateMax = "";
-  $('.ui.calendar#startDate').calendar({
-    type: 'date',
-    onChange: function (date, text) {
-      dateMin = text;
-      dateMin = new Date(dateMin);
-      dateMin= dateMin.toISOString().slice(0,10).replace(/-/g,"-");
-    },
-  });
-
-  $('.ui.calendar#endDate').calendar({
-    type: 'date',
-    onChange: function (date, text) {
-      dateMax = text;
-      dateMax = new Date(dateMax);
-      dateMax= dateMax.toISOString().slice(0,10).replace(/-/g,"-");
-    },
-  });
-
-  var typeMSG = "";
-
   function load_data(actionToDo)
   {
     $.ajax({
@@ -757,14 +722,20 @@ $(document).ready(function(){
     });
   }
 
-  $('#rangestart').calendar({
-    type: 'date',
-    endCalendar: $('#rangeend')
+  $('input[name="daterange"]').daterangepicker({
+    locale: {
+      format: 'DD-MM-YYYY'
+    },
+    opens: 'left',
+    minDate:"<?php echo $min_date ?>",
+    maxDate:"<?php echo $max_date ?>"
+  }, function(start, end, label) {
+    dateMin = start.format('YYYY-MM-DD');
+    dateMax = end.format('YYYY-MM-DD');
+    console.log("A new date selection was made: " + dateMin + ' to ' + dateMax);
   });
-  $('#rangeend').calendar({
-    type: 'date',
-    startCalendar: $('#rangestart')
-  });
+
+
 
 });
 

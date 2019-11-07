@@ -247,7 +247,7 @@ function initGroupBy() {
   {
     $output = '
 
-    <table id="dataTable" class="display" style="width:100%">
+    <table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
     <thead>
     <tr>
     <th>Sensor ID</th>
@@ -291,7 +291,8 @@ function initGroupBy() {
     echo 'Data Not Found';
   }
   echo "<script type='text/javascript'>
-  $(document).ready(function(){ $('#dataTable').DataTable( {
-    'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, 'All']]
-  } );});</script>";
+  $(document).ready(function () {
+    $('#tableData').DataTable();
+    $('.dataTables_length').addClass('bs-select');
+  });</script>";
 }
