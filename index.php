@@ -158,7 +158,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
           </div>
         </div>
       </div>
-      <button id="exportData" type="button" name="action" value="exportData" class="btn btn-info" onclick="window.open('csv.php')">Telecharger les données</button>
+      <button id="exportData" type="button" class="btn btn-info" onclick="window.open('downloadData.php?exportData=excel')">Export Data Excel</button>
+      <button id="exportData" type="button" class="btn btn-info" onclick="window.open('downloadData.php?exportData=csv')">Export Data CSV</button>
 
 
       <!--
