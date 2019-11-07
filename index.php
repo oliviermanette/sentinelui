@@ -113,7 +113,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
               </select>
             </div>
             <div class="field">
-              <label>Selection data</label>
+              <label>Choose date</label>
               <input type="text" name="daterange" placeholder="range_date" />
             </div>
             <div class="field">
@@ -139,9 +139,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
       <canvas id="canvas2" height="450" width="600"></canvas>
     </div>
   -->
-  <div id="chart-display-container-specific" class="container">
-    <canvas id="canvas" height="450" width="1200"></canvas>
-  </div>
   <div id="chart-display-container-all" class="container">
     <div class="row">
       <div class="col">
@@ -407,7 +404,7 @@ function drawSpectreFromData(spectreDataJson, canvaID = "canvas_spectre"){
     index_start = 2;
     index_stop = 4;
   }
-  console.log("Array DATA : ",array_data);
+  //console.log("Array DATA : ",array_data);
   var title = "All spectre between " + date_data[0] + " and " + date_data[4];
   var chartdata = {
     datasets : [
@@ -421,7 +418,9 @@ function drawSpectreFromData(spectreDataJson, canvaID = "canvas_spectre"){
     ]
   };
   var canva_id = "#"+canvaID;
-  var ctx = $(canva_id);
+  //var ctx = $(canva_id);
+  console.log("Canva ID : ", canvaID);
+  var ctx = document.getElementById(canvaID).getContext('2d');
   var barGraph = new Chart(ctx, {
     type: 'scatter',
     data: chartdata,
@@ -628,8 +627,6 @@ $(document).ready(function(){
 
   var general_canva = document.getElementById("chart-display-container-all");
   general_canva.style.display = "none";
-  var specific_canva = document.getElementById("chart-display-container-specific");
-  specific_canva.style.display = "none";
 
 
   $("#getData").submit(function(event) {
@@ -644,7 +641,7 @@ $(document).ready(function(){
       'dateMax' : dateMax,
       'drawAll' : drawAll
     };
-    //console.log(formData);
+    console.log(formData);
     // process the form
     $.ajax({
       type        : 'GET', // define the type of HTTP verb we want to use (POST for our form)
@@ -665,8 +662,6 @@ $(document).ready(function(){
       {
         //$('#resultcontainer').html(data);
         console.log("RESULT DATA : ",data);
-        var specific_canva = document.getElementById("chart-display-container-specific");
-        specific_canva.style.display = "none";
         var general_canva = document.getElementById("chart-display-container-all");
         if (general_canva.style.display === "none") {
           general_canva.style.display = "block";
@@ -678,12 +673,40 @@ $(document).ready(function(){
         var choc_data_json = data['choc_data'];
         var inclinometre_data_json = data['inclinometre_data'];
         var spectre_data_json = data['spectre_data'];
-        //console.log(spectre_data_json);
+
+
+
+        var numberOfSpectre = Object.keys(spectre_data_json).length;
+        var div_row=document.createElement('div');
+        div_row.innerHTML = "<large>DOM maniuplation!</large>";
+        div_row.setAttribute('class', 'row'); // and make sure myclass has some styles in css
+        //document.getElementById("chart-display-container-all").appendChild(div);
+        for (i = 0; i < numberOfSpectre; i++) {
+          var div = document.createElement('canvas');
+          var name_canva = "canva_"+String(i);
+          div.setAttribute("id", name_canva);
+          //document.getElementById("chart-display-container-all").appendChild(div);
+          div_row.appendChild(div);
+
+        }
+        document.getElementById("chart-display-container-all").appendChild(div_row);
+        for (i = 0; i < numberOfSpectre; i++) {
+          var name_canva = "canva_"+String(i);
+          var name_spectre_data = "spectre_"+String(i);
+          var spectre_i = spectre_data_json[name_spectre_data];
+          drawSpectreFromData(spectre_i,name_canva);
+        }
+
+
+        //  <canvas id="canvas2" height="450" width="600"></canvas>
+
+
+
+        /*
         drawTemperatureFromData(temperature_data_json,"canvas_temperature");
         drawInclinometerFromData(inclinometre_data_json,"canvas_inclinometre");
         drawSpectreFromData(spectre_data_json,"canvas_spectre");
-        drawChocFromData(choc_data_json, "canvas_choc")
-        //drawTemperature(data);
+        drawChocFromData(choc_data_json, "canvas_choc")*/
       }
     })
 

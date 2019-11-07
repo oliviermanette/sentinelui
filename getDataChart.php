@@ -89,8 +89,14 @@ if (isset($_POST["site"],$_POST["equipment"])){
 
   $dateMin='';
   $dateMax='';
+  if (isset($_POST["dateMin"]) && isset($_POST["dateMax"]) ){
+    $dateMin = $_POST["dateMin"];
+    $dateMax = $_POST["dateMax"];
+  }
+
   $site =  $_POST['site'];
   $equipment =  $_POST['equipment'];
+
   //All
   $data = array();
   //Find ID sensor from site ID and equipement ID
@@ -117,16 +123,15 @@ if (isset($_POST["site"],$_POST["equipment"])){
 
   foreach ($result_inclinometre as $row_inclinometre) {
     $data["inclinometre_data"][] = $row_inclinometre;
-    //echo $row["temperature"] ."</br>";
   }
-  //Simplifier TODO 
+  //Simplifier TODO
   $query_date_max = "SET @max_date_choc = (SELECT MAX(date_d) FROM (SELECT `sensor_id`, DATE(`date_time`) AS date_d, `amplitude_1`, `amplitude_2`,`time_1`,`time_2`  FROM `record`
   WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE '6' ) AS TMP)";
   $result_date_max =  mysqli_query($connect, $query_date_max);
 
   $query_choc = "SELECT `sensor_id`, DATE(`date_time`) AS date_d,
-   `amplitude_1`, `amplitude_2`,`time_1`,`time_2`
-   FROM `record` AS re WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE @sensor_id AND DATE(re.date_time) = @max_date_choc";
+  `amplitude_1`, `amplitude_2`,`time_1`,`time_2`
+  FROM `record` AS re WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE @sensor_id AND DATE(re.date_time) = @max_date_choc";
   /*
   $query_choc = "SELECT `sensor_id`, DATE(`date_time`) AS date_d, `amplitude_1`, `amplitude_2`,`time_1`,`time_2`  FROM `record`
   WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE @sensor_id ORDER BY date_d ASC ";*/
@@ -148,6 +153,41 @@ if (isset($_POST["site"],$_POST["equipment"])){
   ) AS first_subspectre_msg)";
   $result_date_max =  mysqli_query($connect, $query_date_max);
 
+  $query_all_dates = "SELECT Date(r.date_time) as date_d FROM
+  `spectre` AS sp
+  JOIN record AS r ON (r.id=sp.record_id)
+  JOIN structure as st ON (st.id=r.structure_id)
+  JOIN site as s ON (s.id=st.site_id)
+  WHERE sp.subspectre_number LIKE '001' AND r.sensor_id LIKE '6' AND (r.date_time BETWEEN '2019-10-01' AND '2019-10-30')
+  ORDER BY r.date_time ASC";
+  $result_all_dates =  mysqli_query($connect, $query_all_dates);
+
+  $spectre_number = 0;
+  foreach ($result_all_dates as $row_date) {
+    $spectre_name= 'spectre_'.$spectre_number;
+    $current_date = $row_date['date_d'];
+    //Reconstruct the all spectre for the current date
+    $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, r.date_time, `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
+    JOIN record AS r ON (r.id=sp.record_id)
+    JOIN structure as st ON (st.id=r.structure_id)
+    JOIN site as s ON (s.id=st.site_id)
+    WHERE r.sensor_id LIKE '6' AND (DATE(r.date_time) BETWEEN DATE('$current_date') AND DATE_ADD('$current_date', INTERVAL 4 DAY))
+    ORDER BY r.date_time ASC";
+
+    $result_spectre_i =  mysqli_query($connect, $query_all_spectre_i);
+    //echo $query_all_spectre_i ."</br>";
+
+    $row_spectre = mysqli_num_rows($result_spectre_i);
+    //echo $query_all_spectre;
+
+
+    foreach ($result_spectre_i as $row_spectre) {
+      $data["spectre_data"][$spectre_name][] = $row_spectre;
+
+    }
+    $spectre_number++;
+  }
+  /*echo $data;
   $query_all_spectre = "
   SELECT s.nom, st.nom, r.sensor_id, r.date_time, `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
   JOIN record AS r ON (r.id=sp.record_id)
@@ -164,7 +204,7 @@ if (isset($_POST["site"],$_POST["equipment"])){
   foreach ($result_all_spectre as $row_spectre) {
     $data["spectre_data"][] = $row_spectre;
     //echo $row["temperature"] ."</br>";
-  }
+  }*/
 
   print json_encode($data);
 }
