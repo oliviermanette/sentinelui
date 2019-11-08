@@ -158,8 +158,13 @@ if (isset($_POST["site"],$_POST["equipment"])){
   JOIN record AS r ON (r.id=sp.record_id)
   JOIN structure as st ON (st.id=r.structure_id)
   JOIN site as s ON (s.id=st.site_id)
-  WHERE sp.subspectre_number LIKE '001' AND r.sensor_id LIKE '6' AND (r.date_time BETWEEN '2019-10-01' AND '2019-10-30')
-  ORDER BY r.date_time ASC";
+  WHERE sp.subspectre_number LIKE '001' AND r.sensor_id LIKE @sensor_id ";
+  if (!empty($dateMin) && !empty($dateMax)){
+    $query_all_dates .="AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
+  }
+  $query_all_dates .="ORDER BY r.date_time ASC";
+
+  //echo $query_all_dates;
   $result_all_dates =  mysqli_query($connect, $query_all_dates);
 
   $spectre_number = 0;
@@ -167,7 +172,7 @@ if (isset($_POST["site"],$_POST["equipment"])){
     $spectre_name= 'spectre_'.$spectre_number;
     $current_date = $row_date['date_d'];
     //Reconstruct the all spectre for the current date
-    $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, r.date_time, `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
+    $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, Date(r.date_time) AS date, `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)
     JOIN structure as st ON (st.id=r.structure_id)
     JOIN site as s ON (s.id=st.site_id)
