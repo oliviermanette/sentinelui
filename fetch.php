@@ -196,7 +196,6 @@ function initGroupBy() {
     <th>#inclinometre</th>
     <th>#choc</th>
     <th>#spectre</th>
-    <th>Action</th>
     </tr></thead>
     <tbody>
     ';
@@ -215,8 +214,6 @@ function initGroupBy() {
       <td>'.$row["#inclinometre"].'</td>
       <td>'.$row["#choc"].'</td>
       <td>'.$row["#spectre"].'</td>
-      <td><a class=download href="index.php?id_download='.$row["Sensor ID"].'" data-idsensor='.$row["Sensor ID"].'  data-site='.$row["Site"].'
-      data-equipement='.$row["Equipement"].' id="linkdownload" name="download">Show Data</a></td>
       </tr>
       ';
     }
