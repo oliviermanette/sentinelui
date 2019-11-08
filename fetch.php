@@ -12,10 +12,13 @@ if (isset($_GET['action'])){
   }
 }
 
-if (isset($_GET['site'], $_GET['equipment'], $_GET['dateMin'],$_GET['dateMax'], $_GET['typemsg'])){
-  $site_id= $_GET['site'];
-  $equipment_id = $_GET['equipment'];
-  $typeMSG =  $_GET['typemsg'];
+if (isset($_GET['site_request'], $_GET['equipement_request'], $_GET['dateMin'],$_GET['dateMax'])){
+  $site_id= $_GET['site_request'];
+  $equipment_id = $_GET['equipement_request'];
+  $typeMSG = '';
+  if (isset($_GET['typemsg'])){
+    $typeMSG =  $_GET['typemsg'];
+  }
   $dateMin = $_GET['dateMin'];
   $dateMax = $_GET['dateMax'];
   initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax );
@@ -90,75 +93,6 @@ function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
 
 }
 
-function init() {
-  global $connect;
-  $query = "
-  SELECT r.sensor_id AS `#sensor`, r.date_time AS `Date-Time`,
-  r.msg_type AS `Type Message`, s.nom AS `Site`, st.nom AS `Equipement`
-  FROM record as r
-  LEFT JOIN structure AS st
-  on st.id=r.structure_id
-  LEFT JOIN site AS s
-  ON s.id = st.site_id
-  ";
-
-  $result = mysqli_query($connect, $query);
-  #echo 'Result : '. $result . "\n";
-  if ($result)
-  {
-    $output = '
-
-    <table id="dataTable" class="display" style="width:100%">
-    <thead>
-    <tr>
-    <th>#Sensor</th>
-    <th>Date-Time</th>
-    <th>Type Message</th>
-    <th>site</th>
-    <th>Equipement</th>
-    <th>Action</th>
-    </tr></thead>
-    <tbody>
-    ';
-    $row = mysqli_num_rows($result);
-    //printf("Number of row in the table : " . $row);
-
-    while($row = mysqli_fetch_array($result))
-    {
-      $output .= '
-      <tr>
-      <td>'.$row["#sensor"].'</td>
-      <td>'.$row["Date-Time"].'</td>
-      <td>'.$row["Type Message"].'</td>
-      <td>'.$row["Site"].'</td>
-      <td>'.$row["Equipement"].'</td>
-      <td><a class=download href="index.php?id_download='.$row["#sensor"].'" data-idsensor='.$row["#sensor"].'
-      data-typemsg='.$row["Type Message"].' data-site='.$row["Site"].'
-      data-equipement='.urlencode($row["Equipement"]).' data-date='.$row["Date-Time"].' id="linkdownload" name="download">Show Data</a></td>
-      </tr>
-      ';
-    }
-    $output .= '</tbody></table>';
-    echo $output;
-
-  }
-  else
-  {
-    echo 'Data Not Found';
-  }
-  echo "<script type='text/javascript'>
-  $(document).ready(function(){ $('#dataTable').DataTable( {
-    'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, 'All']],
-    'iDisplayLength': 20
-  } );});</script>";
-
-}
-
-function downloadAllData(){
-  global $connect;
-  $query = "";
-}
-
 if (isset($_POST['id_sensor_request'], $_POST['type_msg_request'], $_POST['time_data_request'], $_POST['site_request'],$_POST['equipement_request']  )) {
   $ID_sensor =  $_POST['id_sensor_request'];
   $type_msg =  $_POST['type_msg_request'];
@@ -228,18 +162,22 @@ if (isset($_POST['id_sensor_request'], $_POST['type_msg_request'], $_POST['time_
 function initGroupBy() {
   global $connect;
   $query = "
-  SELECT sensor_id AS 'Sensor ID', s.nom AS `Site`, st.nom AS `Equipement`,
-  count(*) AS '#messages',
-  sum(case when msg_type = 'global' then 1 else 0 end) AS '#global',
-  sum(case when msg_type = 'inclinometre' then 1 else 0 end) AS '#inclinometre',
-  sum(case when msg_type = 'choc' then 1 else 0 end) AS '#choc',
-  FLOOR(sum(case when msg_type = 'spectre' then 1 else 0 end)/5) AS '#spectre'
-  FROM record AS r
-  LEFT JOIN structure AS st
-  ON st.id=r.structure_id
-  LEFT JOIN site AS s
-  ON s.id = st.site_id
-  GROUP BY sensor_id, st.nom, s.nom
+  SELECT * FROM  (SELECT r.sensor_id AS 'Sensor ID', s.nom AS `Site`, st.nom AS `Equipement`,
+   count(*) AS '#messages',
+   sum(case when msg_type = 'global' then 1 else 0 end) AS '#global',
+   sum(case when msg_type = 'inclinometre' then 1 else 0 end) AS '#inclinometre',
+   sum(case when msg_type = 'choc' then 1 else 0 end) AS '#choc',
+   FLOOR(sum(case when msg_type = 'spectre' then 1 else 0 end)/5) AS '#spectre'
+   FROM record AS r
+   INNER JOIN structure AS st
+   ON st.id=r.structure_id
+   INNER JOIN site AS s
+   ON s.id = st.site_id
+   INNER JOIN sensor ON (sensor.id=r.sensor_id)
+   INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
+   INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+   WHERE gn.name = 'RTE'
+   GROUP BY r.sensor_id, st.nom, s.nom) AS all_message_rte_sensor
   ";
   $result = mysqli_query($connect, $query);
   #echo 'Result : '. $result . "\n";
