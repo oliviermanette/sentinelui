@@ -79,7 +79,8 @@ else {
     JOIN site as s ON (s.id=st.site_id)
     WHERE s.id = '$site' AND st.id = '$equipment')";
     $result_id =  mysqli_query($connect, $query_id);
-
+    //echo $query_id;
+    //echo "</br>";
     //Temperature
     $query_temperature = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`
     WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE @sensor_id ORDER BY date_d ASC ";
@@ -137,6 +138,7 @@ else {
     $query_all_dates .="ORDER BY r.date_time ASC";
 
     //echo $query_all_dates;
+    //echo "</br>";
     $result_all_dates =  mysqli_query($connect, $query_all_dates);
 
     $spectre_number = 0;
@@ -148,10 +150,11 @@ else {
       JOIN record AS r ON (r.id=sp.record_id)
       JOIN structure as st ON (st.id=r.structure_id)
       JOIN site as s ON (s.id=st.site_id)
-      WHERE r.sensor_id LIKE '6' AND (DATE(r.date_time) BETWEEN DATE('$current_date') AND DATE_ADD('$current_date', INTERVAL 4 DAY))
+      WHERE r.sensor_id LIKE @sensor_id AND (DATE(r.date_time) BETWEEN DATE('$current_date') AND DATE_ADD('$current_date', INTERVAL 4 DAY))
       ORDER BY r.date_time ASC";
 
       $result_spectre_i =  mysqli_query($connect, $query_all_spectre_i);
+      //echo "</br>";
       //echo $query_all_spectre_i ."</br>";
 
       $row_spectre = mysqli_num_rows($result_spectre_i);

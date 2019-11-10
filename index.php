@@ -4,11 +4,11 @@ session_start();
 
 // Check if the user is logged in, if not then redirect him to login page
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
-    //echo "Welcome to the member's area, " . $_SESSION['user_name'] . "!";
+  //echo "Welcome to the member's area, " . $_SESSION['user_name'] . "!";
 } else {
-    echo "Please log in first to see this page.";
-    header("location: login.php");
-    exit;
+  echo "Please log in first to see this page.";
+  header("location: login.php");
+  exit;
 }
 ?>
 
@@ -465,7 +465,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
         resolutionData.push(parseInt(spectreDataJson[i].resolution));
         date_data.push(spectreDataJson[i].date);
       }
-
+      console.log(date_data);
       min_freq = parseInt(minFreqData[0]);
       var min_freq_initial = min_freq;
       var max_freq = Math.max.apply(Math, maxFreqData);
@@ -499,8 +499,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
       gradient.addColorStop(0, 'rgba(250,174,50,1)');
       gradient.addColorStop(1, 'rgba(250,174,50,0)');
       /***************/
-
-      var title = "All spectre between " + date_data[0] + " and " + date_data[4];
+      var title = "All spectre between " + date_data[0] + " and " + date_data[date_data.length-1];
 
       var chartdata = {
         datasets : [
