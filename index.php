@@ -168,8 +168,8 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
             </div>
           </br>
           <div class="container">
-            <div class="row">
-              <div class="col-md-4 col-md-offset-4 text-center">
+            <div class="col">
+              <div class="row-md-2 col-md-offset-4 text-center">
                 <button id="exportData" type="button" class="btn btn-outline-info" onclick="window.open('downloadData.php?exportData=excel')">Exporter données (Excel)</button>
                 <button id="exportData" type="button" class="btn btn-outline-info" onclick="window.open('downloadData.php?exportData=csv')">Exporter données (CSV)</button>
               </div>
