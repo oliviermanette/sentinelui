@@ -116,7 +116,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
                 <div class="ui form" >
                   <div class="four fields">
                     <div class="field">
-                      <label>Choose site</label>
+                      <label>Choisissez un site</label>
                       <select class="browser-default custom-select" name="siteDB" id="siteDB">
                         <option value="" selected>Choisissez un site</option>
                         <?php while($site = $all_site->fetch_object()){
