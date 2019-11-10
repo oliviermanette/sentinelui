@@ -86,7 +86,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
           <span class="navbar-toggler-icon"></span>
         </button>
         <form class="form-inline">
-          <a href="logout.php" class="btn btn-danger">Se deconnecter</a>
+          <a href="logout.php" class="btn btn-black">Se deconnecter</a>
         </form>
       </nav>
 
