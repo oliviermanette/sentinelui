@@ -37,7 +37,7 @@ if (isset($_POST['signup'])) {
 	}
 	if (!preg_match("/^[a-zA-Z ]+$/",$firstname)) {
 		$error = true;
-		$uname_error = "First name must contain only alphabets and space";
+		$ufirstname_error = "First name must contain only alphabets and space";
 	}
 	if(!filter_var($email,FILTER_VALIDATE_EMAIL)) {
 		$error = true;
