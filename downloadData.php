@@ -2,15 +2,19 @@
 require_once "config.php";
 ini_set('display_errors', 1);
 
-$query = "SELECT s.deveui, site.nom AS Site, st.nom AS Equipement, `date_time`,
+$query = "SELECT sensor.id, sensor.deveui, s.nom AS Site, st.nom AS Equipement, `date_time`,
 `payload`, `msg_type` AS 'Type message', `amplitude_1` AS 'Amplitude 1',
 `amplitude_2` AS 'Ampltiude 2',`time_1` AS 'Time 1', `time_2` AS 'Time 2',
 r.nx AS X, r.ny AS Y, r.nz, `temperature` AS Temperature, `battery_level` AS Battery
 FROM record AS r
-LEFT join structure AS st ON (st.id=r.structure_id)
-LEFT join site ON (site.id=st.site_id)
-LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
-LEFT JOIN spectre AS sp ON (sp.record_id=r.id)";
+INNER JOIN structure AS st
+ON st.id=r.structure_id
+INNER JOIN site AS s
+ON s.id = st.site_id
+INNER JOIN sensor ON (sensor.id=r.sensor_id)
+INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
+INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+WHERE gn.name = 'RTE'";
 
 if ($_GET['exportData'] == "excel"){
   $timestamp = time();

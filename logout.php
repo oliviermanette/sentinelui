@@ -1,14 +1,15 @@
 <?php
 // Initialize the session
+ob_start();
 session_start();
 
-// Unset all of the session variables
-$_SESSION = array();
-
-// Destroy the session.
-session_destroy();
-
-// Redirect to login page
-header("location: login.php");
-exit;
+if(isset($_SESSION['user_id'])) {
+	session_destroy();
+  // Unset all of the session variables
+  $_SESSION = array();
+	header("Location: login.php");
+  exit;
+} else {
+	header("Location: index.php");
+}
 ?>

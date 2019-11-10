@@ -3,9 +3,12 @@
 session_start();
 
 // Check if the user is logged in, if not then redirect him to login page
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-  header("location: login.php");
-  exit;
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
+    //echo "Welcome to the member's area, " . $_SESSION['user_name'] . "!";
+} else {
+    echo "Please log in first to see this page.";
+    header("location: login.php");
+    exit;
 }
 ?>
 
@@ -77,7 +80,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
         $dbName = "sentinel_test";
         $db = new DB($userName, $password, $dbName,$host);
 
-        $session_id = $_SESSION['id'];
+        $session_id = $_SESSION['user_id'];
         $query_select_site = "SELECT DISTINCT site, site_id FROM (SELECT gn.name, site.id AS site_id, site.nom AS site, st.id, st.nom FROM structure AS st
           LEFT JOIN site ON (st.site_id=site.id)
           LEFT JOIN group_site AS gs ON (gs.site_id=site.id)
@@ -208,7 +211,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
         type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
         url         : 'getDataChart.php', // the url where we want to POST
         data        : formData, // our data object
-        async: true,
         success:function(data)
         {
           //console.log("RESULT DATA : ",data);
