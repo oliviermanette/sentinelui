@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap-theme.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="css/login.css">
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
@@ -67,10 +68,17 @@ if (isset($_POST['signup'])) {
 <script type="text/javascript" src="script/ajax.js"></script>
 
 
-<div class="container">
-<h2>Registration form</h2>
-	<div class="row">
-		<div class="col-md-4 col-md-offset-4 well">
+<title>Registration Form</title>
+
+<div class="sidenav">
+  <div class="login-main-text">
+    <h2>Flod.ai<br> Registration Page</h2>
+    <p>Login or register from here to access.</p>
+  </div>
+</div>
+<div class="main">
+  <div class="col-md-6 col-sm-12">
+    <div class="login-form">
 			<form role="form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" name="signupform">
 				<fieldset>
 					<legend>Sign Up</legend>
@@ -109,19 +117,15 @@ if (isset($_POST['signup'])) {
 					</div>
 
 					<div class="form-group">
-						<input type="submit" name="signup" value="Sign Up" class="btn btn-primary" />
+            <button type="submit" name="signup" value="Sign Up" class="btn btn-black">Register</button>
 					</div>
 				</fieldset>
 			</form>
 			<span class="text-success"><?php if (isset($success_message)) { echo $success_message; } ?></span>
 			<span class="text-danger"><?php if (isset($error_message)) { echo $error_message; } ?></span>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-4 col-md-offset-4 text-center">
-		Already Registered? <a href="login.php">Login Here</a>
-		</div>
-	</div>
+    </div>
+  </div>
 </div>
+<div class="col-md-4 col-md-offset-4 text-center"><a href="login.php">Already registered ?</a>
 </div>
 </body></html>

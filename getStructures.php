@@ -35,7 +35,7 @@ $all_equipment = $db->query_select_light($query_equipement);
 
 <label>Choose equipment</label>
 <select class="browser-default custom-select" name="equipment"  id="equipment">
-	<option selected>Select equipment</option>
+	<option value="" selected>Select equipment</option>
 	<?php while($equip = $all_equipment->fetch_object()){
 		echo "<option value='$equip->equipement_id'>$equip->equipement </option>";
 	}

@@ -135,7 +135,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
                     </div>
                     <div class="field">
                       <label>Choose date</label>
-                      <input type="text" name="daterange" placeholder="range_date" />
+                      <input type="text" name="daterange" placeholder="" />
                     </div>
                     <button type="submit" id="submit" class="btn btn-info">Show Data</button>
                   </div>
@@ -465,7 +465,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
         resolutionData.push(parseInt(spectreDataJson[i].resolution));
         date_data.push(spectreDataJson[i].date);
       }
-      console.log(date_data);
+      //console.log(date_data);
       min_freq = parseInt(minFreqData[0]);
       var min_freq_initial = min_freq;
       var max_freq = Math.max.apply(Math, maxFreqData);
@@ -717,12 +717,21 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
     }
     $(document).ready(function(){
 
+
+      var date = Date();
       load_data('initGroupBy');
       fetchDataMap(showMap);
 
       $("#getData").submit(function(event) {
-
         event.preventDefault();
+        if(!$('#siteDB option:selected').val()){
+          alert("No site is selected");
+          return;
+        }
+        if(!$('#equipment option:selected').val()){
+          alert("No equipement is selected");
+          return;
+        }
         var drawAll = true;
         // get the form data
         var formData = {
@@ -823,7 +832,10 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
         });
       }
 
+      $('input[name="daterange"]').val('Check In');
+
       $('input[name="daterange"]').daterangepicker({
+        showDropdowns: true,
         locale: {
           format: 'DD-MM-YYYY'
         },
