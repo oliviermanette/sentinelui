@@ -41,6 +41,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
   crossorigin=""/>
+  <link rel="stylesheet" href="css/style.css">
   <style>
   body {
     padding: 0;
@@ -54,8 +55,29 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 
 
   <body>
+
+    <div id="wrapper" class="toggled">
+
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <li class="sidebar-brand">
+                <a href="https://flod.ai">
+                    Flod.ai
+                </a>
+            </li>
+            <li>
+                <a href="http://devlirone.flod.ai/index.php">Dashboard</a>
+            </li>
+            <li>
+                <a href="https://flod.ai/contact">Contact</a>
+            </li>
+        </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light static-top" style="background-color: #7c9db5;" >
+    <nav class="navbar navbar-expand-lg navbar-light static-top" style="background-color: #294162;" >
       <div class="container">
         <a class="navbar-brand" href="#">
           <!--<img src="https://flod.ai/wp-content/uploads/2019/11/sentive-logo.png" width="50%" height="50%" alt="">-->
