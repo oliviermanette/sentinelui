@@ -30,6 +30,7 @@ function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
   SELECT r.sensor_id AS `#sensor`, r.date_time AS `Date-Time`,
   r.msg_type AS `Type Message`, s.nom AS `Site`, st.nom AS `Equipement`
   FROM record as r
+  LEFT JOIN sensor on sensor.id=r.sensor_id
   LEFT JOIN structure AS st
   on st.id=r.structure_id
   LEFT JOIN site AS s
@@ -38,9 +39,9 @@ function initSubmit($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
   if (!empty($dateMin) && !empty($dateMax)){
     $query_submit .="(date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) AND ";
   }
-  $query_submit .="s.id LIKE '%$site_id' AND r.msg_type LIKE '%$typeMSG' AND st.id LIKE '%$equipment_id' order by r.date_time desc";
+  $query_submit .="Date(r.date_time) >= Date(sensor.installation_date) AND s.id LIKE '%$site_id' AND r.msg_type LIKE '%$typeMSG' AND st.id LIKE '%$equipment_id' order by r.date_time desc";
 
-  #echo $query_submit;
+  //echo $query_submit;
   $result = mysqli_query($connect, $query_submit);
   #echo 'Result : '. $result . "\n";
   if ($result)
@@ -176,7 +177,7 @@ function initGroupBy() {
    INNER JOIN sensor ON (sensor.id=r.sensor_id)
    INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-   WHERE gn.name = 'RTE'
+   WHERE gn.name = 'RTE' AND Date(r.date_time) >= Date(sensor.installation_date)
    GROUP BY r.sensor_id, st.nom, s.nom) AS all_message_rte_sensor
   ";
   $result = mysqli_query($connect, $query);

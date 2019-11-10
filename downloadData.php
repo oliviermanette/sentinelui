@@ -14,7 +14,7 @@ ON s.id = st.site_id
 INNER JOIN sensor ON (sensor.id=r.sensor_id)
 INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
 INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-WHERE gn.name = 'RTE'";
+WHERE gn.name = 'RTE' AND Date(r.date_time) >= Date(sensor.installation_date)";
 
 if ($_GET['exportData'] == "excel"){
   $timestamp = time();

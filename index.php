@@ -64,12 +64,14 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
           <span class="navbar-toggler-icon"></span>
         </button>
         <form class="form-inline">
-          <a href="logout.php" class="btn btn-danger">Sign Out</a>
+          <a href="logout.php" class="btn btn-danger">Se deconnecter</a>
         </form>
       </nav>
 
-      <h1 class="text-center">Raw data from Sensors</h2>
-
+    </br>
+      <h1 class="text-center">Données brutes - Capteurs Flod</h2>
+        </br>
+      </br>
         <?php
         ini_set('display_errors', 1);
         require_once("DBHandler.php");
@@ -116,7 +118,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
                     <div class="field">
                       <label>Choose site</label>
                       <select class="browser-default custom-select" name="siteDB" id="siteDB">
-                        <option value="" selected>Select site</option>
+                        <option value="" selected>Choisissez un site</option>
                         <?php while($site = $all_site->fetch_object()){
                           echo "<option value='$site->site_id'>$site->site </option>";
                         }
@@ -124,9 +126,9 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
                       </select>
                     </div>
                     <div class="field" id="equipmentField">
-                      <label>Choose equipment</label>
+                      <label>Choisissez un équipement associé</label>
                       <select class="browser-default custom-select" name="equipment"  id="equipment">
-                        <option value="" selected>Select Equipement</option>
+                        <option value="" selected>Choisissez un équipement associé</option>
                         <?php while($equipment = $all_equipment->fetch_object()){
                           echo "<option value='$equipment->equipement_id'>$equipment->equipement</option>";
                         }
@@ -134,10 +136,10 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
                       </select>
                     </div>
                     <div class="field">
-                      <label>Choose date</label>
+                      <label>Choisissez une date (optionnel)</label>
                       <input type="text" name="daterange" placeholder="" />
                     </div>
-                    <button type="submit" id="submit" class="btn btn-info">Show Data</button>
+                    <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
                   </div>
                 </div>
               </form>
@@ -146,8 +148,8 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
           <div class="container">
             <div class="row">
               <div class="col-md-4 col-md-offset-4 text-center">
-                <button id="exportData" type="button" class="btn btn-outline-info" onclick="window.open('downloadData.php?exportData=excel')">Export Data Excel</button>
-                <button id="exportData" type="button" class="btn btn-outline-info" onclick="window.open('downloadData.php?exportData=csv')">Export Data CSV</button>
+                <button id="exportData" type="button" class="btn btn-outline-info" onclick="window.open('downloadData.php?exportData=excel')">Exporter données (Excel)</button>
+                <button id="exportData" type="button" class="btn btn-outline-info" onclick="window.open('downloadData.php?exportData=csv')">Exporter données (CSV)</button>
               </div>
             </div>
           </div>
@@ -161,6 +163,8 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
         <div class="container">
           <div id="resultcontainer"></div>
         </div>
+      </br>
+      </br>
         <!-- Container for displaying the map data -->
         <div class="container">
           <div align="center" id="map"></div>
@@ -499,7 +503,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
       gradient.addColorStop(0, 'rgba(250,174,50,1)');
       gradient.addColorStop(1, 'rgba(250,174,50,0)');
       /***************/
-      var title = "All spectre between " + date_data[0] + " and " + date_data[date_data.length-1];
+      var title = "Spectre pour la semaine du " + date_data[0] + " au " + date_data[date_data.length-1];
 
       var chartdata = {
         datasets : [

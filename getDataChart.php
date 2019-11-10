@@ -82,8 +82,12 @@ else {
     //echo $query_id;
     //echo "</br>";
     //Temperature
-    $query_temperature = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`
-    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE @sensor_id ORDER BY date_d ASC ";
+    $query_temperature = "SELECT `temperature`, DATE(`date_time`) AS date_d
+    FROM `record` AS r
+    LEFT JOIN sensor on sensor.id=r.sensor_id
+    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE @sensor_id
+    AND Date(r.date_time) >= Date(sensor.installation_date)
+    ORDER BY date_d ASC ";
     $result_temperature =  mysqli_query($connect, $query_temperature);
     $row_temp = mysqli_num_rows($result_temperature);
 
@@ -91,8 +95,12 @@ else {
       $data["temperature_data"][] = $row_temp;
       //echo $row["temperature"] ."</br>";
     }
-    $query_inclinometre = "SELECT `sensor_id`, DATE(`date_time`) AS date_d, `nx`,`ny`,`nz`  FROM `record`
-    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE @sensor_id ORDER BY date_d ASC ";
+    $query_inclinometre = "SELECT `sensor_id`, DATE(`date_time`) AS date_d, r.nx,r.ny,r.nz
+    FROM `record` AS r
+    LEFT JOIN sensor on sensor.id=r.sensor_id
+    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE @sensor_id
+    AND Date(r.date_time) >= Date(sensor.installation_date)
+    ORDER BY date_d ASC ";
     $result_inclinometre =  mysqli_query($connect, $query_inclinometre);
     $row_inclinometre = mysqli_num_rows($result_inclinometre);
 
@@ -100,8 +108,13 @@ else {
       $data["inclinometre_data"][] = $row_inclinometre;
     }
     //Simplifier TODO
-    $query_date_max = "SET @max_date_choc = (SELECT MAX(date_d) FROM (SELECT `sensor_id`, DATE(`date_time`) AS date_d, `amplitude_1`, `amplitude_2`,`time_1`,`time_2`  FROM `record`
-    WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE '6' ) AS TMP)";
+    $query_date_max = "SET @max_date_choc = (SELECT MAX(date_d)
+    FROM
+    (SELECT `sensor_id`, DATE(`date_time`) AS date_d, `amplitude_1`, `amplitude_2`,`time_1`,`time_2`
+    FROM `record`  AS r
+    LEFT JOIN sensor on sensor.id=r.sensor_id
+    WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE @sensor_id
+    AND Date(r.date_time) >= Date(sensor.installation_date) ) AS TMP)";
     $result_date_max =  mysqli_query($connect, $query_date_max);
 
     $query_choc = "SELECT `sensor_id`, DATE(`date_time`) AS date_d,
@@ -119,9 +132,11 @@ else {
     $query_date_max = "SET @max_date = (SELECT MAX(date_d) FROM
     (SELECT s.nom AS site, st.nom AS equipement, r.sensor_id, r.date_time as date_d, `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)
+    JOIN sensor on sensor.id=r.sensor_id
     JOIN structure as st ON (st.id=r.structure_id)
     JOIN site as s ON (s.id=st.site_id)
     WHERE sp.subspectre_number LIKE '001' AND r.sensor_id LIKE @sensor_id
+    AND Date(r.date_time) >= Date(sensor.installation_date)
     ORDER BY r.date_time ASC
     ) AS first_subspectre_msg)";
     $result_date_max =  mysqli_query($connect, $query_date_max);
