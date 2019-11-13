@@ -955,13 +955,13 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 
       for(var i = 0; i < data.length; i++) {
         var obj = data[i];
-        longitude_sensor = obj.longitude_sensor;
-        latitude_sensor = obj.latitude_sensor;
+        longitude_equipement = obj.longitude_equipement;
+        latitude_equipement = obj.latitude_equipement;
         sensor_id = obj.sensor_id;
         site = obj.site;
         equipement = obj.equipement;
 
-        L.marker([latitude_sensor, longitude_sensor] ).addTo(map)
+        L.marker([latitude_equipement, longitude_equipement] ).addTo(map)
         .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
       }
     }
