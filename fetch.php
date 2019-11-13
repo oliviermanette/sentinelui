@@ -163,7 +163,7 @@ if (isset($_POST['id_sensor_request'], $_POST['type_msg_request'], $_POST['time_
 function initGroupBy() {
   global $connect;
   $query = "
-  SELECT * FROM  (SELECT r.sensor_id AS 'Sensor ID', s.nom AS `Site`, st.nom AS `Equipement`,
+  SELECT * FROM  (SELECT sensor.device_number AS 'Sensor ID', s.nom AS `Site`, st.nom AS `Equipement`,
    count(*) AS '#messages',
    sum(case when msg_type = 'global' then 1 else 0 end) AS '#global',
    sum(case when msg_type = 'inclinometre' then 1 else 0 end) AS '#inclinometre',
