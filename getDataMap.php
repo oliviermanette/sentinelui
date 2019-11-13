@@ -2,7 +2,7 @@
 
 require_once "config.php";
 
-$sql = "SELECT DISTINCT sensor.device_number AS sensor_id, st.longitude AS longitude_equipement,
+$sql = "SELECT DISTINCT sensor.device_number AS sensor_id, st.transmision_line_name AS Ligne_HT, st.longitude AS longitude_equipement,
  st.latitude AS latitude_equipement, st.nom AS equipement,s.nom AS site,
  s.latitude AS latitude_site, s.longitude AS longitude_site
 FROM structure AS st
@@ -21,7 +21,8 @@ if ($result->num_rows > 0) {
   $inc = 0;
   while ($row = $result->fetch_assoc()) {
     # code...
-    $jsonArrayObject = (array('sensor_id' => $row["sensor_id"],'latitude_site' => $row["latitude_site"],
+    $jsonArrayObject = (array('sensor_id' => $row["sensor_id"], 'ligne_HT' => $row["Ligne_HT"],
+    'latitude_site' => $row["latitude_site"],
     'longitude_site' => $row["longitude_site"], 'latitude_equipement' => $row["latitude_equipement"], 'longitude_equipement' => $row["longitude_equipement"],
     'site' => $row["site"], 'equipement' => $row["equipement"]));
     $arr[$inc] = $jsonArrayObject;

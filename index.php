@@ -959,10 +959,11 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
         latitude_equipement = obj.latitude_equipement;
         sensor_id = obj.sensor_id;
         site = obj.site;
+        ligne_HT = obj.ligne_HT;
         equipement = obj.equipement;
 
         L.marker([latitude_equipement, longitude_equipement] ).addTo(map)
-        .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+        .bindPopup("<b> Capteur ID : " + sensor_id + "</b><br /><b>" + ligne_HT + "</b><br />" + equipement).openPopup();
       }
     }
 

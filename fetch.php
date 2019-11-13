@@ -163,22 +163,20 @@ if (isset($_POST['id_sensor_request'], $_POST['type_msg_request'], $_POST['time_
 function initGroupBy() {
   global $connect;
   $query = "
-  SELECT * FROM  (SELECT sensor.device_number AS 'Sensor ID', s.nom AS `Site`, st.nom AS `Equipement`,
+  SELECT * FROM  (SELECT sensor.device_number AS 'Sensor ID', s.nom AS `Site`, st.transmision_line_name AS Ligne_HT, st.nom AS `Equipement`,
    count(*) AS '#messages',
    sum(case when msg_type = 'global' then 1 else 0 end) AS '#global',
    sum(case when msg_type = 'inclinometre' then 1 else 0 end) AS '#inclinometre',
    sum(case when msg_type = 'choc' then 1 else 0 end) AS '#choc',
    FLOOR(sum(case when msg_type = 'spectre' then 1 else 0 end)/5) AS '#spectre'
    FROM record AS r
-   INNER JOIN structure AS st
-   ON st.id=r.structure_id
-   INNER JOIN site AS s
-   ON s.id = st.site_id
+   INNER JOIN structure AS st ON (st.id=r.structure_id)
+   INNER JOIN site AS s ON (s.id = st.site_id)
    INNER JOIN sensor ON (sensor.id=r.sensor_id)
    INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
    WHERE gn.name = 'RTE' AND Date(r.date_time) >= Date(sensor.installation_date)
-   GROUP BY r.sensor_id, st.nom, s.nom) AS all_message_rte_sensor
+   GROUP BY r.sensor_id, st.nom, Ligne_HT, s.nom) AS all_message_rte_sensor
   ";
   $result = mysqli_query($connect, $query);
   #echo 'Result : '. $result . "\n";
@@ -190,7 +188,7 @@ function initGroupBy() {
     <thead>
     <tr>
     <th>Sensor ID</th>
-    <th>Site</th>
+    <th>Ligne_HT</th>
     <th>Equipement</th>
     <th>#messages</th>
     <th>#global</th>
@@ -208,7 +206,7 @@ function initGroupBy() {
       $output .= '
       <tr>
       <td>'.$row["Sensor ID"].'</td>
-      <td>'.$row["Site"].'</td>
+      <td>'.$row["Ligne_HT"].'</td>
       <td>'.$row["Equipement"].'</td>
       <td>'.$row["#messages"].'</td>
       <td>'.$row["#global"].'</td>
