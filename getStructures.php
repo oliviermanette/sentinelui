@@ -33,9 +33,9 @@ $query_equipement = "SELECT DISTINCT equipement,equipement_id, nom, site_id FROM
 $all_equipment = $db->query_select_light($query_equipement);
 ?>
 
-<label>Choose equipment</label>
+<label>Choisissez un équipement associé</label>
 <select class="browser-default custom-select" name="equipment"  id="equipment">
-	<option value="" selected>Select equipment</option>
+	<option value="" selected>Choisissez un équipement associé</option>
 	<?php while($equip = $all_equipment->fetch_object()){
 		echo "<option value='$equip->equipement_id'>$equip->equipement </option>";
 	}
