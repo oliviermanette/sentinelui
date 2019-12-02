@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <!--<base href="http://localhost/"> -->
+  <!-- Script Bootstrap and jquery -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.1/dist/jquery.validate.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script src="public/semantic/dist/semantic.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+  integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+  crossorigin=""></script>
+  <script src="public/js/Leaflet.Control.Custom.js"></script>
+  <script src="public/js/utils.js"></script>
+  <script src="public/js/drawing.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="public/semantic/dist/semantic.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin=""/>
+  <link rel="stylesheet" href="public/css/style.css">
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    #map {
+      height: 80%;
+      width: 90%;
+    }
+  </style>
+  <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+
+  <div id="wrapper" class="toggled">
+
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+      <ul class="sidebar-nav">
+        <li class="sidebar-brand">
+          <a href="https://flod.ai">
+            Flod.ai
+          </a>
+        </li>
+        <li>
+          <a href="http://devlirone.flod.ai/index.php">Dashboard</a>
+        </li>
+        <li>
+          <a href="https://flod.ai/contact">Contact</a>
+        </li>
+      </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light static-top" style="background-color: #294162;" >
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <!--<img src="https://flod.ai/wp-content/uploads/2019/11/sentive-logo.png" width="50%" height="50%" alt="">-->
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <form class="form-inline">
+        <a href="/logout" class="btn btn-black">Se deconnecter</a>
+      </form>
+      {% if current_user %}
+          Hello {{ current_user.first_name }}
+        {% endif %}
+    </nav>
+
+    {% for message in flash_messages %}
+        <div class="alert alert-{{ message.type }}">
+            {{ message.body }}
+        </div>
+    {% endfor %}
+
+  {% block body %}
+  {% endblock %}
+
+  {% block script %}
+  {% endblock %}
+
+  <div class="footer">
+  	&copy; <?php print date("Y");?>
+  </div>
+
+</body>
+
+
+</html>

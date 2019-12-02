@@ -1,0 +1,34 @@
+{# tableData.html #}
+
+
+<table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th>Sensor ID</th>
+      <th>Site</th>
+      <th>Equipement</th>
+      <th>#messages</th>
+      <th>#global</th>
+      <th>#inclinometre</th>
+      <th>#choc</th>
+      <th>#spectre</th>
+    </tr></thead>
+
+    <tbody>
+
+      {% for row in brief_data_record %}
+
+      <tr>
+        <td>{{ row.sensor_id }}</td>
+        <td>{{ row.site }}></td>
+        <td>{{ row.equipement }}></td>
+        <td> {{ row.nb_messages }} ></td>
+        <td> {{ row.nb_global }} ></td>
+        <td> {{ row.nb_inclinometre }} ></td>
+        <td> {{ row.nb_choc }} ></td>
+        <td> {{ row.nb_spectre }} ></td>
+      </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>

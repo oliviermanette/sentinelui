@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="author" content="">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.2.2/math.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+
+  <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <p>Hello, world!</p>
+
+
+  <main>
+    <canvas id="myChart" width="500" height="500"></canvas>
+  </main>
+
+
+  <script>
+
+    $( document ).ready(function() {
+      console.log( "ready!" );
+
+      getSinEquationBasedOnTwoPoint(3200, 2400, 20000, -100);
+    });
+
+    var chart_canvas = document.getElementById("myChart");
+    var stackedLine = new Chart(chart_canvas, {
+      type: 'line',
+      data: {
+        labels: ["0.0", "0.2", "0.4", "0.6", "0.8", "1.0"],
+        fill: true,
+        datasets: [{
+          label: 'Usage',
+          pointRadius: 3,
+          data: [.5, .3, .2, .1, .4, .3],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            type: 'linear',
+            stacked: true,
+          }]
+        },
+        hover: {
+          // Overrides the global setting
+          enabled: true,
+          mode: 'dataset',
+          onHover: function(elements) {
+            //console.log(elements);
+          }
+        }
+      }
+    });
+
+
+
+    function getCosEquation(amp, b, h, k){
+      const scope = {
+        a: amp,
+        b: b,
+        h: h,
+        k: k,
+      }
+
+      var f = math.evaluate('f(x) = a * cos(b * (x - h)) + k', scope);
+      var node1 = math.parse('f(x) = a * cos(b * (x - h)) + k');
+      var equationString = node1.toString();
+      var equationString = equationString +  "\n a = " + String(amp) + "\n b = " + String(b) + "\n h = " + String(h) + "\n k = " + String(k);
+      console.log(equationString);
+
+      return f;
+    }
+
+    function getSinEquation(amp, b, h, k){
+      const scope = {
+        a: amp,
+        b: b,
+        h: h,
+        k: k,
+      }
+
+      var f = math.evaluate('f(x) = a * sin(b * (x - h)) + k', scope)
+      var node1 = math.parse('f(x) = a * sin(b * (x - h)) + k');
+      var equationString = node1.toString();
+      var equationString = equationString +  "\n a = " + String(amp) + "\n b = " + String(b) + "\n h = " + String(h) + "\n k = " + String(k);
+      console.log(equationString);
+
+      return f;
+    }
+
+    function computeAmplitude(max, min){
+      return Math.abs((max - min) / 2);
+    }
+
+    function computeVerticalShift(max, min){
+      return (max + min) / 2;
+    }
+
+    function computePeriod(x1, x2){
+      var abs = (x2 - x1) * 2;
+      return (2 * Math.PI ) / abs;
+    }
+
+    function getSinEquationBasedOnTwoPoint(x1, y1, x2, y2){
+      var maxY = Math.max(y1, y2);
+      var minY = Math.min(y1, y2);
+      var amp = computeAmplitude(maxY, minY);
+      var period = computePeriod(x1, x2);
+      var vShift = computeVerticalShift(maxY, minY);
+      var h = x1;
+
+      return getSinEquation(amp, period, h, vShift);
+    }
+
+
+
+  </script>
+
+
+</body>
+
+</html>

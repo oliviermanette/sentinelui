@@ -1,0 +1,30 @@
+{# ViewTableDataSpecific.html #}
+
+
+<table id="dataTable" class="display" style="width:100%">
+<thead>
+<tr>
+<th>#Sensor</th>
+<th>Date-Time</th>
+<th>Type Message</th>
+<th>site</th>
+<th>Equipement</th>
+<th>Action</th>
+</tr></thead>
+<tbody>
+
+  {% for row in all_specific_msg %}
+
+  <tr>
+    <td>{{ row.sensorID }}</td>
+    <td>{{ row.dateTime }}></td>
+    <td>{{ row.typeMessage }}></td>
+    <td> {{ row.site }} ></td>
+    <td> {{ row.equipement }} ></td>
+    <td><a class=download href="index.php?id_download={{row.sensorID}}" data-idsensor={{row.sensorID}}
+    data-typemsg={{row.typeMessage}} data-site={{ row.site }}
+    data-equipement='{{ row.equipement }}' data-date='{{ row.dateTime }}' id="linkdownload" name="download">Show Data</a></td>
+  </tr>
+  {% endfor %}
+
+  </tbody></table>

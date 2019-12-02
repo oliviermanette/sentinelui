@@ -1,0 +1,58 @@
+{
+  "_from": "@ansur/leaflet-pulse-icon",
+  "_id": "@ansur/leaflet-pulse-icon@0.1.1",
+  "_inBundle": false,
+  "_integrity": "sha512-2vymis4WMiacers0JJ43Ku0TjdKypnh0atMdFC2VdTGd5G/NGsmW5eYnTZr1YHNOts3CXRbnwlkEMKB7OPsfIg==",
+  "_location": "/@ansur/leaflet-pulse-icon",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "@ansur/leaflet-pulse-icon",
+    "name": "@ansur/leaflet-pulse-icon",
+    "escapedName": "@ansur%2fleaflet-pulse-icon",
+    "scope": "@ansur",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@ansur/leaflet-pulse-icon/-/leaflet-pulse-icon-0.1.1.tgz",
+  "_shasum": "f9ba7e51e6c81a30057df1fdf59c365944913bc1",
+  "_spec": "@ansur/leaflet-pulse-icon",
+  "_where": "C:\\Users\\liron\\OneDrive - FLod.aero\\code\\user_interface",
+  "author": {
+    "name": "Filip Zavadil"
+  },
+  "bugs": {
+    "url": "https://github.com/therealice/leaflet-icon-pulse/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "leaflet": ">=0.7.3"
+  },
+  "deprecated": false,
+  "description": "A pulsing icon plugin.",
+  "devDependencies": {},
+  "directories": {
+    "example": "example"
+  },
+  "homepage": "https://github.com/therealice/leaflet-icon-pulse#readme",
+  "keywords": [
+    "icon",
+    "map",
+    "marker",
+    "leaflet"
+  ],
+  "license": "MIT",
+  "main": "src/L.Icon.Pulse.js",
+  "name": "@ansur/leaflet-pulse-icon",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/therealice/leaflet-icon-pulse.git"
+  },
+  "version": "0.1.1"
+}
