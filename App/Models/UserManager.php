@@ -21,9 +21,6 @@ class UserManager extends \Core\Model
       $this->$key = $value;
     }
     $this->role = "ROLE_ADMIN";
-    $this->group_name = "";
-    $this->valid = 1;
-
   }
 
   public function save(){
@@ -33,22 +30,21 @@ class UserManager extends \Core\Model
     if (empty($this->errors)){
       $password_hash = password_hash($this->password, PASSWORD_DEFAULT);
 
-      $sql = 'INSERT INTO user (username, first_name, last_name, email, password, roles, group_name, valid)
-      VALUES (:username, :first_name, :last_name, :email, :password, :roles, :group_name, :valid)';
+      $sql = 'INSERT INTO user (username, first_name, last_name, email, password, roles)
+      VALUES (:username, :first_name, :last_name, :email, :password, :roles)';
 
       $db = static::getDB();
       $stmt = $db->prepare($sql);
-
+      var_dump($sql);
       $stmt->bindValue(':username', $this->username, PDO::PARAM_STR);
       $stmt->bindValue(':first_name', $this->firstname, PDO::PARAM_STR);
       $stmt->bindValue(':last_name', $this->name, PDO::PARAM_STR);
       $stmt->bindValue(':email', $this->email, PDO::PARAM_STR);
       $stmt->bindValue(':password', $password_hash, PDO::PARAM_STR);
       $stmt->bindValue(':roles', $this->role, PDO::PARAM_STR);
-      $stmt->bindValue(':group_name', $this->groupe, PDO::PARAM_STR);
-      $stmt->bindValue(':valid', $this->valid, PDO::PARAM_INT);
 
       $success = "Vous êtes bien inscrit. Vous pouvez vous connecter";
+
       return $stmt->execute();
 
     }

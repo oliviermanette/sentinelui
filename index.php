@@ -28,6 +28,8 @@ $router = new Core\Router();
 $router->add('', ['controller' => 'ControllerAccueil', 'action' => 'index']);
 //New login
 $router->add('login', ['controller' => 'ControllerLogin', 'action' => 'new']);
+//New registration
+$router->add('register', ['controller' => 'ControllerRegistration', 'action' => 'new']);
 //Logout
 $router->add('logout', ['controller' => 'ControllerLogin', 'action' => 'destroy']);
 //Reset password
