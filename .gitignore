@@ -1,6 +1,10 @@
 #Ignore Bootstrap library
 bootstrap/*
 
+App/Config.php
+vendor/*
+composer.lock
+
 #Ignore node_module
 node_modules/*
 
