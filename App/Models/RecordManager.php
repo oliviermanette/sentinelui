@@ -671,8 +671,7 @@ class RecordManager extends \Core\Model
 
     $db = static::getDB();
 
-    $query_all_specific_msg = '
-    SELECT r.sensor_id AS `sensorID`, r.date_time AS `dateTime`,
+    $query_all_specific_msg =  "SELECT r.sensor_id AS `sensorID`, r.date_time AS `dateTime`,
     r.msg_type AS `typeMessage`, s.nom AS `site`, st.nom AS `equipement`
     FROM record as r
     LEFT JOIN sensor on sensor.id=r.sensor_id
@@ -680,18 +679,28 @@ class RecordManager extends \Core\Model
     on st.id=r.structure_id
     LEFT JOIN site AS s
     ON s.id = st.site_id
-    WHERE ';
+    WHERE ";
+
     if (!empty($dateMin) && !empty($dateMax)){
-      $query_all_specific_msg .="(date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) AND ";
+      $query_all_specific_msg =  "(date(r.date_time) BETWEEN date(CONCAT(:date_min, '%')) and date(CONCAT(:date_max, '%'))) AND ";
     }
-    $query_all_specific_msg .="Date(r.date_time) >= Date(sensor.installation_date)
-    AND s.id LIKE '%$site_id' AND r.msg_type LIKE '%$typeMSG' AND st.id LIKE '%$equipment_id' order by r.date_time desc";
+    $query_all_specific_msg .= "Date(r.date_time) >= Date(sensor.installation_date)
+    AND s.id LIKE :site_id AND r.msg_type LIKE CONCAT(:type_msg, '%') AND st.id LIKE :equipment_id order by r.date_time desc ";
 
     $stmt = $db->prepare($query_all_specific_msg);
+
+    if (!empty($dateMin) && !empty($dateMax)){
+      $stmt->bindValue(':date_min', $dateMin, PDO::PARAM_STR);
+      $stmt->bindValue(':date_max', $dateMax, PDO::PARAM_STR);
+    }
+    $stmt->bindValue(':type_msg', $typeMSG, PDO::PARAM_STR);
+    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_STR);
+    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_STR);
+
     if ($stmt->execute()) {
 
-      $result = $stmt->fetchAll();
-      return $result;
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
     }
   }
 
@@ -927,44 +936,104 @@ class RecordManager extends \Core\Model
   }
 
 
-  public function getDataForSpecificChart($site_id, $equipment_id, $time_data, $type_msg, $sensor_id ){
+  public function getDataForSpecificChart($time_data, $type_msg, $sensor_id ){
+    $db = static::getDB();
 
     if ($type_msg == "global"){
       //Temperature
-      $query = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`
-      WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE '$sensor_id' ORDER BY date_d ASC ";
+      $query = "SELECT
+      `temperature`,
+      DATE(`date_time`) AS date_d
+      FROM
+      inclinometer AS inc
+      LEFT JOIN record AS r ON (r.id = inc.record_id)
+      WHERE
+      `msg_type` LIKE 'inclinometre'
+      AND `sensor_id` LIKE :sensor_id
+      ORDER BY
+      date_d ASC ";
 
     }else if ($type_msg == "inclinometre"){
       //Inclinometre
-      $query = "SELECT `sensor_id`, DATE(`date_time`) AS date_d, `nx`,`ny`,`nz`, `temperature`  FROM `record`
-      WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE '$sensor_id' ORDER BY date_d ASC ";
+      $query = "SELECT
+      `sensor_id`,
+      DATE(`date_time`) AS date_d,
+      `nx`,
+      `ny`,
+      `nz`,
+      `temperature`,
+      inc.nx,
+      inc.ny,
+      inc.nz,
+      angle_x,
+      angle_y,
+      angle_z,
+      temperature
+      FROM
+      inclinometer AS inc
+      LEFT JOIN record AS r ON (r.id = inc.record_id)
+      WHERE
+      `msg_type` LIKE 'inclinometre'
+      AND `sensor_id` LIKE :sensor_id
+      ORDER BY
+      date_d ASC";
 
     }else if ($type_msg == "choc"){
       //Choc
-      $query = "SELECT `sensor_id`, DATE(`date_time`) AS date_d, `amplitude_1`, `amplitude_2`,`time_1`,`time_2`  FROM `record`
-      WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE '$sensor_id' ORDER BY date_d ASC ";
+      $query = "SELECT
+      `sensor_id`,
+      DATE(`date_time`) AS date_d,
+      amplitude_1,
+      amplitude_2,
+      time_1,
+      time_2,
+      freq_1,
+      freq_2,
+      power
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      WHERE
+      `msg_type` LIKE 'choc'
+      AND `sensor_id` LIKE :sensor_id
+      ORDER BY
+      date_d ASC
+      ";
 
     }else if ($type_msg == "spectre"){
       //Choc
       //Sub Spectre
-      $query = "SELECT s.nom, st.nom, r.sensor_id, r.payload, r.date_time AS date_d,
-      `subspectre`,`subspectre_$$number`,`min_freq`,`max_freq`,`$$res olution`
-      FROM `spectre` AS sp
-      JOIN record AS r ON (r.id=sp.record_id)
-      JOIN structure as st ON (st.id=r.structure_id)
-      JOIN site as s ON (s.id=st.site_id)
-      WHERE CAST(r.date_time as DATE)  LIKE '$time_data' AND r.sensor_id='$sensor_id' ";
+      $query = "SELECT
+      s.nom,
+      st.nom,
+      r.sensor_id,
+      r.payload,
+      r.date_time AS date_d,
+      subspectre,
+      subspectre_number,
+      min_freq,
+      max_freq,
+      resolution
+      FROM
+      spectre AS sp
+      LEFT JOIN record AS r ON (r.id = sp.record_id)
+      JOIN structure as st ON (st.id = r.structure_id)
+      JOIN site as s ON (s.id = st.site_id)
+      WHERE
+      CAST(r.date_time as DATE) LIKE :time_data
+      AND r.sensor_id = :sensor_id ";
 
     }
+
+
     $data = array();
-    $db = static::getDB();
-    $stmt = $db->prepare($query);
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data[] = $row;
-      }
 
-    }
+    $stmt = $db->prepare($query);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    $stmt->execute();
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     return $data;
   }

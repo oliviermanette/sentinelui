@@ -204,7 +204,7 @@ class ControllerAccueil extends Authenticated
       $type_msg = $_POST["type_msg_request"];
       $sensor_id = $_POST["id_sensor_request"];
       $time_data =  $_POST['time_data_request'];
-      $all_charts_data = $recordManager->getDataForSpecificChart($site_id, $equipement_id, $time_data, $type_msg, $sensor_id );
+      $all_charts_data = $recordManager->getDataForSpecificChart($time_data, $type_msg, $sensor_id );
       print json_encode($all_charts_data);
     }
 
