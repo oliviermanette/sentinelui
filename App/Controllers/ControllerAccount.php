@@ -4,10 +4,6 @@ namespace App\Controllers;
 
 use \Core\View;
 
-require_once('App/Models/UserManager.php');
-require_once('Core/Controller.php');
-require_once('Core/View.php');
-
 /**
  * Account controller
  *

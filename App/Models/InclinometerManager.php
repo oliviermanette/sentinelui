@@ -11,7 +11,6 @@ class InclinometerManager extends \Core\Model
 
   }
 
-
   /**
   * Get all the inclinometer messages received from the sensors, for a specific group (RTE for example)
   *
@@ -51,12 +50,126 @@ class InclinometerManager extends \Core\Model
 
     $stmt = $db->prepare($sql_inclinometer_data);
     $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
     }
   }
 
+  /**
+  * Get all the inclinometer messages received from the sensors given a specific sensor id
+  *
+  * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
+  * @return array  results from the query
+  */
+  public function getAllInclinometerDataByIdSensor($sensor_id){
+    $sql_all_inclinometer = "SELECT
+    `sensor_id`,
+    DATE(`date_time`) AS date_d,
+    `nx`,
+    `ny`,
+    `nz`,
+    `temperature`,
+    inc.nx,
+    inc.ny,
+    inc.nz,
+    angle_x,
+    angle_y,
+    angle_z,
+    temperature
+    FROM
+    inclinometer AS inc
+    LEFT JOIN record AS r ON (r.id = inc.record_id)
+    WHERE
+    `msg_type` LIKE 'inclinometre'
+    AND `sensor_id` LIKE :sensor_id
+    ORDER BY
+    date_d ASC
+    ";
+
+    $stmt = $db->prepare($sql_all_inclinometer);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  /**
+  * Get the latest inclinometer record received from a given sensor id
+  *
+  * @param int $sensor_id sensor id for which we want to retrieve the last inclinometer
+  * @return array  results from the query
+  */
+  public function getLatestTemperatureRecordByIdSensor($sensor_id){
+
+    $db = static::getDB();
+
+    $sql = "SELECT
+    `temperature`,
+    DATE(`date_time`) AS date_d
+    FROM
+    inclinometer AS inc
+    LEFT JOIN record AS r ON (r.id = inc.record_id)
+    WHERE
+    `msg_type` LIKE 'inclinometre'
+    AND `sensor_id` LIKE :sensor_id
+    ORDER BY
+    `date_d` DESC
+    limit
+    1";
+
+    $stmt = $db->prepare($sql);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $last_temp = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      return $last_temp;
+    }
+  }
+
+  /**
+  * Get all the temperature messages received from the sensors given a specific sensor id
+  *
+  * @param int $sensor_id sensor id for which we want to retrieve the temperature data
+  * @param string $date if we want to retrieve the data for specific date format Y-M-D
+  * @return array  results from the query
+  */
+  public function getAllTemperatureRecordsByIdSensor($sensor_id, $date = null){
+    $db = static::getDB();
+
+    $sql = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`
+    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE :sensor_id ";
+
+    if (!empty($date)){
+      $sql .="AND Date(`date_time`) = :dateD ";
+    }
+
+    $sql .=" ORDER BY date_d ASC";
+
+    $stmt = $db->prepare($sql);
+    if (!empty($date)){
+      $stmt->bindValue(':dateD', $date, PDO::PARAM_STR);
+    }
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $all_temp = $stmt->fetchAll();
+      return $all_temp;
+    }
+  }
+
+    /**
+    * Insert inclinometer data to the DB given a json file
+    *
+    * @param json $inclinometer_data_json contain the inclinometer data (temperature, x, y, z, date_time, deveui)
+    * @return boolean  return True if insert query successfully executed
+    */
   public function insertInclinometerData($inclinometer_data_json){
     $temperature = $inclinometer_data_json['temperature'];
     $nx = $inclinometer_data_json['X'];

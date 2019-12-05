@@ -35,7 +35,7 @@ class UserManager extends \Core\Model
 
       $db = static::getDB();
       $stmt = $db->prepare($sql);
-      var_dump($sql);
+
       $stmt->bindValue(':username', $this->username, PDO::PARAM_STR);
       $stmt->bindValue(':first_name', $this->firstname, PDO::PARAM_STR);
       $stmt->bindValue(':last_name', $this->name, PDO::PARAM_STR);

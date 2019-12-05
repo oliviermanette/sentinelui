@@ -56,6 +56,47 @@ class ChocManager extends \Core\Model
     }
   }
 
+  /**
+  * Get all the choc messages received from the sensors given a specific sensor id
+  *
+  * @param int $sensor_id sensor id for which we want to retrieve the choc data
+  * @return array  results from the query
+  */
+  public function getAllChocDataByIdSensor($sensor_id){
+    $sql_choc_data = "SELECT
+    `sensor_id`,
+    DATE(`date_time`) AS date_d,
+    `amplitude_1`,
+    `amplitude_2`,
+    `time_1`,
+    `time_2`,
+    `freq_1`,
+    `freq_2`,
+    `power`
+    FROM
+    choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    WHERE
+    `msg_type` LIKE 'choc'
+    AND `sensor_id` LIKE :sensor_id
+    ORDER BY
+    date_d ASC ";
+
+    $stmt = $db->prepare($sql_choc_data);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  /**
+  * Insert choc data to the DB given a json file
+  *
+  * @param json $choc_data_json contain the choc data (amplitude1, amplitude2, time1, time2, date_time, deveui)
+  * @return boolean  return True if insert query successfully executed
+  */
   public function insertChocData($choc_data_json){
     $amplitude_1 = floatval($choc_data_json['amplitude1']);
     $amplitude_2 = floatval($choc_data_json['amplitude2']);
@@ -70,20 +111,11 @@ class ChocManager extends \Core\Model
     $date_time = $choc_data_json['date_time'];
     $deveui_sensor = $choc_data_json['deveui'];
 
-    echo "\n Amplitude 1 " . $amplitude_g_1;
-    echo "\n Amplitude 2 " . $amplitude_g_2;
-    echo "\n Time 1 " . $time_s_1;
-    echo "\n Time 2 " . $time_s_2;
-
     $resData = ChocManager::computeChocData($amplitude_g_1, $amplitude_g_2, $time_s_1, $time_s_2 );
 
     $totalAreaPower = $resData[0];
     $freq1 = $resData[1];
     $freq2 = $resData[2];
-
-    echo "\nTotal area power = " . $totalAreaPower;
-    echo "\n Freq1 = " . $freq1;
-    echo "\n Freq2 = " . $freq2;
 
     $sql_data_record_choc = 'INSERT INTO  choc (`record_id`, `amplitude_1`,  `amplitude_2`, `time_1`, `time_2`,  `freq_1`,`freq_2`, `power`)
       SELECT * FROM
@@ -107,6 +139,15 @@ class ChocManager extends \Core\Model
       return $stmt->execute();
   }
 
+  /**
+  * Computer Power of the choc
+  *
+  * @param float $amplitude_1 first amplitude (in mg or g)
+  * @param float $amplitude_2 second amplitude (in mg or g)
+  * @param int $time_1 first time (or period) to provok the first amplitude (in micro seconde or second)
+  * @param int $time_2 second time to provok the second amplitude (in micro seconde or second)
+  * @return array  $totalAreaPower, $freq1, $freq2
+  */
   public static function computeChocData($amplitude_1, $amplitude_2, $time_1, $time_2 ){
     $pt0 = array(0, 0);
     $pt1 = array($time_1, $amplitude_1);

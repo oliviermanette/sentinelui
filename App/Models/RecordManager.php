@@ -505,105 +505,6 @@ class RecordManager extends \Core\Model
 
   }
 
-  function getAllStructuresBySiteId($siteID){
-    $db = static::getDB();
-
-    $sql = "SELECT st.nom AS equipement, st.transmision_line_name AS ligne FROM structure AS st
-    WHERE st.site_id = :id_site";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bindValue(':id_site', $siteID, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-      $all_temp = $stmt->fetchAll();
-      return $all_temp;
-    }
-
-  }
-
-  function getAllStructuresScoresBySiteId($siteID){
-    $db = static::getDB();
-
-    $sql ="SELECT st.nom, s.date as date, s.score_value AS score , s.predicted_maintenance AS 'predicted_maintenance'
-    FROM `structure` as st
-    LEFT JOIN score AS s ON (s.id = st.score_id)
-    WHERE site_id = :id_site";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bindValue(':id_site', $siteID, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-      $all_temp = $stmt->fetchAll();
-      return $all_temp;
-    }
-  }
-
-  function getAllTemperatureRecordsByIdSensor($sensor_id, $date = null){
-    $db = static::getDB();
-
-    $sql = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`
-    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE :id_sensor ";
-
-    if (!empty($date)){
-      $sql .="AND Date(`date_time`) = :dateD ";
-    }
-
-    $sql .=" ORDER BY date_d ASC";
-
-    $stmt = $db->prepare($sql);
-    if (!empty($date)){
-      $stmt->bindValue(':dateD', $date, PDO::PARAM_STR);
-    }
-
-    $stmt->bindValue(':id_sensor', $sensor_id, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-      $all_temp = $stmt->fetchAll();
-      return $all_temp;
-    }
-  }
-
-  function getLatestTemperatureRecordByIdSensor($sensor_id){
-
-    $db = static::getDB();
-
-    $sql = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`
-    WHERE `msg_type` LIKE 'inclinometre'
-    AND `sensor_id` LIKE :id_sensor
-    ORDER BY `date_d` DESC limit 1";
-
-    $stmt = $db->prepare($sql);
-
-    $stmt->bindValue(':id_sensor', $sensor_id, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-      $last_temp = $stmt->fetch(PDO::FETCH_ASSOC);
-      return $last_temp;
-    }
-  }
-
-
-  function getAllInclinometerRecordsByIdSensor($sensor_id){
-    $query_get_all_inclinometer = "SELECT `sensor_id`, DATE(`date_time`) AS date_d, `nx`,`ny`,`nz`, `temperature`  FROM `record`
-    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE '$sensor_id' ORDER BY date_d ASC ";
-  }
-
-  function getAllChocRecordsByIdSensor($sensor_id){
-    $query_get_all_choc = "SELECT `sensor_id`, DATE(`date_time`) AS date_d, `amplitude_1`, `amplitude_2`,`time_1`,`time_2`  FROM `record`
-    WHERE `msg_type` LIKE 'choc' AND `sensor_id` LIKE '$sensor_id' ORDER BY date_d ASC ";
-  }
-
-  function getAllSubspectrespectreRecordById($sensor_id, $date_request){
-    $query_get_spectre = "SELECT s.nom, st.nom, r.sensor_id, r.payload, r.date_time AS date_d,
-    `subspectre`,`subspectre_$$number`,`min_freq`,`max_freq`,`$$res olution`
-    FROM `spectre` AS sp
-    JOIN record AS r ON (r.id=sp.record_id)
-    JOIN structure as st ON (st.id=r.structure_id)
-    JOIN site as s ON (s.id=st.site_id)
-    WHERE CAST(r.date_time as DATE)  LIKE '$date_request' AND r.sensor_id='$sensor_id' ";
-
-  }
-
   function getAllRawRecord(){
     $db = static::getDB();
 
@@ -671,7 +572,7 @@ class RecordManager extends \Core\Model
 
     $db = static::getDB();
 
-    $query_all_specific_msg =  "SELECT r.sensor_id AS `sensorID`, r.date_time AS `dateTime`,
+    $sql_query_all_specific_msg =  "SELECT r.sensor_id AS `sensorID`, r.date_time AS `dateTime`,
     r.msg_type AS `typeMessage`, s.nom AS `site`, st.nom AS `equipement`
     FROM record as r
     LEFT JOIN sensor on sensor.id=r.sensor_id
@@ -687,7 +588,7 @@ class RecordManager extends \Core\Model
     $query_all_specific_msg .= "Date(r.date_time) >= Date(sensor.installation_date)
     AND s.id LIKE :site_id AND r.msg_type LIKE CONCAT(:type_msg, '%') AND st.id LIKE :equipment_id order by r.date_time desc ";
 
-    $stmt = $db->prepare($query_all_specific_msg);
+    $stmt = $db->prepare($sql_query_all_specific_msg);
 
     if (!empty($dateMin) && !empty($dateMax)){
       $stmt->bindValue(':date_min', $dateMin, PDO::PARAM_STR);
@@ -941,7 +842,7 @@ class RecordManager extends \Core\Model
 
     if ($type_msg == "global"){
       //Temperature
-      $query = "SELECT
+      $sql_query = "SELECT
       `temperature`,
       DATE(`date_time`) AS date_d
       FROM
@@ -955,7 +856,7 @@ class RecordManager extends \Core\Model
 
     }else if ($type_msg == "inclinometre"){
       //Inclinometre
-      $query = "SELECT
+      $sql_query = "SELECT
       `sensor_id`,
       DATE(`date_time`) AS date_d,
       `nx`,
@@ -980,7 +881,7 @@ class RecordManager extends \Core\Model
 
     }else if ($type_msg == "choc"){
       //Choc
-      $query = "SELECT
+      $sql_query = "SELECT
       `sensor_id`,
       DATE(`date_time`) AS date_d,
       amplitude_1,
@@ -1003,7 +904,7 @@ class RecordManager extends \Core\Model
     }else if ($type_msg == "spectre"){
       //Choc
       //Sub Spectre
-      $query = "SELECT
+      $sql_query = "SELECT
       s.nom,
       st.nom,
       r.sensor_id,
@@ -1028,7 +929,7 @@ class RecordManager extends \Core\Model
 
     $data = array();
 
-    $stmt = $db->prepare($query);
+    $stmt = $db->prepare($sql_query);
 
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
 

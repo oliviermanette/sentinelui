@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Auth;
+use \App\Models\InclinometerManager;
 use \App\Models\SiteManager;
 use \App\Models\EquipementManager;
 use \App\Models\RecordManager;
@@ -12,8 +13,11 @@ use \App\Models\RecordManager;
 ini_set('display_errors', '1');
 ini_set('error_reporting', E_ALL);
 
-// Initialize the session
-//session_start();
+/***
+
+Affichage données structures - TEST
+
+***/
 
 class ControllerData extends Authenticated
 {
@@ -26,13 +30,14 @@ class ControllerData extends Authenticated
 
   public function indexAction(){
 
-    $recordManager = new RecordManager();
-    $temperature_data = $recordManager->getLatestTemperatureRecordByIdSensor("6");
+    $inclinometerManager = new InclinometerManager();
+    $temperature_data = $inclinometerManager->getLatestTemperatureRecordByIdSensor("6");
 
-    $allStructuresBySpecificSite = $recordManager->getAllStructuresBySiteId(28);
+    $equipementManager = new EquipementManager();
+    $allStructuresBySpecificSite = $equipementManager->getAllStructuresBySiteId(28);
 
-    $allScoreBySpecificSite = $recordManager->getAllStructuresScoresBySiteId(28);
-    var_dump($allScoreBySpecificSite);
+    $allScoreBySpecificSite = $equipementManager->getAllStructuresScoresBySiteId(28);
+
     View::renderTemplate('Data/Presentation.html', [
       'temperature_data'    => $temperature_data,
       'all_structure' => $allStructuresBySpecificSite,

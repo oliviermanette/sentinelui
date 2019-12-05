@@ -54,6 +54,38 @@ class SpectreManager extends \Core\Model
     }
   }
 
+  public function getAllSubspectrespectreRecordById($sensor_id, $date_request){
+    $db = static::getDB();
+
+    $sql_query_get_spectre = "SELECT s.nom, st.nom, r.sensor_id, r.payload, r.date_time AS date_d,
+    `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution`
+    FROM `spectre` AS sp
+    JOIN record AS r ON (r.id=sp.record_id)
+    JOIN structure as st ON (st.id=r.structure_id)
+    JOIN site as s ON (s.id=st.site_id)
+    WHERE CAST(r.date_time as DATE)  LIKE :date_request AND r.sensor_id = :sensor_id  ";
+
+    $stmt = $db->prepare($sql_query_get_spectre);
+
+    $stmt->bindValue(':date_request', $date_request, PDO::PARAM_STR);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+
+      $all_spectre_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $all_spectre_data;
+    }
+
+  }
+
+  /**
+  * Insert spectre data to the DB given a json file
+  *
+  * @param json $spectre_data_json contain the spectre data (spectre_number, min_freq, max_freq, spectre_msg_hex,
+  * resolution, date_time, deveui)
+  * @return boolean  return True if insert query successfully executed
+  */
   public function insertSpectreData($spectre_data_json){
     $spectre_number = $spectre_data_json['spectre_number'];
     $minFreq = floatval($spectre_data_json['min_freq']);

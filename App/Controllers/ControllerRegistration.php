@@ -48,7 +48,7 @@ class ControllerRegistration extends \Core\Controller
   */
   public function successAction()
   {
-  //View::renderTemplate('Homepage/accueil.html');
+
 
   }
 
