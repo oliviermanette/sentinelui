@@ -38,7 +38,7 @@ class ControllerData extends Authenticated
 
     $allScoreBySpecificSite = $equipementManager->getAllStructuresScoresBySiteId(28);
 
-    View::renderTemplate('Data/Presentation.html', [
+    View::renderTemplate('Data/presentation.html', [
       'temperature_data'    => $temperature_data,
       'all_structure' => $allStructuresBySpecificSite,
       'all_score' => $allScoreBySpecificSite,
