@@ -35,15 +35,26 @@ class ControllerData extends Authenticated
     $recordManager = new RecordManager();
     $scoreManager = new ScoreManager();
     $chocManager = new ChocManager();
+    $siteManager = new SiteManager();
     $inclinometerManager = new InclinometerManager();
 
-    $equipements_site = $equipementManager->getEquipementsBySiteId("28", "RTE");
+    $siteID = "27";
+    if (isset($_POST['siteID'])){
+       $siteID = $_POST['siteID'];
+    }
+
+    $group_name = $_SESSION['group_name'];
+
+    $all_site = $siteManager->getSites($group_name);
+
+    $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
     $allStructureData = array();
     $count = 0;
     foreach($equipements_site as $equipement){
       $index_array = "equipement_". $count;
 
       $equipement_id = $equipement['equipement_id'];
+      $equipement_pylone = $equipement['equipement'];
       $equipement_name = $equipement['ligneHT'];
 
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
@@ -57,15 +68,70 @@ class ControllerData extends Authenticated
       $choc_power_data = $chocManager->getLastChocbyIdSensor($sensor_id);
       $last_choc_power = $choc_power_data['power'];
       $last_choc_date = $choc_power_data['date'];
-      echo $last_choc_power ."\n";
+
       $allStructureData[$index_array] = array('ligneHT' => $equipement_name,
+      'equipement' => $equipement_pylone,
        'lastDate' =>$lastdate, 'lastScore' =>$score,
         'lastChocPower' =>$last_choc_power, 'temperature' =>$temperature);
 
       $count += 1;
     }
 
-    View::renderTemplate('Data/presentation.html', [
+    View::renderTemplate('Data/index.html', [
+      'all_site'    => $all_site,
+      'all_structure_data' => $allStructureData
+    ]);
+  }
+
+  public function refreshDataAction(){
+    $equipementManager = new EquipementManager();
+    $recordManager = new RecordManager();
+    $scoreManager = new ScoreManager();
+    $chocManager = new ChocManager();
+    $siteManager = new SiteManager();
+    $inclinometerManager = new InclinometerManager();
+
+    if (isset($_POST['siteID'])){
+      $siteID = $_POST['siteID'];
+    }
+
+
+    $group_name = $_SESSION['group_name'];
+
+    $all_site = $siteManager->getSites($group_name);
+
+    $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
+    $allStructureData = array();
+    $count = 0;
+    foreach($equipements_site as $equipement){
+      $index_array = "equipement_". $count;
+
+      $equipement_id = $equipement['equipement_id'];
+      $equipement_pylone = $equipement['equipement'];
+      $equipement_name = $equipement['ligneHT'];
+
+      $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
+      $temperature = $inclinometerManager->getLatestTemperatureRecordByIdSensor($sensor_id);
+
+      $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
+      $score_array = $scoreManager->getLastScoreFromStructure($equipement_id);
+
+      $score = $score_array["score_value"];
+
+      $choc_power_data = $chocManager->getLastChocbyIdSensor($sensor_id);
+      $last_choc_power = $choc_power_data['power'];
+      $last_choc_date = $choc_power_data['date'];
+
+      $allStructureData[$index_array] = array('ligneHT' => $equipement_name,
+      'equipement' => $equipement_pylone,
+       'lastDate' =>$lastdate, 'lastScore' =>$score,
+        'lastChocPower' =>$last_choc_power, 'temperature' =>$temperature);
+
+      $count += 1;
+    }
+
+    View::renderTemplate('Data/viewDataArray.html', [
+      'all_site'    => $all_site,
       'all_structure_data' => $allStructureData
     ]);
   }

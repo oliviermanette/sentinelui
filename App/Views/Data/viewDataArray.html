@@ -1,0 +1,46 @@
+<div class="list-group">
+  {% if all_structure_data is not empty %}
+  <ul>
+    {% for key,val in all_structure_data  %}
+    <!--<pre>{{ dump(val) }}</pre>-->
+    <a href="#!" class="list-group-item list-group-item-action flex-column align-items-start">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ val.equipement }} | {{ val.ligneHT }}</h5>
+        <small class="text-muted">{{val.lastDate}}</small>
+      </div>
+      <div class="row">
+        <div class="column">
+          <div class="card card-1">
+            <h3>Score</h3>
+            <p><b>{{val.lastScore}}</b></p>
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="card card-3 ">
+            <h3>Situation</h3>
+            <p><b>{{all_score.predicted_maintenance}}</b></p>
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="card card-2">
+            <h3>Température</h3>
+            <p><b>{{val.temperature}} °C </b></p>
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="card card-4">
+            <h3>Choc</h3>
+            <p><b>{{val.lastChocPower}} W</b></p>
+          </div>
+        </div>
+      </div>
+      <p class="mb-1">Voir l'ensemble des données</p>
+      <small class="text-muted">Donec id elit non mi porta.</small>
+    </a>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
