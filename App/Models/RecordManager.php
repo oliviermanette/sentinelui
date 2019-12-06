@@ -424,10 +424,22 @@ class RecordManager extends \Core\Model
   }
 
 
+  public function getDateLastReceivedData($structure_id){
+    $db = static::getDB();
+    $sql_last_date = "SELECT MAX(DATE(r.date_time)) as dateMaxReceived
+    FROM record as r
+    WHERE r.structure_id = :structure_id";
+
+    $stmt = $db->prepare($sql_last_date);
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $last_date= $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $last_date[0];
+    }
+  }
 
   function getDateMinMaxFromRecord(){
-
-
     $db = static::getDB();
     $query_min_max_date = "SELECT (SELECT Max(date_time) FROM record) AS MaxDateTime,
     (SELECT Min(date_time) FROM record) AS MinDateTime";

@@ -67,11 +67,11 @@ function getEquipements($group_name){
   * @param string $group_name the name of the group we want to retrieve equipment data
   * @return array  results from the query
   */
-function getEquipementsById($siteID, $group_name){
+function getEquipementsBySiteId($siteID, $group_name){
     $db = static::getDB();
 
-    $sql_query_equipement_by_id = "SELECT DISTINCT equipement, equipement_id, nom, site_id FROM
-    (SELECT  gs.sensor_id, site.nom AS nom, site.id AS site_id, st.nom AS equipement, st.id AS equipement_id FROM structure AS st
+    $sql_query_equipement_by_id = "SELECT DISTINCT equipement_id, equipement, ligneHT, nomSite FROM
+    (SELECT  gs.sensor_id, site.nom AS nomSite, site.id AS site_id, st.transmision_line_name AS ligneHT, st.nom AS equipement, st.id AS equipement_id FROM structure AS st
       INNER JOIN record AS r ON (r.structure_id=st.id)
       INNER JOIN sensor AS s ON (s.id = r.sensor_id)
       INNER JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
@@ -84,10 +84,29 @@ function getEquipementsById($siteID, $group_name){
       $stmt->bindValue(':site_id', $siteID, PDO::PARAM_INT);
 
       if ($stmt->execute()) {
-        $all_equipment_by_id = $stmt->fetchAll();
+        $all_equipment_by_id = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return $all_equipment_by_id;
       }
+}
+
+function getSensorIdOnEquipement($structure_id){
+  $db = static::getDB();
+
+  $sql_sensor_id= "SELECT DISTINCT sensor.id AS sensor_id FROM sensor
+  LEFT JOIN record as r ON (r.sensor_id = sensor.id)
+  LEFT JOIN structure as st ON (r.structure_id = st.id)
+  WHERE st.id = :structure_id";
+
+  $stmt = $db->prepare($sql_sensor_id);
+  $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+
+  if ($stmt->execute()) {
+    $sensor_id_res = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    return $sensor_id_res[0];
+  }
+
 }
 
 function getAllStructuresBySiteId($siteID){
@@ -101,34 +120,12 @@ function getAllStructuresBySiteId($siteID){
 
   if ($stmt->execute()) {
     $all_temp = $stmt->fetchAll();
-    
+
     return $all_temp;
   }
 
 }
 
-/**
-* Get all the equipement score given a specific site ID
-*
-* @param int $siteID the site ID which we want to retrieve the score of the structure
-* @return array  results from the query
-*/
-public function getAllStructuresScoresBySiteId($siteID){
-  $db = static::getDB();
 
-  $sql ="SELECT st.nom, s.date as date, s.score_value AS score , s.predicted_maintenance AS 'predicted_maintenance'
-  FROM `structure` as st
-  LEFT JOIN score AS s ON (s.id = st.score_id)
-  WHERE site_id = :site_id";
-
-  $stmt = $db->prepare($sql);
-  $stmt->bindValue(':site_id', $siteID, PDO::PARAM_INT);
-
-  if ($stmt->execute()) {
-    $all_score = $stmt->fetchAll();
-
-    return $all_score;
-  }
-}
 
 }

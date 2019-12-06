@@ -56,6 +56,37 @@ class ChocManager extends \Core\Model
     }
   }
 
+  public function getLastChocbyIdSensor($sensor_id){
+    $db = static::getDB();
+
+    $sql_last_choc ="SELECT r.date_time as date, power
+    FROM choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    WHERE sensor.id = :sensor_id ORDER BY date DESC LIMIT 1
+    ";
+
+    $stmt = $db->prepare($sql_last_choc);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $results[0];
+    }
+
+  }
+
+  public function getAllPowerDataChoc(){
+    $sql = "SELECT sensor.id, r.date_time, power
+    FROM choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    INNER JOIN structure AS st
+    ON st.id=r.structure_id
+    ";
+  }
+
   /**
   * Get all the choc messages received from the sensors given a specific sensor id
   *

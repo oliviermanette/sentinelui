@@ -7,6 +7,8 @@ use \App\Auth;
 use \App\Models\InclinometerManager;
 use \App\Models\SiteManager;
 use \App\Models\EquipementManager;
+use \App\Models\ScoreManager;
+use \App\Models\ChocManager;
 use \App\Models\RecordManager;
 
 
@@ -29,19 +31,42 @@ class ControllerData extends Authenticated
   }
 
   public function indexAction(){
-
-    $inclinometerManager = new InclinometerManager();
-    $temperature_data = $inclinometerManager->getLatestTemperatureRecordByIdSensor("6");
-
     $equipementManager = new EquipementManager();
-    $allStructuresBySpecificSite = $equipementManager->getAllStructuresBySiteId(28);
+    $recordManager = new RecordManager();
+    $scoreManager = new ScoreManager();
+    $chocManager = new ChocManager();
+    $inclinometerManager = new InclinometerManager();
 
-    $allScoreBySpecificSite = $equipementManager->getAllStructuresScoresBySiteId(28);
+    $equipements_site = $equipementManager->getEquipementsBySiteId("28", "RTE");
+    $allStructureData = array();
+    $count = 0;
+    foreach($equipements_site as $equipement){
+      $index_array = "equipement_". $count;
+
+      $equipement_id = $equipement['equipement_id'];
+      $equipement_name = $equipement['ligneHT'];
+
+      $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
+      $temperature = $inclinometerManager->getLatestTemperatureRecordByIdSensor($sensor_id);
+
+      $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
+      $score_array = $scoreManager->getLastScoreFromStructure($equipement_id);
+
+      $score = $score_array["score_value"];
+
+      $choc_power_data = $chocManager->getLastChocbyIdSensor($sensor_id);
+      $last_choc_power = $choc_power_data['power'];
+      $last_choc_date = $choc_power_data['date'];
+      echo $last_choc_power ."\n";
+      $allStructureData[$index_array] = array('ligneHT' => $equipement_name,
+       'lastDate' =>$lastdate, 'lastScore' =>$score,
+        'lastChocPower' =>$last_choc_power, 'temperature' =>$temperature);
+
+      $count += 1;
+    }
 
     View::renderTemplate('Data/presentation.html', [
-      'temperature_data'    => $temperature_data,
-      'all_structure' => $allStructuresBySpecificSite,
-      'all_score' => $allScoreBySpecificSite,
+      'all_structure_data' => $allStructureData
     ]);
   }
 

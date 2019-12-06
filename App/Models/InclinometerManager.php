@@ -108,25 +108,20 @@ class InclinometerManager extends \Core\Model
     $db = static::getDB();
 
     $sql = "SELECT
-    `temperature`,
-    DATE(`date_time`) AS date_d
+    `temperature`
     FROM
     inclinometer AS inc
     LEFT JOIN record AS r ON (r.id = inc.record_id)
     WHERE
     `msg_type` LIKE 'inclinometre'
-    AND `sensor_id` LIKE :sensor_id
-    ORDER BY
-    `date_d` DESC
-    limit
-    1";
+    AND `sensor_id` LIKE :sensor_id";
 
     $stmt = $db->prepare($sql);
 
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-      $last_temp = $stmt->fetch(PDO::FETCH_ASSOC);
+      $last_temp = $stmt->fetch(PDO::FETCH_COLUMN);
 
       return $last_temp;
     }
