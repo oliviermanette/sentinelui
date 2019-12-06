@@ -45,8 +45,6 @@ class ControllerData extends Authenticated
     ]);
   }
 
-
-
     /**
     * After filter
     *
