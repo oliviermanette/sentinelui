@@ -83,7 +83,7 @@ class ControllerAccueil extends Authenticated
     $group_name = $_SESSION['group_name'];
 
     $data_map = $recordManager-> getDataMap($group_name);
-    
+
     $arr = [];
     $inc = 0;
     foreach ($data_map as $row){
