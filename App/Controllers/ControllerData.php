@@ -30,6 +30,10 @@ class ControllerData extends Authenticated
 
   }
 
+  public function testAction(){
+    View::renderTemplate('card.html');
+  }
+
   public function indexAction(){
     $equipementManager = new EquipementManager();
     $recordManager = new RecordManager();

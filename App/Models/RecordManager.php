@@ -497,19 +497,18 @@ class RecordManager extends \Core\Model
   function getDataMap($group_name){
     $db = static::getDB();
 
-    $query_data_map = "SELECT r.sensor_id, s.latitude AS latitude_site, s.longitude AS longitude_site,
-    AVG(r.latitude) AS latitude_sensor, AVG(r.longitude) AS longitude_sensor, s.nom AS site, st.nom AS equipement
+    $query_data_map = "SELECT DISTINCT r.sensor_id, s.latitude AS latitude_site, s.longitude AS longitude_site,
+    st.latitude AS latitude_sensor, st.longitude AS longitude_sensor, s.nom AS site, st.nom AS equipement
     FROM record AS r
     INNER JOIN sensor ON (sensor.id=r.sensor_id)
     INNER JOIN structure AS st ON r.structure_id = st.id
     INNER JOIN site AS s ON s.id = st.site_id
     INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
     INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE gn.name LIKE '$group_name'
-    GROUP BY `sensor_id`, s.nom, st.nom  ,  s.latitude, s.longitude
-    ORDER BY r.sensor_id ASC";
+    WHERE gn.name LIKE :group_name";
 
     $stmt = $db->prepare($query_data_map);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
     if ($stmt->execute()) {
       $data_map = $stmt->fetchAll();
       return $data_map;

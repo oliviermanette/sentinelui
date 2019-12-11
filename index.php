@@ -38,6 +38,7 @@ $router->add('password/reset/{token:[\da-f]+}', ['controller' => 'Password', 'ac
 $router->add('data', ['controller' => 'ControllerDataObjenious', 'action' => 'receiveRawDataFromObjenious']);
 //Test
 $router->add('test', ['controller' => 'ControllerData', 'action' => 'index']);
+$router->add('test2', ['controller' => 'ControllerData', 'action' => 'test']);
 
 //Match route controller/action
 $router->add('{controller}/{action}');

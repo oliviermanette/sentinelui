@@ -4,6 +4,7 @@ bootstrap/*
 App/Config.php
 vendor/*
 composer.lock
+theme-admin/*
 
 #Ignore node_module
 node_modules/*

@@ -481,7 +481,7 @@ function showMap(data){
             sensor_id = obj.sensor_id;
             site = obj.site;
             equipement = obj.equipement;
-
+            
             L.marker([latitude_sensor, longitude_sensor] ).addTo(map)
             .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
           }

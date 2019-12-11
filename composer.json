@@ -1,13 +1,14 @@
 {
-    "require": {
-        "twig/twig": "^2.0",
-         "sendgrid/sendgrid": "~7",
-        "opencage/geocode": "^2.1"
-    },
-    "autoload": {
-        "psr-4": {
-             "Core\\": "Core/",
-             "App\\": "App/"
-        }
+  "require": {
+    "twig/twig": "^2.0",
+    "sendgrid/sendgrid": "~7",
+    "opencage/geocode": "^2.1",
+    "components/font-awesome":"5.11.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Core\\": "Core/",
+      "App\\": "App/"
     }
+  }
 }
