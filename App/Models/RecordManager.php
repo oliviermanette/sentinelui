@@ -594,9 +594,10 @@ class RecordManager extends \Core\Model
     WHERE ";
 
     if (!empty($dateMin) && !empty($dateMax)){
-      $query_all_specific_msg =  "(date(r.date_time) BETWEEN date(CONCAT(:date_min, '%')) and date(CONCAT(:date_max, '%'))) AND ";
+      $sql_query_all_specific_msg =  "(date(r.date_time) BETWEEN date(CONCAT(:date_min, '%')) and date(CONCAT(:date_max, '%'))) AND ";
     }
-    $query_all_specific_msg .= "Date(r.date_time) >= Date(sensor.installation_date)
+
+    $sql_query_all_specific_msg .= "Date(r.date_time) >= Date(sensor.installation_date)
     AND s.id LIKE :site_id AND r.msg_type LIKE CONCAT(:type_msg, '%') AND st.id LIKE :equipment_id order by r.date_time desc ";
 
     $stmt = $db->prepare($sql_query_all_specific_msg);
@@ -850,7 +851,7 @@ class RecordManager extends \Core\Model
 
   public function getDataForSpecificChart($time_data, $type_msg, $sensor_id ){
     $db = static::getDB();
-
+    $useTimeData = True;
     if ($type_msg == "global"){
       //Temperature
       $sql_query = "SELECT
@@ -864,6 +865,7 @@ class RecordManager extends \Core\Model
       AND `sensor_id` LIKE :sensor_id
       ORDER BY
       date_d ASC ";
+      $useTimeData = False;
 
     }else if ($type_msg == "inclinometre"){
       //Inclinometre
@@ -887,8 +889,7 @@ class RecordManager extends \Core\Model
       WHERE
       `msg_type` LIKE 'inclinometre'
       AND `sensor_id` LIKE :sensor_id
-      ORDER BY
-      date_d ASC";
+      AND r.date_time LIKE :time_data";
 
     }else if ($type_msg == "choc"){
       //Choc
@@ -908,8 +909,7 @@ class RecordManager extends \Core\Model
       WHERE
       `msg_type` LIKE 'choc'
       AND `sensor_id` LIKE :sensor_id
-      ORDER BY
-      date_d ASC
+      AND r.date_time LIKE :time_data
       ";
 
     }else if ($type_msg == "spectre"){
@@ -932,7 +932,7 @@ class RecordManager extends \Core\Model
       JOIN structure as st ON (st.id = r.structure_id)
       JOIN site as s ON (s.id = st.site_id)
       WHERE
-      CAST(r.date_time as DATE) LIKE :time_data
+      r.date_time LIKE :time_data
       AND r.sensor_id = :sensor_id ";
 
     }
@@ -943,6 +943,10 @@ class RecordManager extends \Core\Model
     $stmt = $db->prepare($sql_query);
 
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    if ($useTimeData){
+      $stmt->bindValue(':time_data', $time_data, PDO::PARAM_STR);
+    }
+
 
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);

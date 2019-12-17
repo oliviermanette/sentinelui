@@ -68,10 +68,9 @@ class ControllerAccueil extends Authenticated
 
     $siteID = $_POST['site_id'];
     $group_name = $_SESSION['group_name'];
-    //var_dump($siteID);
-    $equipementManager = new EquipementManager();
-    $all_equipment = $equipementManager->getEquipementsById($siteID, $group_name);
 
+    $equipementManager = new EquipementManager();
+    $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
     View::renderTemplate('Homepage/formSelect.html', [
       'all_equipment' => $all_equipment,
     ]);
@@ -172,9 +171,15 @@ class ControllerAccueil extends Authenticated
 
     $site_id = $_POST["site_request"];
     $equipement_id = $_POST["equipement_request"];
+    $dateMin = '';
+    $dateMax = '';
 
-    $dateMin = $_POST["dateMin"];
-    $dateMax = $_POST["dateMax"];
+    if (isset($_POST["dateMin"])){
+      $dateMin = $_POST["dateMin"];
+    }
+    if (isset($_POST["dateMax"])){
+      $dateMax = $_POST["dateMax"];
+    }
     $typeMSG = '';
 
     $recordManager = new RecordManager();
@@ -203,6 +208,7 @@ class ControllerAccueil extends Authenticated
       $type_msg = $_POST["type_msg_request"];
       $sensor_id = $_POST["id_sensor_request"];
       $time_data =  $_POST['time_data_request'];
+
       $all_charts_data = $recordManager->getDataForSpecificChart($time_data, $type_msg, $sensor_id );
       print json_encode($all_charts_data);
     }

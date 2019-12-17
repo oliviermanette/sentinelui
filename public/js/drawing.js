@@ -84,6 +84,7 @@ function drawInclinometerFromData(inclinometerDataJson, canvaID = "canvas_inclin
     date.push(inclinometerDataJson[i].date_d);
   }
 
+  //console.log(nz);
   var chartdata = {
     labels: date,
     datasets : [
@@ -272,11 +273,11 @@ function drawChocFromData(chocDataJson, canvaID = "canvas_choc" ){
   var time_2 = [];
   var date_data = []
 
-  amplitude.push(parseInt(chocDataJson[0].amplitude_1));
-  amplitude.push(parseInt(chocDataJson[0].amplitude_2));
-  time_data.push(parseInt(chocDataJson[0].time_1));
-  time_data.push(parseInt(chocDataJson[0].time_2));
-  date_data.push(parseInt(chocDataJson[0].date_d));
+  amplitude.push(parseFloat(chocDataJson[0].amplitude_1));
+  amplitude.push(parseFloat(chocDataJson[0].amplitude_2));
+  time_data.push(parseFloat(chocDataJson[0].time_1));
+  time_data.push(parseFloat(chocDataJson[0].time_2));
+  date_data.push(chocDataJson[0].date_d);
   var array_data = []; // create an empty array
 
   var obj = {x:0,y:0};
@@ -309,10 +310,15 @@ function drawChocFromData(chocDataJson, canvaID = "canvas_choc" ){
         xAxes: [{
           ticks: {
             beginAtZero: true,
+            min:0,
+            max:time_data[0]+time_data[1],
+            step:0.01,
           },
+          type: 'linear',
           scaleLabel: {
             display: true,
-            labelString: 'Time (μs)'
+
+            labelString: 'Time (s)'
           }
         }],
         yAxes: [{
@@ -323,7 +329,7 @@ function drawChocFromData(chocDataJson, canvaID = "canvas_choc" ){
           },
           scaleLabel: {
             display: true,
-            labelString: 'Amplitude (mg)'
+            labelString: 'Amplitude (g)'
           }
         }]
       },
@@ -415,7 +421,7 @@ function drawSubSpectreFromData(subspectreDataJson,canvaID = "canvas_subspectre"
 
 function showMap(data){
   data = JSON.parse(data);
-  console.log(data);
+  //console.log(data);
   var lat_france = 46.2276;
   var long_france = 2.2137;
 
@@ -481,7 +487,7 @@ function showMap(data){
             sensor_id = obj.sensor_id;
             site = obj.site;
             equipement = obj.equipement;
-            
+
             L.marker([latitude_sensor, longitude_sensor] ).addTo(map)
             .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
           }
