@@ -69,7 +69,7 @@ class ControllerData extends Authenticated
 
       $score = $score_array["score_value"];
 
-      $choc_power_data = $chocManager->getLastChocbyIdSensor($sensor_id);
+      $choc_power_data = $chocManager->getLastChocPowerForSensor($sensor_id);
       $last_choc_power = $choc_power_data['power'];
       $last_choc_date = $choc_power_data['date'];
 
@@ -122,7 +122,7 @@ class ControllerData extends Authenticated
 
       $score = $score_array["score_value"];
 
-      $choc_power_data = $chocManager->getLastChocbyIdSensor($sensor_id);
+      $choc_power_data = $chocManager->getLastChocPowerForSensor($sensor_id);
       $last_choc_power = $choc_power_data['power'];
       $last_choc_date = $choc_power_data['date'];
 

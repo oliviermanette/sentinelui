@@ -44,7 +44,7 @@ class Config
   * API KEY Sendgrid
   * @var boolean
   */
-  const SENDGRID_API_KEY = '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';
+  const SENDGRID_API_KEY = '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';
 
   /**
   * API KEY opencagedata geocode
