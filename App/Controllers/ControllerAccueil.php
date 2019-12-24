@@ -60,7 +60,7 @@ class ControllerAccueil extends Authenticated
 
   public function getSpecificInfoCardAction(){
     $recordManager = new RecordManager();
-    $temperature_data = $recordManager->getLatestTemperatureRecordByIdSensor("6");
+    //$temperature_data = $recordManager->getLatestTemperatureRecordByIdSensor("6");
     #var_dump($temp["temperature"]);
   }
 

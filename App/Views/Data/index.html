@@ -11,13 +11,13 @@
 <br>
 
 <div class="container">
-  <form role="form"  method="post" name="equipementrequest" id="equipementrequest">
+  <form role="form" method="post" name="equipementrequest" id="equipementrequest">
     <div class="field">
       <label>Choisissez un site</label>
       <select class="browser-default custom-select" name="siteID" id="siteID">
         <option value="" selected>Choisissez un site</option>
         {% for site in all_site %}
-        <option value={{ site.site_id }} >{{ site.site }}  </option>
+        <option value={{ site.site_id }}>{{ site.site }} </option>
         {% endfor %}
 
       </select>
@@ -37,43 +37,45 @@
             <h5 class="mb-1">{{ val.equipement }} | {{ val.ligneHT }}</h5>
             <small class="text-muted">{{val.lastDate}}</small>
           </div>
-          <div class="row">
-            <div class="column">
-              <div class="card card-1">
-                <h3>Score</h3>
-                <p><b>{{val.lastScore}}</b></p>
-              </div>
-            </div>
+           <div class="row">
+             <div class="col-xs-12 col-sm-6 col-md-3">
+               <div class="card card-1">
+                 <h3>Nombre choc aujourd'hui</h3>
+                 <p><b>{{val.nb_choc_received_today}}</b></p>
+               </div>
+             </div>
 
-            <div class="column">
-              <div class="card card-3 ">
-                <h3>Situation</h3>
-                <p><b>{{all_score.predicted_maintenance}}</b></p>
-              </div>
-            </div>
+             <div class="col-xs-12 col-sm-6 col-md-3">
+               <div class="card card-3 ">
+                 <h3>Puissance du choc aujourd'hui</h3>
+                 <p><b>{{val.lastChocPower}} W</b></p>
+               </div>
+             </div>
 
-            <div class="column">
-              <div class="card card-2">
-                <h3>Température</h3>
-                <p><b>{{val.temperature}} °C </b></p>
-              </div>
-            </div>
+             <div class="col-xs-12 col-sm-6 col-md-3">
+               <div class="card card-2">
+                 <h3>Température</h3>
+                 <p><b>{{val.temperature}} °C </b></p>
+               </div>
+             </div>
 
-            <div class="column">
-              <div class="card card-4">
-                <h3>Choc</h3>
-                <p><b>{{val.lastChocPower}} W</b></p>
-              </div>
-            </div>
+             <div class="column">
+               <div class="card card-4">
+                 <h3>Label inclinometre</h3>
+                 <p><b> OK </b></p>
+               </div>
+             </div>
+           </div>
+
+
           </div>
           <p class="mb-1">Voir l'ensemble des données</p>
-          <small class="text-muted">Donec id elit non mi porta.</small>
-        </a>
-        {% endfor %}
+          {% endfor %}
       </ul>
-      {% endif %}
     </div>
+    {% endif %}
   </div>
+</div>
 </div>
 
 
@@ -81,38 +83,56 @@
 
 {% block script %}
 <script>
+  $(document).on('submit', '#equipementrequest', function (event) {
 
-  $(document).ready(function(){
+    event.preventDefault();
 
-    $("#equipementrequest").submit(function(event) {
-      event.preventDefault();
+    if (!$('#siteID option:selected').val()) {
+      alert("No site is selected");
+      return;
+    }
 
-      if(!$('#siteID option:selected').val()){
-        alert("No site is selected");
-        return;
+    var formData = new FormData();
+    formData.append('siteID', $('#siteID option:selected').val());
+
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var jsonData = this.responseText;
+        //console.log("Refresh data : ",jsonData);
+        removeElementAndChilds("resultcontainer");
+
+        addElement("containerTab", "div", "resultcontainer");
+        $('#resultcontainer').html(jsonData);
+
       }
+    };
+    xhttp.open("POST", "/ControllerData/refreshData", true);
+    xhttp.send(formData);
 
-      var formData = new FormData();
-      formData.append('siteID',  $('#siteID option:selected').val());
-
-      xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          var jsonData =  this.responseText;
-          removeElement("resultcontainer");
-          addElement("containerTab", "div", "resultcontainer");
-          $('#resultcontainer').html(jsonData);
+    xhttp1 = new XMLHttpRequest();
+    xhttp1.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var choc_data = this.responseText;
+        choc_data = JSON.parse(choc_data);
+        //console.log(choc_data);
+        for (var i = 0; i < Object.keys(choc_data).length; i++){
+           var name_data = "equipement_" + i;
+           var name_canvas = "canvas_equipement_" + i;
+           var name_canvas_bis = "canvas_bis_equipement_" + i;
+           //console.log(choc_data[name_data]);
+           drawChartNbChocDate(choc_data[name_data]['nb_choc_per_day'], name_canvas);
+           drawPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'], name_canvas_bis);
         }
-      };
-      xhttp.open("POST", "/ControllerData/refreshData", true);
-      xhttp.send(formData);
-    });
+        //drawChartNbChocDate(choc_data, "canvas_equipement_0");
+        //drawPowerChocPerDate(choc_data, "canvas_equipement_0");
 
+
+      }
+    };
+    xhttp1.open("POST", "/ControllerData/getChartsChoc", true);
+    xhttp1.send(formData);
   });
-
-
-
-
 </script>
 
 {% endblock %}
