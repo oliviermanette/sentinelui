@@ -74,7 +74,6 @@ function drawChartNbChocDate(data, canvaID = "canvas_choc_nb") {
 
 }
 
-
 /**
  * @desc Draw chart for displaying the power of each choc per day
  * @param json data - data which contain power of each choc and date
@@ -256,11 +255,11 @@ function drawPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     data: chartdata,
     options: options
   });
-  
+
   //From the array of date and choc power, and check if for a specific date, we have multiple choc
   //If it's the case, we gather for this date all the choc data
 
-  var powerChocPerDayArr = Array();//Each array will contain the choc data for a specific day
+  var powerChocPerDayArr = Array(); //Each array will contain the choc data for a specific day
   var chocPerDayCount = 0;
 
   for (var i in data) {
@@ -340,8 +339,6 @@ function drawPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     chartInstance.update();
   }
 }
-
-
 
 /**
  * @desc Draw chart for displaying temperature in function to date
@@ -755,17 +752,17 @@ function drawSubSpectreFromData(subspectreData, canvaID = "canvas_subspectre") {
     index_stop += 2;
   }
   var title = "Spectre | Resolution = " + String(resolution) + "Hz | Sous spectre = " + String(subspectre_number);
-  
+
   var chartdata = {
     datasets: [{
       data: dataChartArr,
       showLine: true,
     }]
   };
-  
+
   var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
-  
+
   var barGraph = new Chart(ctx, {
     type: 'scatter',
     data: chartdata,
@@ -811,7 +808,7 @@ function drawSubSpectreFromData(subspectreData, canvaID = "canvas_subspectre") {
  */
 function showMap(data) {
   data = JSON.parse(data);
-
+  console.log("Data show map : ", data);
   //For centering the map around France at initialization
   var lat_france = 46.2276;
   var long_france = 2.2137;
@@ -869,14 +866,19 @@ function showMap(data) {
 
   for (var i = 0; i < data.length; i++) {
     var obj = data[i];
-    longitude_sensor = obj.longitude_sensor;
-    latitude_sensor = obj.latitude_sensor;
-    sensor_id = obj.sensor_id;
-    site = obj.site;
-    equipement = obj.equipement;
 
-    L.marker([latitude_sensor, longitude_sensor]).addTo(map)
-      .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+    if (obj.longitude_sensor != null || obj.latitude_sensor != null) {
+      longitude_sensor = obj.longitude_sensor;
+      latitude_sensor = obj.latitude_sensor;
+
+
+      sensor_id = obj.sensor_id;
+      site = obj.site;
+      equipement = obj.equipement;
+
+      L.marker([latitude_sensor, longitude_sensor]).addTo(map)
+        .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+    }
   }
 }
 
