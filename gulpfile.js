@@ -18,7 +18,7 @@ function modules() {
         .pipe(gulp.dest('./public/vendor/bootstrap/js'));
     // Bootstrap CSS
     var bootstrapCSS = gulp.src('./vendor/bootstrap/dist/css/*')
-            .pipe(gulp.dest('./public/vendor/bootstrap/css'));
+        .pipe(gulp.dest('./public/vendor/bootstrap/css'));
     // Bootstrap SCSS
     var bootstrapSCSS = gulp.src('./vendor/bootstrap/scss/**/*')
         .pipe(gulp.dest('./public/vendor/bootstrap/scss'));
