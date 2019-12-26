@@ -5,8 +5,7 @@
     "twig/twig": "^2.0",
     "sendgrid/sendgrid": "~7",
     "opencage/geocode": "^2.1",
-    "squizlabs/php_codesniffer": "3.*",
-    "components/jquery": "^3.4.1"
+    "squizlabs/php_codesniffer": "3.*"
   },
   "autoload": {
     "psr-4": {

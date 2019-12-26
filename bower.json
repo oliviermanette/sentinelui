@@ -20,6 +20,8 @@
     "components-font-awesome": "^5.11.2",
     "semantic": "semantic-ui#^2.4.1",
     "datatables.net": "^1.10.20",
-    "datatables.net-dt": "^3.2.2"
+    "datatables.net-dt": "^3.2.2",
+    "jquery-validation": "^1.19.1",
+    "jquery": "^3.4.1"
   }
 }

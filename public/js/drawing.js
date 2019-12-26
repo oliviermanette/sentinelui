@@ -808,7 +808,7 @@ function drawSubSpectreFromData(subspectreData, canvaID = "canvas_subspectre") {
  */
 function showMap(data) {
   data = JSON.parse(data);
-  console.log("Data show map : ", data);
+  //console.log("Data show map : ", data);
   //For centering the map around France at initialization
   var lat_france = 46.2276;
   var long_france = 2.2137;

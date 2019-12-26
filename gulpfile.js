@@ -9,13 +9,16 @@ var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')({
     lazy: true,
     pattern: '*'
-}); 
+});
 
 // Bring third party dependencies from vendor into public directory
 function modules() {
     // Bootstrap JS
     var bootstrapJS = gulp.src('./vendor/bootstrap/dist/js/*')
         .pipe(gulp.dest('./public/vendor/bootstrap/js'));
+    // Bootstrap CSS
+    var bootstrapCSS = gulp.src('./vendor/bootstrap/dist/css/*')
+            .pipe(gulp.dest('./public/vendor/bootstrap/css'));
     // Bootstrap SCSS
     var bootstrapSCSS = gulp.src('./vendor/bootstrap/scss/**/*')
         .pipe(gulp.dest('./public/vendor/bootstrap/scss'));
@@ -24,8 +27,8 @@ function modules() {
         .pipe(gulp.dest('./public/vendor/chart.js'));
     // Semantic UI 
     var semantic = gulp.src([
-            './vendor/semantic/dis/*.js',
-            './vendor/semantic/css/*.css'
+            './vendor/semantic/dist/*.js',
+            './vendor/semantic/dist/*.css'
         ])
         .pipe(gulp.dest('./public/vendor/semantic'));
     // dataTables
@@ -44,7 +47,12 @@ function modules() {
             '!./vendor/jquery/dist/core.js'
         ])
         .pipe(gulp.dest('./public/vendor/jquery'));
-    return plugins.mergeStream(bootstrapJS, bootstrapSCSS, chartJS, semantic, dataTables, fontAwesome, jquery);
+    // jQuery validation
+    var jqueryValidation = gulp.src([
+            './vendor/jquery-validation/dist/*.js',
+        ])
+        .pipe(gulp.dest('./public/vendor/jquery-validation'));
+    return plugins.mergeStream(bootstrapJS, bootstrapCSS, bootstrapSCSS, chartJS, semantic, dataTables, fontAwesome, jquery);
 }
 
 ///// TASKS

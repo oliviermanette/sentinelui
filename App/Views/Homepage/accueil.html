@@ -277,7 +277,7 @@ function fetchDataMap(functionToRun) {
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       var jsonData =  this.responseText;
-      console.log(jsonData);
+      //console.log(jsonData);
       return functionToRun(jsonData);
 
     }
