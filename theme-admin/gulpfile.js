@@ -1,18 +1,23 @@
-"use strict";
-
-// Load plugins
-const autoprefixer = require("gulp-autoprefixer");
-const browsersync = require("browser-sync").create();
-const cleanCSS = require("gulp-clean-css");
-const del = require("del");
 const gulp = require("gulp");
-const header = require("gulp-header");
-const merge = require("merge-stream");
-const plumber = require("gulp-plumber");
-const rename = require("gulp-rename");
-const sass = require("gulp-sass");
-const uglify = require("gulp-uglify");
+// Load plugins
+// const autoprefixer = require("gulp-autoprefixer");
+// const browsersync = require("browser-sync").create();
+// const cleanCSS = require("gulp-clean-css");
+// const del = require("del");
+// 
+// const header = require("gulp-header");
+// const merge = require("merge-stream");
+// const plumber = require("gulp-plumber");
+// const rename = require("gulp-rename");
+// const sass = require("gulp-sass");
+// const uglify = require("gulp-uglify");
+// Include plugins
 
+var plugins = require('gulp-load-plugins')({
+  lazy: true,
+  pattern: '*'
+}); // tous les plugins de package.json
+console.log(plugins);
 // Load package.json for banner
 const pkg = require('./package.json');
 
@@ -37,7 +42,7 @@ function browserSyncReload(done) {
 
 // Clean vendor
 function clean() {
-  return del(["./vendor/"]);
+  return plugins.del(["./vendor/"]);
 }
 
 // Bring third party dependencies from node_modules into vendor directory
@@ -70,7 +75,7 @@ function modules() {
       '!./node_modules/jquery/dist/core.js'
     ])
     .pipe(gulp.dest('./vendor/jquery'));
-  return merge(bootstrapJS, bootstrapSCSS, chartJS, dataTables, fontAwesome, jquery, jqueryEasing);
+  return plugins.mergeStream(bootstrapJS, bootstrapSCSS, chartJS, dataTables, fontAwesome, jquery, jqueryEasing);
 }
 
 ///// TASKS
