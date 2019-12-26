@@ -462,7 +462,8 @@ class RecordManager extends \Core\Model
     }
   }
 
-  function getBriefInfoFromRecord(){
+  function getBriefInfoFromRecord($group_name)
+  {
 
     $db = static::getDB();
 
@@ -481,17 +482,17 @@ class RecordManager extends \Core\Model
     INNER JOIN sensor ON (sensor.id=r.sensor_id)
     INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
     INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE gn.name = 'RTE' AND Date(r.date_time) >= Date(sensor.installation_date)
+    WHERE gn.name = :group_name AND Date(r.date_time) >= Date(sensor.installation_date)
     GROUP BY r.sensor_id, st.nom, s.nom) AS all_message_rte_sensor
     ";
 
     $stmt = $db->prepare($query_get_number_record);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
       $res = $stmt->fetchAll();
       return $res;
     }
-
   }
 
   function getDataMap($group_name){

@@ -40,7 +40,7 @@ class ControllerAccueil extends Authenticated
     $all_equipment = $equipementManager->getEquipements($group_name);
 
     $recordManager = new RecordManager();
-    $brief_data_record = $recordManager->getBriefInfoFromRecord();
+    $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
 
 
     $date_min_max = $recordManager->getDateMinMaxFromRecord();
