@@ -9,6 +9,39 @@
 <br>
 <hr class="style1">
 <br>
+<div class="container">
+  <form name="contact-form" class="ui form" action="" method="post" id="getData">
+    <div class="ui form">
+      <div class="four fields">
+        <div class="field">
+          <label>Choisissez un site</label>
+          <select class="browser-default custom-select" name="siteDB" id="siteDB">
+            <option value="" selected>Choisissez un site</option>
+
+            {% for site in all_site %}
+            <option value={{ site.site_id }}>{{ site.site }} </option>
+            {% endfor %}
+
+          </select>
+        </div>
+        <div class="field" id="equipmentField">
+          <label>Choisissez un équipement associé</label>
+          <select class="browser-default custom-select" name="equipment" id="equipment">
+            <option value="" selected>Choisissez un équipement associé</option>
+            {% for equipment in all_equipment %}
+            <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Choisissez une date (optionnel)</label>
+          <input type="text" name="daterange" placeholder="" />
+        </div>
+        <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
+      </div>
+    </div>
+  </form>
+</div>
 
 <div class="container">
   <form role="form" method="post" name="equipementrequest" id="equipementrequest">
@@ -66,8 +99,6 @@
                </div>
              </div>
            </div>
-
-
           </div>
           <p class="mb-1">Voir l'ensemble des données</p>
           {% endfor %}

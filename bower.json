@@ -1,0 +1,25 @@
+{
+  "name": "Sentive",
+  "version": "0.1.0",
+  "authors": [
+    "Lirone Samoun"
+  ],
+  "description": "",
+  "main": "",
+  "keywords": [],
+  "license": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "README.md"
+  ],
+  "dependencies": {
+    "chart.js": "^2.9.3",
+    "bootstrap": "^4.4.1",
+    "components-font-awesome": "^5.11.2",
+    "semantic": "semantic-ui#^2.4.1",
+    "datatables.net": "^1.10.20",
+    "datatables.net-dt": "^3.2.2"
+  }
+}

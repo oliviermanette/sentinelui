@@ -16,14 +16,7 @@ const uglify = require("gulp-uglify");
 // Load package.json for banner
 const pkg = require('./package.json');
 
-// Set the banner content
-const banner = ['/*!\n',
-  ' * Start Bootstrap - <%= pkg.title %> v<%= pkg.version %> (<%= pkg.homepage %>)\n',
-  ' * Copyright 2013-' + (new Date()).getFullYear(), ' <%= pkg.author %>\n',
-  ' * Licensed under <%= pkg.license %> (https://github.com/BlackrockDigital/<%= pkg.name %>/blob/master/LICENSE)\n',
-  ' */\n',
-  '\n'
-].join('');
+
 
 // BrowserSync
 function browserSync(done) {
@@ -80,21 +73,20 @@ function modules() {
   return merge(bootstrapJS, bootstrapSCSS, chartJS, dataTables, fontAwesome, jquery, jqueryEasing);
 }
 
+///// TASKS
+
 // CSS task
 function css() {
   return gulp
     .src("./scss/**/*.scss")
     .pipe(plumber())
     .pipe(sass({
-      outputStyle: "expanded",
+      outputStyle: "nested",
       includePaths: "./node_modules",
     }))
     .on("error", sass.logError)
     .pipe(autoprefixer({
       cascade: false
-    }))
-    .pipe(header(banner, {
-      pkg: pkg
     }))
     .pipe(gulp.dest("./css"))
     .pipe(rename({
@@ -113,9 +105,6 @@ function js() {
       '!./js/*.min.js',
     ])
     .pipe(uglify())
-    .pipe(header(banner, {
-      pkg: pkg
-    }))
     .pipe(rename({
       suffix: '.min'
     }))
