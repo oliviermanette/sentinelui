@@ -2,6 +2,7 @@ App/Config.php
 
 vendor/*
 theme-admin/*
+public/vendor/*
 
 #Ignore node_module
 node_modules/*
