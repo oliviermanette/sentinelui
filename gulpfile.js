@@ -11,6 +11,36 @@ var plugins = require('gulp-load-plugins')({
     pattern: '*'
 });
 
+// tâche BrowserSync pour permettre la création d’un serveur
+function browserSync(done) {
+    plugins.browserSync.init({
+        server: {
+            baseDir: "./" //racine du serveur
+        },
+        port: 3000
+    });
+    done();
+}
+
+//JS
+gulp.task('clean', function () {
+    del('./public/vendor/');
+})
+
+gulp.task('browserSync', function () {
+    browserSync({
+        server: {
+            baseDir: './'
+        },
+    })
+})
+
+// BrowserSync reload
+function browserSyncReload(done) {
+    plugins.browserSync.reload();
+    done();
+}
+
 // Bring third party dependencies from vendor into public directory
 function modules() {
     // Bootstrap JS
@@ -76,6 +106,7 @@ function css() {
         }))
         .pipe(plugins.cleanCss())
         .pipe(gulp.dest("./public/css"))
+        .pipe(plugins.browserSync.stream());
 }
 
 // JS task
@@ -92,11 +123,24 @@ function js() {
         .pipe(gulp.dest('./public/js'))
 }
 
+//JS gulp-useref concatène tous les fichiers CSS ou JavaScript en un seul
+gulp.task('useref', function () {
+    var assets = plugins.useref.assets();
+
+    return gulp.src('./App/Views/*.html')
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(plugins.useref())
+        .pipe(gulp.dest('./public/dist'))
+});
+
 // Watch files
 function watchFiles() {
     //observer tous les fichiers Sass et lancer la tâche css à chaque fois qu’un fichier Sass est sauvegardé
     gulp.watch("./public/scss/**/*", css);
     gulp.watch(["./public/js/**/*", "!./public/js/**/*.min.js"], js);
+    //Reloads the browser whenever HTML, JS or PHP files change
+    gulp.watch(["./App/Views/**/*.html", "./public/js/**/*.js", "./**/*.php"], browserSyncReload);
 }
 
 // Define complex tasks
