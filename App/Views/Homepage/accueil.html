@@ -51,14 +51,19 @@
         </form>
       </div>
       </br>
+                <!-- Page Heading -->
+
+
+
       <div class="container">
         <div class="col">
           <div class="row-md-2 col-md-offset-4 text-center">
-            <button id="exportData" type="button" class="btn btn-outline-info"
-              onclick="window.open('/ControllerAccueil/downloadRawData?exportData=excel')">Exporter données
-              (Excel)</button>
-            <button id="exportData" type="button" class="btn btn-outline-info"
-              onclick="window.open('/ControllerAccueil/downloadRawData?exportData=csv')">Exporter données (CSV)</button>
+            <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+              onclick="window.open('/ControllerAccueil/downloadRawData?exportData=excel')"><i
+                class="fas fa-download fa-sm text-white-50"></i> Exporter données (Excel)</button>
+            <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+              onclick="window.open('/ControllerAccueil/downloadRawData?exportData=csv')"><i
+                class="fas fa-download fa-sm text-white-50"></i> Exporter données (CSV)</button>
           </div>
         </div>
       </div>
