@@ -22,10 +22,6 @@ function browserSync(done) {
     done();
 }
 
-//JS
-gulp.task('clean', function () {
-    del('./public/vendor/');
-})
 
 gulp.task('browserSync', function () {
     browserSync({
@@ -52,6 +48,9 @@ function modules() {
     // Bootstrap SCSS
     var bootstrapSCSS = gulp.src('./vendor/bootstrap/scss/**/*')
         .pipe(gulp.dest('./public/vendor/bootstrap/scss'));
+    // Leaflet
+    var leafletJS = gulp.src('./vendor/leaflet/*.js')
+            .pipe(gulp.dest('./public/vendor/leaflet/'));
     // ChartJS
     var chartJS = gulp.src('./vendor/chart.js/dist/*.js')
         .pipe(gulp.dest('./public/vendor/chart.js'));
@@ -82,10 +81,23 @@ function modules() {
             './vendor/jquery-validation/dist/*.js',
         ])
         .pipe(gulp.dest('./public/vendor/jquery-validation'));
-    return plugins.mergeStream(bootstrapJS, bootstrapCSS, bootstrapSCSS, chartJS, semantic, dataTables, fontAwesome, jquery);
+    return plugins.mergeStream(bootstrapJS, bootstrapCSS, bootstrapSCSS, leafletJS, chartJS, semantic, dataTables, fontAwesome, jquery);
 }
 
 ///// TASKS
+
+//JS
+/*
+gulp.task('clean', async function () {
+    plugins.del('./public/vendor/');
+    plugins.del('./public/css/sentive-admin.css');
+    plugins.del('./public/css/sentive-admin.min.css');
+})*/
+
+// Clean vendor
+function clean() {
+    return plugins.del(["./public/vendor/*", './public/css/sentive-admin.css', './public/css/sentive-admin.min.css']);
+}
 
 // CSS task
 function css() {
@@ -116,7 +128,7 @@ function js() {
             './public/js/*.js',
             '!./public/js/*.min.js',
         ])
-        .pipe(plugins.uglify())
+        .pipe(plugins.terser())
         .pipe(plugins.rename({
             suffix: '.min'
         }))
@@ -145,16 +157,17 @@ function watchFiles() {
 
 // Define complex tasks
 //gulp vendor copies dependencies from vendor to the public directory
-const vendor = gulp.series(modules);
+const vendor = gulp.series(clean, modules);
 //compiles SCSS files into CSS and minifies the compiled CSS and minifies the themes JS file
-//const build = gulp.series(vendor, gulp.parallel(css, js));
-const build = gulp.series(vendor, gulp.series(css));
+const build = gulp.series(vendor, gulp.parallel(css, js));
+//const build = gulp.series(vendor, gulp.series(css));
 //reloads and build when changes are made
 const watch = gulp.series(build, watchFiles);
 
 // Export tasks
 exports.css = css;
 exports.js = js;
+exports.clean = clean;
 exports.vendor = vendor;
 exports.build = build;
 exports.watch = watch;
