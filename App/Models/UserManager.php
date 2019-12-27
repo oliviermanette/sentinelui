@@ -164,9 +164,29 @@ class UserManager extends \Core\Model
       return $group_array;
     }
 
-
-
   }
+  public static function findNameUserById($id)
+  {
+    $sql = "SELECT u.first_name
+    FROM user AS u
+    LEFT JOIN group_users as gu ON (gu.user_id = u.id)
+    LEFT JOIN group_name as gn ON (gn.group_id = gu.group_id)
+    WHERE u.id = :id";
+
+    $db = static::getDB();
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+    $group_array = array();
+    if ($stmt->execute()) {
+      $group_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $group_array;
+    }
+  }
+
+
+
 
   /**
   * Authenticate a user by email and password.

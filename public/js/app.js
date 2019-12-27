@@ -1,3 +1,4 @@
+
 /**
 * Add jQuery Validation plugin method for a valid password
 *

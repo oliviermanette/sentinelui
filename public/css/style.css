@@ -21,7 +21,7 @@ Alert
 CARD
 
 **/
-
+/*
 .card {
   background-color: rgba(245, 126, 0, 0.10);
   text-align: center;
@@ -36,7 +36,6 @@ CARD
 }
 
 .card-1 {
-  /*background-color : rgba(238, 114, 114, 0.63);*/
   border: 5px solid rgba(245, 126, 0, 0.82);
 }
 
@@ -47,7 +46,7 @@ CARD
 .card-3 {
   border: 5px solid rgba(245, 126, 0, 0.82);
 }
-
+*/
 /*
 hr.style1{
 	border-top: 1px solid #8c8b8b;
@@ -199,8 +198,8 @@ hr.style1{
 button
 
 **/
-
+/*
 .btn-black{
   background-color: #e07511 !important;
   color: #fff;
-}
+}*/
