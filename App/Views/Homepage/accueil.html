@@ -21,7 +21,7 @@
           <div class="ui form">
             <div class="four fields">
               <div class="field">
-                <label>Choisissez un site</label>
+                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un site</div>
                 <select class="browser-default custom-select" name="siteDB" id="siteDB">
                   <option value="" selected>Choisissez un site</option>
 
@@ -32,7 +32,7 @@
                 </select>
               </div>
               <div class="field" id="equipmentField">
-                <label>Choisissez un équipement associé</label>
+                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un équipement associé</div>
                 <select class="browser-default custom-select" name="equipment" id="equipment">
                   <option value="" selected>Choisissez un équipement associé</option>
                   {% for equipment in all_equipment %}
@@ -41,7 +41,7 @@
                 </select>
               </div>
               <div class="field">
-                <label>Choisissez une date (optionnel)</label>
+                <div class="text-s font-weight-bold text-primary mb-1">Choisissez une date (optionnel)</div>
                 <input type="text" name="daterange" placeholder="" />
               </div>
               <div class="my-2"></div>
