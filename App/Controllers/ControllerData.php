@@ -30,12 +30,100 @@ class ControllerData extends Authenticated
   {
   }
 
-  public function testAction()
-  {
-    View::renderTemplate('card.html');
+  public function indexAction(){
+
+    $group_name = $_SESSION['group_name'];
+
+    $siteManager = new SiteManager();
+    $all_site = $siteManager->getSites($group_name);
+
+    $equipementManager = new EquipementManager();
+    $all_equipment = $equipementManager->getEquipements($group_name);
+
+    $recordManager = new RecordManager();
+    $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
+
+
+    $date_min_max = $recordManager->getDateMinMaxFromRecord();
+
+    $min_date = $date_min_max[0];
+    $max_date = $date_min_max[1];
+
+    View::renderTemplate('Data/index.html', [
+      'all_site'    => $all_site,
+      'all_equipment' => $all_equipment,
+      'min_date' => $min_date,
+      'max_date' => $max_date,
+      'brief_data_record' => $brief_data_record,
+    ]);
   }
 
-  public function indexAction()
+  public function displayChocAction(){
+    $equipementManager = new EquipementManager();
+    $recordManager = new RecordManager();
+    $scoreManager = new ScoreManager();
+    $chocManager = new ChocManager();
+    $siteManager = new SiteManager();
+    $inclinometerManager = new InclinometerManager();
+
+    $siteID = "27";
+    if (isset($_POST['siteID'])) {
+      $siteID = $_POST['siteID'];
+    }
+
+    $group_name = $_SESSION['group_name'];
+
+    $all_site = $siteManager->getSites($group_name);
+
+    $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
+    $allStructureData = array();
+    $count = 0;
+    foreach ($equipements_site as $equipement) {
+      $index_array = "equipement_" . $count;
+
+      $equipement_id = $equipement['equipement_id'];
+      $equipement_pylone = $equipement['equipement'];
+      $equipement_name = $equipement['ligneHT'];
+
+      $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
+      $temperature = $inclinometerManager->getLatestTemperatureRecordByIdSensor($sensor_id);
+
+      $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
+      $score_array = $scoreManager->getLastScoreFromStructure($equipement_id);
+
+      $score = $score_array["score_value"];
+
+      $choc_power_data = $chocManager->getLastChocPowerValueForSensor($sensor_id);
+
+      if (!empty($choc_power_data)) {
+        $last_choc_power = $choc_power_data[0]['power'];
+        $last_choc_date = $choc_power_data[0]['date'];
+      } else {
+        $last_choc_power = 0;
+      }
+
+      $nb_choc_received_today = $chocManager->getNbChocTodayForSensor($sensor_id);
+      //var_dump($nb_choc_received_today);
+      $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
+      //var_dump($nb_choc_received_today);
+
+      $allStructureData[$index_array] = array(
+        'ligneHT' => $equipement_name,
+        'equipement' => $equipement_pylone,
+        'lastDate' => $lastdate, 'lastScore' => $score,
+        'nb_choc_received_today' => $nb_choc_received_today,
+        'lastChocPower' => $last_choc_power, 'temperature' => $temperature
+      );
+
+      $count += 1;
+    }
+
+    View::renderTemplate('chocs/index.html', [
+      'all_site'    => $all_site,
+      'all_structure_data' => $allStructureData
+    ]);
+  }
+  public function indexTestAction()
   {
     $equipementManager = new EquipementManager();
     $recordManager = new RecordManager();

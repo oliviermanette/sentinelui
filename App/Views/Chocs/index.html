@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Chocs données{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid">
+    <div class="card mb-4 border-bottom-primary">
+        <div class="card-header">
+            Chocs
+        </div>
+        <div class="card-body">
+            <div class="container">
+                <form role="form" method="post" name="equipementrequest" id="equipementrequest">
+                    <div class="ui form">
+                        <div class="four fields">
+                            <div class="field">
+                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un site</div>
+                                <select class="browser-default custom-select" name="siteID" id="siteID">
+                                    <option value="" selected>Choisissez un site</option>
+                                    {% for site in all_site %}
+                                    <option value={{ site.site_id }}>{{ site.site }} </option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                            <div class="field" id="equipmentField">
+                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un équipement
+                                    associé
+                                </div>
+                                <select class="browser-default custom-select" name="equipment" id="equipment">
+                                    <option value="" selected>Choisissez un équipement associé</option>
+                                    {% for equipment in all_equipment %}
+                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="field">
+                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez une date
+                                    (optionnel)
+                                </div>
+                                <input type="text" name="daterange" placeholder="" />
+                            </div>
+                            <div class="my-2"></div>
+                            <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            </br>
+            <!-- Page Heading -->
+
+        </div>
+    </div>
+
+    <div class="list-group">
+        {% if all_structure_data is not empty %}
+        <ul>
+            {% for key,val in all_structure_data  %}
+            <!-- <pre>{{ dump(key) }}</pre> -->
+            {% set canvas_id = 'canvas_'~key %}
+            {% set canvas_id_bis = 'canvas_bis_'~key %}
+
+            <!-- /.row-->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title mb-0">{{ val.equipement }} | {{ val.ligneHT }}</h4>
+                            <div class="small text-muted">{{val.lastDate}}</div>
+                        </div>
+                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                            <div class="btn-group btn-group-toggle mx-3" data-toggle="buttons">
+                                <label class="btn btn-outline-secondary">
+                                    <input id="option1" type="radio" name="options" autocomplete="off"> Day
+                                </label>
+                                <label class="btn btn-outline-secondary active">
+                                    <input id="option2" type="radio" name="options" autocomplete="off" checked="">
+                                    Month
+                                </label>
+                                <label class="btn btn-outline-secondary">
+                                    <input id="option3" type="radio" name="options" autocomplete="off"> Year
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Content Row -->
+                    <div class="row">
+                        <!-- Capteurs actifs Card  -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Statut
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{number}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Capteurs inactifs Card  -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Nombre
+                                                de choc reçu aujourd'hui
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {{val.nb_choc_received_today}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alertes Card  -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Puissance du dernier choc</div>
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col-auto">
+                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                                        {{val.lastChocPower}} W
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Groupe Card  -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Température</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{val.temperature}} °C
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4">
+                             <!-- Score Chart -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Score</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="chart-pie pt-4">
+                                        <canvas id="myPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-8">
+                            <!-- Nombre de choc par jour Chart -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Nombre de choc par jour</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <canvas id="{{ canvas_id }}"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Puissance de choc par jour Chart -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Puissance des chocs
+                                        par jour</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <canvas id="{{ canvas_id_bis }}"></canvas>
+                                    </div>
+                                    <hr>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-8">
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    $(document).on('submit', '#equipementrequest', function (event) {
+
+        event.preventDefault();
+
+        if (!$('#siteID option:selected').val()) {
+            alert("No site is selected");
+            return;
+        }
+
+
+        var formData = new FormData();
+        formData.append('siteID', $('#siteID option:selected').val());
+
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var jsonData = this.responseText;
+                //console.log("Refresh data : ",jsonData);
+                removeElementAndChilds("resultcontainer");
+
+                addElement("containerTab", "div", "resultcontainer");
+                $('#resultcontainer').html(jsonData);
+            }
+        };
+        xhttp.open("POST", "/ControllerData/refreshData", true);
+        xhttp.send(formData);
+
+
+        xhttp1 = new XMLHttpRequest();
+        xhttp1.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var choc_data = this.responseText;
+                choc_data = JSON.parse(choc_data);
+                //console.log(choc_data);
+                for (var i = 0; i < Object.keys(choc_data).length; i++) {
+                    var name_data = "equipement_" + i;
+                    var name_canvas = "canvas_equipement_" + i;
+                    var name_canvas_bis = "canvas_bis_equipement_" +
+                        i; //console.log(choc_data[name_data]); 
+                    drawChartNbChocDate(choc_data[name_data]['nb_choc_per_day'], name_canvas);
+                    drawPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'], name_canvas_bis);
+                }
+                //drawChartNbChocDate(choc_data, "canvas_equipement_0");
+                //drawPowerChocPerDate(choc_data, "canvas_equipement_0" ); 
+            }
+        };
+        xhttp1.open("POST", "/ControllerData/getChartsChoc", true);
+        xhttp1.send(formData);
+    });
+</script>
+
+{% endblock %}

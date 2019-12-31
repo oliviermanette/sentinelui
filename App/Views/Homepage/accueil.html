@@ -11,76 +11,87 @@
   <h3 class="text-center">Bonjour {{ current_user.first_name }} </h3>
   {% endif %}
   </br>
-  <div class="card mb-4 border-bottom-primary">
-    <div class="card-header">
-      Données brutes - Capteurs Flod
-    </div>
-    <div class="card-body">
-      <div class="container">
-        <form name="contact-form" class="ui form" action="" method="post" id="getData">
-          <div class="ui form">
-            <div class="four fields">
-              <div class="field">
-                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un site</div>
-                <select class="browser-default custom-select" name="siteDB" id="siteDB">
-                  <option value="" selected>Choisissez un site</option>
-
-                  {% for site in all_site %}
-                  <option value={{ site.site_id }}>{{ site.site }} </option>
-                  {% endfor %}
-
-                </select>
-              </div>
-              <div class="field" id="equipmentField">
-                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un équipement associé</div>
-                <select class="browser-default custom-select" name="equipment" id="equipment">
-                  <option value="" selected>Choisissez un équipement associé</option>
-                  {% for equipment in all_equipment %}
-                  <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="field">
-                <div class="text-s font-weight-bold text-primary mb-1">Choisissez une date (optionnel)</div>
-                <input type="text" name="daterange" placeholder="" />
-              </div>
-              <div class="my-2"></div>
-              <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Vue d'ensemble</h1>
+  </div>
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Capteurs actifs Card  -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Capteurs actifs</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{number}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-check-circle fa-2x text-gray-300"></i>
             </div>
           </div>
-        </form>
+        </div>
       </div>
-      </br>
-                <!-- Page Heading -->
+    </div>
 
+    <!-- Capteurs inactifs Card  -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Capteurs inactifs</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{number}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Alertes Card  -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Alertes</div>
+              <div class="row no-gutters align-items-center">
+                <div class="col-auto">
+                  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{nombre}}</div>
+                </div>
 
-      <div class="container">
-        <div class="col">
-          <div class="row-md-2 col-md-offset-4 text-center">
-            <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-              onclick="window.open('/ControllerAccueil/downloadRawData?exportData=excel')"><i
-                class="fas fa-download fa-sm text-white-50"></i> Exporter données (Excel)</button>
-            <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-              onclick="window.open('/ControllerAccueil/downloadRawData?exportData=csv')"><i
-                class="fas fa-download fa-sm text-white-50"></i> Exporter données (CSV)</button>
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Groupe Card  -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Company</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">RTE</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-building fa-2x text-gray-300"></i>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-
   </br>
-
-  <!-- Container for displaying the chart data -->
-  <div id="chart-display-container" class="container">
-  </div>
-
-  <!-- Container for displaying the table data -->
-  <div class="container">
-    <div id="resultcontainer"></div>
-  </div>
 
   {% include "Homepage/tableData.html" %}
   <div class="card shadow mb-4">
@@ -102,8 +113,6 @@
 {% block script %}
 
 <script>
-  var dateMax = "";
-  var dateMin = "";
 
   $(document).on("click", "a.showAll", function (e) {
     e.preventDefault();
@@ -176,123 +185,6 @@
 
     var date = Date();
     fetchDataMap(showMap);
-
-
-
-    $("#getData").submit(function (event) {
-      event.preventDefault();
-      if (!$('#siteDB option:selected').val()) {
-        alert("No site is selected");
-        return;
-      }
-      if (!$('#equipment option:selected').val()) {
-        alert("No equipement is selected");
-        return;
-      }
-      var drawAll = true;
-
-      var formData = new FormData();
-      formData.append('site_request', $('#siteDB option:selected').val());
-      formData.append('equipement_request', $('#equipment option:selected').val());
-      formData.append('dateMin', dateMin);
-      formData.append('dateMax', dateMax);
-      formData.append('drawAll', drawAll);
-
-      xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          var jsonData = this.responseText;
-          $('#resultcontainer').html(jsonData);
-          // Call the dataTables jQuery plugin
-          $('#tableData').DataTable({
-            "destroy": true, //use for reinitialize datatable
-          });
-          $('.dataTables_length').addClass('bs-select');
-
-          $('#dataTable').DataTable({
-            'lengthMenu': [
-              [10, 25, 50, -1],
-              [10, 25, 50, 'All']
-            ],
-            'iDisplayLength': 50
-          });
-
-        }
-      };
-      xhttp.open("POST", "/ControllerAccueil/getDataTableAfterSubmit", true);
-      xhttp.send(formData);
-
-      xhttp1 = new XMLHttpRequest();
-      xhttp1.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          var data = this.responseText;
-          //console.log("DATA :", data);
-          data = JSON.parse(data);
-
-          removeElement("container-chart");
-
-          var temperature_data_json = data['temperature_data'];
-          var choc_data_json = data['choc_data'];
-          var inclinometre_data_json = data['inclinometre_data'];
-          var spectre_data_json = data['spectre_data'];
-          var numberOfSpectre = Object.keys(spectre_data_json).length;
-
-          addElement("chart-display-container", "div", "container-chart");
-          addElement("container-chart", "div", "row-chart");
-
-          for (i = 0; i < numberOfSpectre; i++) {
-            var name_canva = "canva_" + String(i);
-            addElement("row-chart", "canvas", name_canva);
-          }
-
-          for (i = 0; i < numberOfSpectre; i++) {
-            var name_canva = "canva_" + String(i);
-            var name_spectre_data = "spectre_" + String(i);
-            var spectre_i = spectre_data_json[name_spectre_data];
-            drawSpectreFromData(spectre_i, name_canva);
-
-          }
-
-          addElement("row-chart", "canvas", "canvas_temperature");
-          addElement("row-chart", "canvas", "canvas_inclinometre");
-          drawTemperatureFromData(temperature_data_json, "canvas_temperature");
-
-          drawInclinometerFromData(inclinometre_data_json, "canvas_inclinometre");
-        }
-      };
-      xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
-      xhttp1.send(formData);
-    });
-
-    $("#siteDB").change(function () {
-      var formData = new FormData();
-      formData.append('site_id', $(this).children("option:selected").val());
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          var response = this.responseText;
-          //console.log(posts);
-          $('#equipmentField').html(response);
-        }
-      };
-      xhttp.open("POST", "/ControllerAccueil/changeEquipement");
-      //Send the proper header information along with the request
-      xhttp.send(formData);
-    });
-
-
-    $('input[name="daterange"]').daterangepicker({
-      showDropdowns: true,
-      locale: {
-        format: 'DD-MM-YYYY'
-      },
-      opens: 'left',
-      minDate: "{{min_date}}",
-      maxDate: "{{max_date}}"
-    }, function (start, end, label) {
-      dateMin = start.format('YYYY-MM-DD');
-      dateMax = end.format('YYYY-MM-DD');
-    });
 
     $('#tableData').DataTable();
   });
