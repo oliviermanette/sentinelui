@@ -29,7 +29,7 @@ class ControllerData extends Authenticated
   public function __construct()
   {
   }
-
+  
   public function indexAction(){
 
     $group_name = $_SESSION['group_name'];
@@ -58,70 +58,19 @@ class ControllerData extends Authenticated
     ]);
   }
 
-  public function displayChocAction(){
-    $equipementManager = new EquipementManager();
-    $recordManager = new RecordManager();
-    $scoreManager = new ScoreManager();
-    $chocManager = new ChocManager();
+  public function searchChocAction(){
     $siteManager = new SiteManager();
+    $equipementManager = new EquipementManager();
     $inclinometerManager = new InclinometerManager();
 
-    $siteID = "27";
-    if (isset($_POST['siteID'])) {
-      $siteID = $_POST['siteID'];
-    }
+    $sensor_id = $equipementManager->getSensorIdOnEquipement("247");
+
 
     $group_name = $_SESSION['group_name'];
-
     $all_site = $siteManager->getSites($group_name);
 
-    $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
-    $allStructureData = array();
-    $count = 0;
-    foreach ($equipements_site as $equipement) {
-      $index_array = "equipement_" . $count;
-
-      $equipement_id = $equipement['equipement_id'];
-      $equipement_pylone = $equipement['equipement'];
-      $equipement_name = $equipement['ligneHT'];
-
-      $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-      $temperature = $inclinometerManager->getLatestTemperatureRecordByIdSensor($sensor_id);
-
-      $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
-      $score_array = $scoreManager->getLastScoreFromStructure($equipement_id);
-
-      $score = $score_array["score_value"];
-
-      $choc_power_data = $chocManager->getLastChocPowerValueForSensor($sensor_id);
-
-      if (!empty($choc_power_data)) {
-        $last_choc_power = $choc_power_data[0]['power'];
-        $last_choc_date = $choc_power_data[0]['date'];
-      } else {
-        $last_choc_power = 0;
-      }
-
-      $nb_choc_received_today = $chocManager->getNbChocReceivedTodayForSensor($sensor_id);
-      //var_dump($nb_choc_received_today);
-      $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
-      //var_dump($nb_choc_received_today);
-
-      $allStructureData[$index_array] = array(
-        'ligneHT' => $equipement_name,
-        'equipementId' => $equipement_id,
-        'equipement' => $equipement_pylone,
-        'lastDate' => $lastdate, 'lastScore' => $score,
-        'nb_choc_received_today' => $nb_choc_received_today,
-        'lastChocPower' => $last_choc_power, 'temperature' => $temperature
-      );
-
-      $count += 1;
-    }
-
     View::renderTemplate('chocs/index.html', [
-      'all_site'    => $all_site,
-      'all_structure_data' => $allStructureData
+      'all_site'    => $all_site
     ]);
   }
   public function indexTestAction()
@@ -153,7 +102,7 @@ class ControllerData extends Authenticated
       $equipement_name = $equipement['ligneHT'];
 
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-      $temperature = $inclinometerManager->getLatestTemperatureRecordByIdSensor($sensor_id);
+      $temperature = $inclinometerManager->getLatestTemperatureForSensor($sensor_id);
 
       $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
       $score_array = $scoreManager->getLastScoreFromStructure($equipement_id);
@@ -214,19 +163,22 @@ class ControllerData extends Authenticated
     $count = 0;
     foreach ($equipements_site as $equipement) {
       $index_array = "equipement_" . $count;
-
+      //Get equipement data
       $equipement_id = $equipement['equipement_id'];
       $equipement_pylone = $equipement['equipement'];
       $equipement_name = $equipement['ligneHT'];
 
+      //Get the sensor ID on the associated structure
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-      $temperature = $inclinometerManager->getLatestTemperatureRecordByIdSensor($sensor_id);
 
+      //Get the latest temperature received
+      $temperature = $inclinometerManager->getLatestTemperatureForSensor($sensor_id);
+      //Get the last date where the sensor received
       $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
+      //Get the last score from structure
       $score_array = $scoreManager->getLastScoreFromStructure($equipement_id);
-
       $score = $score_array["score_value"];
-
+      //Get the choc data
       $choc_power_data = $chocManager->getLastChocPowerValueForSensor($sensor_id);
       if (!empty($choc_power_data)) {
           $last_choc_power = $choc_power_data[0]['power'];
@@ -306,6 +258,7 @@ class ControllerData extends Authenticated
   public function getChartsChocAction()
   {
     $equipementManager = new EquipementManager();
+    $inclinometerManager = new InclinometerManager();
     $chocManager = new ChocManager();
     
     if (isset($_POST['siteID'])) {
@@ -329,16 +282,17 @@ class ControllerData extends Authenticated
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
 
       $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
-      $nb_choc_per_week = $chocManager->getNbChocPerWeekForSensor($sensor_id);
       $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
-      
+
+      //Get inclinometer data angle
+      $angleDataXYZ = $inclinometerManager->getAngleXYZPerDayForSensor($sensor_id);
 
       $allStructureData[$index_array] = array(
         'sensor_id' => $sensor_id,
         'equipement_name' => $equipement_pylone,
         'equipementId' => $equipement_id,
         'nb_choc_per_day' => $nb_choc_per_day,
-        'nb_choc_per_week' => $nb_choc_per_week,
+        'angleXYZ_per_day' => $angleDataXYZ,
         'power_choc_per_day' => $power_choc_per_day,
       );
 

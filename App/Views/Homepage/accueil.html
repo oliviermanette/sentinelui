@@ -145,11 +145,7 @@
     formData.append('site_request', site_request);
     formData.append('equipement_request', equipement_request);
     formData.append('drawAll', drawAll);
-    // console.log(id_sensor_request);
-    // console.log(type_msg_request);
-    // console.log(time_data_request);
-    // console.log(site_request);
-    // console.log(equipement_request);
+
     xhttp1 = new XMLHttpRequest();
     xhttp1.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -163,13 +159,13 @@
 
         //$('#canvas').html(data);
         if (type_msg_request == "global") {
-          drawTemperatureFromData(data, "chart-specific");
+          drawChartTemperatureFromData(data, "chart-specific");
         } else if (type_msg_request == "inclinometre") {
-          drawInclinometerFromData(data, "chart-specific");
+          drawChartInclinometerFromData(data, "chart-specific");
         } else if (type_msg_request == "choc") {
-          drawChocFromData(data, "chart-specific");
+          drawChartChocFromData(data, "chart-specific");
         } else if (type_msg_request == "spectre") {
-          drawSubSpectreFromData(data, "chart-specific");
+          drawChartSubSpectreFromData(data, "chart-specific");
         }
 
       }

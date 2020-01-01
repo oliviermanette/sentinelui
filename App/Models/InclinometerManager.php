@@ -17,7 +17,7 @@ class InclinometerManager extends \Core\Model
   * @param string $group_name the name of the group we want to retrieve inclinometer data
   * @return array  results from the query
   */
-  public function getAllInclinometerData($group_name){
+  public function getAllInclinometerDataForGroup($group_name){
     $db = static::getDB();
 
     $sql_inclinometer_data ="SELECT
@@ -63,7 +63,10 @@ class InclinometerManager extends \Core\Model
   * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
   * @return array  results from the query
   */
-  public function getAllInclinometerDataByIdSensor($sensor_id){
+  public function getAllInclinometerDataForSensor($sensor_id){
+
+    $db = static::getDB();
+
     $sql_all_inclinometer = "SELECT
     `sensor_id`,
     DATE(`date_time`) AS date_d,
@@ -97,13 +100,52 @@ class InclinometerManager extends \Core\Model
     }
   }
 
+
   /**
-  * Get the latest inclinometer record received from a given sensor id
+   * Get all the angles X Y Z received from the sensors given a specific sensor id
+   *
+   * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
+   * @return array  results from the query
+   */
+  public function getAngleXYZPerDayForSensor($sensor_id)
+  {
+
+    $db = static::getDB();
+
+    $sql_angleXYZ_data = "SELECT
+    `sensor_id`,
+    DATE(`date_time`) AS date_d,
+    angle_x,
+    angle_y,
+    angle_z,
+    temperature
+    FROM
+    inclinometer AS inc
+    LEFT JOIN record AS r ON (r.id = inc.record_id)
+    WHERE
+    `msg_type` LIKE 'inclinometre'
+    AND `sensor_id` LIKE :sensor_id
+    ORDER BY
+    date_d ASC
+    ";
+
+    $stmt = $db->prepare($sql_angleXYZ_data);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+
+  /**
+  * Get the latest temperature record received from a given sensor id
   *
   * @param int $sensor_id sensor id for which we want to retrieve the last inclinometer
   * @return array  results from the query
   */
-  public function getLatestTemperatureRecordByIdSensor($sensor_id){
+  public function getLatestTemperatureForSensor($sensor_id){
 
     $db = static::getDB();
 
@@ -134,7 +176,7 @@ class InclinometerManager extends \Core\Model
   * @param string $date if we want to retrieve the data for specific date format Y-M-D
   * @return array  results from the query
   */
-  public function getAllTemperatureRecordsByIdSensor($sensor_id, $date = null){
+  public function getAllTemperatureRecordsForSensor($sensor_id, $date = null){
     $db = static::getDB();
 
     $sql = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`

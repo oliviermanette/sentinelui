@@ -70,6 +70,7 @@
 
     </br>
 
+
     <!-- Container for displaying the chart data -->
     <div id="chart-display-container" class="container">
     </div>
@@ -161,12 +162,12 @@
                         var name_canva = "canva_" + String(i);
                         var name_spectre_data = "spectre_" + String(i);
                         var spectre_i = spectre_data_json[name_spectre_data];
-                        drawSpectreFromData(spectre_i, name_canva);
+                        drawChartSpectreFromData(spectre_i, name_canva);
                     }
                     addElement("row-chart", "canvas", "canvas_temperature");
                     addElement("row-chart", "canvas", "canvas_inclinometre");
-                    drawTemperatureFromData(temperature_data_json, "canvas_temperature");
-                    drawInclinometerFromData(inclinometre_data_json, "canvas_inclinometre");
+                    drawChartTemperatureFromData(temperature_data_json, "canvas_temperature");
+                    drawChartInclinometerFromData(inclinometre_data_json, "canvas_inclinometre");
                 }
             };
             xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);

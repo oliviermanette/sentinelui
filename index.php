@@ -39,7 +39,7 @@ $router->add('data', ['controller' => 'ControllerDataObjenious', 'action' => 're
 //Search data form
 $router->add('search-data', ['controller' => 'ControllerData', 'action' => 'index']);
 //Choc data display
-$router->add('choc-data', ['controller' => 'ControllerData', 'action' => 'displayChoc']);
+$router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'searchChoc']);
 
 //Match route controller/action
 $router->add('{controller}/{action}');

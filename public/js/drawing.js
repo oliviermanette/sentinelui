@@ -3,7 +3,7 @@
  * @param json data - data which contain nb of choc and date
  * @return chart instance
  */
-function drawChartNbChocDate(data, canvaID = "canvas_choc_nb") {
+function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
   if (typeof data != 'object') {
     data = JSON.parse(data);
   }
@@ -79,7 +79,7 @@ function drawChartNbChocDate(data, canvaID = "canvas_choc_nb") {
  * @param json data - data which contain power of each choc and date
  * @return chart instance
  */
-function drawPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
+function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
   if (typeof data != 'object') {
     data = JSON.parse(data);
   }
@@ -189,7 +189,7 @@ function drawPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
  * @param json data - data which contain power of each choc and date
  * @return chart instance
  */
-function drawPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
+function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
 
   if (typeof data != 'object') {
     data = JSON.parse(data);
@@ -345,7 +345,7 @@ function drawPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
  * @param json temperatureData - data which contain temperature and date
  * @return chart instance
  */
-function drawTemperatureFromData(temperatureData, canvaID = "canvas_temperature") {
+function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_temperature") {
   if (typeof temperatureData != 'object') {
     temperatureData = JSON.parse(temperatureData);
   }
@@ -411,11 +411,11 @@ function drawTemperatureFromData(temperatureData, canvaID = "canvas_temperature"
 }
 
 /**
- * @desc Draw chart for displaying inclinometer data in function to date
+ * @desc Draw chart for displaying raw inclinometer data in function to date
  * @param json inclinometereData - data which contain inclinometer data and date
  * @return chart instance
  */
-function drawInclinometerFromData(inclinometerData, canvaID = "canvas_inclinometre") {
+function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_inclinometre") {
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
@@ -499,11 +499,100 @@ function drawInclinometerFromData(inclinometerData, canvaID = "canvas_inclinomet
 }
 
 /**
+ * @desc Draw chart for displaying angle XYZ data in function to date
+ * @param json inclinometereData - data which contain inclinometer data and date
+ * @return chart instance
+ */
+function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinometre") {
+  if (typeof inclinometerData != 'object') {
+    inclinometerData = JSON.parse(inclinometerData);
+  }
+  var angle_x = [];
+  var angle_y = [];
+  var angle_z = [];
+  var date = [];
+
+  for (var i in inclinometerData) {
+    angle_x.push(inclinometerData[i].angle_x);
+    angle_y.push(inclinometerData[i].angle_y);
+    angle_z.push(inclinometerData[i].angle_z);
+    date.push(inclinometerData[i].date_d);
+  }
+
+
+  var chartdata = {
+    labels: date,
+    datasets: [{
+        label: 'X',
+        fill: false,
+        backgroundColor: 'blue',
+        borderColor: 'blue',
+        data: angle_x
+      },
+      {
+        label: 'Y',
+        fill: false,
+        backgroundColor: 'orange',
+        borderColor: 'orange',
+        data: angle_y
+      },
+      {
+        label: 'Z',
+        fill: false,
+        backgroundColor: 'green',
+        borderColor: 'green',
+        data: angle_z
+      }
+    ]
+  };
+  var canva_id = "#" + canvaID;
+  var ctx = $(canva_id);
+
+  var options = {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      scales: {
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Height (m)'
+          },
+        }]
+      },
+      legend: {
+        display: true
+      },
+      title: {
+        display: true,
+        text: 'Inclinometre en fonction du temps'
+      }
+    }
+  };
+
+  var chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: chartdata,
+    options: options,
+  });
+}
+
+
+/**
  * @desc Draw chart for displaying spectre data in function to resolution
  * @param json spectreData - data which contain spectre data
  * @return chart instance
  */
-function drawSpectreFromData(spectreData, canvaID = "canvas_spectre") {
+function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
 
   var subspectre = [];
   var minFreqData = [];
@@ -619,7 +708,7 @@ function drawSpectreFromData(spectreData, canvaID = "canvas_spectre") {
  * @param json chocData - data which contain choc data (amplitudeArr 1, time 1, amplitudeArr 2, time 2)
  * @return chart instance
  */
-function drawChocFromData(chocData, canvaID = "canvas_choc") {
+function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
   if (typeof chocData != 'object') {
     chocData = JSON.parse(chocData);
   }
@@ -714,7 +803,7 @@ function drawChocFromData(chocData, canvaID = "canvas_choc") {
  * @param json subspectreData - data which contain subspectre data
  * @return chart instance
  */
-function drawSubSpectreFromData(subspectreData, canvaID = "canvas_subspectre") {
+function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectre") {
 
   if (typeof subspectreData != 'object') {
     subspectreData = JSON.parse(subspectreData);

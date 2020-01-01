@@ -3,10 +3,12 @@
     <ul>
         {% for key, val in all_structure_data  %}
         <!-- <pre>{{ dump(key) }}</pre> -->
-        {% set canvas_id = 'canvas_equipement_'~val.equipementId %}
-        {% set canvas_id_bis = 'canvas_equipement_bis_'~val.equipementId %}
-        {% set chart_area_id = 'chart_area_id_'~val.equipementId %}
-        {% set chart_area_bis_id = 'chart_area_bis_id_'~val.equipementId %}
+        {% set canvas_id_nbchoc = 'canvas_equipement_nbchoc_'~val.equipementId %}
+        {% set canvas_id_powerchoc = 'canvas_equipement_powerchoc_'~val.equipementId %}
+        {% set canvas_id_angle= 'canvas_equipement_angle_'~val.equipementId %}
+        {% set chart_area_id_nbchoc = 'chart_area_nbchoc_id_'~val.equipementId %}
+        {% set chart_area_id_powerchoc = 'chart_area_powerchoc_id_'~val.equipementId %}
+        {% set chart_area_id_angle = 'chart_area_angle_id_'~val.equipementId %}
 
         <!-- /.row-->
         <div class="card">
@@ -108,9 +110,6 @@
                         </div>
                         <!-- Variation inclinometre Chart -->
                         <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Variation inclinometre</h6>
-                            </div>
                             <div class="card-body">
                                 <div class="chart-area">
                                     <canvas id=""></canvas>
@@ -148,8 +147,8 @@
                             </div>
 
                             <div class="card-body">
-                                <div id="{{ chart_area_id }}" class="chart-area">
-                                    <canvas id="{{ canvas_id }}"></canvas>
+                                <div id="{{ chart_area_id_nbchoc }}" class="chart-area">
+                                    <canvas id="{{ canvas_id_nbchoc }}"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -181,14 +180,49 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div id="{{chart_area_bis_id}}" class="chart-area" >
-                                    <canvas id="{{ canvas_id_bis }}"></canvas>
+                                <div id="{{chart_area_id_powerchoc}}" class="chart-area">
+                                    <canvas id="{{ canvas_id_powerchoc }}"></canvas>
                                 </div>
                                 <hr>
                             </div>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-8">
+                        <!-- Variation inclinometre Chart -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Variation
+                                    inclinometre</h6>
+                                <div class="btn-toolbar d-none d-md-block" role="toolbar"
+                                    aria-label="Toolbar with buttons">
+                                    <div id="{{val.equipementId}}">
+                                        <div id="radioButtonNbChoc" class="btn-group btn-group-toggle mx-3"
+                                            data-toggle="buttons">
+                                            <label class="btn btn-outline-secondary active">
+                                                <input id="option1" type="radio" name="options" value="day"
+                                                    autocomplete="off" checked="">
+                                                Jour
+                                            </label>
+                                            <label class="btn btn-outline-secondary ">
+                                                <input id="option2" type="radio" name="options" autocomplete="off"
+                                                    value="week">
+                                                Semaine
+                                            </label>
+                                            <label class="btn btn-outline-secondary">
+                                                <input id="option3" type="radio" name="options" autocomplete="off"
+                                                    value="month"> Mois
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="{{chart_area_id_angle}}">
+                                    <canvas id="{{canvas_id_angle}}"></canvas>
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
