@@ -106,7 +106,7 @@ class ChocManager extends \Core\Model
    * @param int $sensor_id the sensor we want to retrieve choc data
    * @return array  results from the query
    */
-  public function getNbChocTodayForSensor($sensor_id)
+  public function getNbChocReceivedTodayForSensor($sensor_id)
   {
     $db = static::getDB();
 
@@ -152,7 +152,8 @@ class ChocManager extends \Core\Model
 
   /**
    * Get all the choc messages received from the sensors given a specific sensor id
-   *
+   * sensor_id | date | amplitude_1 | amplitude_2 | time_1 | time_2 | freq_1 | freq_2 | power
+   * 
    * @param int $sensor_id sensor id for which we want to retrieve the choc data
    * @return array  results from the query
    */
@@ -189,7 +190,40 @@ class ChocManager extends \Core\Model
   }
 
   /**
+   * Get the number of choc received from a given sensor today
+   *  date | power
+   * 
+   * @param int $sensor_id the sensor we want to retrieve choc data
+   * @return array  results from the query
+   */
+  public function getNbChocReceivedPerDateForSensor($sensor_id, $date)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc_date = "SELECT 
+    COUNT(*) AS nb_choc
+    FROM 
+    choc 
+    LEFT JOIN record AS r ON (r.id = choc.record_id) 
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
+    WHERE 
+    sensor.id = :sensor_id 
+    AND DATE(r.date_time) LIKE :date_data
+    ";
+
+    $stmt = $db->prepare($sql_nb_choc_date);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':date_data', $date, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $results[0];
+    }
+  }
+  /**
    * Get number of choc per day for a specific sensor
+   *  date | number choc
    *
    * @param int $sensor_id sensor id for which we want to retrieve the number of choc per day
    * @return array  results from the query
@@ -238,6 +272,7 @@ class ChocManager extends \Core\Model
   /**
    * Get number of choc per week for a specific sensor
    *
+   * date | number choc
    * @param int $sensor_id sensor id for which we want to retrieve the number of choc per week
    * @return array  results from the query
    */
@@ -270,7 +305,7 @@ class ChocManager extends \Core\Model
     group by
     date_d
     ORDER BY
-    date_d DESC
+    date_d ASC
     ";
 
     $stmt = $db->prepare($sql_nb_choc_per_week);
@@ -284,7 +319,7 @@ class ChocManager extends \Core\Model
 
   /**
    * Get number of choc per month for a specific sensor
-   *
+   * date | number choc
    * @param int $sensor_id sensor id for which we want to retrieve the number of choc per month
    * @return array  results from the query
    */
@@ -317,7 +352,7 @@ class ChocManager extends \Core\Model
     group by
     date_d
     ORDER BY
-    date_d DESC
+    date_d ASC
     ";
 
     $stmt = $db->prepare($sql_nb_choc_per_month);
@@ -329,14 +364,12 @@ class ChocManager extends \Core\Model
     }
   }
   /**
-   * Retrieve all the power of chocs since the beginning for a specific sensor. If date
-   * specified, retrieve power choc for this specific date
+   * Retrieve all the power of chocs since the beginning for a specific sensor
    *
    * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
-   * @param date $date where we want to retrieve the data
    * @return array  results from the query
    */
-  public function getPowerChocForSensor($sensor_id, $date = null)
+  public function getPowerChocPerDayForSensor($sensor_id)
   {
     $db = static::getDB();
 
@@ -348,19 +381,12 @@ class ChocManager extends \Core\Model
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     WHERE
     `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id ";
-    if (isset($date)) {
-      $sql_power_choc .= " AND DATE(r.date_time) LIKE :date_data ";
-    }
-    $sql_power_choc .= "ORDER BY `date_d` ASC";
+    AND `sensor_id` LIKE :sensor_id 
+    ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);
 
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-    if (isset($date)) {
-      $stmt->bindValue(':date_data', $date, PDO::PARAM_STR);
-    }
 
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -368,6 +394,101 @@ class ChocManager extends \Core\Model
     }
   }
 
+  /**
+   * Retrieve all the power of chocs since the beginning for a specific sensor for a specific date
+   *
+   * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
+   * @param date $date where we want to retrieve the data
+   * @return array  results from the query
+   */
+  public function getPowerChocPerDateForSensor($sensor_id, $date)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+    DATE(r.date_time) AS date_d,
+    `power`
+    FROM
+    choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    WHERE
+    `msg_type` LIKE 'choc'
+    AND `sensor_id` LIKE :sensor_id
+    AND DATE(r.date_time) LIKE :date_data 
+    ORDER BY `date_d` ASC";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':date_data', $date, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  /**
+   * Retrieve all the power of chocs since the beginning for a specific sensor and for week
+   *
+   * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
+   * @return array  results from the query
+   */
+  public function getPowerChocPerWeekForSensor($sensor_id)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+    YEARWEEK(`date_time`) AS date_d,
+    `power`
+    FROM
+    choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    WHERE
+    `msg_type` LIKE 'choc'
+    AND `sensor_id` LIKE :sensor_id 
+    ORDER BY `date_d` ASC";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  /**
+   * Retrieve all the power of chocs since the beginning for a specific sensor and for week
+   *
+   * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
+   * @return array  results from the query
+   */
+  public function getPowerChocPerMonthForSensor($sensor_id)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+    MONTH(`date_time`) AS date_d,
+    `power`
+    FROM
+    choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    WHERE
+    `msg_type` LIKE 'choc'
+    AND `sensor_id` LIKE :sensor_id 
+    ORDER BY `date_d` ASC";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
   /**
    * Get average power of choc per day for a specific sensor
    *

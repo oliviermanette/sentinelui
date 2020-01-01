@@ -4,7 +4,7 @@
  * @return 
  */
 function removeElement(id) {
-  if(document.getElementById(id)){
+  if (document.getElementById(id)) {
     var elem = document.getElementById(id);
     return elem.parentNode.removeChild(elem);
   }
@@ -15,10 +15,12 @@ function removeElement(id) {
  * @param string id - the class to remove in a specific attribute
  * @return 
  */
-function removeElementAndChilds(id){
-  const parent = document.getElementById(id);
-  while (parent.firstChild) {
-    parent.removeChild(parent.firstChild);
+function removeElementAndChilds(id) {
+  if (document.getElementById(id)) {
+    const parent = document.getElementById(id);
+    while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+    }
   }
 }
 
@@ -47,12 +49,13 @@ function getFormattedDate(date) {
  * @param string elementId - class for this specific attribute
  * @return 
  */
-function addElement(parentId, elementTag, elementId)
-{
-  var p = document.getElementById(parentId);
-  var newElement = document.createElement(elementTag);
-  newElement.setAttribute('id', elementId);
-  p.appendChild(newElement);
+function addElement(parentId, elementTag, elementId) {
+  if (document.getElementById(parentId)) {
+    var p = document.getElementById(parentId);
+    var newElement = document.createElement(elementTag);
+    newElement.setAttribute('id', elementId);
+    p.appendChild(newElement);
+  }
 }
 
 /**
@@ -60,7 +63,7 @@ function addElement(parentId, elementTag, elementId)
  * @param string parentId - class we want to see
  * @return 
  */
-function showElement(parentId){
+function showElement(parentId) {
   var p = document.getElementById(parentId);
   p.style.display = "block";
 }
@@ -70,7 +73,7 @@ function showElement(parentId){
  * @param string parentId - class we want to hide
  * @return 
  */
-function hideElement(parentId){
+function hideElement(parentId) {
   var p = document.getElementById(parentId);
   p.style.display = "none";
 }
@@ -80,6 +83,6 @@ function hideElement(parentId){
  * @param string hex - hex string to convert
  * @return 
  */
-function hex2dec(hex){
-  return parseInt(hex,16);
+function hex2dec(hex) {
+  return parseInt(hex, 16);
 }

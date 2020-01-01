@@ -54,163 +54,10 @@
         </div>
     </div>
 
-    <div class="list-group">
-        {% if all_structure_data is not empty %}
-        <ul>
-            {% for key,val in all_structure_data  %}
-            <!-- <pre>{{ dump(key) }}</pre> -->
-            {% set canvas_id = 'canvas_'~key %}
-            {% set canvas_id_bis = 'canvas_bis_'~key %}
+    <div id="containerTab">
+        <div id="resultcontainer">
 
-            <!-- /.row-->
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="card-title mb-0">{{ val.equipement }} | {{ val.ligneHT }}</h4>
-                            <div class="small text-muted">{{val.lastDate}}</div>
-                        </div>
-                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
-                            <div class="btn-group btn-group-toggle mx-3" data-toggle="buttons">
-                                <label class="btn btn-outline-secondary">
-                                    <input id="option1" type="radio" name="options" autocomplete="off"> Day
-                                </label>
-                                <label class="btn btn-outline-secondary active">
-                                    <input id="option2" type="radio" name="options" autocomplete="off" checked="">
-                                    Month
-                                </label>
-                                <label class="btn btn-outline-secondary">
-                                    <input id="option3" type="radio" name="options" autocomplete="off"> Year
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Content Row -->
-                    <div class="row">
-                        <!-- Capteurs actifs Card  -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Statut
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{number}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Capteurs inactifs Card  -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Nombre
-                                                de choc reçu aujourd'hui
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                {{val.nb_choc_received_today}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Alertes Card  -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Puissance du dernier choc</div>
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col-auto">
-                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                                        {{val.lastChocPower}} W
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Groupe Card  -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Température</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{val.temperature}} °C
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-4">
-                             <!-- Score Chart -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Score</h6>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-pie pt-4">
-                                        <canvas id="myPieChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-8">
-                            <!-- Nombre de choc par jour Chart -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Nombre de choc par jour</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="{{ canvas_id }}"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Puissance de choc par jour Chart -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Puissance des chocs
-                                        par jour</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="{{ canvas_id_bis }}"></canvas>
-                                    </div>
-                                    <hr>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-8">
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-            {% endfor %}
-        </ul>
-        {% endif %}
+        </div>
     </div>
 </div>
 
@@ -219,8 +66,99 @@
 {% block script %}
 
 <script>
-    $(document).on('submit', '#equipementrequest', function (event) {
+    var dateMax = "";
+    var dateMin = "";
+    //When the user want to change the date for displaying the chart concerning the number of choc
+    // per day
+    // Day, week or month
+    $(document).on("click", "#radioButtonNbChoc", function (e) {
+        e.preventDefault();
 
+        var equipementID = $(this).parent('div').attr('id');
+        var radioValueTime = $("input[name='options']:checked").val();
+        var formData = new FormData();
+        formData.append('time_data', radioValueTime);
+        formData.append('equipementID', equipementID);
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = this.responseText;
+                var nameCanvas = "canvas_equipement_" + equipementID;
+                var nameChartAreaCanvas = "chart_area_id_" + equipementID;
+                removeElement(nameCanvas);
+                addElement(nameChartAreaCanvas, "canvas", nameCanvas);
+                drawChartNbChocDate(response, nameCanvas);
+
+            }
+        };
+        xhttp.open("POST", "/ControllerData/getChartChocFrequencies");
+        xhttp.send(formData);
+    });
+
+    //When the user want to change the date for displaying the chart concerning the power of choc
+    // Day, week or month
+    $(document).on("click", "#radioButtonPowerChoc", function (e) {
+        e.preventDefault();
+
+        var equipementID = $(this).parent('div').attr('id');
+        var radioValueTime = $("input[name='options']:checked").val();
+
+        var formData = new FormData();
+        formData.append('time_data', radioValueTime);
+        formData.append('equipementID', equipementID);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = this.responseText;
+                var nameCanvas = "canvas_equipement_bis_" + equipementID;
+                var nameChartAreaCanvas = "chart_area_bis_id_" + equipementID;
+                removeElement(nameCanvas);
+                addElement(nameChartAreaCanvas, "canvas", nameCanvas);
+                drawPowerChocPerDateBar(response, nameCanvas);
+            }
+        };
+        xhttp.open("POST", "/ControllerData/getChartPowerChocFrequencies");
+        xhttp.send(formData);
+    });
+
+
+    $(document).ready(function () {
+        var date = Date();
+        // When the user select a site, the equipement associated is displayed
+        $("#siteDB").change(function () {
+            var formData = new FormData();
+            formData.append('site_id', $(this).children("option:selected").val());
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = this.responseText;
+                    //console.log(posts);
+                    $('#equipmentField').html(response);
+                }
+            };
+            xhttp.open("POST", "/ControllerAccueil/changeEquipement");
+            //Send the proper header information along with the request
+            xhttp.send(formData);
+        });
+
+        $('input[name="daterange"]').daterangepicker({
+            showDropdowns: true,
+            locale: {
+                format: 'DD-MM-YYYY'
+            },
+            opens: 'left',
+            minDate: "{{min_date}}",
+            maxDate: "{{max_date}}"
+        }, function (start, end, label) {
+            dateMin = start.format('YYYY-MM-DD');
+            dateMax = end.format('YYYY-MM-DD');
+        });
+
+    });
+
+    //When the user want to retrieve the data after submitting the form
+    $(document).on('submit', '#equipementrequest', function (event) {
         event.preventDefault();
 
         if (!$('#siteID option:selected').val()) {
@@ -238,7 +176,6 @@
                 var jsonData = this.responseText;
                 //console.log("Refresh data : ",jsonData);
                 removeElementAndChilds("resultcontainer");
-
                 addElement("containerTab", "div", "resultcontainer");
                 $('#resultcontainer').html(jsonData);
             }
@@ -255,14 +192,11 @@
                 //console.log(choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
                     var name_data = "equipement_" + i;
-                    var name_canvas = "canvas_equipement_" + i;
-                    var name_canvas_bis = "canvas_bis_equipement_" +
-                        i; //console.log(choc_data[name_data]); 
+                    var name_canvas = "canvas_equipement_" + choc_data[name_data]['equipementId'];
+                    var name_canvas_bis = "canvas_equipement_bis_" + choc_data[name_data]['equipementId'];
                     drawChartNbChocDate(choc_data[name_data]['nb_choc_per_day'], name_canvas);
                     drawPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'], name_canvas_bis);
                 }
-                //drawChartNbChocDate(choc_data, "canvas_equipement_0");
-                //drawPowerChocPerDate(choc_data, "canvas_equipement_0" ); 
             }
         };
         xhttp1.open("POST", "/ControllerData/getChartsChoc", true);

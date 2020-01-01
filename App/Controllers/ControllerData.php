@@ -17,7 +17,7 @@ ini_set('error_reporting', E_ALL);
 
 /***
 
-Affichage données structures - TEST
+
 
  ***/
 
@@ -102,13 +102,14 @@ class ControllerData extends Authenticated
         $last_choc_power = 0;
       }
 
-      $nb_choc_received_today = $chocManager->getNbChocTodayForSensor($sensor_id);
+      $nb_choc_received_today = $chocManager->getNbChocReceivedTodayForSensor($sensor_id);
       //var_dump($nb_choc_received_today);
       $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
       //var_dump($nb_choc_received_today);
 
       $allStructureData[$index_array] = array(
         'ligneHT' => $equipement_name,
+        'equipementId' => $equipement_id,
         'equipement' => $equipement_pylone,
         'lastDate' => $lastdate, 'lastScore' => $score,
         'nb_choc_received_today' => $nb_choc_received_today,
@@ -168,7 +169,7 @@ class ControllerData extends Authenticated
         $last_choc_power = 0;
       }
 
-      $nb_choc_received_today = $chocManager->getNbChocTodayForSensor($sensor_id);
+      $nb_choc_received_today = $chocManager->getNbChocReceivedTodayForSensor($sensor_id);
       //var_dump($nb_choc_received_today);
       $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
       //var_dump($nb_choc_received_today);
@@ -233,12 +234,13 @@ class ControllerData extends Authenticated
       } else {
           $last_choc_power = 0;
       }
-      $nb_choc_received_today = $chocManager->getNbChocTodayForSensor($sensor_id);
+      $nb_choc_received_today = $chocManager->getNbChocReceivedTodayForSensor($sensor_id);
       $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
 
       $allStructureData[$index_array] = array(
         'ligneHT' => $equipement_name,
         'equipement' => $equipement_pylone,
+        'equipementId' => $equipement_id,
         'lastDate' => $lastdate, 'lastScore' => $score,
         'nb_choc_received_today' => $nb_choc_received_today,
         'lastChocPower' => $last_choc_power, 'temperature' => $temperature
@@ -247,12 +249,60 @@ class ControllerData extends Authenticated
       $count += 1;
     }
 
-    View::renderTemplate('Data/viewDataArray.html', [
+    View::renderTemplate('Chocs/viewDataChocArray.html', [
       'all_site'    => $all_site,
       'all_structure_data' => $allStructureData
     ]);
   }
+  public function getChartChocFrequencies(){
+    $equipementManager = new EquipementManager();
+    $chocManager = new ChocManager();
 
+    if (isset($_POST['equipementID'])) {
+      $equipementID = $_POST['equipementID'];
+    }
+    if (isset($_POST['time_data'])) {
+      $timeDisplayData = $_POST['time_data'];
+    }
+
+    $sensor_id = $equipementManager->getSensorIdOnEquipement($equipementID);
+
+    if ($timeDisplayData == "day"){
+      $nb_choc = $chocManager->getNbChocPerDayForSensor($sensor_id);
+    }else if($timeDisplayData == "week"){
+      $nb_choc = $chocManager->getNbChocPerWeekForSensor($sensor_id);
+    }else if ($timeDisplayData == "month") {
+      $nb_choc = $chocManager->getNbChocPerMonthForSensor($sensor_id);
+    }
+
+    print json_encode($nb_choc);
+    
+  }
+
+  public function getChartPowerChocFrequencies()
+  {
+    $equipementManager = new EquipementManager();
+    $chocManager = new ChocManager();
+
+    if (isset($_POST['equipementID'])) {
+      $equipementID = $_POST['equipementID'];
+    }
+    if (isset($_POST['time_data'])) {
+      $timeDisplayData = $_POST['time_data'];
+    }
+
+    $sensor_id = $equipementManager->getSensorIdOnEquipement($equipementID);
+
+    if ($timeDisplayData == "day") {
+      $nb_choc = $chocManager->getPowerChocPerDayForSensor($sensor_id);
+    } else if ($timeDisplayData == "week") {
+      $nb_choc = $chocManager->getPowerChocPerWeekForSensor($sensor_id);
+    } else if ($timeDisplayData == "month") {
+      $nb_choc = $chocManager->getPowerChocPerMonthForSensor($sensor_id);
+    }
+
+    print json_encode($nb_choc);
+  }
   public function getChartsChocAction()
   {
     $equipementManager = new EquipementManager();
@@ -261,6 +311,7 @@ class ControllerData extends Authenticated
     if (isset($_POST['siteID'])) {
       $siteID = $_POST['siteID'];
     }
+    
     $group_name = $_SESSION['group_name'];
 
     $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
@@ -279,12 +330,13 @@ class ControllerData extends Authenticated
 
       $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
       $nb_choc_per_week = $chocManager->getNbChocPerWeekForSensor($sensor_id);
-      $power_choc_per_day = $chocManager->getPowerChocForSensor($sensor_id);
+      $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
       
 
       $allStructureData[$index_array] = array(
         'sensor_id' => $sensor_id,
         'equipement_name' => $equipement_pylone,
+        'equipementId' => $equipement_id,
         'nb_choc_per_day' => $nb_choc_per_day,
         'nb_choc_per_week' => $nb_choc_per_week,
         'power_choc_per_day' => $power_choc_per_day,
