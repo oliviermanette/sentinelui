@@ -13,11 +13,10 @@
             <th>Sensor ID</th>
             <th>Site</th>
             <th>Equipement</th>
-            <th>#messages</th>
-            <th>#global</th>
-            <th>#inclinometre</th>
-            <th>#choc</th>
-            <th>#spectre</th>
+            <th>Ligne HT</th>
+            <th>#messages reçus</th>
+            <th>#choc reçus</th>
+            <th>Dernier message reçu</th>
           </tr>
         </thead>
         <tbody>
@@ -26,11 +25,10 @@
             <td>{{ row.sensor_id }}</td>
             <td>{{ row.site }}></td>
             <td>{{ row.equipement }}></td>
+            <td>{{ row.ligneHT }}</td>
             <td> {{ row.nb_messages }} ></td>
-            <td> {{ row.nb_global }} ></td>
-            <td> {{ row.nb_inclinometre }} ></td>
             <td> {{ row.nb_choc }} ></td>
-            <td> {{ row.nb_spectre }} ></td>
+            <td>{{ row.last_message_received}}</td>
           </tr>
           {% endfor %}
         </tbody>

@@ -10,6 +10,7 @@ Basically inclinometer data, choc, spectre, battery...
 */
 
 namespace App\Models;
+
 use App\Config;
 use App\Utilities;
 use PDO;
@@ -17,22 +18,23 @@ use PDO;
 class RecordManager extends \Core\Model
 {
 
-  public function __construct(){
-
+  public function __construct()
+  {
   }
   /**
-  * Parse json data and then insert into the DB
-  *
-  * @param json $jsondata json data received from Objenious. This file contain the uplink message
-  * @return boolean  True if data has been correctly inserted, true otherwise
-  */
-  function parseJsonDataAndInsert($jsondata){
+   * Parse json data and then insert into the DB
+   *
+   * @param json $jsondata json data received from Objenious. This file contain the uplink message
+   * @return boolean  True if data has been correctly inserted, true otherwise
+   */
+  function parseJsonDataAndInsert($jsondata)
+  {
     //Get all the interesting content from JSON data
     $id = $jsondata['id'];
     $profile = $jsondata['profile'];
     $group = $jsondata['group'];
     $device_id = $jsondata['device_id'];
-    $count= $jsondata['count'];
+    $count = $jsondata['count'];
     $geolocation_precision = $jsondata['geolocation_precision'];
     $geolocation_type = $jsondata['geolocation_type'];
     $latitude_msg = $jsondata['lat'];
@@ -47,8 +49,8 @@ class RecordManager extends \Core\Model
     $type_msg =  $jsondata['type'];
 
     #Remove bracket
-    $asset_name_no_bracket = str_replace(array( '[', ']' ), '', $asset_name);
-    $asset_name_array = explode("-",$asset_name_no_bracket);
+    $asset_name_no_bracket = str_replace(array('[', ']'), '', $asset_name);
+    $asset_name_array = explode("-", $asset_name_no_bracket);
     $region = $asset_name_array[0];
     $ligne = $asset_name_array[1];
     $desc_asset = $asset_name_array[2];
@@ -62,8 +64,7 @@ class RecordManager extends \Core\Model
     $type_asset = "";
     if (strpos($desc_asset, 'pylone') !== false) {
       $type_asset = "transmission line";
-    }
-    else {
+    } else {
       $type_asset = "undefined";
     }
 
@@ -73,13 +74,13 @@ class RecordManager extends \Core\Model
     //Add structure type to the DB
     $equipementManager = new EquipementManager();
     $equipementManager->insertStructureType($type_asset);
-    if (! $equipementManager->insertStructureType($type_asset)){
+    if (!$equipementManager->insertStructureType($type_asset)) {
       return false;
     }
 
     $datetimeFormat = 'Y-m-d H:i:s';
     $date = new \DateTime($timestamp);
-    $date->setTimezone(new \DateTimeZone(date_default_timezone_get() ) );
+    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
     $date_time = $date->format($datetimeFormat);
 
     //As we received a payload message, we need to decode it
@@ -99,34 +100,34 @@ class RecordManager extends \Core\Model
 
     //Then add the corresponding type of data received
     //Choc data
-    if ($type_msg == "choc"){
+    if ($type_msg == "choc") {
       $chocManager = new ChocManager();
 
-      if (! $chocManager->insertChocData($payload_decoded_json)){
+      if (!$chocManager->insertChocData($payload_decoded_json)) {
         return false;
       }
     }
     //battery data
-    else if ($type_msg == "global"){
+    else if ($type_msg == "global") {
       $batteryManager = new BatteryManager();
 
-      if (! $batteryManager->insertBatteryData($payload_decoded_json)){
+      if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
         return false;
       }
     }
     //Inclinometer data
-    else if ($type_msg == "inclinometre"){
+    else if ($type_msg == "inclinometre") {
       $inclinometreManager = new InclinometerManager();
 
-      if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)){
+      if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
         return false;
       }
     }
     //Subspectre data
-    else if ($type_msg == "spectre"){
+    else if ($type_msg == "spectre") {
       $spectreManager = new SpectreManager();
 
-      if (! $spectreManager->insertSpectreData($payload_decoded_json)){
+      if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
         return false;
       }
     }
@@ -135,19 +136,20 @@ class RecordManager extends \Core\Model
   }
 
   /**
-  * Insert new record message into record table.
-  *
-  * @param string $deveui_sensor deveuil of the sensor
-  * @param string $name_asset asset name (structure)
-  * @param string $payload_cleartext payload message
-  * @param string $date_time date time of the message
-  * @param string $type_msg type of the message
-  * @param string $longitude approximative longitude of the localisation of the message
-  * @param string $latitude approximative Latitude of the localisation of the message
-  *
-  * @return boolean  True if the data has been correctly inserted, False otherwise
-  */
-  public static function insertRecordData($deveui_sensor, $name_asset, $payload_cleartext, $date_time, $type_msg, $longitude, $latitude){
+   * Insert new record message into record table.
+   *
+   * @param string $deveui_sensor deveuil of the sensor
+   * @param string $name_asset asset name (structure)
+   * @param string $payload_cleartext payload message
+   * @param string $date_time date time of the message
+   * @param string $type_msg type of the message
+   * @param string $longitude approximative longitude of the localisation of the message
+   * @param string $latitude approximative Latitude of the localisation of the message
+   *
+   * @return boolean  True if the data has been correctly inserted, False otherwise
+   */
+  public static function insertRecordData($deveui_sensor, $name_asset, $payload_cleartext, $date_time, $type_msg, $longitude, $latitude)
+  {
     $data_record = 'INSERT INTO  record (`sensor_id`,  `structure_id`, `payload`, `date_time`,  `msg_type`,`longitude`, `latitude`)
     SELECT * FROM
     (SELECT (SELECT id FROM sensor WHERE deveui LIKE :deveui_sensor),
@@ -173,51 +175,48 @@ class RecordManager extends \Core\Model
 
 
   /**
-  * Decode Payload message in order to extract information. (Inclinometer, battery, choc...)
-  *
-  * @param string $payload_cleartext uplink payload message
-  * @return json  data decoded in json format
-  */
-  public static function decodePayload($payload_cleartext){
+   * Decode Payload message in order to extract information. (Inclinometer, battery, choc...)
+   *
+   * @param string $payload_cleartext uplink payload message
+   * @return json  data decoded in json format
+   */
+  public static function decodePayload($payload_cleartext)
+  {
     $preambule_hex = substr($payload_cleartext, 0, 2);
     $preambule_bin = substr(Utilities::hexStr2bin($preambule_hex), 0, 2);
     /*echo "\n Preambule HEX : " . $preambule_hex;
     echo "\n Hex2bin : " . Utilities::hexStr2bin($preambule_hex);
     echo "\n Preambule Bin : " . $preambule_bin;*/
 
-    if ($preambule_bin == "00"){
+    if ($preambule_bin == "00") {
       echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <===";
       $msgDecoded = RecordManager::decodeInclinometreMsg($payload_cleartext);
       return $msgDecoded;
-    }
-    else if ($preambule_bin == "10"){
+    } else if ($preambule_bin == "10") {
       echo "\n ==> TYPE MESSAGE RECEIVED : choc_data data <===";
       $msgDecoded = RecordManager::decodeShockMsg($payload_cleartext);
       return $msgDecoded;
-    }
-    else if ($preambule_bin == "11"){
+    } else if ($preambule_bin == "11") {
       echo "\n ==> TYPE MESSAGE RECEIVED : global data <===";
       $msgDecoded = RecordManager::decodeGlobalMsg($payload_cleartext);
       return $msgDecoded;
-    }
-    else if ($preambule_bin == "01"){
+    } else if ($preambule_bin == "01") {
       echo "\n ==> TYPE MESSAGE RECEIVED : spectre data <===";
       $msgDecoded = RecordManager::decodeSpectreMsg($payload_cleartext);
       return $msgDecoded;
-    }
-    else{
+    } else {
       return "UNDEFINED";
     }
-
   }
 
   /**
-  * Decode a spectre message
-  *
-  * @param string $payload_cleartext payload data
-  * @return json  data decoded in json format which contain the spectre raw data
-  */
-  public static function decodeSpectreMsg($payload_cleartext){
+   * Decode a spectre message
+   *
+   * @param string $payload_cleartext payload data
+   * @return json  data decoded in json format which contain the spectre raw data
+   */
+  public static function decodeSpectreMsg($payload_cleartext)
+  {
     #Take the preambule
     //echo "Payload HEX : " . $payload_hex;
     $spectre_msg_hex = $payload_cleartext;
@@ -225,11 +224,10 @@ class RecordManager extends \Core\Model
     $preambule_bin = Utilities::hexStr2bin($preambule_hex);
     $spectre_msg_dec = "";
 
-    for( $i = 2; $i< intval(strlen(strval($spectre_msg_hex))); $i += 2 ) {
+    for ($i = 2; $i < intval(strlen(strval($spectre_msg_hex))); $i += 2) {
       $data_i_hex = substr($spectre_msg_hex, $i, 2);
       $data_i_dec = Utilities::hex2dec($data_i_hex);
       $spectre_msg_dec .= strval($data_i_dec);
-
     }
 
     #Extract data from prembule
@@ -244,32 +242,27 @@ class RecordManager extends \Core\Model
     $min_freq = 0;
     $max_freq = 0;
 
-    if (strval($spectre_number) == "000"){
+    if (strval($spectre_number) == "000") {
       $resolution = 0;
       $min_freq = 0;
       $max_freq = 0;
-    }
-    else if (strval($spectre_number) == "001"){
+    } else if (strval($spectre_number) == "001") {
       $resolution = 1;
       $min_freq = 20;
       $max_freq = 69;
-    }
-    else if (strval($spectre_number) == "010"){
+    } else if (strval($spectre_number) == "010") {
       $resolution = 2;
       $min_freq = 70;
       $max_freq = 169;
-    }
-    else if (strval($spectre_number) == "011"){
+    } else if (strval($spectre_number) == "011") {
       $resolution = 4;
       $min_freq = 170;
       $max_freq = 369;
-    }
-    else if (strval($spectre_number) == "100"){
+    } else if (strval($spectre_number) == "100") {
       $resolution = 8;
       $min_freq = 370;
       $max_freq = 769;
-    }
-    else if (strval($spectre_number) == "101"){
+    } else if (strval($spectre_number) == "101") {
       $resolution = 16;
       $min_freq = 770;
       $max_freq = 1569;
@@ -289,16 +282,16 @@ class RecordManager extends \Core\Model
     //echo json_encode($spectreMSGDecoded);
 
     return json_encode($spectreMSGDecoded, true);
-
   }
 
   /**
-  * Decode a global message (battery data)
-  *
-  * @param string $payload_cleartext payload data
-  * @return json  data decoded in json format which contain the battery raw data
-  */
-  public static function decodeGlobalMsg($payload_hex){
+   * Decode a global message (battery data)
+   *
+   * @param string $payload_cleartext payload data
+   * @return json  data decoded in json format which contain the battery raw data
+   */
+  public static function decodeGlobalMsg($payload_hex)
+  {
     #Take the preambule
     $preambule_hex = substr($payload_hex, 0, 2);
     $preambule_bin = Utilities::hexStr2bin($preambule_hex);
@@ -332,12 +325,13 @@ class RecordManager extends \Core\Model
   }
 
   /**
-  * Decode a choc message
-  *
-  * @param string $payload_cleartext payload data
-  * @return json  data decoded in json format which contain the choc raw data
-  */
-  public static function decodeShockMsg($payload_hex){
+   * Decode a choc message
+   *
+   * @param string $payload_cleartext payload data
+   * @return json  data decoded in json format which contain the choc raw data
+   */
+  public static function decodeShockMsg($payload_hex)
+  {
     #Take the preambule
     $preambule_hex = substr($payload_hex, 0, 2);
     $preambule_bin = Utilities::hexStr2bin($preambule_hex);
@@ -371,16 +365,16 @@ class RecordManager extends \Core\Model
     ];
 
     return json_encode($chocMsgDecoded, true);
-
   }
 
   /**
-  * Decode an inclinometer message
-  *
-  * @param string $payload_cleartext payload data
-  * @return json  data decoded in json format which contain the inclinometer raw data
-  */
-  public static function decodeInclinometreMsg($payload_hex){
+   * Decode an inclinometer message
+   *
+   * @param string $payload_cleartext payload data
+   * @return json  data decoded in json format which contain the inclinometer raw data
+   */
+  public static function decodeInclinometreMsg($payload_hex)
+  {
     #Take the preambule
     $preambule_hex = substr($payload_hex, 0, 2);
     $preambule_bin = Utilities::hexStr2bin($preambule_hex);
@@ -391,7 +385,7 @@ class RecordManager extends \Core\Model
     $occurence = substr($preambule_bin, 2, 2);
     $zeroing = substr($preambule_bin, 4, 2);
 
-    if ($preambule_bin == 0){
+    if ($preambule_bin == 0) {
       $idInclinometre = "00";
       $occurence = "00";
       $zeroing = "00";
@@ -424,7 +418,31 @@ class RecordManager extends \Core\Model
   }
 
 
-  public function getDateLastReceivedData($structure_id){
+  public function getLastDateRecordForSensor($sensor_id = 0)
+  {
+    $db = static::getDB();
+    $sql_last_date = "SELECT s.device_number, MAX(DATE(r.date_time)) as dateMaxReceived 
+      FROM record AS r 
+      LEFT JOIN sensor AS s ON (s.id = r.sensor_id) ";
+    //All date
+    if ($sensor_id != 0) {
+      $sql_last_date .= "WHERE s.id = :sensor_id";
+    }
+    $sql_last_date .= " GROUP BY s.device_number, s.id";
+
+    $stmt = $db->prepare($sql_last_date);
+    if ($sensor_id != 0) {
+      $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    }
+
+    if ($stmt->execute()) {
+      $last_date = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $last_date;
+    }
+  }
+
+  public function getDateLastReceivedData($structure_id)
+  {
     $db = static::getDB();
     $sql_last_date = "SELECT MAX(DATE(r.date_time)) as dateMaxReceived
     FROM record as r
@@ -434,12 +452,13 @@ class RecordManager extends \Core\Model
     $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $last_date= $stmt->fetchAll(PDO::FETCH_COLUMN);
+      $last_date = $stmt->fetchAll(PDO::FETCH_COLUMN);
       return $last_date[0];
     }
   }
 
-  function getDateMinMaxFromRecord(){
+  function getDateMinMaxFromRecord()
+  {
     $db = static::getDB();
     $query_min_max_date = "SELECT (SELECT Max(date_time) FROM record) AS MaxDateTime,
     (SELECT Min(date_time) FROM record) AS MinDateTime";
@@ -451,39 +470,62 @@ class RecordManager extends \Core\Model
       $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
       $min_date_time = $row["MinDateTime"];
-      $max_date_time =$row["MaxDateTime"];
-      $min_date = date( 'd-m-Y', strtotime($min_date_time) );
-      $max_date = date( 'd-m-Y', strtotime( $max_date_time ));
+      $max_date_time = $row["MaxDateTime"];
+      $min_date = date('d-m-Y', strtotime($min_date_time));
+      $max_date = date('d-m-Y', strtotime($max_date_time));
 
       $date_min_max = array($min_date, $max_date);
 
       return $date_min_max;
-
     }
   }
 
-  function getBriefInfoFromRecord($group_name){
+  function getBriefInfoFromRecord($group_name)
+  {
 
-    $db = static::getDB();
+      $db = static::getDB();
 
-    $query_get_number_record = "
-    SELECT * FROM  (SELECT sensor.device_number AS 'sensor_id', s.nom AS `site`, st.nom AS `equipement`,
-    count(*) AS 'nb_messages',
-    sum(case when msg_type = 'global' then 1 else 0 end) AS 'nb_global',
-    sum(case when msg_type = 'inclinometre' then 1 else 0 end) AS 'nb_inclinometre',
-    sum(case when msg_type = 'choc' then 1 else 0 end) AS 'nb_choc',
-    FLOOR(sum(case when msg_type = 'spectre' then 1 else 0 end)/5) AS 'nb_spectre'
-    FROM record AS r
-    INNER JOIN structure AS st
-    ON st.id=r.structure_id
-    INNER JOIN site AS s
-    ON s.id = st.site_id
-    INNER JOIN sensor ON (sensor.id=r.sensor_id)
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE gn.name = :group_name AND Date(r.date_time) >= Date(sensor.installation_date)
-    GROUP BY r.sensor_id, st.nom, s.nom) AS all_message_rte_sensor
-    ";
+      $query_get_number_record = "
+        SELECT 
+    sensor_id, 
+    site, 
+    ligneHT, 
+    equipement, 
+    nb_messages,
+    nb_choc, 
+    DATE_FORMAT(
+      last_message_received, '%d/%m/%Y'
+    ) AS `last_message_received` 
+  FROM 
+    (
+      SELECT 
+        sensor.device_number AS 'sensor_id', 
+        s.nom AS `site`, 
+        st.transmision_line_name AS `LigneHT`, 
+        st.nom AS `equipement`, 
+        sum(
+          case when msg_type = 'choc' then 1 else 0 end
+        ) AS 'nb_choc', 
+        count(*) AS 'nb_messages', 
+        Max(
+          Date(r.date_time)
+        ) AS `last_message_received` 
+      FROM 
+        record AS r 
+        INNER JOIN structure AS st ON st.id = r.structure_id 
+        INNER JOIN site AS s ON s.id = st.site_id 
+        INNER JOIN sensor ON (sensor.id = r.sensor_id) 
+        INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
+        INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+      WHERE 
+        gn.name = 'RTE' 
+        AND Date(r.date_time) >= Date(sensor.installation_date) 
+      GROUP BY 
+        r.sensor_id, 
+        st.nom, 
+        s.nom, 
+        st.transmision_line_name
+    ) AS all_message_rte_sensor";
 
     $stmt = $db->prepare($query_get_number_record);
     $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
@@ -492,10 +534,10 @@ class RecordManager extends \Core\Model
       $res = $stmt->fetchAll();
       return $res;
     }
-
   }
 
-  function getDataMap($group_name){
+  function getDataMap($group_name)
+  {
     $db = static::getDB();
 
     $query_data_map = "SELECT DISTINCT r.sensor_id, s.latitude AS latitude_site, s.longitude AS longitude_site,
@@ -514,10 +556,10 @@ class RecordManager extends \Core\Model
       $data_map = $stmt->fetchAll();
       return $data_map;
     }
-
   }
 
-  function getAllRawRecord(){
+  function getAllRawRecord()
+  {
     $db = static::getDB();
 
     $sql_all_msg_raw_data = "SELECT sensor.id,
@@ -577,10 +619,10 @@ class RecordManager extends \Core\Model
       $raw_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $raw_data;
     }
-
   }
 
-  public function getAllSpecificMsgForSpecificId($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax ){
+  public function getAllSpecificMsgForSpecificId($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax)
+  {
 
     $db = static::getDB();
 
@@ -594,7 +636,7 @@ class RecordManager extends \Core\Model
     ON s.id = st.site_id
     WHERE ";
 
-    if (!empty($dateMin) && !empty($dateMax)){
+    if (!empty($dateMin) && !empty($dateMax)) {
       $sql_query_all_specific_msg =  "(date(r.date_time) BETWEEN date(CONCAT(:date_min, '%')) and date(CONCAT(:date_max, '%'))) AND ";
     }
 
@@ -603,7 +645,7 @@ class RecordManager extends \Core\Model
 
     $stmt = $db->prepare($sql_query_all_specific_msg);
 
-    if (!empty($dateMin) && !empty($dateMax)){
+    if (!empty($dateMin) && !empty($dateMax)) {
       $stmt->bindValue(':date_min', $dateMin, PDO::PARAM_STR);
       $stmt->bindValue(':date_max', $dateMax, PDO::PARAM_STR);
     }
@@ -618,7 +660,8 @@ class RecordManager extends \Core\Model
     }
   }
 
-  public function getAllDataForChart($site_id, $equipment_id, $dateMin, $dateMax ){
+  public function getAllDataForChart($site_id, $equipment_id, $dateMin, $dateMax)
+  {
 
     $db = static::getDB();
     //All
@@ -809,10 +852,10 @@ class RecordManager extends \Core\Model
     JOIN structure as st ON (st.id=r.structure_id)
     JOIN site as s ON (s.id=st.site_id)
     WHERE sp.subspectre_number LIKE '001' AND r.sensor_id LIKE :sensor_id ";
-    if (!empty($dateMin) && !empty($dateMax)){
-      $query_all_dates .="AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
+    if (!empty($dateMin) && !empty($dateMax)) {
+      $query_all_dates .= "AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
     }
-    $query_all_dates .="ORDER BY r.date_time ASC";
+    $query_all_dates .= "ORDER BY r.date_time ASC";
 
     //echo "</br>";
     //$$$res ult_all_dates =  mysqli_query($connect, $query_all_dates);
@@ -821,8 +864,8 @@ class RecordManager extends \Core\Model
     $spectrenumber = 0;
     if ($stmt->execute()) {
       $row_date_ = $stmt->fetchAll();
-      foreach($row_date_ as $row_date) {
-        $spectre_name= 'spectre_'.$spectrenumber;
+      foreach ($row_date_ as $row_date) {
+        $spectre_name = 'spectre_' . $spectrenumber;
         $current_date = $row_date['date_d'];
         //Reconstruct the all spectre for the current date
         $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, Date(r.date_time) AS date,
@@ -850,10 +893,11 @@ class RecordManager extends \Core\Model
   }
 
 
-  public function getDataForSpecificChart($time_data, $type_msg, $sensor_id ){
+  public function getDataForSpecificChart($time_data, $type_msg, $sensor_id)
+  {
     $db = static::getDB();
     $useTimeData = True;
-    if ($type_msg == "global"){
+    if ($type_msg == "global") {
       //Temperature
       $sql_query = "SELECT
       `temperature`,
@@ -867,8 +911,7 @@ class RecordManager extends \Core\Model
       ORDER BY
       date_d ASC ";
       $useTimeData = False;
-
-    }else if ($type_msg == "inclinometre"){
+    } else if ($type_msg == "inclinometre") {
       //Inclinometre
       $sql_query = "SELECT
       `sensor_id`,
@@ -891,8 +934,7 @@ class RecordManager extends \Core\Model
       `msg_type` LIKE 'inclinometre'
       AND `sensor_id` LIKE :sensor_id
       AND r.date_time LIKE :time_data";
-
-    }else if ($type_msg == "choc"){
+    } else if ($type_msg == "choc") {
       //Choc
       $sql_query = "SELECT
       `sensor_id`,
@@ -912,8 +954,7 @@ class RecordManager extends \Core\Model
       AND `sensor_id` LIKE :sensor_id
       AND r.date_time LIKE :time_data
       ";
-
-    }else if ($type_msg == "spectre"){
+    } else if ($type_msg == "spectre") {
       //Choc
       //Sub Spectre
       $sql_query = "SELECT
@@ -935,7 +976,6 @@ class RecordManager extends \Core\Model
       WHERE
       r.date_time LIKE :time_data
       AND r.sensor_id = :sensor_id ";
-
     }
 
 
@@ -944,7 +984,7 @@ class RecordManager extends \Core\Model
     $stmt = $db->prepare($sql_query);
 
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    if ($useTimeData){
+    if ($useTimeData) {
       $stmt->bindValue(':time_data', $time_data, PDO::PARAM_STR);
     }
 
@@ -954,6 +994,4 @@ class RecordManager extends \Core\Model
 
     return $data;
   }
-
-
 }

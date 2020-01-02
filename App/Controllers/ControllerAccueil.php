@@ -7,6 +7,7 @@ use \App\Auth;
 use \App\Models\SiteManager;
 use \App\Models\EquipementManager;
 use \App\Models\RecordManager;
+use \App\Models\SensorManager;
 
 
 ini_set('display_errors', '1');
@@ -33,26 +34,16 @@ class ControllerAccueil extends Authenticated
   {
     $group_name = $_SESSION['group_name'];
 
-    $siteManager = new SiteManager();
-    $all_site = $siteManager->getSites($group_name);
-
-    $equipementManager = new EquipementManager();
-    $all_equipment = $equipementManager->getEquipements($group_name);
-
+    $sensorManager = new SensorManager();
     $recordManager = new RecordManager();
     $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
+    $nb_actif_sensor = $sensorManager->getNumberActifSensor($group_name);
+    $nb_inactif_sensor = $sensorManager->getNumberInactifSensor($group_name);
 
-
-    $date_min_max = $recordManager->getDateMinMaxFromRecord();
-
-    $min_date = $date_min_max[0];
-    $max_date = $date_min_max[1];
 
     View::renderTemplate('Homepage/accueil.html', [
-      'all_site'    => $all_site,
-      'all_equipment' => $all_equipment,
-      'min_date' => $min_date,
-      'max_date' => $max_date,
+      'nb_sensor_actif' => $nb_actif_sensor,
+      'nb_sensor_inactif' => $nb_inactif_sensor,
       'brief_data_record' => $brief_data_record,
     ]);
 

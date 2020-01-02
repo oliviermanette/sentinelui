@@ -42,6 +42,14 @@ function getFormattedDate(date) {
   return day + '/' + month + '/' + year;
 }
 
+// parse a date in dd/mm/yyyy format
+function parseDate(input) {
+  var parts = input.split('/');
+  console.log(parts);
+  var date = new Date(parts[0], parts[1] - 1, parts[2]).toString(); // Note: months are 0-based
+  return date.toDateString();
+}
+
 /**
  * @desc add a new element in html page 
  * @param string parentId - parent class where we want to insert new attribute
