@@ -26,9 +26,11 @@ class ChocManager extends \Core\Model
 
     $sql_choc_data = "SELECT
     sensor.id,
+    sensor.device_number,
     sensor.deveui,
-    s.nom AS Site,
-    st.nom AS Equipement,
+    s.nom AS site,
+    st.nom AS equipement,
+    st.transmision_line_name AS ligneHT,
     r.date_time,
     r.payload,
     r.msg_type AS 'Type message',
@@ -48,8 +50,9 @@ class ChocManager extends \Core\Model
     INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
     INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
     WHERE
-    gn.name = : group_name
+    gn.name = :group_name
     AND Date(r.date_time) >= Date(sensor.installation_date)
+    ORDER BY Date(r.date_time) DESC
     ";
 
     $stmt = $db->prepare($sql_choc_data);

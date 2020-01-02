@@ -62,17 +62,22 @@ class ControllerData extends Authenticated
     $siteManager = new SiteManager();
     $equipementManager = new EquipementManager();
     $inclinometerManager = new InclinometerManager();
-
-    $sensor_id = $equipementManager->getSensorIdOnEquipement("247");
-
+    $chocManager = new ChocManager();
 
     $group_name = $_SESSION['group_name'];
+
+    $sensor_id = $equipementManager->getSensorIdOnEquipement("247");
+    $choc_data_arr = $chocManager->getAllChocDataForGroup($group_name);
+    
     $all_site = $siteManager->getSites($group_name);
 
     View::renderTemplate('chocs/index.html', [
-      'all_site'    => $all_site
+      'all_site'    => $all_site,
+      'choc_data_array' => $choc_data_arr,
     ]);
   }
+
+
   public function indexTestAction()
   {
     $equipementManager = new EquipementManager();

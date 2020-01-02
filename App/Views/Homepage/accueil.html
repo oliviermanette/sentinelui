@@ -182,18 +182,21 @@
     fetchDataMap(showMap);
 
     $('#tableData').DataTable({
-      "createdRow": function( row, data, dataIndex){
-      var today = new Date();
-      var currentDate = today.getDate() +'/'+ (today.getMonth()+1) +'/'+ today.getFullYear();
-      currentDate = moment(currentDate,"DD/MM/YYYY").format('DD/MM/YYYY');
-      var date_row = moment(data[6],"DD/MM/YYYY").format('DD/MM/YYYY');
+      "createdRow": function (row, data, dataIndex) {
+        var today = new Date();
+        var currentDate = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+        currentDate = moment(currentDate, "DD/MM/YYYY").format('DD/MM/YYYY');
+        var date_row = moment(data[6], "DD/MM/YYYY").format('DD/MM/YYYY');
 
-      if( currentDate != date_row){
-      $(row).css({"background-color":"rgba(254, 16, 16, 0.15)"})
-      }
-      else {
-         $(row).css({"background-color":"rgba(135, 254, 16, 0.15)"})
-      }
+        if (currentDate != date_row) {
+          $(row).css({
+            "background-color": "rgba(254, 16, 16, 0.15)"
+          })
+        } else {
+          $(row).css({
+            "background-color": "rgba(135, 254, 16, 0.15)"
+          })
+        }
       },
       "lengthMenu": [
         [10, 25, 50, -1],
