@@ -64,6 +64,133 @@ class ChocManager extends \Core\Model
   }
 
   /**
+   *  Compute Mean of power choc received from a specific sensor ID. Compute daily, weekly, monthly
+   *  and yearly average
+   *  date_formatted | avgPower 
+   *
+   * @param int $sensor_id from where we want to get the data
+   * @param string $time_period DAY, WEEK, MONTH or YEAR
+   * @return array  results from the query
+   */
+  public function computeMeanChoc($sensor_id, $time_period = "DAY")
+  {
+    $db = static::getDB();
+    if ($time_period == "DAY"){
+      $sql_mean = "SELECT 
+                  DATE_FORMAT(dateTime, '%d-%m-%Y') AS date_formatted,";
+    }
+    else if ($time_period == "WEEK"){
+      $sql_mean = "SELECT 
+                  DATE_FORMAT(dateTime, '%v-%Y') AS date_formatted,";
+    } 
+    else if ($time_period == "MONTH") {
+      $sql_mean = "SELECT 
+                  DATE_FORMAT(dateTime, '%m-%Y') AS date_formatted,";
+    } 
+    else if ($time_period == "YEAR") {
+      $sql_mean = "SELECT 
+                  DATE_FORMAT(dateTime, '%Y') AS date_formatted,";
+    }
+    
+    $sql_mean .= "AVG(power) AS avgPower
+    FROM 
+      (
+        SELECT 
+          sensor.id, 
+          r.date_time AS dateTime, 
+          power 
+        FROM 
+          choc 
+          LEFT JOIN record AS r ON (r.id = choc.record_id) 
+          LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
+          INNER JOIN structure AS st ON st.id = r.structure_id 
+        WHERE 
+          sensor.id = :sensor_id 
+        ORDER BY 
+          r.date_time DESC
+      ) AS All_choc_power 
+    GROUP BY 
+      date_formatted ";
+
+    if ($time_period == "DAY") {
+      $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%d-%m-%Y') DESC";
+    } else if ($time_period == "WEEK") {
+      $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%v-%Y') DESC";
+    } else if ($time_period == "MONTH") {
+      $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%m-%Y') DESC";
+    } else if ($time_period == "YEAR") {
+      $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%Y') DESC";
+    }
+
+    $stmt = $db->prepare($sql_mean);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  /**
+   *  Compute standard deviation from power choc received from a specific sensor ID.
+   *  Compute weekly, monthly and yearly average
+   *  date_formatted | stdDevPower 
+   *
+   * @param int $sensor_id from where we want to get the data
+   * @param string $time_period DAY, WEEK, MONTH or YEAR
+   * @return array  results from the query
+   */
+  public function computeStdDevChoc($sensor_id, $time_period = "MONTH")
+  {
+    $db = static::getDB();
+    if ($time_period == "WEEK") {
+      $sql_mean = "SELECT 
+                  DATE_FORMAT(dateTime, '%v-%Y') AS date_formatted,";
+    } else if ($time_period == "MONTH") {
+      $sql_mean = "SELECT 
+                  DATE_FORMAT(dateTime, '%m-%Y') AS date_formatted,";
+    } else if ($time_period == "YEAR") {
+      $sql_mean = "SELECT 
+                  DATE_FORMAT(dateTime, '%Y') AS date_formatted,";
+    }
+
+    $sql_mean .= "STDDEV(power) AS stdDevPower
+    FROM 
+      (
+        SELECT 
+          sensor.id, 
+          r.date_time AS dateTime, 
+          power 
+        FROM 
+          choc 
+          LEFT JOIN record AS r ON (r.id = choc.record_id) 
+          LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
+          INNER JOIN structure AS st ON st.id = r.structure_id 
+        WHERE 
+          sensor.id = :sensor_id 
+        ORDER BY 
+          r.date_time DESC
+      ) AS All_choc_power 
+    GROUP BY 
+      date_formatted ";
+
+    if ($time_period == "WEEK") {
+      $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%v-%Y') DESC";
+    } else if ($time_period == "MONTH") {
+      $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%m-%Y') DESC";
+    } else if ($time_period == "YEAR") {
+      $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%Y') DESC";
+    }
+
+    $stmt = $db->prepare($sql_mean);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+
+  /**
    * Get the last choc received from a given sensor
    *
    *  date | power
