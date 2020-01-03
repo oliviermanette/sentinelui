@@ -36,6 +36,10 @@ $router->add('logout', ['controller' => 'ControllerLogin', 'action' => 'destroy'
 $router->add('password/reset/{token:[\da-f]+}', ['controller' => 'Password', 'action' => 'reset']);
 //Parse data from Objenious server
 $router->add('data', ['controller' => 'ControllerDataObjenious', 'action' => 'receiveRawDataFromObjenious']);
+//Setting page
+$router->add('setting', ['controller' => 'ControllerSetting', 'action' => 'index']);
+//Profile page
+$router->add('profile', ['controller' => 'ControllerProfile', 'action' => 'index']);
 //Search data form
 $router->add('search-data', ['controller' => 'ControllerData', 'action' => 'index']);
 //Choc data display
