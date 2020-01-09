@@ -5,6 +5,7 @@ theme-admin/*
 public/vendor/*
 core-ui-admin/*
 stilasla/*
+tabler/*
 
 #Ignore node_module
 node_modules/*

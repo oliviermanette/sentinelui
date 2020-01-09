@@ -37,7 +37,7 @@ $router->add('password/reset/{token:[\da-f]+}', ['controller' => 'Password', 'ac
 //Parse data from Objenious server
 $router->add('data', ['controller' => 'ControllerDataObjenious', 'action' => 'receiveRawDataFromObjenious']);
 //Setting page
-$router->add('setting', ['controller' => 'ControllerSetting', 'action' => 'index']);
+$router->add('settings', ['controller' => 'ControllerSetting', 'action' => 'index']);
 //Profile page
 $router->add('profile', ['controller' => 'ControllerProfile', 'action' => 'index']);
 //Search data form

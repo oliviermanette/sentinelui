@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Setting{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <form class="card">
+        <div class="card-body">
+            <h3 class="card-title">Edit Settings</h3>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label><strong>Shock threshold</strong></label>
+                    <input type="range" class="custom-range" name="amountRangeShock" min="0" max="5" value="0"
+                        oninput="this.form.amountInputShock.value=this.value" />
+                    <input type="number" name="amountInputShock" min="0" max="5" value="0"
+                        oninput="this.form.amountRangeShock.value=this.value" />
+                </div>
+                <div class="col-sm-3">
+                    <label><strong>Inclinometer threshold</strong></label>
+                    <input type="range" class="custom-range" name="amountRangeInclinometer" min="0" max="5" value="0"
+                        oninput="this.form.amountInputInclinometer.value=this.value" />
+                    <input type="number" name="amountInputInclinometer" min="0" max="5" value="0"
+                        oninput="this.form.amountRangeInclinometer.value=this.value" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <div class="form-label">Toggle switches</div>
+                    <div class="custom-switches-stacked">
+                        <label class="custom-switch">
+                            <input type="radio" name="option" value="1" class="custom-switch-input" checked>
+                            <span class="custom-switch-indicator"></span>
+                            <span class="custom-switch-description">Option 1</span>
+                        </label>
+                        <label class="custom-switch">
+                            <input type="radio" name="option" value="2" class="custom-switch-input">
+                            <span class="custom-switch-indicator"></span>
+                            <span class="custom-switch-description">Option 2</span>
+                        </label>
+                        <label class="custom-switch">
+                            <input type="radio" name="option" value="3" class="custom-switch-input">
+                            <span class="custom-switch-indicator"></span>
+                            <span class="custom-switch-description">Option 3</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-right">
+            <button type="submit" class="btn btn-primary">Update Setting</button>
+        </div>
+    </form>
+
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+
+
+</script>
+
+{% endblock %}

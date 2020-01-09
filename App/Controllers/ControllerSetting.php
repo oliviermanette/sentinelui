@@ -22,7 +22,7 @@ class ControllerSetting extends Authenticated
 
     public function indexAction()
     {
-        View::renderTemplate('Profile/setting.html', [
+        View::renderTemplate('Profile/settings.html', [
         ]);
 
     }
