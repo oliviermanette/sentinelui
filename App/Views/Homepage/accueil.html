@@ -11,6 +11,7 @@
   <h3 class="text-center">Bonjour {{ current_user.first_name }} </h3>
   {% endif %}
   </br>
+  
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Vue d'ensemble</h1>
@@ -184,17 +185,21 @@
     $('#tableData').DataTable({
       "createdRow": function (row, data, dataIndex) {
         var today = new Date();
-        var currentDate = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-        currentDate = moment(currentDate, "DD/MM/YYYY").format('DD/MM/YYYY');
+        var yesterdatDate = (today.getDate() - 2) + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+        yesterdatDate = moment(yesterdatDate, "DD/MM/YYYY").format('DD/MM/YYYY');
         var date_row = moment(data[6], "DD/MM/YYYY").format('DD/MM/YYYY');
-
-        if (currentDate != date_row) {
+        console.log("date row :", date_row);
+        console.log("Yesterday day :", yesterdatDate);
+        
+        if (moment(date_row).isAfter(yesterdatDate)) {
           $(row).css({
-            "background-color": "rgba(254, 16, 16, 0.15)"
+            //green
+            "background-color": "rgba(135, 254, 16, 0.15)"
           })
         } else {
           $(row).css({
-            "background-color": "rgba(135, 254, 16, 0.15)"
+            //Red
+            "background-color": "rgba(254, 16, 16, 0.15)"
           })
         }
       },

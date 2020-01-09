@@ -37,5 +37,16 @@ class ControllerDataObjenious extends \Core\Controller{
     $recordManager->parseJsonDataAndInsert($data);
   }
 
+  //Testing 
+  public function testChocAction()
+  {
+    //Get the JSON content from the HTTP request
+    $data = json_decode(file_get_contents('php://input'), true);
+    //Parse the JSON content to insert into the DB
+    $recordManager = new RecordManager();
+    $recordManager->parseChocTest($data);
+  }
+
+
   
 }

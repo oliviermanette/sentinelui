@@ -102,9 +102,11 @@ function getSensorIdOnEquipement($structure_id){
   $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
 
   if ($stmt->execute()) {
-    $sensor_id_res = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-    return $sensor_id_res[0];
+    $sensor_id_res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (isset($sensor_id_res[0])){
+        return $sensor_id_res[0]['sensor_id'];
+    }
+    
   }
 
 }

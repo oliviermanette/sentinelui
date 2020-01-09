@@ -72,7 +72,7 @@ class ChocManager extends \Core\Model
    * @param string $time_period DAY, WEEK, MONTH or YEAR
    * @return array  results from the query
    */
-  public function computeMeanChoc($sensor_id, $time_period = "DAY")
+  public static function computeAvgPowerChocPerPeriod($sensor_id, $time_period = "DAY", $select = -1)
   {
     $db = static::getDB();
     if ($time_period == "DAY"){
@@ -80,15 +80,15 @@ class ChocManager extends \Core\Model
                   DATE_FORMAT(dateTime, '%d-%m-%Y') AS date_formatted,";
     }
     else if ($time_period == "WEEK"){
-      $sql_mean = "SELECT 
+      $sql_mean = "SELECT WEEK(dateTime) AS nb_date,
                   DATE_FORMAT(dateTime, '%v-%Y') AS date_formatted,";
     } 
     else if ($time_period == "MONTH") {
-      $sql_mean = "SELECT 
+      $sql_mean = "SELECT MONTH(dateTime) AS nb_date,
                   DATE_FORMAT(dateTime, '%m-%Y') AS date_formatted,";
     } 
     else if ($time_period == "YEAR") {
-      $sql_mean = "SELECT 
+      $sql_mean = "SELECT YEAR(dateTime) AS nb_date,
                   DATE_FORMAT(dateTime, '%Y') AS date_formatted,";
     }
     
@@ -110,7 +110,7 @@ class ChocManager extends \Core\Model
           r.date_time DESC
       ) AS All_choc_power 
     GROUP BY 
-      date_formatted ";
+      date_formatted, nb_date ";
 
     if ($time_period == "DAY") {
       $sql_mean .= "ORDER BY STR_TO_DATE(date_formatted, '%d-%m-%Y') DESC";
@@ -125,8 +125,26 @@ class ChocManager extends \Core\Model
     $stmt = $db->prepare($sql_mean);
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      return $results;
+      $results_avg_arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      $found = False;
+      if ($select > -1){
+        foreach ($results_avg_arr as $value) {
+          if ($value["nb_date"] == $select){
+            $avgRes = $value["avgPower"];
+            $found = True;
+          }else{
+            $found = False;
+          }
+        }
+      }
+      if ($found){
+        return $avgRes;
+      }
+      else {
+        return $results_avg_arr;
+      }
+      
     }
   }
 
@@ -209,13 +227,8 @@ class ChocManager extends \Core\Model
     LEFT JOIN record AS r ON (r.id = choc.record_id) 
     LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
     WHERE 
-    sensor.id = :sensor_id 
-    AND r.date_time >= CURDATE() 
-    AND r.date_time < CURDATE() + INTERVAL 1 DAY 
-    ORDER BY 
-    `date` DESC 
-    LIMIT 
-    1
+    sensor.id = :sensor_id
+    ORDER BY r.date_time DESC LIMIT 1
     ";
 
     $stmt = $db->prepare($sql_last_choc);
@@ -732,6 +745,35 @@ class ChocManager extends \Core\Model
     $stmt->bindValue(':power', $totalAreaPower, PDO::PARAM_STR);
 
     return $stmt->execute();
+  }
+  /**
+   * compute choc data to the DB given a json file
+   *
+   * @param json $choc_data_json contain the choc data (amplitude1, amplitude2, time1, time2, date_time, deveui)
+   * @return boolean  return True if insert query successfully executed
+   */
+  public function parseChocData($choc_data_json)
+  {
+    $amplitude_1 = floatval($choc_data_json['amplitude1']);
+    $amplitude_2 = floatval($choc_data_json['amplitude2']);
+    $time_1 = floatval($choc_data_json['time1']);
+    $time_2 = floatval($choc_data_json['time2']);
+
+    $amplitude_g_1 = Utilities::mgToG($amplitude_1);
+    $amplitude_g_2 = Utilities::mgToG($amplitude_2);
+    $time_s_1 = Utilities::microToSecond($time_1);
+    $time_s_2 = Utilities::microToSecond($time_2);
+
+    $date_time = $choc_data_json['date_time'];
+    $deveui_sensor = $choc_data_json['deveui'];
+
+    $resData = ChocManager::computeChocData($amplitude_g_1, $amplitude_g_2, $time_s_1, $time_s_2);
+
+    return $resData;
+    /*$totalAreaPower = $resData[0];
+    $freq1 = $resData[1];
+    $freq2 = $resData[2];*/
+
   }
 
   /**

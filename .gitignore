@@ -4,6 +4,7 @@ vendor/*
 theme-admin/*
 public/vendor/*
 core-ui-admin/*
+stilasla/*
 
 #Ignore node_module
 node_modules/*

@@ -17,21 +17,21 @@ use PDO;
 class SensorManager extends \Core\Model
 {
 
-    public function __construct()
-    {
-    }
+  public function __construct()
+  {
+  }
 
-    /**
-     * Get the number of actif sensor for a specific group
-     *
-     * @param string $group_name the group we want to check the number of actif sensor
-     * @return array  array results
-     */
-    public function getNumberActifSensor($group_name)
-    {
-        $db = static::getDB();
+  /**
+   * Get the number of actif sensor for a specific group
+   *
+   * @param string $group_name the group we want to check the number of actif sensor
+   * @return array  array results
+   */
+  public function getNumberActifSensor($group_name)
+  {
+    $db = static::getDB();
 
-        $sql_nb_actif_sensor = "SELECT 
+    $sql_nb_actif_sensor = "SELECT 
       count(*) 
     FROM 
       (
@@ -53,26 +53,26 @@ class SensorManager extends \Core\Model
     WHERE 
       dateMaxReceived >= CURDATE() -1";
 
-        $stmt = $db->prepare($sql_nb_actif_sensor);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt = $db->prepare($sql_nb_actif_sensor);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
-        if ($stmt->execute()) {
-            $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-            return $nb_actif_sensor[0];
-        }
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor[0];
     }
+  }
 
-    /**
-     * Get the number of inactif sensor for a specific group
-     *
-     * @param string $group_name the group we want to check the number of actif sensor
-     * @return array  array results
-     */
-    public function getNumberInactifSensor($group_name)
-    {
-        $db = static::getDB();
+  /**
+   * Get the number of inactif sensor for a specific group
+   *
+   * @param string $group_name the group we want to check the number of actif sensor
+   * @return array  array results
+   */
+  public function getNumberInactifSensor($group_name)
+  {
+    $db = static::getDB();
 
-        $sql_nb_actif_sensor = "SELECT 
+    $sql_nb_actif_sensor = "SELECT 
       count(*) 
     FROM 
       (
@@ -94,12 +94,59 @@ class SensorManager extends \Core\Model
     WHERE 
       dateMaxReceived < CURDATE() -1";
 
-        $stmt = $db->prepare($sql_nb_actif_sensor);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt = $db->prepare($sql_nb_actif_sensor);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
-        if ($stmt->execute()) {
-            $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-            return $nb_actif_sensor[0];
-        }
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor[0];
     }
+  }
+
+  public function getDeveuiFromSensorId($sensor_id){
+    $db = static::getDB();
+
+    $sql_deveui_sensor = "SELECT deveui FROM `sensor` 
+      WHERE id = :sensor_id ";
+
+    $stmt = $db->prepare($sql_deveui_sensor);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $id_sensor[0];
+    }
+  }
+
+  public function getDeviceNumberFromSensorId($sensor_id)
+  {
+    $db = static::getDB();
+
+    $sql_deviceNb_sensor = "SELECT device_number FROM `sensor` 
+      WHERE id = :sensor_id ";
+
+    $stmt = $db->prepare($sql_deviceNb_sensor);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $id_sensor[0];
+    }
+  }
+
+  public function getSensorIdFromDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_id_sensor = "SELECT id FROM `sensor` 
+      WHERE deveui = :deveui ";
+
+    $stmt = $db->prepare($sql_id_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $id_sensor[0];
+    }
+  }
 }

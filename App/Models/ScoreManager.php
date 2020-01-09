@@ -22,7 +22,12 @@ public function getLastScoreFromStructure($structure_id){
 
   if ($stmt->execute()) {
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $results[0];
+    if (!isset($results[0])) {
+      return 0;
+    }else {
+        return $results[0];
+    }
+    
   }
 
 }

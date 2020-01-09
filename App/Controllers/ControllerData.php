@@ -7,6 +7,7 @@ use \App\Auth;
 use \App\Models\InclinometerManager;
 use \App\Models\SiteManager;
 use \App\Models\EquipementManager;
+use \App\Models\SensorManager;
 use \App\Models\ScoreManager;
 use \App\Models\ChocManager;
 use \App\Models\RecordManager;
@@ -153,6 +154,7 @@ class ControllerData extends Authenticated
     $chocManager = new ChocManager();
     $siteManager = new SiteManager();
     $inclinometerManager = new InclinometerManager();
+    $sensorManager = new SensorManager();
 
     if (isset($_POST['siteID'])) {
       $siteID = $_POST['siteID'];
@@ -166,6 +168,7 @@ class ControllerData extends Authenticated
     $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
     $allStructureData = array();
     $count = 0;
+
     foreach ($equipements_site as $equipement) {
       $index_array = "equipement_" . $count;
       //Get equipement data
@@ -175,7 +178,9 @@ class ControllerData extends Authenticated
 
       //Get the sensor ID on the associated structure
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-
+      //Get the device number
+      $device_number = $sensorManager->getDeviceNumberFromSensorId($sensor_id);
+     
       //Get the latest temperature received
       $temperature = $inclinometerManager->getLatestTemperatureForSensor($sensor_id);
       //Get the last date where the sensor received
@@ -191,10 +196,13 @@ class ControllerData extends Authenticated
       } else {
           $last_choc_power = 0;
       }
+      
       $nb_choc_received_today = $chocManager->getNbChocReceivedTodayForSensor($sensor_id);
       $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
-
+      
       $allStructureData[$index_array] = array(
+        'sensor_id' => $sensor_id,
+        'device_number' => $device_number,
         'ligneHT' => $equipement_name,
         'equipement' => $equipement_pylone,
         'equipementId' => $equipement_id,
@@ -285,8 +293,9 @@ class ControllerData extends Authenticated
       $equipement_id = $equipements_site[$count]['equipement_id'];
       #Retrieve the sensor id
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-
+      //print_r($equipement_id);
       $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
+      //print_r($nb_choc_per_day);
       $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
 
       //Get inclinometer data angle

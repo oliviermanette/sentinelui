@@ -45,10 +45,14 @@ $router->add('search-data', ['controller' => 'ControllerData', 'action' => 'inde
 //Choc data display
 $router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'searchChoc']);
 
+//TESTING
+$router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'testChoc']);
+
 //Match route controller/action
 $router->add('{controller}/{action}');
 //In case there is something between controller and action
 $router->add('{controller}/{id:\d+}/{action}');
+
 
 
 

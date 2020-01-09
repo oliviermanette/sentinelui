@@ -135,6 +135,84 @@ class RecordManager extends \Core\Model
     return True;
   }
 
+  function parseChocTest($jsondata)
+  {
+    print_r($jsondata);
+    //Get all the interesting content from JSON data
+    $id = $jsondata['id'];
+    $profile = $jsondata['profile'];
+    $group = $jsondata['group'];
+    $device_id = $jsondata['device_id'];
+    $count = $jsondata['count'];
+    $geolocation_precision = $jsondata['geolocation_precision'];
+    $geolocation_type = $jsondata['geolocation_type'];
+    $latitude_msg = $jsondata['lat'];
+    $longitude_msg = $jsondata['lng'];
+    $payload_data = $jsondata['payload'];
+    $payload_cleartext = $jsondata['payload_cleartext'];
+    $device_properties = $jsondata['device_properties'];
+    $asset_name = $device_properties['external_id'];
+    $appeui = $device_properties['appeui'];
+    $deveui_sensor = $device_properties['deveui'];
+    $timestamp = $payload_data[0]['timestamp'];
+    $type_msg =  $jsondata['type'];
+
+    #Remove bracket
+    $asset_name_no_bracket = str_replace(array('[', ']'), '', $asset_name);
+    $asset_name_array = explode("-", $asset_name_no_bracket);
+    $region = $asset_name_array[0];
+    $ligne = $asset_name_array[1];
+    $desc_asset = $asset_name_array[2];
+    $support_asset = $asset_name_array[3];
+    $corniere = $asset_name_array[4];
+
+    #Build the asset name
+    $name_asset = $desc_asset . "_" . $support_asset;
+
+    #Provisory solution
+    $type_asset = "";
+    if (strpos($desc_asset, 'pylone') !== false) {
+      $type_asset = "transmission line";
+    } else {
+      $type_asset = "undefined";
+    }
+
+
+    $datetimeFormat = 'Y-m-d H:i:s';
+    $date = new \DateTime($timestamp);
+    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+    $date_time = $date->format($datetimeFormat);
+
+    //As we received a payload message, we need to decode it
+    $msg_json = RecordManager::decodePayload($payload_cleartext);
+    $payload_decoded_json = json_decode($msg_json, true);
+
+    #Add date time attribute to the decoded payload
+    $payload_decoded_json['date_time'] = $date_time;
+    $payload_decoded_json['deveui'] = $deveui_sensor;
+    //print_r($payload_decoded_json);
+
+    //Get the type of message
+    $type_msg = $payload_decoded_json["type"];
+
+    //Then add the corresponding type of data received
+    //Choc data
+    if ($type_msg == "choc") {
+      $chocManager = new ChocManager();
+      $sensorManager = new SensorManager();
+      $dataChoc = $chocManager->parseChocData($payload_decoded_json);
+      $sensor_id = $sensorManager->getSensorIdFromDeveui($deveui_sensor);
+      
+      $avgChoc = $chocManager->computeAvgPowerChocPerPeriod($sensor_id, "MONTH", 11);
+      print_r($avgChoc);
+      //TODO : selection month, compute STD dev base on this month, then alert
+      //TODO
+    }
+    
+  }
+
+
+
   /**
    * Insert new record message into record table.
    *
