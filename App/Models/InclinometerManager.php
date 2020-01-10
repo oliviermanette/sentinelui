@@ -320,7 +320,7 @@ class InclinometerManager extends \Core\Model
 
     $stmt = $db->prepare($sql_variation_angle);
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
-    $stmt->bindValue(':time_period', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -334,8 +334,8 @@ class InclinometerManager extends \Core\Model
    * Compute variation of inclinometer data for a specific range of date
    *
    * @param int $sensor_id sensor id for which we want to compute the variation data
-   * @param str $start_date the first date for the start of the range
-   * @param str $end_date the first date for the end of the range
+   * @param str $start_date the first date for the start of the range. Format %YYYY-MM-DD == > 2019-12-10
+   * @param str $end_date the first date for the end of the range. Format %YYYY-MM-DD == > 2019-12-10
    * @return array  results from the query
    */
   public function computeVariationAngleForSpecificPeriod($sensor_id, $start_date, $end_date)

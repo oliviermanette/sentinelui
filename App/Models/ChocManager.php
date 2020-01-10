@@ -64,9 +64,202 @@ class ChocManager extends \Core\Model
   }
 
   /**
+   * Compute Mean of power choc received from today to a specific date in term of days
+   * sensor_id | average_power 
+   * 
+   * @param int $sensor_id sensor id for which we want to compute the average power data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago
+   * @return array  results from the query
+ 
+   */
+  public function computeAvgPowerChocForLast($sensor_id, $time_period = 30)
+  {
+    $db = static::getDB();
+    $sql_avg = "SELECT 
+      sensor_id, 
+      AVG(power) AS average_power 
+    FROM 
+      (
+        SELECT 
+          `sensor_id`, 
+          r.date_time AS date_d, 
+          power 
+        FROM 
+          choc AS inc 
+          LEFT JOIN record AS r ON (r.id = inc.record_id) 
+        WHERE 
+          `msg_type` LIKE 'choc' 
+          AND `sensor_id` LIKE :sensor_id 
+          AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY 
+          AND CURDATE() 
+        ORDER BY 
+          `date_d` DESC
+      ) AS power_data 
+    GROUP BY 
+      sensor_id
+    ";
+
+    $stmt = $db->prepare($sql_avg);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $results;
+    }
+  }
+
+  /** Compute average power data for a specific range of date
+   * sensor_id | average_power 
+   *
+   * @param int $sensor_id sensor id for which we want to compute the variation data
+   * @param str $start_date the first date for the start of the range. Format %YYYY-MM-DD == > 2019-12-10
+   * @param str $end_date the first date for the end of the range. Format %YYYY-MM-DD == > 2019-12-10
+   * @return array  results from the query
+   */
+  public function computeAvgPowerChocForSpecificPeriod($sensor_id, $start_date, $end_date)
+  {
+    $db = static::getDB();
+
+    $sql_avg = "SELECT 
+    sensor_id, 
+    AVG(power) AS average_power 
+    FROM 
+    (
+      SELECT 
+        `sensor_id`, 
+        Date(r.date_time) AS date_d, 
+        power 
+      FROM 
+        choc AS inc 
+        LEFT JOIN record AS r ON (r.id = inc.record_id) 
+      WHERE 
+        `msg_type` LIKE 'choc' 
+        AND `sensor_id` LIKE :sensor_id 
+        AND Date(r.date_time) BETWEEN :end_date
+        AND :start_date
+      ORDER BY 
+        `date_d` DESC
+    ) AS period_power_data 
+    GROUP BY 
+      sensor_id
+    ";
+
+    $stmt = $db->prepare($sql_avg);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
+    $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $results;
+    }
+  }
+
+  
+  /**
+   *  Compute standard deviation from power choc received from today to a specific date in term of days
+   *  date_formatted | stdDev_power 
+   *
+   * @param int $sensor_id from where we want to get the data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago
+   * @return array  results from the query
+   */
+  public function computeStdDevChocForLast($sensor_id, $time_period = 30)
+  {
+    $db = static::getDB();
+
+    $sql_avg = "SELECT 
+      sensor_id, 
+      STDDEV(power) AS stdDev_power 
+    FROM 
+      (
+        SELECT 
+          `sensor_id`, 
+          r.date_time AS date_d, 
+          power 
+        FROM 
+          choc AS inc 
+          LEFT JOIN record AS r ON (r.id = inc.record_id) 
+        WHERE 
+          `msg_type` LIKE 'choc' 
+          AND `sensor_id` LIKE :sensor_id 
+          AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY 
+          AND CURDATE() 
+        ORDER BY 
+          `date_d` DESC
+      ) AS power_data 
+    GROUP BY 
+      sensor_id
+    ";
+
+    $stmt = $db->prepare($sql_avg);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $results;
+    }
+  }
+
+
+  /** Compute std deviation  for a specific range of date
+   * sensor_id | stdDevPower 
+   *
+   * @param int $sensor_id sensor id for which we want to compute the variation data
+   * @param str $start_date the first date for the start of the range. Format %YYYY-MM-DD == > 2019-12-10
+   * @param str $end_date the first date for the end of the range. Format %YYYY-MM-DD == > 2019-12-10
+   * @return array  results from the query
+   */
+  public function computeStdDevChocForSpecificPeriod($sensor_id, $start_date, $end_date)
+  {
+    $db = static::getDB();
+
+    $sql_avg = "SELECT 
+    sensor_id, 
+    STDDEV(power) AS stdDevPower 
+    FROM 
+    (
+      SELECT 
+        `sensor_id`, 
+        Date(r.date_time) AS date_d, 
+        power 
+      FROM 
+        choc AS inc 
+        LEFT JOIN record AS r ON (r.id = inc.record_id) 
+      WHERE 
+        `msg_type` LIKE 'choc' 
+        AND `sensor_id` LIKE :sensor_id 
+        AND Date(r.date_time) BETWEEN :end_date
+        AND :start_date
+      ORDER BY 
+        `date_d` DESC
+    ) AS period_power_data 
+    GROUP BY 
+      sensor_id
+    ";
+
+    $stmt = $db->prepare($sql_avg);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
+    $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $results;
+    }
+  }
+  /**
    *  Compute Mean of power choc received from a specific sensor ID. Compute daily, weekly, monthly
    *  and yearly average
-   *  date_formatted | avgPower 
+   *  date_formatted | avg_power 
    *
    * @param int $sensor_id from where we want to get the data
    * @param string $time_period DAY, WEEK, MONTH or YEAR
@@ -75,24 +268,21 @@ class ChocManager extends \Core\Model
   public static function computeAvgPowerChocPerPeriod($sensor_id, $time_period = "DAY", $select = -1)
   {
     $db = static::getDB();
-    if ($time_period == "DAY"){
+    if ($time_period == "DAY") {
       $sql_mean = "SELECT 
                   DATE_FORMAT(dateTime, '%d-%m-%Y') AS date_formatted,";
-    }
-    else if ($time_period == "WEEK"){
+    } else if ($time_period == "WEEK") {
       $sql_mean = "SELECT WEEK(dateTime) AS nb_date,
                   DATE_FORMAT(dateTime, '%v-%Y') AS date_formatted,";
-    } 
-    else if ($time_period == "MONTH") {
+    } else if ($time_period == "MONTH") {
       $sql_mean = "SELECT MONTH(dateTime) AS nb_date,
                   DATE_FORMAT(dateTime, '%m-%Y') AS date_formatted,";
-    } 
-    else if ($time_period == "YEAR") {
+    } else if ($time_period == "YEAR") {
       $sql_mean = "SELECT YEAR(dateTime) AS nb_date,
                   DATE_FORMAT(dateTime, '%Y') AS date_formatted,";
     }
-    
-    $sql_mean .= "AVG(power) AS avgPower
+
+    $sql_mean .= "AVG(power) AS avg_power
     FROM 
       (
         SELECT 
@@ -128,23 +318,21 @@ class ChocManager extends \Core\Model
       $results_avg_arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       $found = False;
-      if ($select > -1){
+      if ($select > -1) {
         foreach ($results_avg_arr as $value) {
-          if ($value["nb_date"] == $select){
+          if ($value["nb_date"] == $select) {
             $avgRes = $value["avgPower"];
             $found = True;
-          }else{
+          } else {
             $found = False;
           }
         }
       }
-      if ($found){
+      if ($found) {
         return $avgRes;
-      }
-      else {
+      } else {
         return $results_avg_arr;
       }
-      
     }
   }
 
@@ -773,7 +961,6 @@ class ChocManager extends \Core\Model
     /*$totalAreaPower = $resData[0];
     $freq1 = $resData[1];
     $freq2 = $resData[2];*/
-
   }
 
   /**
