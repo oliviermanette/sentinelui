@@ -4,6 +4,7 @@ namespace App\Models;
 use PDO;
 use \App\Token;
 use \App\Mail;
+use \Core\View;
 
 
 class UserManager extends \Core\Model
