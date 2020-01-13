@@ -135,30 +135,177 @@ class RecordManager extends \Core\Model
     return True;
   }
 
-  function parseChocTest($jsondata)
+  public static function checkTypeMessage($type_msg)
   {
-    print_r($jsondata);
-    //Get all the interesting content from JSON data
-    $id = $jsondata['id'];
-    $profile = $jsondata['profile'];
-    $group = $jsondata['group'];
-    $device_id = $jsondata['device_id'];
-    $count = $jsondata['count'];
-    $geolocation_precision = $jsondata['geolocation_precision'];
-    $geolocation_type = $jsondata['geolocation_type'];
-    $latitude_msg = $jsondata['lat'];
-    $longitude_msg = $jsondata['lng'];
-    $payload_data = $jsondata['payload'];
-    $payload_cleartext = $jsondata['payload_cleartext'];
-    $device_properties = $jsondata['device_properties'];
-    $asset_name = $device_properties['external_id'];
+    switch ($type_msg) {
+      case "ChangeStatusActive":
+        return "event";
+      case "ChangeStatusInactive":
+        return "event";
+      case "ChangeStatusError":
+        return "event";
+      case "ChangeStatusJoined":
+        return "event";
+      case "uplink":
+        return "uplink";
+      case "downlink":
+        return "downlink";
+      case "join":
+        return "join";
+    }
+  }
+
+  function parseChocTest($data)
+  {
+    $sensorManager = new SensorManager();
+    $equipementManager = new EquipementManager();
+
+    $type_msg =  $data['type'];
+
+    //Check what kind of message we received from the sensor
+    $type_msg = RecordManager::checkTypeMessage($type_msg);
+
+    if ($type_msg == "uplink") {
+      //Classic message which has the raw data value (inclinometer...)
+      $uplinkDataArr = RecordManager::extractUplinkData($data);
+
+      //As we received a payload message, we need to decode it
+      $payload_msg_json = RecordManager::decodePayload($uplinkDataArr["payload_cleartext"]);
+      $payload_decoded_json = json_decode($payload_msg_json, true);
+
+      #Add date time attribute to the decoded payload
+      $payload_decoded_json['date_time'] = $uplinkDataArr["date_time"];
+      $payload_decoded_json['deveui'] = $uplinkDataArr["deveui"];
+      
+      $sensor_id = $sensorManager->getSensorIdFromDeveui($uplinkDataArr["deveui"]);
+      $equipement_id = $equipementManager->getEquipementIdBySensorId($sensor_id);
+
+      //Get the type of message received from the uplink (choc, inclinometer, global, spectre)
+      $type_msg = $payload_decoded_json["type"];
+
+      //Choc data
+      if ($type_msg == "choc") {
+        
+        $chocManager = new ChocManager($payload_decoded_json);
+
+        $time_period = 30;
+        $chocManager->setStdDevRule(1);
+        $hasAlert = $chocManager->check($sensor_id, 30);
+        $chocValue = $chocManager->getPowerValueChoc();
+        
+        //Create new alert if it's the case
+        if ($hasAlert) {
+
+          $eventDataArr = array(
+            "label"  => "high_choc",
+            "deveui"  => $uplinkDataArr["deveui"],
+            "date_time"  => $uplinkDataArr["date_time"],
+            "equipement_id"  => $equipement_id,
+            "value"  => $chocValue
+          );
+
+          $alertManager = new AlertManager($eventDataArr);
+          $alertManager->createFromArr($eventDataArr);
+        }
+      }
+      //If event defined in Objenious 
+    } else if ($type_msg == "event") {
+
+      $eventDataArr = RecordManager::extractEventData($data);
+
+      $sensor_id = $sensorManager->getSensorIdFromDeveui($eventDataArr["deveui"]);
+      $equipement_id = $equipementManager->getEquipementIdBySensorId($sensor_id);
+      $eventDataArr['equipement_id'] = $equipement_id;
+      $eventDataArr['value'] = 0;
+
+      $alertManager = new AlertManager($eventDataArr);
+      $alertManager->createFromArr($eventDataArr);
+
+    } else if ($type_msg == "downlink") {
+    } else if ($type_msg == "join") {
+    }
+  }
+
+  public static function extractUplinkData($data)
+  {
+
+    $id_uplink = $data['id'];
+    $profile = $data['profile'];
+    $profile_id = $data['profile_id'];
+    $group = $data['group'];
+    $group_id = $data['group_id'];
+    $type = $data['type'];
+    $device_id = $data['device_id'];
+    $count = $data['count'];
+    $geolocation_precision = $data['geolocation_precision'];
+    $geolocation_type = $data['geolocation_type'];
+    $latitude_msg = $data['lat'];
+    $longitude_msg = $data['lng'];
+    $payload_data = $data['payload'];
+    $payload_cleartext = $data['payload_cleartext'];
+    $device_properties = $data['device_properties'];
+
+    $external_id = $device_properties['external_id'];
     $appeui = $device_properties['appeui'];
     $deveui_sensor = $device_properties['deveui'];
-    $timestamp = $payload_data[0]['timestamp'];
-    $type_msg =  $jsondata['type'];
+    $date_time = RecordManager::convertTimestampToDateTime($payload_data[0]['timestamp']);
 
+    $name_asset = RecordManager::extractExternalId($external_id);
+
+    #Provisory solution
+    $type_asset = "";
+    if (strpos($name_asset, 'tower') !== false) {
+      $type_asset = "transmission line";
+    } else {
+      $type_asset = "undefined";
+    }
+
+    $uplinkDataArr = array(
+      "id_uplink"  => $id_uplink,
+      "profile"  => $profile,
+      "profile_id"  => $profile_id,
+      "nb_message"  => $count,
+      "name_asset"  => $name_asset,
+      "latitude_msg"  => $latitude_msg,
+      "longitude_msg"  => $longitude_msg,
+      "payload_cleartext"  => $payload_cleartext,
+      "date_time"  => $date_time,
+      "device_id"  => $device_id,
+      "deveui"  => $deveui_sensor,
+      "type"  => $type,
+    );
+
+    return $uplinkDataArr;
+  }
+
+  public static function extractEventData($data)
+  {
+    $date_time = RecordManager::convertTimestampToDateTime($data['timestamp']);
+    $device_id = $data['device_id'];
+    $type = $data['type'];
+    $device_properties = $data['device_properties'];
+
+    $external_id = $device_properties['external_id'];
+    $deveui = $device_properties['deveui'];
+    $property = $device_properties['property'];
+
+    $name_asset = RecordManager::extractExternalId($external_id);
+
+    $eventDataArr = array(
+      "date_time"  => $date_time,
+      "device_id"  => $device_id,
+      "deveui"  => $deveui,
+      "label"  => $type,
+      "name_asset"  => $name_asset
+    );
+
+    return $eventDataArr;
+  }
+
+  public static function extractExternalId($external_id)
+  {
     #Remove bracket
-    $asset_name_no_bracket = str_replace(array('[', ']'), '', $asset_name);
+    $asset_name_no_bracket = str_replace(array('[', ']'), '', $external_id);
     $asset_name_array = explode("-", $asset_name_no_bracket);
     $region = $asset_name_array[0];
     $ligne = $asset_name_array[1];
@@ -169,49 +316,17 @@ class RecordManager extends \Core\Model
     #Build the asset name
     $name_asset = $desc_asset . "_" . $support_asset;
 
-    #Provisory solution
-    $type_asset = "";
-    if (strpos($desc_asset, 'pylone') !== false) {
-      $type_asset = "transmission line";
-    } else {
-      $type_asset = "undefined";
-    }
+    return $name_asset;
+  }
 
-
-    $datetimeFormat = 'Y-m-d H:i:s';
+  public static function convertTimestampToDateTime($timestamp, $datetimeFormat = 'Y-m-d H:i:s')
+  {
     $date = new \DateTime($timestamp);
     $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
     $date_time = $date->format($datetimeFormat);
 
-    //As we received a payload message, we need to decode it
-    $msg_json = RecordManager::decodePayload($payload_cleartext);
-    $payload_decoded_json = json_decode($msg_json, true);
-
-    #Add date time attribute to the decoded payload
-    $payload_decoded_json['date_time'] = $date_time;
-    $payload_decoded_json['deveui'] = $deveui_sensor;
-    //print_r($payload_decoded_json);
-
-    //Get the type of message
-    $type_msg = $payload_decoded_json["type"];
-
-    //Then add the corresponding type of data received
-    //Choc data
-    if ($type_msg == "choc") {
-      $chocManager = new ChocManager();
-      $sensorManager = new SensorManager();
-      $dataChoc = $chocManager->parseChocData($payload_decoded_json);
-      $sensor_id = $sensorManager->getSensorIdFromDeveui($deveui_sensor);
-      
-      $avgChoc = $chocManager->computeAvgPowerChocPerPeriod($sensor_id, "MONTH", 11);
-      print_r($avgChoc);
-      //TODO : selection month, compute STD dev base on this month, then alert
-      //TODO
-    }
-    
+    return $date_time;
   }
-
-
 
   /**
    * Insert new record message into record table.
@@ -561,9 +676,9 @@ class RecordManager extends \Core\Model
   function getBriefInfoFromRecord($group_name)
   {
 
-      $db = static::getDB();
+    $db = static::getDB();
 
-      $query_get_number_record = "
+    $query_get_number_record = "
         SELECT 
     sensor_id, 
     site, 

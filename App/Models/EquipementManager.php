@@ -1,23 +1,25 @@
 <?php
 
 namespace App\Models;
+
 use PDO;
 
 class EquipementManager extends \Core\Model
 {
 
-public function __constructor(){
-
-}
+  public function __constructor()
+  {
+  }
 
   /**
-  * Insert structure type inside the DB
-  *
-  * @param string $type_asset type of assert to insert (ex : transmission line)
-  * @return boolean  return True if insert query successfully executed
-  */
-public function insertStructureType($type_asset){
-  $sql = 'INSERT INTO structure_type (`typename`)
+   * Insert structure type inside the DB
+   *
+   * @param string $type_asset type of assert to insert (ex : transmission line)
+   * @return boolean  return True if insert query successfully executed
+   */
+  public function insertStructureType($type_asset)
+  {
+    $sql = 'INSERT INTO structure_type (`typename`)
     SELECT * FROM (SELECT :type_asset) AS tmp
     WHERE NOT EXISTS (
         SELECT typename FROM structure_type WHERE typename like :type_asset
@@ -29,19 +31,20 @@ public function insertStructureType($type_asset){
     $stmt->bindValue(':type_asset', $type_asset, PDO::PARAM_STR);
 
     return $stmt->execute();
-}
+  }
 
-/**
-* Get all the equipement which belong to a specific group (RTE for example)
-*
-* @param string $group_name the name of the group we want to retrieve equipment data
-* @return array  results from the query
-*/
-function getEquipements($group_name){
+  /**
+   * Get all the equipement which belong to a specific group (RTE for example)
+   *
+   * @param string $group_name the name of the group we want to retrieve equipment data
+   * @return array  results from the query
+   */
+  function getEquipements($group_name)
+  {
 
-  $db = static::getDB();
+    $db = static::getDB();
 
-  $sql_query_get_equipement = "SELECT DISTINCT equipement, equipement_id FROM (SELECT site.nom AS site ,st.nom AS equipement, st.id AS equipement_id, gn.name AS GroupeName FROM structure AS st
+    $sql_query_get_equipement = "SELECT DISTINCT equipement, equipement_id FROM (SELECT site.nom AS site ,st.nom AS equipement, st.id AS equipement_id, gn.name AS GroupeName FROM structure AS st
     LEFT JOIN record AS r ON (r.structure_id=st.id)
     LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
     LEFT JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
@@ -61,13 +64,14 @@ function getEquipements($group_name){
   }
 
   /**
-  * Get all the equipement which belong to a specific group (RTE for example) given a particular site ID
-  *
-  * @param int $siteID ID of the site
-  * @param string $group_name the name of the group we want to retrieve equipment data
-  * @return array  results from the query
-  */
-function getEquipementsBySiteId($siteID, $group_name){
+   * Get all the equipement which belong to a specific group (RTE for example) given a particular site ID
+   *
+   * @param int $siteID ID of the site
+   * @param string $group_name the name of the group we want to retrieve equipment data
+   * @return array  results from the query
+   */
+  function getEquipementsBySiteId($siteID, $group_name)
+  {
     $db = static::getDB();
 
     $sql_query_equipement_by_id = "SELECT DISTINCT equipement_id, equipement, ligneHT, nomSite FROM
@@ -79,55 +83,72 @@ function getEquipementsBySiteId($siteID, $group_name){
       LEFT JOIN site ON (site.id=st.site_id)
       WHERE gn.name = :group_name AND site_id = :site_id) AS RTE ";
 
-      $stmt = $db->prepare($sql_query_equipement_by_id);
-      $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-      $stmt->bindValue(':site_id', $siteID, PDO::PARAM_INT);
+    $stmt = $db->prepare($sql_query_equipement_by_id);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':site_id', $siteID, PDO::PARAM_INT);
 
-      if ($stmt->execute()) {
-        $all_equipment_by_id = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($stmt->execute()) {
+      $all_equipment_by_id = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $all_equipment_by_id;
-      }
-}
+      return $all_equipment_by_id;
+    }
+  }
 
-function getSensorIdOnEquipement($structure_id){
-  $db = static::getDB();
+  function getSensorIdOnEquipement($structure_id)
+  {
+    $db = static::getDB();
 
-  $sql_sensor_id= "SELECT DISTINCT sensor.id AS sensor_id FROM sensor
+    $sql_sensor_id = "SELECT DISTINCT sensor.id AS sensor_id FROM sensor
   LEFT JOIN record as r ON (r.sensor_id = sensor.id)
   LEFT JOIN structure as st ON (r.structure_id = st.id)
   WHERE st.id = :structure_id";
 
-  $stmt = $db->prepare($sql_sensor_id);
-  $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+    $stmt = $db->prepare($sql_sensor_id);
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
 
-  if ($stmt->execute()) {
-    $sensor_id_res = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    if (isset($sensor_id_res[0])){
+    if ($stmt->execute()) {
+      $sensor_id_res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      if (isset($sensor_id_res[0])) {
         return $sensor_id_res[0]['sensor_id'];
+      }
     }
-    
   }
 
-}
+  public function getEquipementIdBySensorId($sensor_id)
+  {
+    $db = static::getDB();
 
-function getAllStructuresBySiteId($siteID){
-  $db = static::getDB();
+    $sql_equipement_id = "SELECT DISTINCT structure.id AS equipement_id
+    FROM structure
+    LEFT JOIN record as r ON (r.structure_id = structure.id)
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    WHERE sensor.id = :sensor_id";
 
-  $sql = "SELECT st.nom AS equipement, st.transmision_line_name AS ligne FROM structure AS st
+    $stmt = $db->prepare($sql_equipement_id);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $sensor_id_res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      if (isset($sensor_id_res[0])) {
+        return $sensor_id_res[0]['equipement_id'];
+      }
+    }
+  }
+
+  function getAllStructuresBySiteId($siteID)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT st.nom AS equipement, st.transmision_line_name AS ligne FROM structure AS st
   WHERE st.site_id = :id_site";
 
-  $stmt = $db->prepare($sql);
-  $stmt->bindValue(':id_site', $siteID, PDO::PARAM_INT);
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':id_site', $siteID, PDO::PARAM_INT);
 
-  if ($stmt->execute()) {
-    $all_temp = $stmt->fetchAll();
+    if ($stmt->execute()) {
+      $all_temp = $stmt->fetchAll();
 
-    return $all_temp;
+      return $all_temp;
+    }
   }
-
-}
-
-
-
 }

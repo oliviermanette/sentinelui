@@ -5,6 +5,7 @@ namespace App\Controllers;
 use \Core\View;
 use \App\Auth;
 use \App\Models\SiteManager;
+use \App\Models\AlertManager;
 use \App\Models\EquipementManager;
 use \App\Models\RecordManager;
 use \App\Models\SensorManager;
@@ -36,14 +37,17 @@ class ControllerAccueil extends Authenticated
 
     $sensorManager = new SensorManager();
     $recordManager = new RecordManager();
+    $alertManager = new AlertManager();
     $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
-    $nb_actif_sensor = $sensorManager->getNumberActifSensor($group_name);
-    $nb_inactif_sensor = $sensorManager->getNumberInactifSensor($group_name);
+    $nb_active_sensors = $sensorManager->getNumberActifSensor($group_name);
+    $nb_inactive_sensors = $sensorManager->getNumberInactifSensor($group_name);
+    $nb_active_alerts = $alertManager->getNumberActiveAlertsForGroup($group_name);
 
 
     View::renderTemplate('Homepage/accueil.html', [
-      'nb_sensor_actif' => $nb_actif_sensor,
-      'nb_sensor_inactif' => $nb_inactif_sensor,
+      'nb_active_sensors' => $nb_active_sensors,
+      'nb_inactive_sensors' => $nb_inactive_sensors,
+      'nb_active_alerts' => $nb_active_alerts,
       'brief_data_record' => $brief_data_record,
     ]);
 

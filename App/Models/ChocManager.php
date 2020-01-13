@@ -8,8 +8,88 @@ use PDO;
 class ChocManager extends \Core\Model
 {
 
-  public function __construst()
+  protected $frequence_1 = '';
+  protected $frequence_2 = '';
+  protected $deveui_sensor = '';
+  protected $date_time = '';
+  protected $power = '';
+  protected $rule = '';
+  protected $structure_id = '';
+
+  public function __construct($chocDataJson = null)
   {
+    if (isset($chocDataJson)) {
+      $dataChoc = $this->parseChocData($chocDataJson);
+      $this->frequence_1 = $dataChoc["freq1"];
+      $this->frequence_2 = $dataChoc["freq2"];
+      $this->power = $dataChoc["power"];
+      $this->deveui_sensor = $dataChoc["deveui_sensor"];
+      $this->date_time = $dataChoc["date_time"];
+      $this->rule = 1;
+    }
+  }
+
+  public function check($sensor_id, $time_period)
+  {
+    if (isset($this->power)) {
+      $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($sensor_id, $time_period);
+      $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($sensor_id, $time_period);
+
+      switch ($this->rule) {
+        case 1:
+          $highTresh = $avgPowerChoc + $stdDevPowerChoc;
+          $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
+          break;
+        case 2:
+          $highTresh = $avgPowerChoc + 2 * $stdDevPowerChoc;
+          $lowThresh = $avgPowerChoc - 2 * $stdDevPowerChoc;
+          break;
+        case 3:
+          $highTresh = $avgPowerChoc + 3 * $stdDevPowerChoc;
+          $lowThresh = $avgPowerChoc - 3 * $stdDevPowerChoc;
+          break;
+        default:
+          $highTresh = $avgPowerChoc + $stdDevPowerChoc;
+          $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
+      }
+
+      echo "\n";
+      echo "\n Value power current choc : $this->power ";
+      echo "\n Average choc last days : $avgPowerChoc \n";
+      echo "\n High Tresh last days : $highTresh \n";
+      echo "\n Low Tresh last days : $lowThresh \n";
+      
+      if ($this->power > $highTresh || $this->power < $lowThresh) {
+        echo "ALERT ! \n";
+        return true;
+      } else {
+        echo "No alert ! \n";
+        return false;
+      }
+    } else {
+    }
+  }
+
+  /**
+   * Set the rule to check if the power value of a choc in inside the range or not.
+   * the rule corresponds to 1 SD, 2SD or three SD (SD = standard Deviation)
+   * So mean + SD * highThresh and mean - SD * lowThresh
+   *
+   * @param int $rule : number between 1 and 3, uncluded
+   * @return void 
+   */
+  public function setStdDevRule($rule){
+    if ($rule > 0 && $rule < 4){
+      $this->rule = $rule;
+    }
+  }
+
+  public function setStructureID($structure_id){
+    $this->structure_id = $structure_id;
+  }
+
+  public function getPowerValueChoc(){
+    return $this->power;
   }
 
   /**
@@ -73,7 +153,7 @@ class ChocManager extends \Core\Model
    * @return array  results from the query
  
    */
-  public function computeAvgPowerChocForLast($sensor_id, $time_period = 30)
+  public static function computeAvgPowerChocForLast($sensor_id, $time_period = 30)
   {
     $db = static::getDB();
     $sql_avg = "SELECT 
@@ -105,9 +185,14 @@ class ChocManager extends \Core\Model
     $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (isset($results)) {
+        $avgPower = $results["average_power"];
 
-      return $results;
+        return $avgPower;
+      } else {
+        return null;
+      }
     }
   }
 
@@ -119,7 +204,7 @@ class ChocManager extends \Core\Model
    * @param str $end_date the first date for the end of the range. Format %YYYY-MM-DD == > 2019-12-10
    * @return array  results from the query
    */
-  public function computeAvgPowerChocForSpecificPeriod($sensor_id, $start_date, $end_date)
+  public static function computeAvgPowerChocForSpecificPeriod($sensor_id, $start_date, $end_date)
   {
     $db = static::getDB();
 
@@ -153,13 +238,18 @@ class ChocManager extends \Core\Model
     $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (isset($results)) {
+        $avgPower = $results["average_power"];
 
-      return $results;
+        return $avgPower;
+      } else {
+        return null;
+      }
     }
   }
 
-  
+
   /**
    *  Compute standard deviation from power choc received from today to a specific date in term of days
    *  date_formatted | stdDev_power 
@@ -202,9 +292,13 @@ class ChocManager extends \Core\Model
     $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-      return $results;
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (isset($results)) {
+        $stdDevPower = $results["stdDev_power"];
+        return $stdDevPower;
+      } else {
+        return null;
+      }
     }
   }
 
@@ -251,9 +345,14 @@ class ChocManager extends \Core\Model
     $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (isset($results)) {
+        $stdDevPower = $results["stdDev_power"];
 
-      return $results;
+        return $stdDevPower;
+      } else {
+        return null;
+      }
     }
   }
   /**
@@ -321,7 +420,7 @@ class ChocManager extends \Core\Model
       if ($select > -1) {
         foreach ($results_avg_arr as $value) {
           if ($value["nb_date"] == $select) {
-            $avgRes = $value["avgPower"];
+            $avgRes = $value["avg_power"];
             $found = True;
           } else {
             $found = False;
@@ -359,7 +458,7 @@ class ChocManager extends \Core\Model
                   DATE_FORMAT(dateTime, '%Y') AS date_formatted,";
     }
 
-    $sql_mean .= "STDDEV(power) AS stdDevPower
+    $sql_mean .= "STDDEV(power) AS stdDev_power
     FROM 
       (
         SELECT 
@@ -390,8 +489,14 @@ class ChocManager extends \Core\Model
     $stmt = $db->prepare($sql_mean);
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      return $results;
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (isset($results)) {
+        $stdDevPower = $results["stdDev_power"];
+
+        return $stdDevPower;
+      } else {
+        return null;
+      }
     }
   }
 
@@ -956,11 +1061,15 @@ class ChocManager extends \Core\Model
     $deveui_sensor = $choc_data_json['deveui'];
 
     $resData = ChocManager::computeChocData($amplitude_g_1, $amplitude_g_2, $time_s_1, $time_s_2);
+    $resultsArr = array(
+      "power" => $resData[0],
+      "freq1" => $resData[1],
+      "freq2" => $resData[2],
+      "deveui_sensor" => $deveui_sensor,
+      "date_time" => $date_time
+    );
 
-    return $resData;
-    /*$totalAreaPower = $resData[0];
-    $freq1 = $resData[1];
-    $freq2 = $resData[2];*/
+    return $resultsArr;
   }
 
   /**
