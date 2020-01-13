@@ -44,6 +44,8 @@ $router->add('profile', ['controller' => 'ControllerProfile', 'action' => 'index
 $router->add('search-data', ['controller' => 'ControllerData', 'action' => 'index']);
 //Choc data display
 $router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'searchChoc']);
+//alerts data visualization
+$router->add('alerts', ['controller' => 'ControllerAlert', 'action' => 'index']);
 
 //TESTING
 $router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'testChoc']);

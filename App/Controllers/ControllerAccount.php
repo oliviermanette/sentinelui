@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use \Core\View;
+use \App\Models\UserManager;
 
 /**
  * Account controller
@@ -19,7 +20,7 @@ class ControllerAccount extends \Core\Controller
    */
   public function validateEmailAction()
   {
-    $is_valid = ! User::emailExists($_GET['email']);
+    $is_valid = !UserManager::emailExists($_GET['email']);
 
     header('Content-Type: application/json');
     echo json_encode($is_valid);
