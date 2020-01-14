@@ -12,6 +12,7 @@ namespace App\Models;
 
 use App\Config;
 use App\Utilities;
+use App\Controllers\ControllerDataObjenious;
 use PDO;
 
 class SensorManager extends \Core\Model
@@ -148,5 +149,160 @@ class SensorManager extends \Core\Model
       $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
       return $id_sensor[0];
     }
+  }
+
+  /**
+   *
+   * @return void
+   */
+  public function getListOfDevicesFromAPI()
+  {
+
+    $url = "https://api.objenious.com/v1/devices";
+    $listDevicesArr = ControllerDataObjenious::CallAPI("GET", $url);
+    
+    return $listDevicesArr;
+  }
+
+  /**
+   *
+   * @return void
+   */
+  public function getDeviceInfoFromAPI($device_id)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/".$device_id;
+    $deviceInfo = ControllerDataObjenious::CallAPI("GET", $url);
+
+    return $deviceInfo;
+  }
+
+  /**
+   * Reactivate a deactivated device. 
+   * The reactivated device will be able to receive/send messages.
+   * @return void
+   */
+  public function reactivateDeviceFromAPI($device_id)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/".$device_id."/reactivate";
+    $resultAPI = ControllerDataObjenious::CallAPI("POST", $url);
+
+    return $resultAPI;
+  }
+
+  /**
+   * Deactivate a device. 
+   * Message sent to/from a deactivated device will not be processed.
+   * @return void
+   */
+  public function deactivateDeviceFromAPI($device_id)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/" . $device_id . "/deactivate";
+    $deviceInfo = ControllerDataObjenious::CallAPI("POST", $url);
+
+    return $deviceInfo;
+  }
+
+  /**
+   *It archives the device with his data, and it creates a new device 
+   *with the new deveui/appeui/appkey.
+   * @return void
+   */
+  public function replaceDeviceFromAPI($device_id)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/" . $device_id . "/replace";
+    $deviceInfo = ControllerDataObjenious::CallAPI("POST", $url);
+
+    return $deviceInfo;
+  }
+
+
+  /**
+   * Display the state of a list of devices
+   * The state of a device includes the following information : uplink/downlink counters, 
+   * latest data sent by the device, timestamps of last messages & various network information..
+   *
+   * @return void
+   */
+  public function getStateListOfDevicesStatesFromAPI($device_id)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/states?id=" . $device_id;
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+    $state_device = $results_api["states"];
+
+    return $state_device;
+  }
+
+  /**
+   * Display the state of a list of devices
+   * The state of a device includes the following information : uplink/downlink counters, 
+   * latest data sent by the device, timestamps of last messages & various network information..
+   *
+   * @return void
+   */
+  public function getStateDeviceUsingIdFromAPI($device_id)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/".$device_id."/state";
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+    $state_device = $results_api["states"];
+
+    return $state_device;
+  }
+
+  public function getStateDeviceUsingDeveuiFromAPI($deveui)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/lora:" . $deveui . "/state";
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+    $state_device = $results_api["states"];
+
+    return $state_device;
+  }
+
+  public function getLocationDeviceFromAPI($device_id, $since = null, $until = null){
+    $url = "https://api.objenious.com/v1/devices/" . $device_id . "/locations";
+    if (isset($since) && isset($until)) {
+      $url .= "?since=" . $since . "&until=" . $until;
+    }
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+    $location_device = $results_api["locations"];
+
+    return $location_device;
+  }
+
+  public function getListGatewayDeviceForGroupFromAPI($device_group){
+    $url = "https://api.objenious.com/v1/gateways?group=".$device_group;
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+
+    return $results_api;
+  }
+
+  public function getListDevicesProfileTemplateFromAPI()
+  {
+    $url = "https://api.objenious.com/v1/templates";
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+
+    return $results_api;
+  }
+
+  public function getListDevicesProfileFromAPI()
+  {
+    $url = "https://api.objenious.com/v1/profiles";
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+
+    return $results_api;
+  }
+
+  public function getDeviceProfileFromAPI($device_id)
+  {
+    $url = "https://api.objenious.com/v1/profiles/".$device_id;
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+
+    return $results_api;
   }
 }

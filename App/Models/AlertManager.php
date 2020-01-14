@@ -12,6 +12,7 @@ namespace App\Models;
 
 use App\Config;
 use App\Utilities;
+use App\Controllers\ControllerDataObjenious;
 use \App\Models\UserManager;
 use PDO;
 
@@ -385,4 +386,33 @@ class AlertManager extends \Core\Model
     public static function findByEvent($event)
     {
     }
+
+    public function getAlertsFromApiForDevice($device_id, $state = "open",  $acknowledged = "true")
+    {
+
+        $url = "https://api.objenious.com/v1/alerts?device_id=" . $device_id . "&state=" . $state . "&acknowledged=" . $acknowledged;
+        $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+        $alerts_data = $results_api["alerts"];
+
+        return $alerts_data;
+    }
+
+    public function getAlertsFromApiForGroup($group, $state = "open",  $acknowledged = "true")
+    {
+
+        $url = "https://api.objenious.com/v1/alerts?group=" . $group . "&state=" . $state . "&acknowledged=" . $acknowledged;
+        $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+        $alerts_data = $results_api["alerts"];
+
+        return $alerts_data;
+    }
+
+    public static function getAllAlertsFromAPI()
+    {
+        $results_api = ControllerDataObjenious::CallAPI("GET", "https://api.objenious.com/v1/alerts");
+        $alerts_data = $results_api["alerts"];
+
+        return $alerts_data;
+    }
+
 }

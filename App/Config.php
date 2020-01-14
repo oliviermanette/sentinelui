@@ -51,4 +51,11 @@ class Config
   * @var boolean
   */
   const GEOCODER_API_KEY = '5d7ac6990e384fa2b565b40ebed54cd1';
+
+
+  /**
+   * API KEY objenious
+   * @var boolean
+   */
+  const OBJENIOUS_API_KEY = 'F4qOJBjtdWpegP+JLNvyQmAD1Q/kbIKvzGadwaosqq4XJ/g6+3ypQVRQbEl0/VI1p6n4tKTPxqsj/72QKGbm9g==';
 }

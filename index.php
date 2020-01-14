@@ -47,15 +47,16 @@ $router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'sear
 //alerts data visualization
 $router->add('alerts', ['controller' => 'ControllerAlert', 'action' => 'index']);
 
-//TESTING
-$router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'testChoc']);
+
 
 //Match route controller/action
 $router->add('{controller}/{action}');
 //In case there is something between controller and action
 $router->add('{controller}/{id:\d+}/{action}');
 
-
+//TESTING
+$router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'testChoc']);
+$router->add('alerts-test', ['controller' => 'ControllerAlert', 'action' => 'getAlertsFromAPI']);
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);

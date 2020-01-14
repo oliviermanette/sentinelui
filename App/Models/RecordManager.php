@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Config;
 use App\Utilities;
+use App\Controllers\ControllerDataObjenious;
 use PDO;
 
 class RecordManager extends \Core\Model
@@ -1186,5 +1187,32 @@ class RecordManager extends \Core\Model
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     return $data;
+  }
+
+  public function getMessagesExchangedDeviceUsingIdFromAPI($device_id, $since = null, $until = null)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/".$device_id."/messages";
+    if (isset($since) && isset($until)){
+      $url .= "?since=".$since."&until=".$until;
+    }
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+    $messages_device = $results_api["messages"];
+
+    return $messages_device;
+  }
+
+
+  public function getMessagesExchangedDeviceUsingDeveuiFromAPI($deveui, $since = null, $until = null)
+  {
+
+    $url = "https://api.objenious.com/v1/devices/lora:" . $deveui . "/messages";
+    if (isset($since) && isset($until)) {
+      $url .= "?since=" . $since . "&until=" . $until;
+    }
+    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+    $messages_device = $results_api["messages"];
+
+    return $messages_device;
   }
 }

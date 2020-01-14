@@ -72,6 +72,15 @@ class ControllerAlert extends \Core\Controller
        
     }
 
+
+    public function getAlertsFromAPIAction(){
+
+        $url = "https://api.objenious.com/v1/devices/lora:0004A30B00E80AC9/state";
+        $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+        //$state_device = $results_api["states"];
+        print_r($results_api);
+    }
+
     /**
      *
      * @return void
