@@ -322,9 +322,16 @@ class RecordManager extends \Core\Model
 
   public static function convertTimestampToDateTime($timestamp, $datetimeFormat = 'Y-m-d H:i:s')
   {
-    $date = new \DateTime($timestamp);
-    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+    $timezone = new \DateTimeZone(date_default_timezone_get());
+    $date     = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $timestamp, $timezone);
+    $date = new \DateTime($date);
     $date_time = $date->format($datetimeFormat);
+
+    /*$timezone = new \DateTimeZone('Y-m-d\TH:i:sP');
+    $date = new \DateTime($timestamp);
+    echo $date->format;
+    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+    $date_time = $date->format($datetimeFormat);*/
 
     return $date_time;
   }
