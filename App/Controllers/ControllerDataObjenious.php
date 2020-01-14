@@ -35,6 +35,7 @@ class ControllerDataObjenious extends \Core\Controller{
     //Parse the JSON content to insert into the DB
     $recordManager = new RecordManager();
     $recordManager->parseJsonDataAndInsert($data);
+
   }
 
   //Testing 
@@ -44,7 +45,7 @@ class ControllerDataObjenious extends \Core\Controller{
     $data = json_decode(file_get_contents('php://input'), true);
     //Parse the JSON content to insert into the DB
     $recordManager = new RecordManager();
-    $recordManager->parseChocTest($data);
+    $recordManager->parseJsonDataAndInsert($data);
   }
 
   public static function CallAPI($method, $url, $json_encode = true, $data = false)
