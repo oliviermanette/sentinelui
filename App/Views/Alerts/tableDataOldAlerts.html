@@ -1,12 +1,12 @@
 {# tableDataOldAlerts.html #}
-<div id="containerTableDataOldAlerts">
+<div id="containerTableDataProcessedAlerts">
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Historiques</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Historique</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table id="tableDataOldAlerts" class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table id="tableDataProcessedAlerts" class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <!--<table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">-->
                     <thead>
                         <tr>
@@ -22,7 +22,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for row in alerts_info_arr %}
+                        {% for row in alerts_processed_info_arr %}
                         <tr id="{{row.alert_id}}">
                             <td>{{ row.date_time }}</td>
                             <td>{{ row.label}}</td>

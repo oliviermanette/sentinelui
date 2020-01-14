@@ -25,10 +25,12 @@ class ControllerAlert extends \Core\Controller
         $group_name = $_SESSION['group_name'];
         
         $alertManager = new AlertManager();
-        $alertsDataArr = $alertManager->getAlertsInfoTable($group_name);
+        $alertsActiveDataArr = $alertManager->getActiveAlertsInfoTable($group_name);
+        $alertsProcessedDataArr = $alertManager->getProcessedAlertsInfoTable($group_name);
 
         View::renderTemplate('Alerts/index.html', [
-            'alerts_info_arr' => $alertsDataArr
+            'alerts_active_info_arr' => $alertsActiveDataArr,
+            'alerts_processed_info_arr' => $alertsProcessedDataArr
         ]);
     }
 

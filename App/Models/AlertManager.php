@@ -201,7 +201,7 @@ class AlertManager extends \Core\Model
         return false;
     }
 
-    public function getAlertsInfoTable($group_name)
+    public static function getActiveAlertsInfoTable($group_name, $limit = null)
     {
         $db = static::getDB();
 
@@ -217,7 +217,43 @@ class AlertManager extends \Core\Model
         LEFT JOIN site ON (site.id = structure.site_id)
         LEFT JOIN group_site ON (group_site.site_id = site.id)
         LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
-        AND group_name.name = :group_name";
+        WHERE group_name.name = :group_name
+        AND alerts.status = 1 ";
+
+        if (isset($limit)){
+            $query_alerts_data .= "LIMIT :limit";
+        }
+
+        $stmt = $db->prepare($query_alerts_data);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+        if (isset($limit)) {
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        }
+
+        if ($stmt->execute()) {
+            $resArr = $stmt->fetchAll();
+            return $resArr;
+        }
+    }
+
+    public function getProcessedAlertsInfoTable($group_name)
+    {
+        $db = static::getDB();
+
+        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, type_alert.label AS label, 
+        type_alert.criticality AS criticality, 
+        structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
+        alerts.cause AS cause, 
+        (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
+         alerts.deveui AS deveui, alerts.status AS status
+        FROM alerts 
+        LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
+        LEFT JOIN structure ON (structure.id = alerts.structure_id)
+        LEFT JOIN site ON (site.id = structure.site_id)
+        LEFT JOIN group_site ON (group_site.site_id = site.id)
+        LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
+        WHERE group_name.name = :group_name
+        AND alerts.status = 0";
 
         $stmt = $db->prepare($query_alerts_data);
         $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
