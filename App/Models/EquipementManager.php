@@ -4,6 +4,13 @@ namespace App\Models;
 
 use PDO;
 
+/*
+EquipementManager.php
+Handle the structure CRUD on the database
+author : Lirone Samoun
+
+*/
+
 class EquipementManager extends \Core\Model
 {
 
@@ -94,14 +101,20 @@ class EquipementManager extends \Core\Model
     }
   }
 
+  /**
+   * Get sensor ID on a specific structure
+   * 
+   * @param int $structure_id structure id to get the sensor id
+   * @return int  sensor id
+   */
   function getSensorIdOnEquipement($structure_id)
   {
     $db = static::getDB();
 
     $sql_sensor_id = "SELECT DISTINCT sensor.id AS sensor_id FROM sensor
-  LEFT JOIN record as r ON (r.sensor_id = sensor.id)
-  LEFT JOIN structure as st ON (r.structure_id = st.id)
-  WHERE st.id = :structure_id";
+    LEFT JOIN record as r ON (r.sensor_id = sensor.id)
+    LEFT JOIN structure as st ON (r.structure_id = st.id)
+    WHERE st.id = :structure_id";
 
     $stmt = $db->prepare($sql_sensor_id);
     $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
@@ -114,6 +127,12 @@ class EquipementManager extends \Core\Model
     }
   }
 
+  /**
+   * Get an equipement from a sensor ID
+   * 
+   * @param int $sensor_id sensor id to get the equipement ID
+   * @return int  sensor id
+   */
   public function getEquipementIdBySensorId($sensor_id)
   {
     $db = static::getDB();
@@ -135,6 +154,12 @@ class EquipementManager extends \Core\Model
     }
   }
 
+  /**
+   * Get all the structure belonging to a specific site
+   * 
+   * @param int $siteID site ID to retrieve all the structure
+   * @return array results from the query
+   */
   function getAllStructuresBySiteId($siteID)
   {
     $db = static::getDB();

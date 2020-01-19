@@ -4,6 +4,13 @@ namespace App\Models;
 use PDO;
 use App\Utilities;
 
+/*
+InclinometerManager.php
+Handle the inclinometer data CRUD on the database
+author : Lirone Samoun
+
+*/
+
 class InclinometerManager extends \Core\Model
 {
 
@@ -12,11 +19,13 @@ class InclinometerManager extends \Core\Model
   }
 
   /**
-  * Get all the inclinometer messages received from the sensors, for a specific group (RTE for example)
-  *
-  * @param string $group_name the name of the group we want to retrieve inclinometer data
-  * @return array  results from the query
-  */
+   * Get all the inclinometer messages received from the sensors, for a specific group (RTE for example)
+   * sensor_id | deveui |site | equipement | date_time | payload | type message | 
+   * nx |ny |nz | angle_x | angle_y |angle_z | temperature 
+   *
+   * @param string $group_name the name of the group we want to retrieve inclinometer data
+   * @return array  results from the query
+   */
   public function getAllInclinometerDataForGroup($group_name){
     $db = static::getDB();
 
@@ -58,11 +67,12 @@ class InclinometerManager extends \Core\Model
   }
 
   /**
-  * Get all the inclinometer messages received from the sensors given a specific sensor id
-  *
-  * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
-  * @return array  results from the query
-  */
+   * Get all the inclinometer messages received from the sensors given a specific sensor id
+   *  sensor_id | date_time | nx |ny |nz | angle_x | angle_y |angle_z | temperature 
+   *
+   * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
+   * @return array  results from the query
+   */
   public function getAllInclinometerDataForSensor($sensor_id){
 
     $db = static::getDB();
@@ -103,6 +113,7 @@ class InclinometerManager extends \Core\Model
 
   /**
    * Get all the angles X Y Z received from the sensors given a specific sensor id
+   *  sensor_id | date_time | angle_x | angle_y |angle_z | temperature 
    *
    * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
    * @return array  results from the query

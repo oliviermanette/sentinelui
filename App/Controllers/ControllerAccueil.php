@@ -10,9 +10,11 @@ use \App\Models\EquipementManager;
 use \App\Models\RecordManager;
 use \App\Models\SensorManager;
 
-
-ini_set('display_errors', '1');
-ini_set('error_reporting', E_ALL);
+/**
+ * Controller Accueil
+ * Handle the data displayed on the homepage
+ * PHP version 7.0
+ */
 
 
 class ControllerAccueil extends Authenticated
@@ -30,7 +32,6 @@ class ControllerAccueil extends Authenticated
   *
   * @return void
   */
-
   public function indexAction()
   {
     $group_name = $_SESSION['group_name'];
@@ -53,12 +54,12 @@ class ControllerAccueil extends Authenticated
 
   }
 
-  public function getSpecificInfoCardAction(){
-    $recordManager = new RecordManager();
-    //$temperature_data = $recordManager->getLatestTemperatureRecordByIdSensor("6");
-    #var_dump($temp["temperature"]);
-  }
-
+  /**
+   * Change structure when the user select the site in order to show only the structure
+   * associated to a specific site
+   *
+   * @return void
+   */
   public function changeEquipementAction(){
 
     $siteID = $_POST['site_id'];
@@ -72,6 +73,11 @@ class ControllerAccueil extends Authenticated
 
   }
 
+  /**
+   * Handle the map data 
+   *
+   * @return void
+   */
   public function loadDataMapAction(){
     $recordManager = new RecordManager();
     $group_name = $_SESSION['group_name'];
@@ -92,6 +98,11 @@ class ControllerAccueil extends Authenticated
 
   }
 
+  /**
+   * allow the user to download raw data from the homepage
+   *
+   * @return void
+   */
   public function downloadRawDataAction(){
     $recordManager = new RecordManager();
     $data = $recordManager->getAllRawRecord();
@@ -185,6 +196,11 @@ class ControllerAccueil extends Authenticated
     ]);
   }
 
+  /**
+   * Get all charts 
+   *
+   * @return void
+   */
   public function getAllChartsAction(){
     $site_id = $_POST["site_request"];
     $equipement_id = $_POST["equipement_request"];

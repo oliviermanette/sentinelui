@@ -5,6 +5,13 @@ namespace App\Models;
 use App\Utilities;
 use PDO;
 
+/*
+chocManager.php
+Handle the choc CRUD on the database
+author : Lirone Samoun
+
+*/
+
 class ChocManager extends \Core\Model
 {
 
@@ -29,6 +36,12 @@ class ChocManager extends \Core\Model
     }
   }
 
+  /**
+   * Check if a choc value is inside a specific range ( 1SD, 2SD , 3SD) to trigger an alert
+   * @param int $sensor_id sensor id to target
+   * @param int $time_period check for the last X days
+   * @return true if an alert is triggered 
+   */
   public function check($sensor_id, $time_period)
   {
     if (isset($this->power)) {
@@ -58,7 +71,7 @@ class ChocManager extends \Core\Model
       echo "\n Average choc last days : $avgPowerChoc \n";
       echo "\n High Tresh last days : $highTresh \n";
       echo "\n Low Tresh last days : $lowThresh \n";
-      
+
       if ($this->power > $highTresh || $this->power < $lowThresh) {
         echo "ALERT ! \n";
         return true;
@@ -78,17 +91,20 @@ class ChocManager extends \Core\Model
    * @param int $rule : number between 1 and 3, uncluded
    * @return void 
    */
-  public function setStdDevRule($rule){
-    if ($rule > 0 && $rule < 4){
+  public function setStdDevRule($rule)
+  {
+    if ($rule > 0 && $rule < 4) {
       $this->rule = $rule;
     }
   }
 
-  public function setStructureID($structure_id){
+  public function setStructureID($structure_id)
+  {
     $this->structure_id = $structure_id;
   }
 
-  public function getPowerValueChoc(){
+  public function getPowerValueChoc()
+  {
     return $this->power;
   }
 

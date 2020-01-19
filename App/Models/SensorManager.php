@@ -93,7 +93,7 @@ class SensorManager extends \Core\Model
       s.device_number
     ) AS LAST_MSG_RECEIVED 
     WHERE 
-      dateMaxReceived < CURDATE() -1";
+      dateMaxReceived < CURDATE() - 5";
 
     $stmt = $db->prepare($sql_nb_actif_sensor);
     $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);

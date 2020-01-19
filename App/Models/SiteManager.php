@@ -3,6 +3,13 @@
 namespace App\Models;
 use PDO;
 
+/*
+SiteManager.php
+Handle the site data CRUD on the database
+author : Lirone Samoun
+
+*/
+
 class SiteManager extends \Core\Model
 {
 

@@ -2,6 +2,7 @@
 
 /*
 RecordManager.php
+Handle the record data CRUD on the database
 author : Lirone Samoun
 
 Briefly : Handle record data. By record, we mean all the data from the record table of the DB.
@@ -22,120 +23,14 @@ class RecordManager extends \Core\Model
   public function __construct()
   {
   }
+
+
   /**
    * Parse json data and then insert into the DB
    *
    * @param json $jsondata json data received from Objenious. This file contain the uplink message
    * @return boolean  True if data has been correctly inserted, true otherwise
    */
-  function parseJsonDataAndInsertOLD($jsondata)
-  {
-    //Get all the interesting content from JSON data
-    $id = $jsondata['id'];
-    $profile = $jsondata['profile'];
-    $group = $jsondata['group'];
-    $device_id = $jsondata['device_id'];
-    $count = $jsondata['count'];
-    $geolocation_precision = $jsondata['geolocation_precision'];
-    $geolocation_type = $jsondata['geolocation_type'];
-    $latitude_msg = $jsondata['lat'];
-    $longitude_msg = $jsondata['lng'];
-    $payload_data = $jsondata['payload'];
-    $payload_cleartext = $jsondata['payload_cleartext'];
-    $device_properties = $jsondata['device_properties'];
-    $asset_name = $device_properties['external_id'];
-    $appeui = $device_properties['appeui'];
-    $deveui_sensor = $device_properties['deveui'];
-    $timestamp = $payload_data[0]['timestamp'];
-    $type_msg =  $jsondata['type'];
-
-    #Remove bracket
-    $asset_name_no_bracket = str_replace(array('[', ']'), '', $asset_name);
-    $asset_name_array = explode("-", $asset_name_no_bracket);
-    $region = $asset_name_array[0];
-    $ligne = $asset_name_array[1];
-    $desc_asset = $asset_name_array[2];
-    $support_asset = $asset_name_array[3];
-    $corniere = $asset_name_array[4];
-
-    #Build the asset name
-    $name_asset = $desc_asset . "_" . $support_asset;
-
-    #Provisory solution
-    $type_asset = "";
-    if (strpos($desc_asset, 'pylone') !== false) {
-      $type_asset = "transmission line";
-    } else {
-      $type_asset = "undefined";
-    }
-
-    $geocoder = new \OpenCage\Geocoder\Geocoder(\App\Config::GEOCODER_API_KEY);
-    #$$$res ult = $geocoder->geocode($region, ['language' => 'fr', 'countrycode' => 'fr']);
-
-    //Add structure type to the DB
-    $equipementManager = new EquipementManager();
-    $equipementManager->insertStructureType($type_asset);
-    if (!$equipementManager->insertStructureType($type_asset)) {
-      return false;
-    }
-
-    $datetimeFormat = 'Y-m-d H:i:s';
-    $date = new \DateTime($timestamp);
-    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-    $date_time = $date->format($datetimeFormat);
-
-    //As we received a payload message, we need to decode it
-    $msg_json = RecordManager::decodePayload($payload_cleartext);
-    $payload_decoded_json = json_decode($msg_json, true);
-
-    #Add date time attribute to the decoded payload
-    $payload_decoded_json['date_time'] = $date_time;
-    $payload_decoded_json['deveui'] = $deveui_sensor;
-    print_r($payload_decoded_json);
-
-    //Get the type of message
-    $type_msg = $payload_decoded_json["type"];
-
-    //Insert a record inside the Record table of the DB
-    RecordManager::insertRecordData($deveui_sensor, $name_asset, $payload_cleartext, $date_time, $type_msg, $longitude_msg, $latitude_msg);
-
-    //Then add the corresponding type of data received
-    //Choc data
-    if ($type_msg == "choc") {
-      $chocManager = new ChocManager();
-
-      if (!$chocManager->insertChocData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //battery data
-    else if ($type_msg == "global") {
-      $batteryManager = new BatteryManager();
-
-      if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //Inclinometer data
-    else if ($type_msg == "inclinometre") {
-      $inclinometreManager = new InclinometerManager();
-
-      if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //Subspectre data
-    else if ($type_msg == "spectre") {
-      $spectreManager = new SpectreManager();
-
-      if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
-        return false;
-      }
-    }
-
-    return True;
-  }
-
   function parseJsonDataAndInsert($data)
   {
     $sensorManager = new SensorManager();
@@ -266,8 +161,13 @@ class RecordManager extends \Core\Model
     }
   }
 
-  
 
+  /**
+   * extract uplink data from objenious
+   *
+   * @param json $data json data received from Objenious
+   * @return array 
+   */
   public static function extractUplinkData($data)
   {
 
@@ -325,6 +225,12 @@ class RecordManager extends \Core\Model
     return $uplinkDataArr;
   }
 
+  /**
+   * extract event data from objenious
+   *
+   * @param json $data json data received from Objenious
+   * @return array 
+   */
   public static function extractEventData($data)
   {
     $date_time = RecordManager::convertTimestampToDateTime($data['timestamp']);
@@ -349,6 +255,12 @@ class RecordManager extends \Core\Model
     return $eventDataArr;
   }
 
+  /**
+   * extract external_id data from Objenious (which correspond to the label of a sensor in Objenious)
+   *
+   * @param string $external_id 
+   * @return array 
+   */
   public static function extractExternalId($external_id)
   {
     #Remove bracket
@@ -372,12 +284,6 @@ class RecordManager extends \Core\Model
     $date     = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $timestamp, $timezone);
     $date = new \DateTime($date);
     $date_time = $date->format($datetimeFormat);
-
-    /*$timezone = new \DateTimeZone('Y-m-d\TH:i:sP');
-    $date = new \DateTime($timestamp);
-    echo $date->format;
-    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-    $date_time = $date->format($datetimeFormat);*/
 
     return $date_time;
   }
@@ -1268,4 +1174,120 @@ class RecordManager extends \Core\Model
 
     return $messages_device;
   }
+
+  /**
+   * Parse json data and then insert into the DB
+   *
+   * @param json $jsondata json data received from Objenious. This file contain the uplink message
+   * @return boolean  True if data has been correctly inserted, true otherwise
+   */
+  function parseJsonDataAndInsertOLD($jsondata)
+  {
+    //Get all the interesting content from JSON data
+    $id = $jsondata['id'];
+    $profile = $jsondata['profile'];
+    $group = $jsondata['group'];
+    $device_id = $jsondata['device_id'];
+    $count = $jsondata['count'];
+    $geolocation_precision = $jsondata['geolocation_precision'];
+    $geolocation_type = $jsondata['geolocation_type'];
+    $latitude_msg = $jsondata['lat'];
+    $longitude_msg = $jsondata['lng'];
+    $payload_data = $jsondata['payload'];
+    $payload_cleartext = $jsondata['payload_cleartext'];
+    $device_properties = $jsondata['device_properties'];
+    $asset_name = $device_properties['external_id'];
+    $appeui = $device_properties['appeui'];
+    $deveui_sensor = $device_properties['deveui'];
+    $timestamp = $payload_data[0]['timestamp'];
+    $type_msg =  $jsondata['type'];
+
+    #Remove bracket
+    $asset_name_no_bracket = str_replace(array('[', ']'), '', $asset_name);
+    $asset_name_array = explode("-", $asset_name_no_bracket);
+    $region = $asset_name_array[0];
+    $ligne = $asset_name_array[1];
+    $desc_asset = $asset_name_array[2];
+    $support_asset = $asset_name_array[3];
+    $corniere = $asset_name_array[4];
+
+    #Build the asset name
+    $name_asset = $desc_asset . "_" . $support_asset;
+
+    #Provisory solution
+    $type_asset = "";
+    if (strpos($desc_asset, 'pylone') !== false) {
+      $type_asset = "transmission line";
+    } else {
+      $type_asset = "undefined";
+    }
+
+    $geocoder = new \OpenCage\Geocoder\Geocoder(\App\Config::GEOCODER_API_KEY);
+    #$$$res ult = $geocoder->geocode($region, ['language' => 'fr', 'countrycode' => 'fr']);
+
+    //Add structure type to the DB
+    $equipementManager = new EquipementManager();
+    $equipementManager->insertStructureType($type_asset);
+    if (!$equipementManager->insertStructureType($type_asset)) {
+      return false;
+    }
+
+    $datetimeFormat = 'Y-m-d H:i:s';
+    $date = new \DateTime($timestamp);
+    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+    $date_time = $date->format($datetimeFormat);
+
+    //As we received a payload message, we need to decode it
+    $msg_json = RecordManager::decodePayload($payload_cleartext);
+    $payload_decoded_json = json_decode($msg_json, true);
+
+    #Add date time attribute to the decoded payload
+    $payload_decoded_json['date_time'] = $date_time;
+    $payload_decoded_json['deveui'] = $deveui_sensor;
+    print_r($payload_decoded_json);
+
+    //Get the type of message
+    $type_msg = $payload_decoded_json["type"];
+
+    //Insert a record inside the Record table of the DB
+    RecordManager::insertRecordData($deveui_sensor, $name_asset, $payload_cleartext, $date_time, $type_msg, $longitude_msg, $latitude_msg);
+
+    //Then add the corresponding type of data received
+    //Choc data
+    if ($type_msg == "choc") {
+      $chocManager = new ChocManager();
+
+      if (!$chocManager->insertChocData($payload_decoded_json)) {
+        return false;
+      }
+    }
+    //battery data
+    else if ($type_msg == "global") {
+      $batteryManager = new BatteryManager();
+
+      if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
+        return false;
+      }
+    }
+    //Inclinometer data
+    else if ($type_msg == "inclinometre") {
+      $inclinometreManager = new InclinometerManager();
+
+      if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
+        return false;
+      }
+    }
+    //Subspectre data
+    else if ($type_msg == "spectre") {
+      $spectreManager = new SpectreManager();
+
+      if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
+        return false;
+      }
+    }
+
+    return True;
+  }
 }
+
+

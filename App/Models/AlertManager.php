@@ -2,9 +2,8 @@
 
 /*
 alertManager.php
+Handle the alert CRUD on the database
 author : Lirone Samoun
-
-Briefly : 
 
 */
 
@@ -27,6 +26,11 @@ class AlertManager extends \Core\Model
         }
     }
 
+    /** Create a new alert on the database from an array data received
+     *
+     * @param array $dataArr array which contain the data that will serve to add a new alert on the DB
+     * @return void  
+     */
     public function createFromArr($dataArr)
     {
         $label = $dataArr["label"];
@@ -66,9 +70,13 @@ class AlertManager extends \Core\Model
         }
     }
     /**
-     * create a new alert
-     *
-     * @return void
+     * Create a new alert on the database
+     * @param string $label label to attribute for the alert
+     * @param string $deveui deveui of the sensor
+     * @param datetime $date_time date_time format when the alert occured
+     * @param int $structure_d id of the structure where the alert ocurred 
+     * @param float $value value of the alert
+     * @return void  
      */
     public function create($label, $deveui, $date_time, $structure_id, $value)
     {
@@ -104,6 +112,12 @@ class AlertManager extends \Core\Model
         }
     }
 
+
+    /** Delete an alert from the database
+     *
+     * @param int $id_alert if of the alert to delete
+     * @return void  
+     */
     public function delete($id_alert)
     {
         $alert = static::findByID($id_alert);
@@ -116,6 +130,12 @@ class AlertManager extends \Core\Model
         return false;
     }
 
+    /** Update a status of an alert from the database
+     *
+     * @param int $id_alert if of the alert to update
+     * @param int $status_alert status (1 or 0)
+     * @return void  
+     */
     public function updateStatus($id_alert, $status_alert)
     {
         $alert = static::findByID($id_alert);
@@ -129,8 +149,8 @@ class AlertManager extends \Core\Model
     }
 
     /**
-     * Start the delete reset process
-     *
+     * Start the delete process of an alert
+     * @param int $id_alert id alert to delete
      * @return void
      */
     protected function startDelete($id_alert)
@@ -148,7 +168,8 @@ class AlertManager extends \Core\Model
 
     /**
      * Start the update  process
-     *
+     * @param int $id_alert id alert to update
+     * @param int $status_alert id status (1 or 0)
      * @return void
      */
     protected function startUpdateStatus($id_alert, $status_alert)
@@ -171,6 +192,12 @@ class AlertManager extends \Core\Model
 
         return $stmt->execute();
     }
+
+    /**
+     * Insert type of event in the database
+     * @param string $label 
+     * @return void
+     */
     public static function insertTypeEvent($label)
     {
         $db = static::getDB();
@@ -188,6 +215,10 @@ class AlertManager extends \Core\Model
         return $stmt->execute();
     }
 
+    /**
+     * check if an alert exist
+     * @return true if alert exists
+     */
     public static function alertExists()
     {
         /*$user = static::findByEmail($email);
@@ -201,11 +232,18 @@ class AlertManager extends \Core\Model
         return false;
     }
 
+    /**
+     * Get all the active alert from the database
+     * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
+     * @param string $group_name check alert for a specific group 
+     * @return void
+     */
     public static function getActiveAlertsInfoTable($group_name, $limit = null)
     {
         $db = static::getDB();
 
-        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, type_alert.label AS label, 
+        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, 
+        type_alert.label AS label, 
         type_alert.criticality AS criticality, 
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
@@ -220,7 +258,7 @@ class AlertManager extends \Core\Model
         WHERE group_name.name = :group_name
         AND alerts.status = 1 ";
 
-        if (isset($limit)){
+        if (isset($limit)) {
             $query_alerts_data .= "LIMIT :limit";
         }
 
@@ -236,6 +274,12 @@ class AlertManager extends \Core\Model
         }
     }
 
+    /**
+     * Get all the processed alert from the database
+     * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
+     * @param string $group_name check alert for a specific group 
+     * @return void
+     */
     public function getProcessedAlertsInfoTable($group_name)
     {
         $db = static::getDB();
@@ -245,7 +289,7 @@ class AlertManager extends \Core\Model
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-         alerts.deveui AS deveui, alerts.status AS status
+         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
         FROM alerts 
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -264,6 +308,11 @@ class AlertManager extends \Core\Model
         }
     }
 
+    /**
+     * Get the number of alerts for a specific structure
+     * @param int $structure_id structure id for checking the number of alert
+     * @return array 
+     */
     public function getNumberActiveAlertsOnStructure($structure_id)
     {
         $db = static::getDB();
@@ -288,7 +337,11 @@ class AlertManager extends \Core\Model
             }
         }
     }
-
+    /**
+     * Get the number of alerts for a specific group
+     * @param string $group_name group for checking the number of alert
+     * @return array 
+     */
     public function getNumberActiveAlertsForGroup($group_name)
     {
         $db = static::getDB();
@@ -318,6 +371,11 @@ class AlertManager extends \Core\Model
         }
     }
 
+    /**
+     * Get the number of inactive alerts for a specific group
+     * @param int $group_name group to check
+     * @return array 
+     */
     public function getNumberInactiveAlertsForGroup($group_name)
     {
         $db = static::getDB();
@@ -345,7 +403,11 @@ class AlertManager extends \Core\Model
             }
         }
     }
-
+    /**
+     * Get the number of inactive alerts for a specific structure
+     * @param int $structure_id structure id for checking the number of alert
+     * @return array 
+     */
     public function getNumberInactiveAlerts($structure_id)
     {
         $db = static::getDB();
@@ -450,5 +512,4 @@ class AlertManager extends \Core\Model
 
         return $alerts_data;
     }
-
 }

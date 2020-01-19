@@ -3,6 +3,12 @@
 namespace App\Models;
 use PDO;
 
+/*
+SpectreManager.php
+Handle the spectre data CRUD on the database
+author : Lirone Samoun
+
+*/
 class SpectreManager extends \Core\Model
 {
 

@@ -8,11 +8,13 @@ use \App\Auth;
 use \App\Flash;
 
 
+
 /**
  * Alert controller
- *
+ * Handle the data displayed on alert page
  * PHP version 7.0
  */
+
 class ControllerAlert extends \Core\Controller
 {
 
@@ -20,6 +22,11 @@ class ControllerAlert extends \Core\Controller
     {
     }
 
+    /**
+     * Show the index page
+     *
+     * @return void
+     */
     public function indexAction()
     {
         $group_name = $_SESSION['group_name'];
@@ -34,7 +41,11 @@ class ControllerAlert extends \Core\Controller
         ]);
     }
 
-
+    /**
+     * update alert statut when the user delete or update an alert
+     *
+     * @return void
+     */
     public function updateAlertAction(){
         $id_alert = $_GET['id_alert'];
         $status_alert = $_GET['status_alert'];
@@ -52,6 +63,11 @@ class ControllerAlert extends \Core\Controller
 
     }
 
+    /**
+     * delete an alert
+     *
+     * @return void
+     */
     public function deleteAlertAction(){
         $id_alert = $_GET['id_alert'];
         $alertManager = new AlertManager();
@@ -66,25 +82,9 @@ class ControllerAlert extends \Core\Controller
         
 
     }
-    public function createAction()
-    {
-
-        $alertManager = new AlertManager();
-        //$alertManager->create();
-       
-    }
-
-
-    public function getAlertsFromAPIAction(){
-
-        $url = "https://api.objenious.com/v1/devices/lora:0004A30B00E80AC9/state";
-        $results_api = ControllerDataObjenious::CallAPI("GET", $url);
-        //$state_device = $results_api["states"];
-        print_r($results_api);
-    }
 
     /**
-     *
+     * Show delete success message after deleting alert
      * @return void
      */
     public function showDeleteSuccessMessageAction()
@@ -95,7 +95,7 @@ class ControllerAlert extends \Core\Controller
     }
 
     /**
-     *
+     * Show success success message after updating alert
      * @return void
      */
     public function showUpdateSuccessMessageAction()
@@ -106,7 +106,7 @@ class ControllerAlert extends \Core\Controller
     }
 
     /**
-     *
+     * Show delete error message after deleting alert
      * @return void
      */
     public function showDeleteErrorMessageAction()
@@ -117,7 +117,7 @@ class ControllerAlert extends \Core\Controller
     }
 
     /**
-     *
+     * Show update error message after updating alert
      * @return void
      */
     public function showUpdateErrorMessageAction()

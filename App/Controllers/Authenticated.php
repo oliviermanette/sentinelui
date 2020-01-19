@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 /**
  * Authenticated base controller
+ * Controller who check is the user is logged or not
  *
  * PHP version 7.0
  */

@@ -1,15 +1,5 @@
 <?php
 
-/*
-ControllerDataObjenious.php
-author : Lirone Samoun
-
-Briefly : get uplink data (sensors) from Objenious platform. In Objenious, a HTTP request is sent.
-This class handle this HTTP request
-/data
-
-*/
-
 
 namespace App\Controllers;
 
@@ -18,10 +8,15 @@ use \App\Models\RecordManager;
 
 ini_set('display_errors', '1');
 ini_set('error_reporting', E_ALL);
-/**
-* Data Objenious Controller
-*
-* PHP version 7.0
+/*
+ControllerDataObjenious.php
+author : Lirone Samoun
+
+Briefly : get uplink data (sensors) from Objenious platform. In Objenious, a HTTP request is sent.
+This class handle this HTTP request
+
+/data
+
 */
 class ControllerDataObjenious extends \Core\Controller{
 
@@ -29,6 +24,11 @@ class ControllerDataObjenious extends \Core\Controller{
 
   }
 
+
+  /**
+   * When Objenious send an uplink, it goes here
+   * @return void
+   */
   public function receiveRawDataFromObjeniousAction(){
     //Get the JSON content from the HTTP request
     $data = json_decode(file_get_contents('php://input'), true);
@@ -38,7 +38,11 @@ class ControllerDataObjenious extends \Core\Controller{
 
   }
 
-  //Testing 
+
+  /**
+   * TESTING PURPOSE
+   * @return void
+   */
   public function testChocAction()
   {
     //Get the JSON content from the HTTP request
@@ -48,6 +52,11 @@ class ControllerDataObjenious extends \Core\Controller{
     $recordManager->parseJsonDataAndInsert($data);
   }
 
+
+  /**
+   * init a request for calling API
+   * @return void
+   */
   public static function CallAPI($method, $url, $json_encode = true, $data = false)
   {
     $curl = curl_init();

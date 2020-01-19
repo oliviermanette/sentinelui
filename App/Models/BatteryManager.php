@@ -1,25 +1,27 @@
 <?php
 
 namespace App\Models;
+
 use App\Utilities;
 use PDO;
 
 class BatteryManager extends \Core\Model
 {
 
-  public function __construst(){
-
+  public function __construst()
+  {
   }
   /**
-  * Get all the battery data messages received from the sensors, for a specific group (RTE for example)
-  *
-  * @param string $group_name the name of the group we want to retrieve battery data
-  * @return array  results from the query
-  */
-  public function getAllBatteryData($group_name){
+   * Get all the battery data messages received from the sensors, for a specific group (RTE for example)
+   *
+   * @param string $group_name the name of the group we want to retrieve battery data
+   * @return array  results from the query
+   */
+  public function getAllBatteryData($group_name)
+  {
     $db = static::getDB();
 
-    $sql_battery_data ="SELECT
+    $sql_battery_data = "SELECT
     sensor.id,
     sensor.deveui,
     s.nom AS Site,
@@ -50,7 +52,13 @@ class BatteryManager extends \Core\Model
     }
   }
 
-  public function insertBatteryData($battery_data_json){
+  /**
+   * Insert battery data to the database
+   * @param json $battery_data_json json array which contain the data to insert
+   * @return array 
+   */
+  public function insertBatteryData($battery_data_json)
+  {
     $battery_level = floatval($battery_data_json['batteryLevel']);
     $date_time = $battery_data_json['date_time'];
     $deveui_sensor = $battery_data_json['deveui'];
@@ -61,14 +69,13 @@ class BatteryManager extends \Core\Model
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
       :battery) AS id_record';
 
-      $db = static::getDB();
-      $stmt = $db->prepare($sql_data_record_battery);
+    $db = static::getDB();
+    $stmt = $db->prepare($sql_data_record_battery);
 
-      $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
-      $stmt->bindValue(':deveui', $deveui_sensor, PDO::PARAM_STR);
-      $stmt->bindValue(':battery', $battery_level, PDO::PARAM_INT);
+    $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui_sensor, PDO::PARAM_STR);
+    $stmt->bindValue(':battery', $battery_level, PDO::PARAM_INT);
 
-      return $stmt->execute();
+    return $stmt->execute();
   }
-
 }

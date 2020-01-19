@@ -3,6 +3,13 @@
 namespace App\Models;
 use PDO;
 
+/*
+ScoreManager.php
+Handle the score data CRUD on the database
+author : Lirone Samoun
+
+*/
+
 class ScoreManager extends \Core\Model
 {
 

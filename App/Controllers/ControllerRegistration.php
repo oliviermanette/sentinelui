@@ -7,6 +7,7 @@ use \App\Models\UserManager;
 
 /**
 * ControllerRegistration
+* Registration of a new user
 *
 * PHP version 7.0
 */
