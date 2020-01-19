@@ -1,22 +1,6 @@
-/*!
-* Start Bootstrap - Simple Sidebar (https://startbootstrap.com/template-overviews/simple-sidebar)
-* Copyright 2013-2017 Start Bootstrap
-* Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-simple-sidebar/blob/master/LICENSE)
-*/
-
-body {
-  overflow-x: hidden;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 /**
 Alert
 **/
-
 
 .alert {
   border: 1px solid #ccc;
@@ -37,7 +21,7 @@ Alert
 CARD
 
 **/
-
+/*
 .card {
   background-color: rgba(245, 126, 0, 0.10);
   text-align: center;
@@ -52,7 +36,6 @@ CARD
 }
 
 .card-1 {
-  /*background-color : rgba(238, 114, 114, 0.63);*/
   border: 5px solid rgba(245, 126, 0, 0.82);
 }
 
@@ -63,38 +46,40 @@ CARD
 .card-3 {
   border: 5px solid rgba(245, 126, 0, 0.82);
 }
-
+*/
+/*
 hr.style1{
 	border-top: 1px solid #8c8b8b;
-}
+}*/
 
-/* Float four columns side by side */
+/* Float four columns side by side 
 .column {
   float: left;
   width: 25%;
   padding: 0 10px;
 }
+*/
 
-/* Remove extra left and right margins, due to padding */
-.row {margin: 0 -5px;}
+/* Remove extra left and right margins, due to padding 
+.row {margin: 0 -5px;}*/
 
-/* Clear floats after the columns */
+/* Clear floats after the columns 
 .row:after {
   content: "";
   display: table;
   clear: both;
-}
+}*/
 
-/* Responsive columns */
+/* Responsive columns 
 @media screen and (max-width: 600px) {
   .column {
     width: 100%;
     display: block;
     margin-bottom: 20px;
   }
-}
+}*/
 
-
+/*
 #wrapper {
   padding-left: 0;
   -webkit-transition: all 0.5s ease;
@@ -136,10 +121,10 @@ hr.style1{
   position: absolute;
   margin-right: -250px;
 }
-
+*/
 
 /** Sidebar Styles **/
-
+/*
 .sidebar-nav {
   position: absolute;
   top: 0;
@@ -207,14 +192,14 @@ hr.style1{
     margin-right: 0;
   }
 }
-
+*/
 /**
 
 button
 
 **/
-
+/*
 .btn-black{
   background-color: #e07511 !important;
   color: #fff;
-}
+}*/

@@ -36,15 +36,27 @@ $router->add('logout', ['controller' => 'ControllerLogin', 'action' => 'destroy'
 $router->add('password/reset/{token:[\da-f]+}', ['controller' => 'Password', 'action' => 'reset']);
 //Parse data from Objenious server
 $router->add('data', ['controller' => 'ControllerDataObjenious', 'action' => 'receiveRawDataFromObjenious']);
-//Test
-$router->add('test', ['controller' => 'ControllerData', 'action' => 'index']);
-$router->add('test2', ['controller' => 'ControllerData', 'action' => 'test']);
+//Setting page
+$router->add('settings', ['controller' => 'ControllerSetting', 'action' => 'index']);
+//Profile page
+$router->add('profile', ['controller' => 'ControllerProfile', 'action' => 'index']);
+//Search data form
+$router->add('search-data', ['controller' => 'ControllerData', 'action' => 'index']);
+//Choc data display
+$router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'searchChoc']);
+//alerts data visualization
+$router->add('alerts', ['controller' => 'ControllerAlert', 'action' => 'index']);
+
+
 
 //Match route controller/action
 $router->add('{controller}/{action}');
 //In case there is something between controller and action
 $router->add('{controller}/{id:\d+}/{action}');
 
+//TESTING
+$router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'testChoc']);
+$router->add('alerts-test', ['controller' => 'ControllerAlert', 'action' => 'getAlertsFromAPI']);
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);

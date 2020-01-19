@@ -2,7 +2,9 @@
 
 Add to APP folder, `Config.php`
 
-
+bower.json for front end package
+composer.json for backend package
+gulpfile.json for automation task
 
 ```php
 

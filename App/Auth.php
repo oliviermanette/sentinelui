@@ -26,9 +26,11 @@ class Auth
     $_SESSION['user_id'] = $user->id;
 
     $groups_name = $user->findGroupsById($user->id);
-
+    $user_first_name = $user->findNameUserById($user->id);
     //TODO : need to take in account in multiple group
     $_SESSION['group_name'] = $groups_name[0]["name"];
+    $_SESSION['user_first_name'] = $user_first_name[0]["first_name"];
+    
     $user->setGroupName($groups_name[0]["name"]);
 
 

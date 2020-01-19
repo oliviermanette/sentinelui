@@ -1,16 +1,14 @@
-#Ignore Bootstrap library
-bootstrap/*
-
 App/Config.php
+
 vendor/*
-composer.lock
 theme-admin/*
+public/vendor/*
+core-ui-admin/*
+stilasla/*
+tabler/*
 
 #Ignore node_module
 node_modules/*
 
-#Ignore semantic
-semantic/*
-semantic.json
-
 package-lock.json
+composer.lock

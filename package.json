@@ -1,0 +1,41 @@
+{
+  "name": "sentive",
+  "version": "0.1.0",
+  "description": "sentive platform",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oliviermanette/sentinelui.git"
+  },
+  "author": "Lirone Samoun",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oliviermanette/sentinelui/issues"
+  },
+  "homepage": "https://github.com/oliviermanette/sentinelui#readme",
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
+    "browser-sync": "latest",
+    "del": "^5.1.0",
+    "gulp": "latest",
+    "gulp-autoprefixer": "latest",
+    "gulp-babel": "^8.0.0",
+    "gulp-clean-css": "4.2.0",
+    "gulp-cssbeautify": "latest",
+    "gulp-csscomb": "latest",
+    "gulp-load-plugins": "^2.0.1",
+    "gulp-plumber": "^1.2.1",
+    "gulp-rename": "1.4.0",
+    "gulp-sass": "4.0.2",
+    "gulp-terser": "^1.2.0",
+    "gulp-uglify": "3.0.2",
+    "gulp-useref": "^4.0.0",
+    "merge-stream": "2.0.0",
+    "uglify-es": "3.3.9"
+  },
+  "dependencies": {}
+}

@@ -5,8 +5,10 @@ namespace App\Controllers;
 use \Core\View;
 use \App\Auth;
 use \App\Models\SiteManager;
+use \App\Models\AlertManager;
 use \App\Models\EquipementManager;
 use \App\Models\RecordManager;
+use \App\Models\SensorManager;
 
 
 ini_set('display_errors', '1');
@@ -33,26 +35,19 @@ class ControllerAccueil extends Authenticated
   {
     $group_name = $_SESSION['group_name'];
 
-    $siteManager = new SiteManager();
-    $all_site = $siteManager->getSites($group_name);
-
-    $equipementManager = new EquipementManager();
-    $all_equipment = $equipementManager->getEquipements($group_name);
-
+    $sensorManager = new SensorManager();
     $recordManager = new RecordManager();
+    $alertManager = new AlertManager();
     $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
+    $nb_active_sensors = $sensorManager->getNumberActifSensor($group_name);
+    $nb_inactive_sensors = $sensorManager->getNumberInactifSensor($group_name);
+    $nb_active_alerts = $alertManager->getNumberActiveAlertsForGroup($group_name);
 
-
-    $date_min_max = $recordManager->getDateMinMaxFromRecord();
-
-    $min_date = $date_min_max[0];
-    $max_date = $date_min_max[1];
 
     View::renderTemplate('Homepage/accueil.html', [
-      'all_site'    => $all_site,
-      'all_equipment' => $all_equipment,
-      'min_date' => $min_date,
-      'max_date' => $max_date,
+      'nb_active_sensors' => $nb_active_sensors,
+      'nb_inactive_sensors' => $nb_inactive_sensors,
+      'nb_active_alerts' => $nb_active_alerts,
       'brief_data_record' => $brief_data_record,
     ]);
 
@@ -60,7 +55,7 @@ class ControllerAccueil extends Authenticated
 
   public function getSpecificInfoCardAction(){
     $recordManager = new RecordManager();
-    $temperature_data = $recordManager->getLatestTemperatureRecordByIdSensor("6");
+    //$temperature_data = $recordManager->getLatestTemperatureRecordByIdSensor("6");
     #var_dump($temp["temperature"]);
   }
 

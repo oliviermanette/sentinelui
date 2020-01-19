@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Alerts index{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid">
+
+      <!-- Page Heading -->
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+          <h1 class="h3 mb-0 text-gray-800">Alertes</h1>
+      </div>
+
+    {% include "Alerts/tableDataNewAlerts.html" %}
+    {% include "Alerts/tableDataOldAlerts.html" %}
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    $(document).ready(function () {
+        $('#tableDataAlerts').DataTable({
+            "createdRow": function (row, data, dataIndex, cells) {
+                var type_raw_message = data[1];
+                var statut = data[7];
+                console.log(statut);
+                if (statut == "1") {
+                    cells[7].innerText = "En cours";
+                } else {
+                    cells[7].innerText = "Traité";
+                }
+                switch (type_raw_message) {
+                    case 'ChangeStatusInactive':
+                        cells[1].innerText = "Inactif";
+                        break;
+                    case 'ChangeStatusActive':
+                        cells[1].innerText = "Actif";
+                        break;
+                    case 'ChangeStatusError':
+                        cells[1].innerText = "Erreur";
+                        break;
+                    case 'high_choc':
+                        cells[1].innerText = "Choc important";
+                        break;
+                    default:
+                        break;
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20
+        });
+
+        $('#tableDataProcessedAlerts').DataTable({
+            "createdRow": function (row, data, dataIndex, cells) {
+                var type_raw_message = data[1];
+                var statut = data[7];
+                console.log(statut);
+                if (statut == "1") {
+                    cells[7].innerText = "En cours";
+                } else {
+                    cells[7].innerText = "Traité";
+                }
+                switch (type_raw_message) {
+                    case 'ChangeStatusInactive':
+                        cells[1].innerText = "Inactif";
+                        break;
+                    case 'ChangeStatusActive':
+                        cells[1].innerText = "Actif";
+                        break;
+                    case 'ChangeStatusError':
+                        cells[1].innerText = "Erreur";
+                        break;
+                    case 'high_choc':
+                        cells[1].innerText = "Choc important";
+                        break;
+                    default:
+                        break;
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20
+        });
+
+    });
+</script>
+
+{% endblock %}
