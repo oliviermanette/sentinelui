@@ -9,36 +9,36 @@ namespace App;
 class Config
 {
   /**
-  * Database host
-  * @var string
-  */
-  const DB_HOST = '';
+   * Database host
+   * @var string
+   */
+  const DB_HOST = '92.243.19.37';
   /**
-  * Database name
-  * @var string
-  */
-  const DB_NAME = '';
+   * Database name
+   * @var string
+   */
+  const DB_NAME = 'sentinel_test';
   /**
-  * Database user
-  * @var string
-  */
-  const DB_USER = '';
+   * Database user
+   * @var string
+   */
+  const DB_USER = 'admin';
   /**
-  * Database password
-  * @var string
-  */
-  const DB_PASSWORD = '';
+   * Database password
+   * @var string
+   */
+  const DB_PASSWORD = 'eoL4p0w3r';
   /**
-  * Show or hide error messages on screen
-  * @var boolean
-  */
+   * Show or hide error messages on screen
+   * @var boolean
+   */
   const SHOW_ERRORS = true;
 
   /**
-  * Secret key for hashing
-  * @var boolean
-  */
-  const SECRET_KEY = '';
+   * Secret key for hashing
+   * @var boolean
+   */
+  const SECRET_KEY = 'UoIjfyG4CQc1cVjKjQ0B30kmHPreWD4w';
 
   /**
   * API KEY Sendgrid
