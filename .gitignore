@@ -1,6 +1,6 @@
 App/Config.php
+.vscode
 
-vendor/**
 theme-admin/**
 public/vendor/**
 core-ui-admin/**
@@ -8,7 +8,8 @@ stisla/**
 tabler/**
 
 #Ignore node_module
-node_modules/*
+node_modules/**
 
 package-lock.json
 composer.lock
+node_modules
