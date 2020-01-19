@@ -210,7 +210,7 @@ class AlertManager extends \Core\Model
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-         alerts.deveui AS deveui, alerts.status AS status
+         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
         FROM alerts 
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
