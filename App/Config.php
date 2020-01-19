@@ -12,22 +12,22 @@ class Config
   * Database host
   * @var string
   */
-  const DB_HOST = '92.243.19.37';
+  const DB_HOST = '';
   /**
   * Database name
   * @var string
   */
-  const DB_NAME = 'sentinel_test';
+  const DB_NAME = '';
   /**
   * Database user
   * @var string
   */
-  const DB_USER = 'admin';
+  const DB_USER = '';
   /**
   * Database password
   * @var string
   */
-  const DB_PASSWORD = 'eoL4p0w3r';
+  const DB_PASSWORD = '';
   /**
   * Show or hide error messages on screen
   * @var boolean
@@ -38,13 +38,13 @@ class Config
   * Secret key for hashing
   * @var boolean
   */
-  const SECRET_KEY = 'UoIjfyG4CQc1cVjKjQ0B30kmHPreWD4w';
+  const SECRET_KEY = '';
 
   /**
   * API KEY Sendgrid
   * @var boolean
   */
-  const SENDGRID_API_KEY = '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';
+  const SENDGRID_API_KEY = '';
 
   /**
   * API KEY opencagedata geocode
