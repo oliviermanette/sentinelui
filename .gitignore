@@ -1,11 +1,11 @@
 App/Config.php
 
-vendor/*
-theme-admin/*
-public/vendor/*
-core-ui-admin/*
-stisla/*
-tabler/*
+vendor/**
+theme-admin/**
+public/vendor/**
+core-ui-admin/**
+stisla/**
+tabler/**
 
 #Ignore node_module
 node_modules/*
