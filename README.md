@@ -9,6 +9,8 @@ To begin using this code:
 
 After installation, run `npm install`.
  You can view the `gulpfile.js` to see which tasks are included with the dev environment.
+
+ Basically after running npm install, just do `gulp`
 ### Gulp Tasks
 
 -   `gulp` the default task that builds everything
