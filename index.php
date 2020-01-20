@@ -57,6 +57,7 @@ $router->add('{controller}/{id:\d+}/{action}');
 //TESTING
 $router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'testChoc']);
 $router->add('alerts-test', ['controller' => 'ControllerAlert', 'action' => 'getAlertsFromAPI']);
+$router->add('go', ['controller' => 'ControllerTimeSeries', 'action' => 'goTimeSeries']);
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);
