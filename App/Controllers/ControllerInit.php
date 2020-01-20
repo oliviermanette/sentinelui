@@ -7,6 +7,7 @@ use \App\Auth;
 use \App\Models\RecordManager;
 use \App\Models\SpectreManager;
 use \App\Models\TimeSeriesManager;
+use \App\Models\TimeSeries;
 use \App\Flash;
 use App\Utilities;
 
@@ -36,21 +37,26 @@ class ControllerInit extends \Core\Controller
         $recordManager = new RecordManager();
         //$recordManager->initPool($group_name);
 
+        //Get all the sensor ID from Pool ID 
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
-        //print_r($sensorIdArr);
-
         //Test TimeSeries
         $spectreManager = new SpectreManager();
-        //Get all the sensor ID from Pool ID 
+        foreach ($sensorIdArr as $sensorID){
+            //print_r($sensorID);
+            $sensor_id = $sensorID["sensor_id"];
+            
+        }
+
         $allSpectreArr = $spectreManager->reconstituteAllSpectreForSensor(5);
         //print_r($allSpectreArr);
    
         //Loop over all spectre received by a specific sensor
-        $timeSeriesManager = new TimeSeriesManager();
         foreach ($allSpectreArr as $spectreArr){
-            print_r($allSpectreArr);
-            $timeSeriesManager->createTimeSeriesFromSpectreArr($spectreArr);
-            exit();
+            echo "\n==> NEW SPECTRE <== \n";
+ 
+            $timeSerie = new TimeSeries();
+            $timeSerie->createFromSpectreArr($spectreArr);
+            $timeSerie->save();
         }
     }
 
