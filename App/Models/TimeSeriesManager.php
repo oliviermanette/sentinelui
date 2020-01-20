@@ -10,4 +10,21 @@ use \Core\View;
 class TimeSeriesManager extends \Core\Model
 {
 
+    /**
+     * constructor
+     *
+     * @return void
+     */
+    function __construct()
+    {
+    }
+
+    public function getAllTimeSeries(){
+
+    }
+
+    public function getSpecificTimeSeries(){
+        
+    }
+
 }
