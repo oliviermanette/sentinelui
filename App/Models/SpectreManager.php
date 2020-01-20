@@ -16,54 +16,104 @@ class SpectreManager extends \Core\Model
 
   }
 
+
   /**
-  * Get all the spectre messages received from the sensors, for a specific group (RTE for example)
-  *
-  * @param string $group_name the name of the group we want to retrieve spectre data
-  * @return array  results from the query
-  */
-  public function getAllSpectreData($group_name){
+   * Get all the subspectre received by a sensor and reconstitue the whole spectre received every week
+   *
+   * @param int $sensor_id 
+   * @return array double array which all spectre recevied from a sensor and each array contain
+   * array that contain the decomposed spectre
+   */
+  public function reconstituteAllSpectreForSensor($sensor_id){
+    $fullSpectreArr = array();
+
+    $resultArr = SpectreManager::getAllFirstSubspectreForSensorID($sensor_id);
+
+    $spectreID = 1;
+    foreach ($resultArr as $firstSubSpectreArr){
+      $spectre_name = 'spectre_' . $spectreID;
+
+      $date = $firstSubSpectreArr["date"];
+      $subspectre001 = $firstSubSpectreArr["subspectre"];
+      $fullSpectre[$spectre_name]["001"] = $subspectre001;
+
+      //to have a full spectre, there are 5 subspectre in total. We already got the firt one 001
+      $subspectreID= 1;
+      for ($i = 0; $i < 4; $i++){
+        $subspectre_name = 'subspectre_' . $subspectreID;
+        $date = date('Y-m-d', strtotime($date . "+1 days"));
+
+        $subspectreArr = SpectreManager::getSubspectreForSensorID($sensor_id, $date);
+        $subspectreNumber = $subspectreArr["subspectre_number"];
+        $fullSpectreArr[$spectre_name][$subspectre_name][$subspectreNumber] = $subspectreArr["subspectre"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["resolution"] = $subspectreArr["resolution"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["min_freq"] = $subspectreArr["min_freq"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["max_freq"] = $subspectreArr["max_freq"];
+
+        $subspectreID++;
+      }
+
+      $spectreID++;
+      
+    }
+    return $fullSpectreArr;
+  }
+
+  /**
+   * Get all the first subspectre (001) received from a sensor
+   * date | subspectre
+   * @param int $snesor_id
+   * @return array  results from the query
+   */
+  public static function getAllFirstSubspectreForSensorID($sensor_id){
     $db = static::getDB();
 
-    $sql_spectre_data ="SELECT
-    sensor.id,
-    sensor.deveui,
-    s.nom AS Site,
-    st.nom AS Equipement,
-    r.date_time,
-    r.payload,
-    r.msg_type AS 'Type message',
-    subspectre,
-    subspectre_number,
-    min_freq,
-    max_freq,
-    resolution
-    FROM
-    spectre AS sp
-    LEFT JOIN record AS r ON (r.id = sp.record_id)
-    INNER JOIN structure AS st ON st.id = r.structure_id
-    INNER JOIN site AS s ON s.id = st.site_id
-    INNER JOIN sensor ON (sensor.id = r.sensor_id)
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE
-    gn.name = : group_name
-    AND Date(r.date_time) >= Date(sensor.installation_date)
+    $sql_subspectre_data = "
+        SELECT Date(date_d) as date, subspectre FROM
+    (SELECT 
+      s.nom AS site, 
+      st.nom AS equipement, 
+      r.sensor_id, 
+      r.date_time as date_d, 
+      subspectre, 
+      subspectre_number, 
+      min_freq, 
+      max_freq, 
+      resolution 
+    FROM 
+      spectre AS sp 
+      LEFT JOIN record AS r ON (r.id = sp.record_id) 
+      JOIN sensor on sensor.id = r.sensor_id 
+      JOIN structure as st ON (st.id = r.structure_id) 
+      JOIN site as s ON (s.id = st.site_id) 
+    WHERE 
+      sp.subspectre_number LIKE '001' 
+      AND r.sensor_id LIKE :sensor_id
+      AND Date(r.date_time) >= Date(sensor.installation_date) 
+    ORDER BY 
+      r.date_time ASC) AS first_subpsectre_sensor";
 
-    ";
-
-    $stmt = $db->prepare($sql_spectre_data);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt = $db->prepare($sql_subspectre_data);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
     }
+
+
   }
 
-  public function getAllSubspectrespectreRecordById($sensor_id, $date_request){
+
+  /**
+   * Get specific subspectre received from a sensor given a date
+   * sensor_id | date | subspectre | subspectre_number | min_freq | max_freq | resolution
+   * @param int $snesor_id
+   * @return array  results from the query
+   */
+  public static function getSubspectreForSensorID($sensor_id, $date_request){
     $db = static::getDB();
 
-    $sql_query_get_spectre = "SELECT s.nom, st.nom, r.sensor_id, r.payload, r.date_time AS date_d,
+    $sql_query_get_spectre = "SELECT r.sensor_id, r.date_time AS date_d,
     `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution`
     FROM `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)
@@ -80,7 +130,7 @@ class SpectreManager extends \Core\Model
 
       $all_spectre_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      return $all_spectre_data;
+      return $all_spectre_data[0];
     }
 
   }
@@ -120,6 +170,52 @@ class SpectreManager extends \Core\Model
 
       return $stmt->execute();
 
+  }
+
+
+  /**
+   * Get all the spectre messages received from the sensors, for a specific group (RTE for example)
+   *
+   * @param string $group_name the name of the group we want to retrieve spectre data
+   * @return array  results from the query
+   */
+  public function getAllSpectreData($group_name)
+  {
+    $db = static::getDB();
+
+    $sql_spectre_data = "SELECT
+    sensor.id,
+    sensor.deveui,
+    s.nom AS Site,
+    st.nom AS Equipement,
+    r.date_time,
+    r.payload,
+    r.msg_type AS 'Type message',
+    subspectre,
+    subspectre_number,
+    min_freq,
+    max_freq,
+    resolution
+    FROM
+    spectre AS sp
+    LEFT JOIN record AS r ON (r.id = sp.record_id)
+    INNER JOIN structure AS st ON st.id = r.structure_id
+    INNER JOIN site AS s ON s.id = st.site_id
+    INNER JOIN sensor ON (sensor.id = r.sensor_id)
+    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
+    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+    WHERE
+    gn.name = :group_name
+    AND Date(r.date_time) >= Date(sensor.installation_date)
+
+    ";
+
+    $stmt = $db->prepare($sql_spectre_data);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
   }
 
 }

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use \Core\View;
 use \App\Auth;
 use \App\Models\RecordManager;
+use \App\Models\SpectreManager;
 use \App\Flash;
 
 
@@ -31,7 +32,11 @@ class ControllerTimeSeries extends \Core\Controller
         
         //INIT POOL
         $recordManager = new RecordManager();
-        $recordManager->initPool($group_name);
+        //$recordManager->initPool($group_name);
+
+        //Test TimeSeries
+        $spectreManager = new SpectreManager();
+        $spectreManager->reconstituteAllSpectreForSensor(5);
     }
 
 

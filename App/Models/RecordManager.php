@@ -1045,7 +1045,6 @@ class RecordManager extends \Core\Model
 
 
     //All Spectre
-    //All Spectre
     $sql_query_date_max_spectre = "SELECT
     MAX(date_d) AS max_date
     FROM
@@ -1073,7 +1072,7 @@ class RecordManager extends \Core\Model
       ORDER BY
       r.date_time ASC
     ) AS first_subspectre_msg";
-    //Resolve 500 error
+
     $stmt = $db->prepare($sql_query_date_max_spectre);
 
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
@@ -1096,12 +1095,12 @@ class RecordManager extends \Core\Model
     $query_all_dates .= "ORDER BY r.date_time ASC";
 
     //echo "</br>";
-    //$$$res ult_all_dates =  mysqli_query($connect, $query_all_dates);
     $stmt = $db->prepare($query_all_dates);
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
     $spectrenumber = 0;
     if ($stmt->execute()) {
       $row_date_ = $stmt->fetchAll();
+      
       foreach ($row_date_ as $row_date) {
         $spectre_name = 'spectre_' . $spectrenumber;
         $current_date = $row_date['date_d'];
