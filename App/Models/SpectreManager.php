@@ -33,19 +33,32 @@ class SpectreManager extends \Core\Model
     foreach ($resultArr as $firstSubSpectreArr){
       $spectre_name = 'spectre_' . $spectreID;
 
-      $date = $firstSubSpectreArr["date"];
+      $date_time = $firstSubSpectreArr["date_time"];
+      //The sensor record a spectre then for 5 days, it send the subspectre.
+      //So to know exactly when the spectre has been recorded, need to take
+      //the date before the first subspectre
+      $date_yesterday = date('Y-m-d G:H:s', strtotime("$date_time . -24 hours"));
+
       $subspectre001 = $firstSubSpectreArr["subspectre"];
-      $fullSpectre[$spectre_name]["001"] = $subspectre001;
+
+      $fullSpectreArr[$spectre_name]["date_time"] = $date_yesterday;
+      $fullSpectreArr[$spectre_name]["sensor_id"] = $firstSubSpectreArr["sensor_id"];
+      $fullSpectreArr[$spectre_name]["structure_id"] = $firstSubSpectreArr["structure_id"];
+
+      $fullSpectreArr[$spectre_name]["subspectre_0"]["data"] = $subspectre001;
+      $fullSpectreArr[$spectre_name]["subspectre_0"]["resolution"] = 1;
+      $fullSpectreArr[$spectre_name]["subspectre_0"]["min_freq"] = 20;
+      $fullSpectreArr[$spectre_name]["subspectre_0"]["max_freq"] = 69;
 
       //to have a full spectre, there are 5 subspectre in total. We already got the firt one 001
       $subspectreID= 1;
       for ($i = 0; $i < 4; $i++){
         $subspectre_name = 'subspectre_' . $subspectreID;
-        $date = date('Y-m-d', strtotime($date . "+1 days"));
+        $date = date('Y-m-d', strtotime($date_time . "+1 days"));
 
         $subspectreArr = SpectreManager::getSubspectreForSensorID($sensor_id, $date);
         $subspectreNumber = $subspectreArr["subspectre_number"];
-        $fullSpectreArr[$spectre_name][$subspectre_name][$subspectreNumber] = $subspectreArr["subspectre"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["data"] = $subspectreArr["subspectre"];
         $fullSpectreArr[$spectre_name][$subspectre_name]["resolution"] = $subspectreArr["resolution"];
         $fullSpectreArr[$spectre_name][$subspectre_name]["min_freq"] = $subspectreArr["min_freq"];
         $fullSpectreArr[$spectre_name][$subspectre_name]["max_freq"] = $subspectreArr["max_freq"];
@@ -69,12 +82,13 @@ class SpectreManager extends \Core\Model
     $db = static::getDB();
 
     $sql_subspectre_data = "
-        SELECT Date(date_d) as date, subspectre FROM
+        SELECT sensor_id, structure_id, date_time, subspectre FROM
     (SELECT 
       s.nom AS site, 
+      st.id AS structure_id,
       st.nom AS equipement, 
       r.sensor_id, 
-      r.date_time as date_d, 
+      r.date_time as date_time, 
       subspectre, 
       subspectre_number, 
       min_freq, 
@@ -113,7 +127,7 @@ class SpectreManager extends \Core\Model
   public static function getSubspectreForSensorID($sensor_id, $date_request){
     $db = static::getDB();
 
-    $sql_query_get_spectre = "SELECT r.sensor_id, r.date_time AS date_d,
+    $sql_query_get_spectre = "SELECT r.sensor_id, st.id AS structure_id, r.date_time AS date_d,
     `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution`
     FROM `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)

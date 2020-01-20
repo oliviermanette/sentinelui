@@ -194,6 +194,20 @@ class RecordManager extends \Core\Model
     }
   }
 
+  public function getAllSensorIdFromPool(){
+    $db = static::getDB();
+
+    $sql = "SELECT sensor_id FROM pool";
+
+    $stmt = $db->prepare($sql);
+
+    if ($stmt->execute()) {
+      $sensorIdArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $sensorIdArr;
+    }
+
+  }
+
   /**
    * Insert Pool Data to Database
    * @param int $structure_id 
