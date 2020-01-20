@@ -141,6 +141,91 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /**
+   * Init Pool DB 
+   * A pool is automatically created for each different pair (structure_Id, sensor_Id) 
+   * found in the record table. 
+   *
+   * @param string $group_name group to deal with (RTE)
+   * @return void
+   */
+  function initPool($group_name){
+
+    $resultsArr = RecordManager::getCoupleStructureIDSensorIDFromRecord($group_name);
+    //print_r($resultsArr);
+    echo "Add to POOL database : \n";
+    foreach($resultsArr as $coupleArr ) {
+      $structure_id = $coupleArr["structure_id"];
+      $sensor_id = $coupleArr["sensor_id"];
+      //Add to the DB 
+      if (RecordManager::insertPoolData($structure_id, $sensor_id)){
+        echo "(Structure_id : " . $structure_id . ", Sensor_id : " . $sensor_id . ") \n";
+      }
+    
+    }
+    echo "\n DONE \n";
+  }
+
+  /**
+   *
+   * @param string $group_name group to deal with (RTE)
+   * @return void
+   */
+  public static function getCoupleStructureIDSensorIDFromRecord($group_name)
+  {
+    $db = static::getDB();
+
+    $sql = "
+    SELECT DISTINCT r.structure_id, r.sensor_id FROM record AS r
+    LEFT JOIN structure AS st ON (st.id=r.structure_id)
+    LEFT JOIN site AS s ON (s.id = st.site_id)
+    LEFT JOIN sensor ON (sensor.id=r.sensor_id)
+    LEFT JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
+    LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+    WHERE gn.name = :group_name
+    ";
+
+    $stmt = $db->prepare($sql);
+
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  /**
+   * Insert Pool Data to Database
+   * @param int $structure_id 
+   * @param int $sensor_id 
+   * @return void
+   */
+  public static function insertPoolData($structure_id, $sensor_id){
+
+    $db = static::getDB();
+
+    $sql = "INSERT INTO pool(structure_id, sensor_id)
+    SELECT :structure_id, :sensor_id
+    WHERE NOT EXISTS (SELECT * FROM pool 
+          WHERE structure_id=:structure_id AND sensor_id=:sensor_id LIMIT 1)";
+
+    $db = static::getDB();
+    $stmt = $db->prepare($sql);
+
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+
+    $ok = $stmt->execute();
+
+    $db = null;
+    if ($ok){
+      return true;
+    }
+    return false;
+
+  }
+
   public static function checkTypeMessage($type_msg)
   {
     switch ($type_msg) {

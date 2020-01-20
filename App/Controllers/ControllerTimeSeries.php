@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use \Core\View;
+use \App\Auth;
+use \App\Models\RecordManager;
 use \App\Flash;
 
 
@@ -25,7 +27,11 @@ class ControllerTimeSeries extends \Core\Controller
      */
     public function goTimeSeriesAction()
     {
-        echo "coucou";
+        $group_name = "RTE";
+        
+        //INIT POOL
+        $recordManager = new RecordManager();
+        $recordManager->initPool($group_name);
     }
 
 
