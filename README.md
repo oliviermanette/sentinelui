@@ -7,10 +7,11 @@ To begin using this code:
 
 ## Usage
 
-After installation, run `npm install`.
- You can view the `gulpfile.js` to see which tasks are included with the dev environment.
+After installation, run the following commands :
+- `npm install`.
+- `bower install`
+- `gulp`
 
- Basically after running npm install, just do `gulp`
 ### Gulp Tasks
 
 -   `gulp` the default task that builds everything
@@ -19,6 +20,8 @@ After installation, run `npm install`.
 -   `gulp css` compiles SCSS files into CSS and minifies the compiled CSS
 -   `gulp js` minifies the themes JS file
 -   `gulp vendor` copies dependencies from node_modules to the vendor directory
+
+You can view the `gulpfile.js` to see which tasks are included with the dev environment.
 
 ### Config
 
