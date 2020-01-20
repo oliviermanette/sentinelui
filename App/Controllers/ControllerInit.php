@@ -31,6 +31,7 @@ class ControllerInit extends \Core\Controller
      */
     public function goTimeSeriesAction()
     {
+        ini_set('max_execution_time', 0);
         $group_name = "RTE";
         
         //1. INIT POOL
@@ -41,23 +42,26 @@ class ControllerInit extends \Core\Controller
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
         //Test TimeSeries
         $spectreManager = new SpectreManager();
+        /*
         foreach ($sensorIdArr as $sensorID){
-            //print_r($sensorID);
-            $sensor_id = $sensorID["sensor_id"];
             
-        }
+            $sensor_id = $sensorID["sensor_id"];
+            echo "\n SENSOR ID : " . $sensor_id . "\n"; 
+            $allSpectreArr = $spectreManager->reconstituteAllSpectreForSensor($sensor_id);
+            //print_r($allSpectreArr);
 
-        $allSpectreArr = $spectreManager->reconstituteAllSpectreForSensor(5);
-        //print_r($allSpectreArr);
-   
-        //Loop over all spectre received by a specific sensor
-        foreach ($allSpectreArr as $spectreArr){
-            echo "\n==> NEW SPECTRE <== \n";
- 
-            $timeSerie = new TimeSeries();
-            $timeSerie->createFromSpectreArr($spectreArr);
-            $timeSerie->save();
-        }
+            //Loop over all spectre received by a specific sensor
+            foreach ($allSpectreArr as $spectreArr) {
+                echo "\n==> NEW SPECTRE <== \n";
+
+                $timeSerie = new TimeSeries();
+                $timeSerie->createFromSpectreArr($spectreArr);
+                $timeSerie->save();
+                echo "Spectre saved \n"; 
+            }
+            
+        }*/
+
     }
 
     

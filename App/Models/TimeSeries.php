@@ -75,6 +75,7 @@ class TimeSeries extends \Core\Model
      */
     public function createFromSpectreArr($spectreArr)
     {
+        //print_r($spectreArr);
         //Get basic info from the spectre array
         $record_id = $spectreArr["record_id"];
         $this->record_id = $record_id;
@@ -89,38 +90,40 @@ class TimeSeries extends \Core\Model
         for ($i = 0; $i < 4; $i++) {
             $subspectreName = "subspectre_" . $i;
             //get the subspectre data
-            $subspectreData = $spectreArr[$subspectreName];
+            if (array_key_exists($subspectreName, $spectreArr)){
+                $subspectreData = $spectreArr[$subspectreName];
 
-            $subspectreDataValuesHex = $subspectreData["data"];
-            $resolution = $subspectreData["resolution"];
-            $min_freq = $subspectreData["min_freq"];
-            $max_freq = $subspectreData["max_freq"];
+                $subspectreDataValuesHex = $subspectreData["data"];
+                $resolution = $subspectreData["resolution"];
+                $min_freq = $subspectreData["min_freq"];
+                $max_freq = $subspectreData["max_freq"];
 
-            //fill in the subspectre array with the subspectre data value in hexa
-            array_push($this->listSubspectreArr, $subspectreDataValuesHex);
+                //fill in the subspectre array with the subspectre data value in hexa
+                array_push($this->listSubspectreArr, $subspectreDataValuesHex);
 
-            $axisX_freq = $min_freq;
+                $axisX_freq = $min_freq;
 
-            //Loop over the subspectre data values (hex format)
-            for ($j = 2; $j < intval(strlen(strval($subspectreDataValuesHex))); $j += 2) {
-                //We need to analyse two by two
-                $data_amplitude_j_hex = substr($subspectreDataValuesHex, $j, 2);
-                //Convert hexa value to decimal
-                $data_amplitude_j_dec = Utilities::hex2dec($data_amplitude_j_hex);
-                //From the decimal value, compute the power of the amplitude
-                $axisY_amplitude = Utilities::accumulatedTable32($data_amplitude_j_dec);
+                //Loop over the subspectre data values (hex format)
+                for ($j = 2; $j < intval(strlen(strval($subspectreDataValuesHex))); $j += 2) {
+                    //We need to analyse two by two
+                    $data_amplitude_j_hex = substr($subspectreDataValuesHex, $j, 2);
+                    //Convert hexa value to decimal
+                    $data_amplitude_j_dec = Utilities::hex2dec($data_amplitude_j_hex);
+                    //From the decimal value, compute the power of the amplitude
+                    $axisY_amplitude = Utilities::accumulatedTable32($data_amplitude_j_dec);
 
-                //We keep only the data when the amplitude is not null
-                if ($data_amplitude_j_hex != 0) {
-                    //Create a new peak
-                    $peak = new Peak($axisX_freq, $axisY_amplitude);
-                    //Put it to the list
-                    array_push($this->listPeakArr, $peak);
-                   
+                    //We keep only the data when the amplitude is not null
+                    if ($data_amplitude_j_hex != 0) {
+                        //Create a new peak
+                        $peak = new Peak($axisX_freq, $axisY_amplitude);
+                        //Put it to the list
+                        array_push($this->listPeakArr, $peak);
+                    }
+
+                    $axisX_freq = $axisX_freq + $resolution;
                 }
-
-                $axisX_freq = $axisX_freq + $resolution;
             }
+
         }
         //If everything is fined, we say that the time serie object is well created
         $this->isCreated = true;
@@ -144,7 +147,6 @@ class TimeSeries extends \Core\Model
             echo "[" . $peak->getValX() . ", " . $peak->getValY() . "]" . "\n"; 
             //Insert data to DB
             TimeSeries::insertTimeSeriesData($this->record_id, $this->structure_id, $this->sensor_id, $this->date_time, $axisX_freq, $axisY_amplitude);
-            echo "\n TimeSeries added \n";
         }
 
         return true;

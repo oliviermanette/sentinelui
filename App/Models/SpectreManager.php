@@ -59,13 +59,17 @@ class SpectreManager extends \Core\Model
         $date = date('Y-m-d', strtotime($date_time . "+1 days"));
 
         $subspectreArr = SpectreManager::getSubspectreForSensorID($sensor_id, $date);
-        $subspectreNumber = $subspectreArr["subspectre_number"];
-        $fullSpectreArr[$spectre_name][$subspectre_name]["data"] = $subspectreArr["subspectre"];
-        $fullSpectreArr[$spectre_name][$subspectre_name]["resolution"] = $subspectreArr["resolution"];
-        $fullSpectreArr[$spectre_name][$subspectre_name]["min_freq"] = $subspectreArr["min_freq"];
-        $fullSpectreArr[$spectre_name][$subspectre_name]["max_freq"] = $subspectreArr["max_freq"];
+        //There is a result found
+        if (is_array($subspectreArr)){
+          $subspectreNumber = $subspectreArr["subspectre_number"];
+          $fullSpectreArr[$spectre_name][$subspectre_name]["data"] = $subspectreArr["subspectre"];
+          $fullSpectreArr[$spectre_name][$subspectre_name]["resolution"] = $subspectreArr["resolution"];
+          $fullSpectreArr[$spectre_name][$subspectre_name]["min_freq"] = $subspectreArr["min_freq"];
+          $fullSpectreArr[$spectre_name][$subspectre_name]["max_freq"] = $subspectreArr["max_freq"];
 
-        $subspectreID++;
+          $subspectreID++;
+        }
+        
       }
 
       $spectreID++;
@@ -146,7 +150,10 @@ class SpectreManager extends \Core\Model
     if ($stmt->execute()) {
 
       $all_spectre_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+      if (empty($all_spectre_data)) //or  if(!$results)  or  if(count($results)==0)  or if($results == array())
+      {
+        return 0;
+      }
       return $all_spectre_data[0];
     }
 
