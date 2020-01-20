@@ -1386,6 +1386,23 @@ class RecordManager extends \Core\Model
 
     return True;
   }
+
+  public function getDataTypeIdFromName($name){
+
+    $db = static::getDB();
+
+    $sql = "SELECT id FROM dataType WHERE nom = :name";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $id = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $id[0];
+    }
+
+    
+  }
 }
 
 

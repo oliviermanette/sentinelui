@@ -33,6 +33,7 @@ class SpectreManager extends \Core\Model
     foreach ($resultArr as $firstSubSpectreArr){
       $spectre_name = 'spectre_' . $spectreID;
 
+      $record_id = $firstSubSpectreArr["record_id"];
       $date_time = $firstSubSpectreArr["date_time"];
       //The sensor record a spectre then for 5 days, it send the subspectre.
       //So to know exactly when the spectre has been recorded, need to take
@@ -41,6 +42,7 @@ class SpectreManager extends \Core\Model
 
       $subspectre001 = $firstSubSpectreArr["subspectre"];
 
+      $fullSpectreArr[$spectre_name]["record_id"] = $record_id;
       $fullSpectreArr[$spectre_name]["date_time"] = $date_yesterday;
       $fullSpectreArr[$spectre_name]["sensor_id"] = $firstSubSpectreArr["sensor_id"];
       $fullSpectreArr[$spectre_name]["structure_id"] = $firstSubSpectreArr["structure_id"];
@@ -82,11 +84,12 @@ class SpectreManager extends \Core\Model
     $db = static::getDB();
 
     $sql_subspectre_data = "
-        SELECT sensor_id, structure_id, date_time, subspectre FROM
+        SELECT record_id, sensor_id, structure_id, date_time, subspectre FROM
     (SELECT 
       s.nom AS site, 
       st.id AS structure_id,
       st.nom AS equipement, 
+      r.id as record_id,
       r.sensor_id, 
       r.date_time as date_time, 
       subspectre, 

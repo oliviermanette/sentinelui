@@ -20,7 +20,7 @@ class Utilities
   public static function hex2dec($hex, $signed = true){
     if ($signed){
       if (strlen($hex) % 2 != 0){
-        $hex = "0" + hex;
+        $hex = "0" + $hex;
       }
 
       $num = hexdec($hex);
@@ -43,7 +43,7 @@ class Utilities
   public static function accumulatedTable16($decimal){
     $numb = intval($decimal);
     if ($numb > 127 || $numb < - 127){
-      echo "$number outside range";
+      echo "$numb outside range";
       return false;
     }
     if ($numb/127 == 1){
