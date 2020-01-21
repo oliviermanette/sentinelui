@@ -75,6 +75,17 @@ class TimeSeries extends \Core\Model
     }
 
     /**
+     * replace list of peaks with a new list
+     * @param array @peakArr : news peaks 
+     * 
+     * @return void 
+     */
+    public function setPeaks($peakArr)
+    {
+        return $this->listPeakArr = $peakArr;
+    }
+
+    /**
      * Find the first X peaks from the spectre
      * 
      * @param array $peakArr array data which contain all the peak ([valX, valYH])
@@ -135,8 +146,6 @@ class TimeSeries extends \Core\Model
             $lIdxToRemove = $peaksResult->getSmallestPeakIndex();
             $peaksResult->removePeak($lIdxToRemove);
         }
-        echo "HOLA";
-        print_r($peaksResult->getArray());
         return $peaksResult->getArray();
     }
 

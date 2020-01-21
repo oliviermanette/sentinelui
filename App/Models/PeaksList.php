@@ -24,7 +24,6 @@ class PeaksList
     {
         $this->ListLength++;
         $this->arrayPeaks[$lX] = $lY;
-        print_r($this->arrayPeaks);
     }
 
     public function getNumber()
@@ -97,14 +96,9 @@ class PeaksList
 
     public function removePeak($index)
     {
-        echo "BEFORE REMOVE with index : ". $index."\n";
-        print_r($this->arrayPeaks);
         $this->array_splice_assoc($this->arrayPeaks, $index, 1);
         //array_splice($this->arrayPeaks, $index, 1);
-        
         $this->ListLength--;
-        echo "AFTER REMOVE : \n";
-        print_r($this->arrayPeaks);
 
 
     }

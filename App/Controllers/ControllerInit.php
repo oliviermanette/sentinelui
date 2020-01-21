@@ -59,9 +59,12 @@ class ControllerInit extends \Core\Controller
                 $timeSerie->createFromSpectreArr($spectreArr);
                 //$timeSerie->save();
                 echo "Spectre saved \n";
-                $peakArr = $timeSerie->findPeaks($timeSerie->getAllPeaks(), 10, $thresh_high = 0.25, $thresh_low = 0.05);
-                echo "New Peaks \n";
-                print_r($peakArr);
+
+                $newPeakArr = $timeSerie->findPeaks($timeSerie->getAllPeaks(), 10, $thresh_high = 0.25, $thresh_low = 0.05);
+                $timeSerie->setPeaks($newPeakArr);
+                print_r($newPeakArr);
+                echo "\n";
+                print_r($timeSerie->getAllPeaks());
                 exit();
                 
             }
