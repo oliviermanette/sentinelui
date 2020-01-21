@@ -21,6 +21,7 @@ class NeuralNetwork extends \Core\Controller
 
     private $nbLayers;
     private $listLayerArr;
+    private $layer;
     
     private $nbNeuronsInput;
     private $nbNeuronsRelation;
@@ -34,6 +35,8 @@ class NeuralNetwork extends \Core\Controller
     function __construct()
     {
         $this->id = spl_object_id($this);
+        $this->listLayerArr = array();
+        //$this->layer = new Layer();
     }
 
     public function create(){
