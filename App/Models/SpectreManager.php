@@ -56,9 +56,10 @@ class SpectreManager extends \Core\Model
       $subspectreID= 1;
       for ($i = 0; $i < 4; $i++){
         $subspectre_name = 'subspectre_' . $subspectreID;
-        $date = date('Y-m-d', strtotime($date_time . "+1 days"));
+        $date_time = date('Y-m-d', strtotime($date_time . "+1 days"));
+        
+        $subspectreArr = SpectreManager::getSubspectreForSensorID($sensor_id, $date_time);
 
-        $subspectreArr = SpectreManager::getSubspectreForSensorID($sensor_id, $date);
         //There is a result found
         if (is_array($subspectreArr)){
           $subspectreNumber = $subspectreArr["subspectre_number"];

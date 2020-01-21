@@ -49,22 +49,23 @@ class ControllerInit extends \Core\Controller
             $sensor_id = $sensorID["sensor_id"];
             echo "\n SENSOR ID : " . $sensor_id . "\n"; 
             $allSpectreArr = $spectreManager->reconstituteAllSpectreForSensor($sensor_id);
-            //print_r($allSpectreArr);
 
             //Loop over all spectre received by a specific sensor
             foreach ($allSpectreArr as $spectreArr) {
                 echo "\n==> NEW SPECTRE <== \n";
-
+                //print_r($spectreArr);
+               
                 $timeSerie = new TimeSeries();
                 $timeSerie->createFromSpectreArr($spectreArr);
                 //$timeSerie->save();
-                //echo "Spectre saved \n"; 
-                echo "Let's find top peaks \n";
-                print_r($timeSerie->getAllPeaks());
-                //$timeSerie->findPeaks($timeSerie->getAllPeaks(), 10);
+                echo "Spectre saved \n";
+                $peakArr = $timeSerie->findPeaks($timeSerie->getAllPeaks(), 10, $thresh_high = 0.25, $thresh_low = 0.05);
+                echo "New Peaks \n";
+                print_r($peakArr);
                 exit();
+                
             }
-           
+            
             
         }
 

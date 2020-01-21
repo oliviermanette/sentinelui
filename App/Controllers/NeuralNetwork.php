@@ -32,7 +32,7 @@ class NeuralNetwork extends \Core\Controller
      *
      * @return void
      */
-    function __construct()
+    function __construct($peakArr)
     {
         $this->id = spl_object_id($this);
         $this->listLayerArr = array();

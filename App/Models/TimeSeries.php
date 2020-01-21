@@ -86,49 +86,58 @@ class TimeSeries extends \Core\Model
      */
     public function findPeaks($peaksArr, $nb, $thresh_high = 0.25, $thresh_low = 0.05)
     {
-        $count = 0;
-        $min = 10000;
-        $max = 0;
-        $newPeaksArr = array();
-        while ($count < $nb) {
-            for ($i = 0; $i < count($peaksArr); $i++) {
-                $valX = intval($peaksArr[$i]->getValX());
-                $valY = floatval($peaksArr[$i]->getValY());
-                if ($valY < $min) {
-                    $min = $valY;
-                }
-                echo "Min : " . $min . "\n";
-            }
-            $count++;
-        }
-        /*
-        for ($i = 0; $i < count($peaksArr); $i++){
-            if ($count < $nb){
-                $valX = intval($peaksArr[$i]->getValX());
-                $valY = floatval($peaksArr[$i]->getValY());
-                if ($valY < $min){
-                    $min = $valY;
-                }
-                echo $valY . "\n";
-                //echo "Multiplication : ".$min * $thresh . "\n";
-                //echo "Final : " . ($min + $min * $thresh) . "\n";
-                if ($valY > ($min + $min * $thresh)){
-                    echo "Value > thresh :".$valY . "\n";
-                    if ($valY > $max) {
-                        $max = $valY;
-                        if ($max > )
-                        $val=array("x" => $valX, "y" => $max);
-                        array_push($newPeaksArr, $val);
-                    }
-                }
-               
-                //echo "Min : ". $min ."\n";
+        //init vars
+        $peaksResult = new PeaksList();
+        //First value to init
+        $fltXvalFreq = $peaksArr[0]->getValX();
+        $fltYvalAmplitude = $peaksArr[0]->getValY();
+        // init variables
+        $fltLocalMax = $fltYvalAmplitude;
+        $intCurrentPeakPos = $fltXvalFreq;
+        $lblSearch4Peak = true;
+        //On parcoure le tableau des peaks
+        for ($i = 1; $i < count($peaksArr); $i++) {
+            $fltXvalFreq = $peaksArr[$i]->getValX();
+            $fltYvalAmplitude = $peaksArr[$i]->getValY();
 
-                //$count++;
+
+            if ($fltYvalAmplitude > $fltLocalMax) {
+                $fltLocalMax = $fltYvalAmplitude;
+                $intCurrentPeakPos = $fltXvalFreq;
+                $lblSearch4Peak = true;
             }
-        }*/
-        echo "New Peaks \n";
-        print_r($newPeaksArr);
+            if ($lblSearch4Peak) {
+                if ($fltYvalAmplitude <= $thresh_high * $fltLocalMax) {                   
+                    $peaksResult->setNewPeak($intCurrentPeakPos, $fltLocalMax);
+                    //reset local peak to current position
+                    $fltLocalMax = $fltYvalAmplitude;
+                    $intCurrentPeakPos = $fltXvalFreq;
+                    $lblSearch4Peak = false;
+                }
+            }
+        }
+        // remove smallest Peaks under $thresh_low
+        $biggestPeak = $peaksResult->getLargestPeakAmplitude();
+        $NbPeaksTotal = $peaksResult->getNumber();
+
+        for ($i = 0; $i < $peaksResult->getNumber(); $i++) {
+            if (($biggestPeak * $thresh_low) < $peaksResult->getPeakSize($i))
+                $peaksResult->removePeak($i);
+        }
+        $IntDiff = 0;
+        if ($peaksResult->getNumber() <= $nb) {
+            return $peaksResult->getArray();
+        } else {
+            $IntDiff = $peaksResult->getNumber() - $nb;
+        }
+        // remove smallest peak to get $nb peaks.
+        for ($i = 0; $i < $IntDiff; $i++) {
+            $lIdxToRemove = $peaksResult->getSmallestPeakIndex();
+            $peaksResult->removePeak($lIdxToRemove);
+        }
+        echo "HOLA";
+        print_r($peaksResult->getArray());
+        return $peaksResult->getArray();
     }
 
     /**
@@ -139,7 +148,7 @@ class TimeSeries extends \Core\Model
      */
     public function createFromSpectreArr($spectreArr)
     {
-        //print_r($spectreArr);
+
         //Get basic info from the spectre array
         $record_id = $spectreArr["record_id"];
         $this->record_id = $record_id;
@@ -151,8 +160,9 @@ class TimeSeries extends \Core\Model
         $this->structure_id = $structure_id;
 
         //Loop over the 5 subspectre to get the full spectre
-        for ($i = 0; $i < 4; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $subspectreName = "subspectre_" . $i;
+            //echo $subspectreName;
             //get the subspectre data
             if (array_key_exists($subspectreName, $spectreArr)) {
                 $subspectreData = $spectreArr[$subspectreName];
@@ -176,13 +186,15 @@ class TimeSeries extends \Core\Model
                     //From the decimal value, compute the power of the amplitude
                     $axisY_amplitude = Utilities::accumulatedTable32($data_amplitude_j_dec);
 
-                    //We keep only the data when the amplitude is not null
+                    //Create a new peak
+                    $peak = new Peak($axisX_freq, $axisY_amplitude);
+                    //Put it to the list
+                    array_push($this->listPeakArr, $peak);
+                    
+                    /*We keep only the data when the amplitude is not null
                     if ($data_amplitude_j_hex != 0) {
-                        //Create a new peak
-                        $peak = new Peak($axisX_freq, $axisY_amplitude);
-                        //Put it to the list
-                        array_push($this->listPeakArr, $peak);
-                    }
+                       
+                    }*/
 
                     $axisX_freq = $axisX_freq + $resolution;
                 }
@@ -209,7 +221,7 @@ class TimeSeries extends \Core\Model
 
             echo "[" . $peak->getValX() . ", " . $peak->getValY() . "]" . "\n";
             //Insert data to DB
-            TimeSeries::insertTimeSeriesData($this->record_id, $this->structure_id, $this->sensor_id, $this->date_time, $axisX_freq, $axisY_amplitude);
+            //TimeSeries::insertTimeSeriesData($this->record_id, $this->structure_id, $this->sensor_id, $this->date_time, $axisX_freq, $axisY_amplitude);
         }
 
         return true;
