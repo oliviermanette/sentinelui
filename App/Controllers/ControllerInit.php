@@ -33,6 +33,7 @@ class ControllerInit extends \Core\Controller
     {
         ini_set('max_execution_time', 0);
         $group_name = "RTE";
+
         
         //1. INIT POOL
         $recordManager = new RecordManager();
@@ -42,7 +43,7 @@ class ControllerInit extends \Core\Controller
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
         //Test TimeSeries
         $spectreManager = new SpectreManager();
-        /*
+        
         foreach ($sensorIdArr as $sensorID){
             
             $sensor_id = $sensorID["sensor_id"];
@@ -56,11 +57,16 @@ class ControllerInit extends \Core\Controller
 
                 $timeSerie = new TimeSeries();
                 $timeSerie->createFromSpectreArr($spectreArr);
-                $timeSerie->save();
-                echo "Spectre saved \n"; 
+                //$timeSerie->save();
+                //echo "Spectre saved \n"; 
+                echo "Let's find top peaks \n";
+                print_r($timeSerie->getAllPeaks());
+                //$timeSerie->findPeaks($timeSerie->getAllPeaks(), 10);
+                exit();
             }
+           
             
-        }*/
+        }
 
     }
 
