@@ -26,7 +26,8 @@ class TimeSeries extends \Core\Model
     private $listPeakArr;
     private $listSubspectreArr;
 
-    private $isCreated;
+    private $isCreated; //If timeSeries has been filed with data
+
 
 
     /**
@@ -36,16 +37,22 @@ class TimeSeries extends \Core\Model
      */
     function __construct()
     {
+        $this->id = spl_object_id($this);
         //Init empty array
         $this->listSubspectreArr = array();
         $this->listPeakArr = array();
 
         $this->isCreated = false;
-        
+
         //Init Data type
         $recordManager = new RecordManager();
         $this->dataType_id = $recordManager->getDataTypeIdFromName("spectre");
     }
+
+    public function getId(){
+        return $this->id;
+    }
+
 
     /**
      * get the five subspectre data that constitute a full spectre
@@ -65,6 +72,63 @@ class TimeSeries extends \Core\Model
     public function getAllPeaks()
     {
         return $this->listPeakArr;
+    }
+
+    /**
+     * Find the first X peaks from the spectre
+     * 
+     * @param array $peakArr array data which contain all the peak ([valX, valYH])
+     * @param int $nb first nbre peak to find in the spectre
+     * @param float $thresh_high difference of at least thresh_hig% between the max and lower values 
+     * to be considered a peak. 
+     * @param float $thresh_low limits peaks to trhesh_low% in amplitude of the largest peak. 
+     * @return array array which contain all the peak (valX and valY)
+     */
+    public function findPeaks($peaksArr, $nb, $thresh_high = 0.25, $thresh_low = 0.05)
+    {
+        $count = 0;
+        $min = 10000;
+        $max = 0;
+        $newPeaksArr = array();
+        while ($count < $nb) {
+            for ($i = 0; $i < count($peaksArr); $i++) {
+                $valX = intval($peaksArr[$i]->getValX());
+                $valY = floatval($peaksArr[$i]->getValY());
+                if ($valY < $min) {
+                    $min = $valY;
+                }
+                echo "Min : " . $min . "\n";
+            }
+            $count++;
+        }
+        /*
+        for ($i = 0; $i < count($peaksArr); $i++){
+            if ($count < $nb){
+                $valX = intval($peaksArr[$i]->getValX());
+                $valY = floatval($peaksArr[$i]->getValY());
+                if ($valY < $min){
+                    $min = $valY;
+                }
+                echo $valY . "\n";
+                //echo "Multiplication : ".$min * $thresh . "\n";
+                //echo "Final : " . ($min + $min * $thresh) . "\n";
+                if ($valY > ($min + $min * $thresh)){
+                    echo "Value > thresh :".$valY . "\n";
+                    if ($valY > $max) {
+                        $max = $valY;
+                        if ($max > )
+                        $val=array("x" => $valX, "y" => $max);
+                        array_push($newPeaksArr, $val);
+                    }
+                }
+               
+                //echo "Min : ". $min ."\n";
+
+                //$count++;
+            }
+        }*/
+        echo "New Peaks \n";
+        print_r($newPeaksArr);
     }
 
     /**
@@ -90,7 +154,7 @@ class TimeSeries extends \Core\Model
         for ($i = 0; $i < 4; $i++) {
             $subspectreName = "subspectre_" . $i;
             //get the subspectre data
-            if (array_key_exists($subspectreName, $spectreArr)){
+            if (array_key_exists($subspectreName, $spectreArr)) {
                 $subspectreData = $spectreArr[$subspectreName];
 
                 $subspectreDataValuesHex = $subspectreData["data"];
@@ -108,7 +172,7 @@ class TimeSeries extends \Core\Model
                     //We need to analyse two by two
                     $data_amplitude_j_hex = substr($subspectreDataValuesHex, $j, 2);
                     //Convert hexa value to decimal
-                    $data_amplitude_j_dec = Utilities::hex2dec($data_amplitude_j_hex);
+                    $data_amplitude_j_dec = Utilities::hex2dec($data_amplitude_j_hex, $signed = false);
                     //From the decimal value, compute the power of the amplitude
                     $axisY_amplitude = Utilities::accumulatedTable32($data_amplitude_j_dec);
 
@@ -123,7 +187,6 @@ class TimeSeries extends \Core\Model
                     $axisX_freq = $axisX_freq + $resolution;
                 }
             }
-
         }
         //If everything is fined, we say that the time serie object is well created
         $this->isCreated = true;
@@ -144,7 +207,7 @@ class TimeSeries extends \Core\Model
             $axisX_freq = $peak->getValX();
             $axisY_amplitude = $peak->getValY();
 
-            echo "[" . $peak->getValX() . ", " . $peak->getValY() . "]" . "\n"; 
+            echo "[" . $peak->getValX() . ", " . $peak->getValY() . "]" . "\n";
             //Insert data to DB
             TimeSeries::insertTimeSeriesData($this->record_id, $this->structure_id, $this->sensor_id, $this->date_time, $axisX_freq, $axisY_amplitude);
         }
