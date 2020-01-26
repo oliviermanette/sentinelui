@@ -46,7 +46,7 @@ class ControllerInit extends \Core\Controller
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
         $coupleArr = $recordManager->getCoupleStructureIDSensorIDFromRecord($group_name);
 
-        ControllerInit::getTimeSerie(28, 3, "2019-10-18");
+        ControllerInit::getTimeSerie(28, 10, "2020-01-09");
         exit();
 
 
@@ -103,35 +103,29 @@ class ControllerInit extends \Core\Controller
             $neuralNetwork = new NeuralNetwork(5, 1);
            $neuralNetwork->setUp($spectreArr);
             exit();
-            $arrayTest = array(1,2,3);
-            $combiArr =  ControllerInit::getCombination($arrayTest);
-            print_r($combiArr);
+            print_r(Utilities::getCombinations(2,10));
+            //print_r($arrayTest);
+            //$combiArr =  Utilities::getCombinationFromArray($arrayTest);
+            //echo "Nbre combination ".count($combiArr) ."\n";
+            //print_r($combiArr);
         }
     }
 
 
-    function getCombination($n)
-    {
-        $idx = 0;
-        $arrayCombinations[$idx] = array($n[0] => $n[1]);
-        $j = 2;
-        foreach ($n as $key => $value) {
-            for ($i = $j; $i < count($n); $i++) {
-                $idx++;
-                $arrayCombinations[$idx] =  array($value => $n[$i]);
-            }
-            $j = $key + 2;
-        }
-        return $arrayCombinations;
-    }
+
 
     public static function getTimeSerie($site_id, $equipement_id, $date_ask)
     {
         $spectreManager = new SpectreManager();
         $allSpectreArr = $spectreManager->reconstituteAllSpectreFromSpecificEquipement($site_id, $equipement_id);
+        //print_r($allSpectreArr);
+        //exit();
         foreach ($allSpectreArr as $spectreArr) {
+            
             //echo "\n==> NEW SPECTRE <== \n";
             $dateTime = $spectreArr["date_time"];
+            //echo $dateTime;
+            //echo "\n";
             $dateTime = explode(" ", $dateTime);
             $date = $dateTime[0];
             //echo "DATE ASK : ".$date_ask ."\n";
@@ -151,7 +145,7 @@ class ControllerInit extends \Core\Controller
     public static function downloadCSV($data, $date)
     {
         $timestamp = time();
-        $filename = 'Export_spectre_finistere_tower_33_' . $date . '.csv';
+        $filename = 'Export_spectre_finistere_tower_106_' . $date . '.csv';
 
         header('Content-Type: text/csv; charset=utf-8');
         header("Content-Disposition: attachment; filename=\"$filename\"");

@@ -126,5 +126,16 @@ class NeuronCategory extends Neuron
       
     }
 
+    public function getInfoConnection()
+    {
+        if (isset($this->neuronInputArr)) {
+            $nbreNeuronInput = count($this->neuronInputArr);
+
+            echo "\n Neuron category is connected to ". $nbreNeuronInput ." neuron aggregateur \n";
+        } else {
+            echo "\n Neuron category is not yet fully connected \n";
+        }
+    }
+
 
 }

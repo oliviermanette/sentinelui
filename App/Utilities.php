@@ -28,7 +28,56 @@ class Utilities
     return $x;
   }
 
-  
+  /*
+​
+La fonction qui permet de donner toutes les combinaisons de 2 parmi le tableau N
+​
+Input : N without key or with a numerical index key (counts the rank) 
+Ex : array(1,2,3)
+​
+Output : array of different combination
+((1,2), (1,3), (2,3))
+(with key the first element and $value the second element)
+​
+function getCombination($n)
+​
+* CTO: Lirone Samoun
+* Author: Olivier Manette
+* contact@flod.ai
+*/
+  public static function getCombinationFromArray($n)
+  {
+    $idx = 0;
+    $arrayCombinations[$idx] = array($n[0] => $n[1]);
+    $j = 2;
+    foreach ($n as $key => $value) {
+      for ($i = $j; $i < count($n); $i++) {
+        $idx++;
+        $arrayCombinations[$idx] =  array($value => $n[$i]);
+      }
+      $j = $key + 2;
+    }
+    return $arrayCombinations;
+  }
+
+  public static function getCombinations($k, $n){
+    $arrayValue = array();
+    for ($i = 1; $i <= $n; $i++){
+      array_push($arrayValue, $i);
+    }
+
+    $arrayCombination = Utilities::getCombinationFromArray($arrayValue);
+    /*$arrayCombinationOtherPresentation = array();
+    foreach ($arrayCombination as $combination) {
+      print_r($combination);
+      $key = array_keys($combination)[0];
+      $value = array_values($combination)[0];
+      echo "Key = " . $key . " => Value = " . $value . "\n";
+      echo "\n";
+    }*/
+
+     return $arrayCombination;
+  }
   
 
   public static function hexStr2bin($hex){
