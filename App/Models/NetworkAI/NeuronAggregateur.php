@@ -15,6 +15,8 @@ class NeuronAggregateur extends Neuron
     private $neuronInput_1;
     private $neuronInput_2;
     private $meanIterative;
+    private $isMaxNeuron1;
+    private $isMaxNeuron2;
 
 
     public function __construct($pool_id)
@@ -25,7 +27,9 @@ class NeuronAggregateur extends Neuron
 
         $this->pool_id = $pool_id;
 
-        $this->meanIterative = 0;
+        $this->meanIterative = null;
+        $this->isMaxNeuron1 = false;
+        $this->isMaxNeuron2 = false;
         $this->type = "aggregateur";
     }
 
@@ -54,22 +58,39 @@ class NeuronAggregateur extends Neuron
 
     public function save()
     {
+        
+        $neuron_id_inserted = $this->insertNeuron();
+        //Insert parameters associated to the neuron
+        $this->associateToInput($this->neuronInput_1);
+        $this->associateToInput($this->neuronInput_2);
+        $this->insertParameters();
+    }
 
+
+
+
+    private function insertParameters()
+    {
         $db = static::getDB();
 
-        $sql = "
-        ";
+
+        $sql = "INSERT INTO `parameters_aggregateur` (neuron_id, isMaxNeuron1, isMaxNeuron2)
+                VALUES (:neuron_id, :isMaxNeuron1, :isMaxNeuron2)";
+
+
+
         $stmt = $db->prepare($sql);
+        $stmt->bindValue(':neuron_id', $this->neuron_id, PDO::PARAM_INT);
+        $stmt->bindValue(':isMaxNeuron1', $this->isMaxNeuron1(), PDO::PARAM_STR);
+        $stmt->bindValue(':isMaxNeuron2', $this->isMaxNeuron2(), PDO::PARAM_STR);
 
-        //$stmt->bindValue(':typeNeuron', "input", PDO::PARAM_STR);
 
-        $ok = $stmt->execute();
-        if ($ok) {
+        if ($stmt->execute()) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
+
 
     public function saveActivity($date_time)
     {
@@ -156,6 +177,21 @@ class NeuronAggregateur extends Neuron
     public function deactivate()
     {
         $this->isActivated = false;
+    }
+
+    public function isMaxNeuron1(){
+        if ($this->isMaxNeuron1 == true){
+            return 1;
+        }
+        return 0;
+    }
+
+    public function isMaxNeuron2()
+    {
+        if ($this->isMaxNeuron1 == true) {
+            return 1;
+        }
+        return 0;
     }
 
     public function getInfoConnection()

@@ -14,18 +14,20 @@ class NeuronSuperCategory extends Neuron
 
     private $neuronInputArr;
     private $meanIterative;
-
+    private $nbOutputSuper;
     private $thresh;
 
 
     public function __construct($pool_id)
     {
-        $this->neuronInputArr = null;
+        $this->neuronInputArr = array();
         $this->output = null;
 
         $this->pool_id = $pool_id;
 
-        $this->meanIterative = 0;
+        $this->meanIterative = null;
+        $this->nbOutputSuper = 0;
+        $this->thresh = 15;
         $this->type = "superCategory";
     }
     /*
@@ -51,25 +53,36 @@ class NeuronSuperCategory extends Neuron
         $this->activityIsComputed = true;
     }
 
-
     public function save()
     {
+        $neuron_id_inserted = $this->insertNeuron();
+        //Insert parameters associated to the neuron
+        foreach ($this->neuronInputArr as $neuron) {
+            $this->associateToInput($neuron);
+        }
 
+        $this->insertParameters();
+    }
+
+    private function insertParameters()
+    {
         $db = static::getDB();
 
-        $sql = "
-        ";
+        $sql = "INSERT INTO `parameters_super_category` (neuron_id, seuil, nbOutputSuper, moyenneIterative)
+                VALUES (:neuron_id, :seuil, :nbOutputSuper, :meanIterative)";
+
         $stmt = $db->prepare($sql);
+        $stmt->bindValue(':neuron_id', $this->neuron_id, PDO::PARAM_INT);
+        $stmt->bindValue(':seuil', $this->thresh, PDO::PARAM_STR);
+        $stmt->bindValue(':nbOutputSuper', $this->nbOutputSuper, PDO::PARAM_STR);
+        $stmt->bindValue(':meanIterative', $this->meanIterative, PDO::PARAM_STR);
 
-        //$stmt->bindValue(':typeNeuron', "input", PDO::PARAM_STR);
-
-        $ok = $stmt->execute();
-        if ($ok) {
+        if ($stmt->execute()) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
+
 
     public function saveActivity($date_time)
     {

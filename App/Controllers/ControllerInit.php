@@ -101,7 +101,8 @@ class ControllerInit extends \Core\Controller
             echo "\n==> NEW SPECTRE <== \n";
             //Creation neural network
             $neuralNetwork = new NeuralNetwork(5, 1);
-           $neuralNetwork->setUp($spectreArr);
+            $neuralNetwork->setUp($spectreArr);
+            $neuralNetwork->save();
             exit();
             print_r(Utilities::getCombinations(2,10));
             //print_r($arrayTest);

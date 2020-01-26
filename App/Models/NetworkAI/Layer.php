@@ -117,6 +117,25 @@ class Layer extends \Core\Model
         }
     }
 
+    public function saveNeuronsToDB(){
+        for ($i = 0; $i < count($this->listNeuronsArr); $i++) {
+            //Compute activity
+            $this->listNeuronsArr[$i]->save();
+        }
+    }
+
+public function checkIfAreadyExistOnDB(){
+    $isExist = false;
+        for ($i = 0; $i < count($this->listNeuronsArr); $i++) {
+            //Compute activity
+            $isFound= $this->listNeuronsArr[$i]->checkIfExistOnDB();
+            if ($isFound){
+                $isExist = true;
+            }
+        }
+
+        return $isExist;
+}
     /*
     public function addNewNeuron($typeNeurons, $neuron_id){
         if ($typeNeurons = "input") {

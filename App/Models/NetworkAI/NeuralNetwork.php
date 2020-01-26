@@ -31,6 +31,8 @@ class NeuralNetwork extends \Core\Model
     private $nbNeuronsCategory;
     private $nbNeuronsSuperCategory;
 
+    private $needToAddNewNeurons;
+
       /**
      * constructor
      *
@@ -43,87 +45,25 @@ class NeuralNetwork extends \Core\Model
         $this->nbLayers = $nbLayers;
         $this->pool_id = $pool_id;
 
+        $this->needToAddNewNeurons = true;
+
         for ($i = 0; $i < $nbLayers; $i++){
             $layer = new Layer($pool_id, 0);
             array_push($this->listLayerArr, $layer);
         }
-        /*$this->listLayerArr[0]->setTypeLayer("sensoriel");
-        $this->listLayerArr[1]->setTypeLayer("relation");
-        $this->listLayerArr[2]->setTypeLayer("aggregateur");
-        $this->listLayerArr[3]->setTypeLayer("category");
-        $this->listLayerArr[4]->setTypeLayer("super_category");*/
-        //We have now three empty layers
+    }
+
+    public function save(){
+
     }
 
     public function setUp($peakArr){
         $nbrePeak = count($peakArr);
 
         $this->setUpAll($peakArr);
-        exit();
-        //Creation des neurons sensoriels 
-        $this->listLayerArr[0]->setTypeLayer("sensoriel");
-        //We multiply by two because we want to have a neuron for frequencies and another one for amplitude
-        //and for each peak
-        $nbreNeurons = $nbrePeak * 2;
-        $this->getLayerSensoriel()->addNewNeuron($nbreNeurons, "sensoriel");
-
-        echo "Layer sensoriel has now : ". $this->getLayerSensoriel()->getNumberTotalNeurons() ." neurons. \n";
-        
-        //Creation de la seconde couche : neuron relation and associative
-        $this->listLayerArr[1]->setTypeLayer("relation");
-        $nbreNeuronRelation = Utilities::nbreCombinaison(2, $nbrePeak);
-        $nbreNeuronRelation *= 2;//For x and y 
-
-        $this->getLayerRelations()->addNewNeuron($nbreNeuronRelation, "relation");
-        $neuron_sensoriel_x1 = $this->getLayerSensoriel()->getNeuronId(1);
-        $neuron_sensoriel_x2 = $this->getLayerSensoriel()->getNeuronId(2);
-        $neuron_sensoriel_y1 = $this->getLayerSensoriel()->getNeuronId(3);
-        $neuron_sensoriel_y2 = $this->getLayerSensoriel()->getNeuronId(4);
-
-        $this->getLayerRelations()->getNeuronId(1)->setInput($neuron_sensoriel_x1, $neuron_sensoriel_x2);
-        $this->getLayerRelations()->getNeuronId(2)->setInput($neuron_sensoriel_y1, $neuron_sensoriel_y2);
-        $nbreNeuronAssociative = $nbreNeuronRelation;
-        $this->getLayerRelations()->addNewNeuron($nbreNeuronAssociative, "associative");
-        $this->getLayerRelations()->getNeuronId(3)->setInput($neuron_sensoriel_x1, $neuron_sensoriel_x2);
-        $this->getLayerRelations()->getNeuronId(4)->setInput($neuron_sensoriel_y1, $neuron_sensoriel_y2);
-
-        echo "Layer relation has now : " . $this->getLayerSensoriel()->getNumberTotalNeurons() . " neurons. \n";
-
-        //Creation de la troisième couche : neurons aggreagateur
-        $this->listLayerArr[2]->setTypeLayer("aggregateur");
-        $this->getLayerAggregateur()->addNewNeuron(2, "aggregateur");
-        $neuron_relation_x1 = $this->getLayerRelations()->getNeuronId(1);
-        $neuron_associative_x1 = $this->getLayerRelations()->getNeuronId(3);
-        $this->getLayerAggregateur()->getNeuronId(1)->setInput($neuron_relation_x1, $neuron_associative_x1);
-        $neuron_relation_y1 = $this->getLayerRelations()->getNeuronId(2);
-        $neuron_associative_y1 = $this->getLayerRelations()->getNeuronId(4);
-        $this->getLayerAggregateur()->getNeuronId(2)->setInput($neuron_relation_y1, $neuron_associative_y1);
-        
-        echo "Layer aggregateur has now : " . $this->getLayerAggregateur()->getNumberTotalNeurons() . " neurons. \n";
-
-        //Creation de la quatrième couche : neurones category
-        $this->listLayerArr[3]->setTypeLayer("category");
-        $nbreNeuronCategory = $nbreNeuronRelation;
-        $this->getLayerCategory()->addNewNeuron($nbreNeuronCategory, "category");
-        //Get all neuron aggregateur
-        $neuronAggregateurXArr = array();
-        $neuron_aggregateur_x1 = $this->getLayerAggregateur()->getNeuronId(1);
-        array_push($neuronAggregateurXArr, $neuron_aggregateur_x1);
-        $this->getLayerCategory()->getNeuronId(1)->setInput($neuronAggregateurXArr);
-        $neuronAggregateurYArr = array();
-        $neuron_aggregateur_y1 = $this->getLayerAggregateur()->getNeuronId(2);
-        array_push($neuronAggregateurYArr, $neuron_aggregateur_y1);
-        $this->getLayerCategory()->getNeuronId(2)->setInput($neuronAggregateurYArr);
-
-        echo "Layer category has now : " . $this->getLayerCategory()->getNumberTotalNeurons() . " neurons. \n";
-
-        //Creation de la dernière couche : supercategory
-        $this->listLayerArr[4]->setTypeLayer("superCategory");
-        $this->getLayerSuperCategory()->addNewNeuron(1, "superCategory");
-        echo "Layer superCategory has now : " . $this->getLayerSuperCategory()->getNumberTotalNeurons() . " neurons. \n";
     }
 
-    public function setUpAll($peakArr){
+    private function setUpAll($peakArr){
 
         $nbrePeak = count($peakArr);
         //$nbrePeak = 3;
@@ -144,7 +84,7 @@ class NeuralNetwork extends \Core\Model
         echo "Neural Network has now : " . $this->getNbTotalNeurons() . " neurons. \n";
     }
 
-    public function setUpNeuronSensoriel($nbreNeuronsSensoriel){
+    private function setUpNeuronSensoriel($nbreNeuronsSensoriel){
         //Creation des neurons sensoriels 
         $this->listLayerArr[0]->setTypeLayer("sensoriel");
         //We multiply by two because we want to have a neuron for frequencies and another one for amplitude
@@ -156,9 +96,17 @@ class NeuralNetwork extends \Core\Model
         echo "  ==> " . $this->getLayerSensoriel()->getNumberTotalNeurons("x") . " neurons X. \n";
         echo "  ==> " . $this->getLayerSensoriel()->getNumberTotalNeurons("y") . " neurons Y. \n";
 
+        //Save
+        //$isExist =  $this->getLayerSensoriel()->checkIfAreadyExistOnDB();
+        $this->getLayerSensoriel()->saveNeuronsToDB();
+        $isExist = false;
+        if ($isExist){
+            $this->needToAddNewNeurons = false;
+        }
+
     }
 
-    public function setUpSecondLayer($nbreNeuronSensorielInput){
+    private function setUpSecondLayer($nbreNeuronSensorielInput){
         //Creation de la seconde couche : neuron relation and associative
         $this->listLayerArr[1]->setTypeLayer("relation");
 
@@ -175,7 +123,6 @@ class NeuralNetwork extends \Core\Model
         $this->getLayerRelations()->addNewNeuron($nbNeuronsAssociative/2, "associative","y");
         $this->nbNeuronsAssociative = $nbNeuronsAssociative;
 
-        //To automatize
         $arrayCombination = Utilities::getCombinations(2, $nbreNeuronSensorielInput);
 
         //$arrayCombination = array((array(1,2))); 
@@ -201,7 +148,7 @@ class NeuralNetwork extends \Core\Model
 
             $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->setInput($neuronSensorielInputX_1, $neuronSensorielInputX_2 );
 
-            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
+            //$this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
             $idNbNeuronRelation++;
             
         }
@@ -217,9 +164,9 @@ class NeuralNetwork extends \Core\Model
             $neuronSensorielInputY_1 = $neuronsSensorielsTaggedY[$id1 - 1];
             $neuronSensorielInputY_2 = $neuronsSensorielsTaggedY[$id2 - 1];
 
-            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->setInput($neuronSensorielInputY_1, $neuronSensorielInputY_1);
+            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->setInput($neuronSensorielInputY_1, $neuronSensorielInputY_2);
 
-            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
+            //$this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
             $idNbNeuronRelation++;
 
         }
@@ -239,7 +186,7 @@ class NeuralNetwork extends \Core\Model
 
             $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->setInput($neuronSensorielInputX_1, $neuronSensorielInputX_2);
 
-            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
+            //$this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
             $idNbNeuronRelation++;
         }
         ////For each associative Y
@@ -255,9 +202,9 @@ class NeuralNetwork extends \Core\Model
             $neuronSensorielInputY_1 = $neuronsSensorielsTaggedY[$id1 - 1];
             $neuronSensorielInputY_2 = $neuronsSensorielsTaggedY[$id2 - 1];
 
-            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->setInput($neuronSensorielInputY_1, $neuronSensorielInputY_1);
+            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->setInput($neuronSensorielInputY_1, $neuronSensorielInputY_2);
 
-            $this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
+            //$this->getLayerRelations()->getNeuronId($idNbNeuronRelation)->getInfoConnection();
             $idNbNeuronRelation++;
         }
 
@@ -267,10 +214,14 @@ class NeuralNetwork extends \Core\Model
         echo "          ==> " . $this->getLayerRelations()->getNumberTotalNeuronsOftype("associative") . " associative. \n";
         echo "          ==> " . $this->getLayerRelations()->getNumberTotalNeuronsOftype("relation") . " relation. \n";
 
+        if ($this->needToAddNewNeurons){
+            $this->getLayerRelations()->saveNeuronsToDB();
+        }
+       
 
     }
 
-    public function setUpNeuronAggregateur($nbrePeak){
+    private function setUpNeuronAggregateur($nbrePeak){
         $nbreNeuronsAggregateurs = $nbrePeak;
     
         $nbreNeuronRelationX = count($this->getLayerRelations()->getNeuronsWithTypeAndTag("relation","x"));
@@ -291,7 +242,7 @@ class NeuralNetwork extends \Core\Model
             $neuron_relation_x1 = $neuronsRelationsXArr[$i];
             $neuron_associative_x1 = $neuronsAssociativeXArr[$i];
             $this->getLayerAggregateur()->getNeuronId($countAggregateur)->setInput($neuron_relation_x1, $neuron_associative_x1);
-            $this->getLayerAggregateur()->getNeuronId($countAggregateur)->getInfoConnection();
+            //$this->getLayerAggregateur()->getNeuronId($countAggregateur)->getInfoConnection();
             $countAggregateur++;
         }
 
@@ -302,38 +253,55 @@ class NeuralNetwork extends \Core\Model
             $neuron_relation_y1 = $neuronsRelationsYArr[$i];
             $neuron_associative_y1 = $neuronsAssociativeYArr[$i];
             $this->getLayerAggregateur()->getNeuronId($countAggregateur)->setInput($neuron_relation_y1, $neuron_associative_y1);
-            $this->getLayerAggregateur()->getNeuronId($countAggregateur)->getInfoConnection();
+            //$this->getLayerAggregateur()->getNeuronId($countAggregateur)->getInfoConnection();
             $countAggregateur++;
         }
 
-        echo "\n##Layer aggregateur has now : " . $this->getLayerAggregateur()->getNumberTotalNeurons() . " neurons. \n";
+         echo "\n##Layer aggregateur has now : " . $this->getLayerAggregateur()->getNumberTotalNeurons() . " neurons. \n";
+        
+        if ($this->needToAddNewNeurons) {
+            echo "GOOOO !";
+            $this->getLayerAggregateur()->saveNeuronsToDB();
+        }
+        
     }
 
-    public function setUpNeuronCategory(){
+    private function setUpNeuronCategory(){
         $this->listLayerArr[3]->setTypeLayer("category");
         $this->getLayerCategory()->addNewNeuron(2, "category");
         $this->nbNeuronsCategory = 2;
 
         $neuronsAggregateurXArr = $this->getLayerAggregateur()->getNeuronsWithTag("x");
         $neuronsAggregateurYArr = $this->getLayerAggregateur()->getNeuronsWithTag("y");
-        echo "\nnb aggregateur X : ".count($neuronsAggregateurXArr) ."\n";
-        echo "\nnb aggregateur Y : " . count($neuronsAggregateurYArr) . "\n";
 
         $this->getLayerCategory()->getNeuronId(1)->setInput($neuronsAggregateurXArr);
-        $this->getLayerCategory()->getNeuronId(1)->getInfoConnection();
+        //$this->getLayerCategory()->getNeuronId(1)->getInfoConnection();
         $this->getLayerCategory()->getNeuronId(2)->setInput($neuronsAggregateurYArr);
-        $this->getLayerCategory()->getNeuronId(2)->getInfoConnection();
+        //$this->getLayerCategory()->getNeuronId(2)->getInfoConnection();
 
         echo "\n##Layer category has now : " . $this->getLayerCategory()->getNumberTotalNeurons() . " neurons. \n";
-        
+
+        if ($this->needToAddNewNeurons) {
+            $this->getLayerCategory()->saveNeuronsToDB();
+        }
     }
 
-    public function setUpNeuronSuperCategory(){
+    private function setUpNeuronSuperCategory(){
         //Creation de la dernière couche : supercategory
         $this->listLayerArr[4]->setTypeLayer("superCategory");
+
+        $neuronsCategoryXArr = $this->getLayerCategory()->getNeuronsWithTag("x");
+        $neuronsCategoryYArr = $this->getLayerCategory()->getNeuronsWithTag("y");
+
         $this->getLayerSuperCategory()->addNewNeuron(1, "superCategory");
+        $this->getLayerSuperCategory()->getNeuronId(1)->setInput($neuronsCategoryXArr);
+        $this->getLayerSuperCategory()->getNeuronId(1)->setInput($neuronsCategoryYArr);
         $this->nbNeuronsSuperCategory = 1;
         echo "\n##Layer superCategory has now : " . $this->getLayerSuperCategory()->getNumberTotalNeurons() . " neurons. \n";
+
+        if ($this->needToAddNewNeurons) {
+            $this->getLayerSuperCategory()->saveNeuronsToDB();
+        }
     }
     /*
     public function setUpOLD($peakArr, $date_time){

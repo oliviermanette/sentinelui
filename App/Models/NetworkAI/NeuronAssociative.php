@@ -25,6 +25,8 @@ class NeuronAssociative extends Neuron
         $this->pool_id = $pool_id;
 
         $this->ratioVal = 0;
+        $this->nbObservations = 1;
+        $this->meanIterative = null;
         $this->type = "associative";
     }
     /*public function __construct($pool_id, $id, $neuronInput_1, $neuronInput_2)
@@ -42,25 +44,94 @@ class NeuronAssociative extends Neuron
         $this->type = "associative";
     }*/
 
-
     public function save()
     {
 
+        $neuron_id_inserted = $this->insertNeuron();
+        //Insert parameters associated to the neuron
+        $this->associateToInput($this->neuronInput_1);
+        $this->associateToInput($this->neuronInput_2);
+        $this->insertParameters();
+    }
+
+
+    private function insertParameters()
+    {
         $db = static::getDB();
 
-        $sql = "
-        ";
+        if ($this->getTag() === "x") {
+            $sql = "INSERT INTO `parameters_associative` (neuron_id, moyenneIterativeX)
+                VALUES (:neuron_id, :ratioValX)";
+        }
+        if ($this->getTag() === "y") {
+            $sql = "INSERT INTO `parameters_associative` (neuron_id, moyenneIterativeY)
+                VALUES (:neuron_id, :ratioValY)";
+        }
+
         $stmt = $db->prepare($sql);
+        $stmt->bindValue(':neuron_id', $this->neuron_id, PDO::PARAM_INT);
 
-        //$stmt->bindValue(':typeNeuron', "input", PDO::PARAM_STR);
+        if ($this->getTag() === "x") {
+            $stmt->bindValue(':ratioValX', $this->meanIterative, PDO::PARAM_STR);
+        }
+        if ($this->getTag() === "y") {
+            $stmt->bindValue(':ratioValY', $this->meanIterative, PDO::PARAM_STR);
+        }
 
-        $ok = $stmt->execute();
-        if ($ok) {
+        if ($stmt->execute()) {
             return true;
-        } else {
-            return false;
+        }
+        return false;
+    }
+
+    public function checkIfExistOnDB()
+    {
+        $isFind = false;
+        $db = static::getDB();
+
+        $sql = "SELECT id FROM neuron
+            WHERE neuron.type = :type";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':type', $this->type(), PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            $results = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            //print_r($results);
+        }
+
+        $sql = "SELECT * from parameters_associative
+            WHERE neuron_id = :neuron_id";
+        $stmt = $db->prepare($sql);
+        foreach ($results as $neuron_id) {
+            //On parcoure l'ensemble des parametres
+            $stmt->bindValue(':neuron_id', $neuron_id, PDO::PARAM_INT);
+
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            //print_r($results);
+            //echo "RATIO à comparer : ". $this->ratioVal ."\n";
+            if (!empty($results)) {
+                if ($this->getTag() === "x") {
+                    $ratioVal = $results[0]["moyenneIterativeX"];
+                }
+                if ($this->getTag() === "y") {
+                    $ratioVal = $results[0]["moyenneIterativeY"];
+                }
+                //echo "RATIOVal: " . $ratioVal . "\n";
+                if ($ratioVal == $this->meanIterative) {
+                    echo "\nFind ! \n";
+                    $isFind = true;
+                    return true;
+                }
+            }
+        }
+
+        if ($isFind) {
+            return true;
         }
     }
+
 
     public function saveActivity($date_time)
     {

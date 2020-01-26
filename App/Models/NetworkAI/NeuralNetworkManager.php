@@ -14,7 +14,7 @@ class NeuralNetworkManager extends \Core\Model
     
     }
 
-    public static function createNeuralNetworkFromTable($pool_id){
+    /*public static function createNeuralNetworkFromTable($pool_id){
         $dataArr = NeuralNetworkManager::getNeuralNetworkFromTable($pool_id);
         $neuralNetwork = new NeuralNetwork(3, $pool_id);
         $neuron_id = 1;
@@ -45,10 +45,10 @@ class NeuralNetworkManager extends \Core\Model
 
         return $neuralNetwork;
         
-    }
+    }*/
 
 
-    public static function getNeuralNetworkFromTable($pool_id)
+    /*public static function getNeuralNetworkFromTable($pool_id)
     {
         $db = static::getDB();
 
@@ -65,7 +65,7 @@ class NeuralNetworkManager extends \Core\Model
                 return array();
             }
         }
-    }
+    }*/
 
 
 

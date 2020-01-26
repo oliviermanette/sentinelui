@@ -19,12 +19,13 @@ class NeuronCategory extends Neuron
 
     public function __construct($pool_id)
     {
-        $this->neuronInputArr = null;
+        $this->neuronInputArr = array();
         $this->output = null;
 
         $this->pool_id = $pool_id;
 
-        $this->meanIterative = 0;
+        $this->meanIterative = null;
+        $this->thresh = 15;
         $this->type = "category";
     }
     /*
@@ -44,31 +45,40 @@ class NeuronCategory extends Neuron
         $this->type = "category";
     }*/
 
+    public function save()
+    {
+        $neuron_id_inserted = $this->insertNeuron();
+        //Insert parameters associated to the neuron
+        foreach ($this->neuronInputArr as $neuron) {
+            $this->associateToInput($neuron);
+        }
+       
+        $this->insertParameters();
+    }
+
+    private function insertParameters()
+    {
+        $db = static::getDB();
+
+        $sql = "INSERT INTO `parameters_category` (neuron_id, seuil)
+                VALUES (:neuron_id, :seuil)";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':neuron_id', $this->neuron_id, PDO::PARAM_INT);
+        $stmt->bindValue(':seuil', $this->thresh, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
+
     public function computeActivity()
     {
 
         $this->activityIsComputed = true;
     }
 
-
-    public function save()
-    {
-
-        $db = static::getDB();
-
-        $sql = "
-        ";
-        $stmt = $db->prepare($sql);
-
-        //$stmt->bindValue(':typeNeuron', "input", PDO::PARAM_STR);
-
-        $ok = $stmt->execute();
-        if ($ok) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     public function saveActivity($date_time)
     {
