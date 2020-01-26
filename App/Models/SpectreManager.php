@@ -79,6 +79,15 @@ class SpectreManager extends \Core\Model
     return $fullSpectreArr;
   }
 
+
+  public function reconstituteAllSpectreFromSpecificEquipement($site_id, $structure_id){
+    //Retrieve the sensor associated to the site_id and equipement_id
+    $sensor_id = SensorManager::getSensorIdFromEquipementAndSiteId($site_id, $structure_id);
+    $fullSpectreArr = $this->reconstituteAllSpectreForSensor($sensor_id);
+
+    return $fullSpectreArr;
+  }
+
   /**
    * Get all the first subspectre (001) received from a sensor
    * date | subspectre

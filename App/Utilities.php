@@ -9,6 +9,28 @@ namespace App;
  */
 class Utilities
 {
+
+
+  // Find the number of combinaison K among n
+  public static function nbreCombinaison($k, $n){
+    if ($k > $n / 2){
+      $k = $n - $k;
+    }
+    $x = 1;
+    $y = 1;
+    
+    $i = $n - $k + 1;
+    while ($i <= $n){
+      $x = ($x * $i) / $y;
+      $y += 1;
+      $i +=1;
+    }
+    return $x;
+  }
+
+  
+  
+
   public static function hexStr2bin($hex){
     $maxchars = 8;
     $hex = base_convert($hex, 16, 2);

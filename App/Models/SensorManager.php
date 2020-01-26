@@ -151,6 +151,25 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getSensorIdFromEquipementAndSiteId($site_id, $structure_id){
+    $db = static::getDB();
+
+    $sql_id_sensor = "SELECT DISTINCT sensor.id FROM sensor
+    LEFT JOIN record AS r ON (r.sensor_id = sensor.id)
+    LEFT JOIN structure AS st ON (st.id = r.structure_id)
+    LEFT JOIN site AS s ON (st.site_id = s.id)
+    WHERE s.id = :site_id AND st.id = :structure_id";
+
+    $stmt = $db->prepare($sql_id_sensor);
+    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $id_sensor = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $id_sensor;
+    }
+  }
+
   /**
    *
    * @return void

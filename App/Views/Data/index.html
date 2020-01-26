@@ -111,7 +111,8 @@
             formData.append('dateMin', dateMin);
             formData.append('dateMax', dateMax);
             formData.append('drawAll', drawAll);
-
+            console.log("Site request : ", $('#siteDB option:selected').val() );
+            console.log("Equipement request : ",$('#equipment option:selected').val() );
             xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
@@ -162,6 +163,7 @@
                         var name_canva = "canva_" + String(i);
                         var name_spectre_data = "spectre_" + String(i);
                         var spectre_i = spectre_data_json[name_spectre_data];
+                        console.log("SPECTRE DATA I : ", spectre_i);
                         drawChartSpectreFromData(spectre_i, name_canva);
                     }
                     addElement("row-chart", "canvas", "canvas_temperature");

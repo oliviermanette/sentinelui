@@ -194,6 +194,26 @@ class RecordManager extends \Core\Model
     }
   }
 
+  public function getPoolId($structure_id, $sensor_id){
+    $db = static::getDB();
+
+    $sql_pool_id = "
+    SELECT DISTINCT id FROM pool
+    WHERE structure_id = :structure_id
+    AND sensor_id = :sensor_id
+    ";
+
+    $stmt = $db->prepare($sql_pool_id);
+
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $results[0];
+    }
+  }
+
   public function getAllSensorIdFromPool(){
     $db = static::getDB();
 

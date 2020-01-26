@@ -26,6 +26,9 @@ class TimeSeries extends \Core\Model
     private $listPeakArr;
     private $listSubspectreArr;
 
+    private $timeSerieArr;
+    private $amplitudeArr;
+
     private $isCreated; //If timeSeries has been filed with data
 
 
@@ -41,6 +44,8 @@ class TimeSeries extends \Core\Model
         //Init empty array
         $this->listSubspectreArr = array();
         $this->listPeakArr = array();
+        $this->timeSerieArr = array();
+        //$this->amplitudeArr = array();
 
         $this->isCreated = false;
 
@@ -72,6 +77,11 @@ class TimeSeries extends \Core\Model
     public function getAllPeaks()
     {
         return $this->listPeakArr;
+    }
+
+    public function getTimeSerieData()
+    {
+        return $this->timeSerieArr;
     }
 
     /**
@@ -199,6 +209,8 @@ class TimeSeries extends \Core\Model
                     $peak = new Peak($axisX_freq, $axisY_amplitude);
                     //Put it to the list
                     array_push($this->listPeakArr, $peak);
+                    $dataValueTmpArr = array("x" => $axisX_freq, "y" => $axisY_amplitude);
+                    array_push($this->timeSerieArr, $dataValueTmpArr);
                     
                     /*We keep only the data when the amplitude is not null
                     if ($data_amplitude_j_hex != 0) {
@@ -275,5 +287,9 @@ class TimeSeries extends \Core\Model
             return true;
         }
         return false;
+    }
+
+    public function getDateTime(){
+        return $this->date_time;
     }
 }
