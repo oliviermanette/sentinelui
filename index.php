@@ -40,6 +40,8 @@ $router->add('data', ['controller' => 'ControllerDataObjenious', 'action' => 're
 $router->add('settings', ['controller' => 'ControllerSetting', 'action' => 'index']);
 //Profile page
 $router->add('profile', ['controller' => 'ControllerProfile', 'action' => 'index']);
+//Support page
+$router->add('support', ['controller' => 'ControllerProfile', 'action' => 'support']);
 //Search data form
 $router->add('search-data', ['controller' => 'ControllerData', 'action' => 'searchSpectre']);
 //Choc data display

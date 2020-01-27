@@ -24,4 +24,8 @@ class ControllerProfile extends Authenticated
     {
         View::renderTemplate('Profile/index.html', []);
     }
+
+    public function supportAction(){
+        View::renderTemplate('Support/index.html', []);
+    }
 }
