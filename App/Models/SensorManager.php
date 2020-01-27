@@ -302,6 +302,20 @@ class SensorManager extends \Core\Model
   }
 
 
+  public function getStatusDevice($sensor_id){
+    $db = static::getDB();
+
+    $sql_status_device = "SELECT sensor.status FROM sensor
+      WHERE sensor.id = :sensor_id";
+
+    $stmt = $db->prepare($sql_status_device);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor[0];
+    }
+  }
 
 
   /**

@@ -70,6 +70,29 @@ class EquipementManager extends \Core\Model
     }
   }
 
+  public function getEquipementFromId($structure_id){
+    $db = static::getDB();
+
+    $sql_query_equipement_by_id = "SELECT 
+        DISTINCT st.id AS equipement_id, 
+        st.nom AS equipement, 
+        st.transmision_line_name AS ligneHT 
+      FROM 
+        structure AS st 
+      WHERE 
+        st.id = :structure_id
+      ";
+
+    $stmt = $db->prepare($sql_query_equipement_by_id);
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $equipement = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      return $equipement;
+    }
+  }
+
   /**
    * Get all the equipement which belong to a specific group (RTE for example) given a particular site ID
    *
@@ -165,7 +188,7 @@ class EquipementManager extends \Core\Model
     $db = static::getDB();
 
     $sql = "SELECT st.nom AS equipement, st.transmision_line_name AS ligne FROM structure AS st
-  WHERE st.site_id = :id_site";
+    WHERE st.site_id = :id_site";
 
     $stmt = $db->prepare($sql);
     $stmt->bindValue(':id_site', $siteID, PDO::PARAM_INT);

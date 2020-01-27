@@ -15,7 +15,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h4 class="card-title mb-0">{{ val.equipement }} | {{ val.ligneHT }} | Capteur n° {{val.device_number}} | ID : {{val.sensor_id}}</h4>
+                        <h4 class="card-title mb-0">{{ val.equipement }} | {{ val.ligneHT }} | Capteur n°
+                            {{val.device_number}} | ID : {{val.sensor_id}}</h4>
                         <div class="small text-muted">{{val.lastDate}}</div>
                     </div>
                 </div>
@@ -30,7 +31,7 @@
                                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                             Statut
                                         </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{val.status}}</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{number}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -84,7 +85,7 @@
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            Dernière température enregistrée</div>
+                                            Température</div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{val.temperature}} °C
                                         </div>
                                     </div>
@@ -95,10 +96,33 @@
                 </div>
 
                 <div class="row">
+                    <div class="col-xs-12 col-sm-4">
+                        <!-- Score Chart -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Score</h6>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="chart-pie pt-4">
+                                    <canvas id="myPieChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Variation inclinometre Chart -->
+                        <div class="card shadow mb-4">
+                            <div class="card-body">
+                                <div class="chart-area">
+                                    <canvas id=""></canvas>
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-xs-12 col-sm-8">
                         <!-- Nombre de choc par jour Chart -->
                         <div class="card shadow mb-4">
-                            <div class="card-header py-3 d-flex justify-content-center">
+                            <div class="card-header py-3 d-flex justify-content-between">
                                 <h6 class="m-0 font-weight-bold text-primary">Nombre de choc par jour</h6>
                                 <div class="btn-toolbar d-none d-md-block" role="toolbar"
                                     aria-label="Toolbar with buttons">

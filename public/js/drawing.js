@@ -62,7 +62,7 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
     },
     title: {
       display: true,
-      text: 'Nombre de choc par jour'
+      text: 'Nombre de choc'
     }
   }
   //Create the instance
@@ -245,7 +245,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     },
     title: {
       display: true,
-      text: 'Puissance des chocs par jour'
+      text: 'Puissance des chocs'
     }
   }
 
@@ -644,7 +644,7 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   gradient.addColorStop(0, 'rgba(250,174,50,1)');
   gradient.addColorStop(1, 'rgba(250,174,50,0)');
   /***************/
-  var title = "Spectre pour la semaine du " + dateDataArr[0] + " au " + dateDataArr[dateDataArr.length - 1];
+  var title = "Spectre du " + dateDataArr[0];
 
   var chartdata = {
     datasets: [{

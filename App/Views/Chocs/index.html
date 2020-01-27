@@ -14,7 +14,7 @@
                 <form role="form" method="post" name="equipementrequest" id="equipementrequest">
                     <div class="ui form">
                         <div class="four fields">
-                            <div class="field">
+                            <div class="field" id="siteField">
                                 <div class="text-s font-weight-bold text-primary mb-1">Choisissez un site</div>
                                 <select class="browser-default custom-select" name="siteID" id="siteID">
                                     <option value="" selected>Choisissez un site</option>
@@ -28,11 +28,10 @@
                                 <div class="text-s font-weight-bold text-primary mb-1">Choisissez un équipement
                                     associé
                                 </div>
-                                <select class="browser-default custom-select" name="equipment" id="equipment">
+                                <select class="browser-default custom-select" name="structure" id="structureID">
                                     <option value="" selected>Choisissez un équipement associé</option>
                                     {% for equipment in all_equipment %}
-                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}
-                                    </option>
+                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -69,8 +68,38 @@
     var dateMax = "";
     var dateMin = "";
 
-
     $(document).ready(function () {
+        var date = Date();
+        // When the user select a site, the equipement associated is displayed
+        $("#siteID").change(function () {
+            var formData = new FormData();
+            formData.append('site_id', $(this).children("option:selected").val());
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = this.responseText;
+                    //console.log(posts);
+                    $('#equipmentField').html(response);
+                }
+            };
+            xhttp.open("POST", "/ControllerAccueil/changeEquipement");
+            //Send the proper header information along with the request
+            xhttp.send(formData);
+        });
+
+        $('input[name="daterange"]').daterangepicker({
+            showDropdowns: true,
+            locale: {
+                format: 'DD-MM-YYYY'
+            },
+            opens: 'left',
+            minDate: "{{min_date}}",
+            maxDate: "{{max_date}}"
+        }, function (start, end, label) {
+            dateMin = start.format('YYYY-MM-DD');
+            dateMax = end.format('YYYY-MM-DD');
+        });
+
         $('#tableDataChoc').DataTable({
             "createdRow": function (row, data, dataIndex) {
 
@@ -87,12 +116,11 @@
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var jsonData = this.responseText;
-                //console.log("Refresh data : ",jsonData);
-                //alert("good");
             }
         };
         xhttp.open("POST", "", true);
         xhttp.send(formData);
+
     });
 
     //When the user want to change the date for displaying the chart concerning the number of choc
@@ -150,39 +178,7 @@
     });
 
 
-    $(document).ready(function () {
-        var date = Date();
-        // When the user select a site, the equipement associated is displayed
-        $("#siteDB").change(function () {
-            var formData = new FormData();
-            formData.append('site_id', $(this).children("option:selected").val());
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    var response = this.responseText;
-                    //console.log(posts);
-                    $('#equipmentField').html(response);
-                }
-            };
-            xhttp.open("POST", "/ControllerAccueil/changeEquipement");
-            //Send the proper header information along with the request
-            xhttp.send(formData);
-        });
 
-        $('input[name="daterange"]').daterangepicker({
-            showDropdowns: true,
-            locale: {
-                format: 'DD-MM-YYYY'
-            },
-            opens: 'left',
-            minDate: "{{min_date}}",
-            maxDate: "{{max_date}}"
-        }, function (start, end, label) {
-            dateMin = start.format('YYYY-MM-DD');
-            dateMax = end.format('YYYY-MM-DD');
-        });
-
-    });
 
     //When the user want to retrieve the data after submitting the form
     $(document).on('submit', '#equipementrequest', function (event) {
@@ -195,7 +191,12 @@
 
 
         var formData = new FormData();
+        //TODO the form used here is the one from Homepage - becareful and change later
         formData.append('siteID', $('#siteID option:selected').val());
+        formData.append('equipmentID', $('#equipment option:selected').val());
+
+        console.log("Site selected :", $('#siteID option:selected').val());
+        console.log("Equipement selected :", $('#equipment option:selected').val());
 
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
@@ -208,7 +209,7 @@
                 $('#containerResultsCharts').html(jsonData);
             }
         };
-        xhttp.open("POST", "/ControllerData/refreshData", false);
+        xhttp.open("POST", "/ControllerData/getResultsFromChocForm", false);
         xhttp.send(formData);
 
 
@@ -217,9 +218,9 @@
             if (this.readyState == 4 && this.status == 200) {
                 var choc_data = this.responseText;
                 choc_data = JSON.parse(choc_data);
-                //console.log("Choc data chart : ",choc_data);
+                console.log("Choc data chart : ",choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
-                   
+
                     var name_data = "equipement_" + i;
                     var name_canvas_nbchoc = "canvas_equipement_nbchoc_" + choc_data[name_data][
                         'equipementId'
@@ -231,11 +232,12 @@
                         'equipementId'
                     ];
                     //console.log("Length array nb choc : ",choc_data[name_data]['nb_choc_per_day'].length );
-                    if (choc_data[name_data]['nb_choc_per_day'].length > 0){
+                    if (choc_data[name_data]['nb_choc_per_day'].length > 0) {
                         drawChartNbChocPerDate(choc_data[name_data]['nb_choc_per_day'], name_canvas_nbchoc);
                     }
-                    if (choc_data[name_data]['power_choc_per_day'].length > 0){
-                        drawChartPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'],name_canvas_powerchoc);
+                    if (choc_data[name_data]['power_choc_per_day'].length > 0) {
+                        drawChartPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'],
+                            name_canvas_powerchoc);
                     }
 
                     drawChartAngleXYZFromData(choc_data[name_data]['angleXYZ_per_day'], name_canvas_angle);
