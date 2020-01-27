@@ -83,8 +83,9 @@ class ControllerDataObjenious extends \Core\Controller{
     curl_setopt($curl, CURLOPT_HTTPHEADER, array(
       'apikey: ' . \App\Config::OBJENIOUS_API_KEY
     ));
-
+   
     curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_ENCODING, '');
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
     $result = curl_exec($curl);

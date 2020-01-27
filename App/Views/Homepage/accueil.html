@@ -186,14 +186,8 @@
 
     $('#tableData').DataTable({
       "createdRow": function (row, data, dataIndex) {
-        var today = new Date();
-        var yesterdayDate = (today.getDate() - 2) + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-        yesterdayDate = moment(yesterdayDate, "DD/MM/YYYY").format('DD/MM/YYYY');
-        var date_row = moment(data[6], "DD/MM/YYYY").format('DD/MM/YYYY');
-        console.log("date row :", date_row);
-        console.log("Yesterday day :", yesterdayDate);
-        
-        if (date_row > yesterdayDate) {
+        var status = data[7];
+        if (status == "active") {
           $(row).css({
             //green
             "background-color": "rgba(135, 254, 16, 0.15)"

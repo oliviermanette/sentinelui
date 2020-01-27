@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Auth;
+use \App\Models\SensorManager;
 use \App\Models\RecordManager;
 use \App\Models\SpectreManager;
 use \App\Models\TimeSeriesManager;
@@ -26,6 +27,12 @@ class ControllerInit extends \Core\Controller
     {
     }
 
+    public function testApiAction(){
+        //SensorManager::getDeviceIdObjeniousFromDeveui("0004A30B00E80AC9");
+        //SensorManager::getDeviceIdObjeniousFromLabel("19001012");
+        SensorManager::getNbStatutsSensorsFromApi("RTE");
+    }
+
     /**
      * TESTING PURPOSE
      * @return void
@@ -46,7 +53,7 @@ class ControllerInit extends \Core\Controller
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
         $coupleArr = $recordManager->getCoupleStructureIDSensorIDFromRecord($group_name);
 
-        ControllerInit::getTimeSerie(28, 10, "2020-01-09");
+        ControllerInit::getTimeSerie(28, 3 , "2019-10-24");
         exit();
 
 
@@ -103,6 +110,7 @@ class ControllerInit extends \Core\Controller
             $neuralNetwork = new NeuralNetwork(5, 1);
             $neuralNetwork->setUp($spectreArr);
             $neuralNetwork->save();
+            
             exit();
             print_r(Utilities::getCombinations(2,10));
             //print_r($arrayTest);

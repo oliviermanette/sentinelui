@@ -98,11 +98,13 @@ class NeuralNetwork extends \Core\Model
 
         //Save
         //$isExist =  $this->getLayerSensoriel()->checkIfAreadyExistOnDB();
-        $this->getLayerSensoriel()->saveNeuronsToDB();
+       
         $isExist = false;
-        if ($isExist){
-            $this->needToAddNewNeurons = false;
+        $this->needToAddNewNeurons = false;
+        if ($this->needToAddNewNeurons){
+            $this->getLayerSensoriel()->saveNeuronsToDB();
         }
+       
 
     }
 
@@ -303,80 +305,7 @@ class NeuralNetwork extends \Core\Model
             $this->getLayerSuperCategory()->saveNeuronsToDB();
         }
     }
-    /*
-    public function setUpOLD($peakArr, $date_time){
-        
-        //Set up neurons input
-        $this->setUpNeuronsInput($peakArr, $date_time);
-
-
-        //Set up neurons relations
-        // 1. Compute number of relations needed
-        $this->setUpNeuronsRelation($date_time);
-
-        //echo "nbre neuron input : ". $this->listLayerArr[0]->getNumberTotalNeurons() ."\n";
-        //print_r($this->listLayerArr[0]->getNeuronsArr());
-
-        
-    }*/
-    /*
-    public function setUpNeuronsInput($peakArr, $date_time){
-        $neuron_id = 1;
-        //On parcoure l'ensemble des peaks et on créer les neuronnes inputs
-        foreach ($peakArr as $indexJVX => $amplitude) {
-            //echo $amplitude ."\n";
-
-            //Check if neuron activation
-            $listIdNeuronsInput = NeuralNetwork::GetInputNeuronsToActivate($indexJVX);
-            //print_r($listIdNeuronsInput);
-            //echo "\n Liste neuron input to activte : \n";
-            if (empty($listIdNeuronsInput)) {
-                echo "\n Creation neuron input \n";
-                $this->getLayerInput()->addNewNeuronInput($neuron_id);
-                $this->getLayerInput()->getNeuronId($neuron_id)->setParameters($indexJVX, $amplitude, $nbObervation = 1, $thresh = 10);
-                //Save neuronInput to DB
-                $this->getLayerInput()->getNeuronId($neuron_id)->save();
-                //Compute activity and save to the DB
-                $this->getLayerInput()->getNeuronId($neuron_id)->computeActivity();
-                $this->getLayerInput()->getNeuronId($neuron_id)->saveActivity($date_time);
-                $neuron_id++;
-
-                $this->nbNeuronsInput++;
-            } else {
-                //Compute activity
-            }
-        }
-       
-    }*/
-
-    /*
-    public function setUpNeuronsRelation($date_time){
-        $this->computeNbNeuronsRelations($date_time);
-
-        $listCombinationID = array(
-            array(1, 2), array(1, 3), array(1, 4), array(1, 5),
-            array(1, 6), array(2, 3), array(2, 4), array(2, 5), array(2, 6),
-            array(3, 4), array(3, 5), array(3, 6), array(4, 5), array(4, 6),
-            array(5, 6)
-        );
-
-        $neuron_id = 1;
-        for ($i = 0; $i < count($listCombinationID); $i++) {
-            $neuronID_1 = $listCombinationID[$i][0];
-            $neuronID_2 = $listCombinationID[$i][1];
-            $neuron_1 = $this->getLayerInput()->getNeuronId($neuronID_1);
-            $neuron_2 = $this->getLayerInput()->getNeuronId($neuronID_2);
-
-            $this->getLayerRelations()->addNewNeuronRelation($neuron_id, $neuron_1, $neuron_2);
-            $this->getLayerRelations()->getNeuronId($neuron_id)->save();
-
-            $this->getLayerRelations()->getNeuronId($neuron_id)->computeActivity();
-            $this->getLayerRelations()->getNeuronId($neuron_id)->saveActivity($date_time);
-            $neuron_id++;
-            $this->nbNeuronsRelation++;
-        }
-    }*/
-
+   
 
     public function computeNbNeuronsRelations($date_time)
     {

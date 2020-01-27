@@ -22,87 +22,33 @@ class SensorManager extends \Core\Model
   {
   }
 
-  /**
-   * Get the number of actif sensor for a specific group
-   *
-   * @param string $group_name the group we want to check the number of actif sensor
-   * @return array  array results
-   */
-  public function getNumberActifSensor($group_name)
-  {
-    $db = static::getDB();
-
-    $sql_nb_actif_sensor = "SELECT 
-      count(*) 
-    FROM 
-      (
-    SELECT 
-      DISTINCT s.device_number, 
-      MAX(
-        DATE(r.date_time)
-      ) as dateMaxReceived 
-    FROM 
-      sensor AS s 
-      INNER JOIN record AS r ON (s.id = r.sensor_id) 
-      INNER JOIN sensor_group AS gs ON (gs.sensor_id = s.id) 
-      INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
-    WHERE 
-      gn.name = :group_name 
-    GROUP BY 
-      s.device_number
-    ) AS LAST_MSG_RECEIVED 
-    WHERE 
-      dateMaxReceived >= CURDATE() -1";
-
-    $stmt = $db->prepare($sql_nb_actif_sensor);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $nb_actif_sensor[0];
+  public static function getNbStatutsSensorsFromApi($group_name){
+    $countActive = 0;
+    $countInactive = 0;
+    $listDeviceArr = SensorManager::getListOfDevicesFromAPI();
+    foreach ($listDeviceArr as $deviceArr) {
+      $groupInfoArr = $deviceArr["group"];
+      $link = $groupInfoArr["link"];
+      //Take long time TODO
+      $groupInfoArr = ControllerDataObjenious::CallAPI("GET", $link);
+      $nameInfo = $groupInfoArr["name"];
+      //Because we get RTE (Reseau Transport Electricité) and we want just RTE
+      $nameArr = explode(" ", $nameInfo);
+      $name = $nameArr[0];
+      if (strcmp($name, $group_name) == 0) {
+        $status = $deviceArr["status"];
+        if (strcmp($status, "active") == 0){
+          $countActive++;
+        }
+        if (strcmp($status, "inactive") == 0) {
+          $countInactive++;
+        }
+      }
     }
+    $statusArr = array("active"=>$countActive, "inactive"=>$countInactive);
+    return $statusArr;
   }
 
-  /**
-   * Get the number of inactif sensor for a specific group
-   *
-   * @param string $group_name the group we want to check the number of actif sensor
-   * @return array  array results
-   */
-  public function getNumberInactifSensor($group_name)
-  {
-    $db = static::getDB();
-
-    $sql_nb_actif_sensor = "SELECT 
-      count(*) 
-    FROM 
-      (
-    SELECT 
-      DISTINCT s.device_number, 
-      MAX(
-        DATE(r.date_time)
-      ) as dateMaxReceived 
-    FROM 
-      sensor AS s 
-      INNER JOIN record AS r ON (s.id = r.sensor_id) 
-      INNER JOIN sensor_group AS gs ON (gs.sensor_id = s.id) 
-      INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
-    WHERE 
-      gn.name = :group_name
-    GROUP BY 
-      s.device_number
-    ) AS LAST_MSG_RECEIVED 
-    WHERE 
-      dateMaxReceived < CURDATE() - 5";
-
-    $stmt = $db->prepare($sql_nb_actif_sensor);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $nb_actif_sensor[0];
-    }
-  }
 
   public function getDeveuiFromSensorId($sensor_id){
     $db = static::getDB();
@@ -170,11 +116,39 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getDeviceIdObjeniousFromDeveui($deveuiAsked)
+  {
+    $listDeviceArr = SensorManager::getListOfDevicesFromAPI();
+    //print_r($listDeviceArr);
+    foreach ($listDeviceArr as $deviceArr) {
+      //print_r($deviceArr);
+      $propertiesArr = $deviceArr["properties"];
+      $deveui = $propertiesArr["deveui"];
+      if (strcmp($deveui, $deveuiAsked) == 0) {
+        $deviceIDObjenious = $deviceArr["id"];
+        return $deviceIDObjenious;
+      }
+    }
+  }
+
+  public static function getDeviceIdObjeniousFromLabel($labelAsked)
+  {
+    $listDeviceArr = SensorManager::getListOfDevicesFromAPI();
+    foreach ($listDeviceArr as $deviceArr) {
+      print_r($deviceArr);
+      $label = $deviceArr["label"];
+      if (strcmp($label, $labelAsked) == 0) {
+        $deviceIDObjenious = $deviceArr["id"];
+        return $deviceIDObjenious;
+      }
+    }
+  }
+
   /**
    *
    * @return void
    */
-  public function getListOfDevicesFromAPI()
+  public static function getListOfDevicesFromAPI()
   {
 
     $url = "https://api.objenious.com/v1/devices";
@@ -195,6 +169,8 @@ class SensorManager extends \Core\Model
 
     return $deviceInfo;
   }
+
+
 
   /**
    * Reactivate a deactivated device. 
@@ -324,4 +300,149 @@ class SensorManager extends \Core\Model
 
     return $results_api;
   }
+
+
+
+
+  /**
+   * Get the number of inactif sensor for a specific group
+   *
+   * @param string $group_name the group we want to check the number of actif sensor
+   * @return array  array results
+   */
+  public function getNumberActiveSensorFromDB($group_name)
+  {
+    $db = static::getDB();
+
+    $sql_nb_actif_sensor = "SELECT 
+      COUNT(*) AS nb_active 
+    FROM 
+      sensor AS s 
+      LEFT JOIN sensor_group AS gs ON (gs.sensor_id = s.id) 
+      LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+    WHERE 
+      gn.name = :group_name 
+      AND s.status LIKE 'active'";
+
+    $stmt = $db->prepare($sql_nb_actif_sensor);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor[0];
+    }
+  }
+
+  /**
+   * Get the number of inactif sensor for a specific group
+   *
+   * @param string $group_name the group we want to check the number of actif sensor
+   * @return array  array results
+   */
+  public function getNumberInactiveSensorFromDB($group_name)
+  {
+    $db = static::getDB();
+
+    $sql_nb_actif_sensor = "SELECT 
+      COUNT(*) AS nb_active 
+    FROM 
+      sensor AS s 
+      LEFT JOIN sensor_group AS gs ON (gs.sensor_id = s.id) 
+      LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+    WHERE 
+      gn.name = :group_name 
+      AND s.status LIKE 'inactive'";
+
+    $stmt = $db->prepare($sql_nb_actif_sensor);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor[0];
+    }
+  }
+
+
+
+  /**
+   * Get the number of inactif sensor for a specific group
+   *
+   * @param string $group_name the group we want to check the number of actif sensor
+   * @return array  array results
+   
+  public function getNumberInactifSensorFromDB($group_name)
+  {
+    $db = static::getDB();
+
+    $sql_nb_actif_sensor = "SELECT 
+      count(*) 
+    FROM 
+      (
+    SELECT 
+      DISTINCT s.device_number, 
+      MAX(
+        DATE(r.date_time)
+      ) as dateMaxReceived 
+    FROM 
+      sensor AS s 
+      INNER JOIN record AS r ON (s.id = r.sensor_id) 
+      INNER JOIN sensor_group AS gs ON (gs.sensor_id = s.id) 
+      INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+    WHERE 
+      gn.name = :group_name
+    GROUP BY 
+      s.device_number
+    ) AS LAST_MSG_RECEIVED 
+    WHERE 
+      dateMaxReceived < CURDATE() - 5";
+
+    $stmt = $db->prepare($sql_nb_actif_sensor);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor[0];
+    }
+  }*/
+
+  /**
+   * Get the number of actif sensor for a specific group
+   *
+   * @param string $group_name the group we want to check the number of actif sensor
+   * @return array  array results
+   
+  public function getNumberActifSensorFromDB($group_name)
+  {
+    $db = static::getDB();
+
+    $sql_nb_actif_sensor = "SELECT 
+      count(*) 
+    FROM 
+      (
+    SELECT 
+      DISTINCT s.device_number, 
+      MAX(
+        DATE(r.date_time)
+      ) as dateMaxReceived 
+    FROM 
+      sensor AS s 
+      INNER JOIN record AS r ON (s.id = r.sensor_id) 
+      INNER JOIN sensor_group AS gs ON (gs.sensor_id = s.id) 
+      INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+    WHERE 
+      gn.name = :group_name 
+    GROUP BY 
+      s.device_number
+    ) AS LAST_MSG_RECEIVED 
+    WHERE 
+      dateMaxReceived >= CURDATE() -1";
+
+    $stmt = $db->prepare($sql_nb_actif_sensor);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor[0];
+    }
+  }*/
 }

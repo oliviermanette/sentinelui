@@ -767,12 +767,14 @@ class RecordManager extends \Core\Model
     nb_choc, 
     DATE_FORMAT(
       last_message_received, '%d/%m/%Y'
-    ) AS `last_message_received` 
+    ) AS `last_message_received` ,
+    status
   FROM 
     (
       SELECT 
         sensor.device_number AS 'sensor_id', 
         s.nom AS `site`, 
+         sensor.status AS status,
         st.transmision_line_name AS `LigneHT`, 
         st.nom AS `equipement`, 
         sum(
@@ -790,7 +792,7 @@ class RecordManager extends \Core\Model
         INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
         INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
       WHERE 
-        gn.name = 'RTE' 
+        gn.name = :group_name 
         AND Date(r.date_time) >= Date(sensor.installation_date) 
       GROUP BY 
         r.sensor_id, 

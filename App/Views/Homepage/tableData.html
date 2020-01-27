@@ -17,6 +17,7 @@
             <th>#messages reçus</th>
             <th>#choc reçus</th>
             <th>Dernier message reçu</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -29,6 +30,7 @@
             <td> {{ row.nb_messages }} ></td>
             <td> {{ row.nb_choc }} ></td>
             <td>{{ row.last_message_received}}</td>
+            <td>{{ row.status}}</td>
           </tr>
           {% endfor %}
         </tbody>

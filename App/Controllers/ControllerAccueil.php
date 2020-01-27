@@ -40,8 +40,8 @@ class ControllerAccueil extends Authenticated
     $recordManager = new RecordManager();
     $alertManager = new AlertManager();
     $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
-    $nb_active_sensors = $sensorManager->getNumberActifSensor($group_name);
-    $nb_inactive_sensors = $sensorManager->getNumberInactifSensor($group_name);
+    $nb_active_sensors = $sensorManager->getNumberActiveSensorFromDB("RTE");
+    $nb_inactive_sensors =  $sensorManager->getNumberInactiveSensorFromDB("RTE");
     $nb_active_alerts = $alertManager->getNumberActiveAlertsForGroup($group_name);
 
 
