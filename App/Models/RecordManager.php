@@ -20,10 +20,6 @@ use PDO;
 class RecordManager extends \Core\Model
 {
 
-  public function __construct()
-  {
-  }
-
 
   /**
    * Parse json data and then insert into the DB
@@ -194,6 +190,15 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get the pool id from a structure and a sensor
+   *
+   * @param int $structure_id id of the structure
+   * @param int $sensor_id id of the sensor  
+   * @return int results of the query
+   *  id of the pool
+   * 
+   */
   public function getPoolId($structure_id, $sensor_id){
     $db = static::getDB();
 
@@ -214,6 +219,13 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get all the sensor ID from all the pool
+   *
+   * @return array results of the query
+   *  sensor_id 
+   * 
+   */
   public function getAllSensorIdFromPool(){
     $db = static::getDB();
 
@@ -689,7 +701,14 @@ class RecordManager extends \Core\Model
     return json_encode($inclinometreMsgDecoded, true);
   }
 
-
+  /** 
+   * Get the last date of the last message received by a specific sensor
+   *
+   * @param int $sensor_id if of a sensor  
+   * @return array results of the query
+   *  date
+   * 
+   */
   public function getLastDateRecordForSensor($sensor_id = 0)
   {
     $db = static::getDB();
@@ -713,6 +732,14 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get the date of the last message received on a specific structure
+   *
+   * @param int $structure_id id of the equipement  
+   * @return string results of the query
+   *  date
+   * 
+   */
   public function getDateLastReceivedData($structure_id)
   {
     $db = static::getDB();
@@ -729,6 +756,12 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get the min and max date from table record
+   *  
+   * @return array results of the query
+   * 
+   */
   function getDateMinMaxFromRecord()
   {
     $db = static::getDB();
@@ -752,6 +785,14 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get a summarize of the records table
+   *
+   * @param string $group_name group  
+   * @return array results of the query
+   *  sensor_id | site | ligneHT | equipement | nb_messages | nb_chocs | last_message_received | status 
+   * 
+   */
   function getBriefInfoFromRecord($group_name)
   {
 
@@ -810,6 +851,14 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get the data for displaying the map
+   *
+   * @param string $group_name group  
+   * @return array results of the query
+   *  sensor_id | latitude_site | longitude_site | latitude_sensor | longitude_sensor | site | equipement 
+   * 
+   */
   function getDataMap($group_name)
   {
     $db = static::getDB();
@@ -1409,6 +1458,13 @@ class RecordManager extends \Core\Model
     return True;
   }
 
+  /** 
+   * Get the datatype ID in the DB from the name
+   *
+   * @param string $name name of the datatype 
+   * @return int id
+   * 
+   */
   public function getDataTypeIdFromName($name){
 
     $db = static::getDB();

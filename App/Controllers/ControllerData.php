@@ -32,6 +32,7 @@ class ControllerData extends Authenticated
 
   /**
    * Show the index page for when the user want to retrieve spectre data from the form
+   *  /search-data
    *
    * @return void
    */
@@ -66,6 +67,7 @@ class ControllerData extends Authenticated
 
   /**
    * Show the index for When the user want to retrieve choc data from the form
+   * /search-choc
    *
    * @return void
    */

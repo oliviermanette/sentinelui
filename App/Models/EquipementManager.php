@@ -70,6 +70,12 @@ class EquipementManager extends \Core\Model
     }
   }
 
+  /** Get equipement (structure) info from the DB using the equipement id
+   *
+   * @param int $structure_id id of the structure
+   * @return array results of the query
+   *  equipement_id | equipement | ligneHT  
+   */
   public function getEquipementFromId($structure_id){
     $db = static::getDB();
 

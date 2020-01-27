@@ -18,7 +18,11 @@ use PDO;
 class AlertManager extends \Core\Model
 {
 
-
+    /**
+     * constructor
+     *
+     * @return void
+     */
     public function __construct($data = [])
     {
         foreach ($data as $key => $value) {

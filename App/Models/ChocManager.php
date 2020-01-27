@@ -23,6 +23,11 @@ class ChocManager extends \Core\Model
   protected $rule = '';
   protected $structure_id = '';
 
+  /** Constructor
+   *
+   * @param json $chocDataJason optional
+   * @return void  
+   */
   public function __construct($chocDataJson = null)
   {
     if (isset($chocDataJson)) {
@@ -97,7 +102,11 @@ class ChocManager extends \Core\Model
       $this->rule = $rule;
     }
   }
-
+  /** set the structure Id
+   *
+   * @param int $structure_id id of the structure
+   * @return void  
+   */
   public function setStructureID($structure_id)
   {
     $this->structure_id = $structure_id;

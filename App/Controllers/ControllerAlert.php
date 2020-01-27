@@ -23,7 +23,7 @@ class ControllerAlert extends \Core\Controller
     }
 
     /**
-     * Show the index page
+     * Show the index page : when the user go to /alerts 
      *
      * @return void
      */

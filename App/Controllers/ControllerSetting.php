@@ -20,6 +20,11 @@ class ControllerSetting extends Authenticated
     {
     }
 
+    /**
+     * Show the index page for /settings
+     *
+     * @return void
+     */
     public function indexAction()
     {
         View::renderTemplate('Profile/settings.html', [

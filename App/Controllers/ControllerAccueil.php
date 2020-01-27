@@ -28,7 +28,7 @@ class ControllerAccueil extends Authenticated
 
 
   /**
-  * Show the index page
+  * Show the index page /
   *
   * @return void
   */

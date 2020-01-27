@@ -12,10 +12,6 @@ author : Lirone Samoun
 class SpectreManager extends \Core\Model
 {
 
-  public function __construst(){
-
-  }
-
 
   /**
    * Get all the subspectre received by a sensor and reconstitue the whole spectre received every week
@@ -79,7 +75,14 @@ class SpectreManager extends \Core\Model
     return $fullSpectreArr;
   }
 
-
+  /**
+   * Get all the subspectre received on a specifc equipement from a specific site
+   *
+   * @param int $site_id
+   * @param int $structure_id 
+   * @return array double array which all spectre recevied from a sensor and each array contain
+   * array that contain the decomposed spectre
+   */
   public function reconstituteAllSpectreFromSpecificEquipement($site_id, $structure_id){
     //Retrieve the sensor associated to the site_id and equipement_id
     $sensor_id = SensorManager::getSensorIdFromEquipementAndSiteId($site_id, $structure_id);

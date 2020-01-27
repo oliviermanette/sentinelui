@@ -19,12 +19,21 @@ class ControllerProfile extends Authenticated
     public function __construct()
     {
     }
-
+    /**
+     * Show the index page for /profile
+     *
+     * @return void
+     */
     public function indexAction()
     {
         View::renderTemplate('Profile/index.html', []);
     }
 
+    /**
+     * Show the index page for /support
+     *
+     * @return void
+     */
     public function supportAction(){
         View::renderTemplate('Support/index.html', []);
     }

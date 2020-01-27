@@ -22,6 +22,13 @@ class SensorManager extends \Core\Model
   {
   }
 
+  /** 
+   * Get the status of all the sensors (active/inactive)
+   *
+   * @param string $group_name the name of the group
+   * @return array status (active/inactive)
+   * 
+   */
   public static function getNbStatutsSensorsFromApi($group_name){
     $countActive = 0;
     $countInactive = 0;
@@ -49,7 +56,13 @@ class SensorManager extends \Core\Model
     return $statusArr;
   }
 
-
+  /** 
+   * Get the deveui of a device given his id
+   *
+   * @param int $sensor_id
+   * @return string deveui of the sensor
+   * 
+   */
   public function getDeveuiFromSensorId($sensor_id){
     $db = static::getDB();
 
@@ -65,6 +78,13 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get the device number of a device given his id
+   *
+   * @param int $sensor_id
+   * @return string device number of the sensor
+   * 
+   */
   public function getDeviceNumberFromSensorId($sensor_id)
   {
     $db = static::getDB();
@@ -80,7 +100,13 @@ class SensorManager extends \Core\Model
       return $id_sensor[0];
     }
   }
-
+  /** 
+   * Get the sensor id of a device given his deveui
+   *
+   * @param string $deveui
+   * @return int sensor id
+   * 
+   */
   public function getSensorIdFromDeveui($deveui)
   {
     $db = static::getDB();
@@ -97,6 +123,14 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get basic info of sensors given a group name
+   *
+   * @param string $group_name the name of the group
+   * @return array results of the query
+   * id_device | groupe | device_number | ligneHT | equipement | last_message_received | status |date_installation
+   * 
+   */
   public static function getBriefInfoForGroup($group_name){
     $db = static::getDB();
 
@@ -151,6 +185,14 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get the sensor id from a specific site and equipement
+   *
+   * @param int $site_id if od the site
+   * @param int $structure_id id of the structure
+   * @return int id of the device
+   * 
+   */
   public static function getSensorIdFromEquipementAndSiteId($site_id, $structure_id){
     $db = static::getDB();
 
@@ -170,6 +212,13 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /** 
+   * Get the device id on Objenious given the deveui of a sensor
+   *
+   * @param string $deveuiAsked the deveui of the sensor
+   * @return int id of the device
+   * 
+   */
   public static function getDeviceIdObjeniousFromDeveui($deveuiAsked)
   {
     $listDeviceArr = SensorManager::getListOfDevicesFromAPI();
@@ -184,7 +233,13 @@ class SensorManager extends \Core\Model
       }
     }
   }
-
+  /** 
+   * Get the device id on Objenious given a label (name of the sensor)
+   *
+   * @param string $labelAsked the name of the sensor
+   * @return int id of the device
+   * 
+   */
   public static function getDeviceIdObjeniousFromLabel($labelAsked)
   {
     $listDeviceArr = SensorManager::getListOfDevicesFromAPI();

@@ -13,24 +13,50 @@ class PeaksList
 {
   public $arrayPeaks = array(1 => 2);
   public $ListLength;
-  
+
+    /** 
+     * constructor
+     *
+     * @return void
+     * 
+     */
   public function __construct()
   {
     $this->removePeak(0);
     $this->ListLength = 0;
   }
 
+    /** 
+     * set a new peak in the list
+     *
+     * @param int $lX index (frequency)
+     * @param int $lY Y axis index (amplitude) 
+     * @return void
+     * 
+     */
     public function setNewPeak($lX, $lY)
     {
         $this->ListLength++;
         $this->arrayPeaks[$lX] = $lY;
     }
 
+    /** 
+     * Get the size of the list of peak
+     *
+     * @return int size of the list
+     * 
+     */
     public function getNumber()
     {
         return $this->ListLength;
     }
 
+    /** 
+     * Get the largest peak amplitude of the list
+     *
+     * @return int amplitude of the largest peak
+     * 
+     */
     public function getLargestPeakAmplitude()
     {
         $PeaksNoIdx =  array_values($this->arrayPeaks);
@@ -46,6 +72,12 @@ class PeaksList
       
     }
 
+    /** 
+     * Get the index of the smallest peak inside the list
+     *
+     * @return int index of the smallest peak in the list
+     * 
+     */
     public function getSmallestPeakIndex()
     {
         $PeaksNoIdx =  array_values($this->arrayPeaks);
@@ -94,24 +126,37 @@ class PeaksList
             + array_slice($input, $offset + $length, NULL, TRUE);
     }
 
+    /** 
+     * remove a peak from the list given an index
+     *
+     * @param int $index 
+     * @return void
+     * 
+     */
     public function removePeak($index)
     {
         $this->array_splice_assoc($this->arrayPeaks, $index, 1);
         //array_splice($this->arrayPeaks, $index, 1);
         $this->ListLength--;
-
-
     }
 
+    /** Get the size of the peak
+     *
+     * @param int $index 
+     * @return int amplitude of the peak
+     * 
+     */
     public function getPeakSize($index)
     {
         $PeaksNoIdx =  array_values($this->arrayPeaks);
-        /*echo "Index : ". $index;
-        echo $PeaksNoIdx[$index];
-        print_r($PeaksNoIdx);*/
         return $PeaksNoIdx[$index];
     }
 
+    /** Get the list of peaks
+     *
+     * @return array list of peaks
+     * 
+     */
     public function getArray()
     {
         return $this->arrayPeaks;
