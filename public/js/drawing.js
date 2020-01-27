@@ -435,21 +435,21 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
   var chartdata = {
     labels: date,
     datasets: [{
-        label: 'X',
+        label: 'X °',
         fill: false,
         backgroundColor: 'blue',
         borderColor: 'blue',
         data: nx
       },
       {
-        label: 'Y',
+        label: 'Y °',
         fill: false,
         backgroundColor: 'orange',
         borderColor: 'orange',
         data: ny
       },
       {
-        label: 'Z',
+        label: 'Z °',
         fill: false,
         backgroundColor: 'green',
         borderColor: 'green',
@@ -523,21 +523,21 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
   var chartdata = {
     labels: date,
     datasets: [{
-        label: 'X',
+        label: 'X °',
         fill: false,
         backgroundColor: 'blue',
         borderColor: 'blue',
         data: angle_x
       },
       {
-        label: 'Y',
+        label: 'Y °',
         fill: false,
         backgroundColor: 'orange',
         borderColor: 'orange',
         data: angle_y
       },
       {
-        label: 'Z',
+        label: 'Z °',
         fill: false,
         backgroundColor: 'green',
         borderColor: 'green',
