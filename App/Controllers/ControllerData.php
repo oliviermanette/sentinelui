@@ -102,15 +102,54 @@ class ControllerData extends Authenticated
   }
 
 
+  /*
   public function getResultsFromSpectreFormAction()
   {
 
-    /*View::renderTemplate('Data/viewDataSpectre.html', [
-      'all_site'    => $all_site,
-      'all_structure_data' => $allStructureData
-    ]);*/
-  }
 
+    $equipementManager = new EquipementManager();
+    $recordManager = new RecordManager();
+    $scoreManager = new ScoreManager();
+    $chocManager = new ChocManager();
+    $siteManager = new SiteManager();
+    $inclinometerManager = new InclinometerManager();
+    $sensorManager = new SensorManager();
+
+    if (isset($_POST['equipement_request'])) {
+      $equipement_id = $_POST['equipement_request'];
+    }
+    if (isset($_POST['site_request'])) {
+      $site_id = $_POST['site_request'];
+    }
+    if (isset($_POST['dateMin'])) {
+      $dateMin = $_POST['dateMin'];
+    }
+    if (isset($_POST['dateMax'])) {
+      $dateMax = $_POST['dateMax'];
+    }
+    $all_charts_data = $recordManager->getAllDataForChart($site_id, $equipement_id, $dateMin, $dateMax);
+    
+    $equipementInfo = $equipementManager->getEquipementFromId($equipement_id);
+    $equipement_pylone = $equipementInfo['equipement'];
+    $equipement_name = $equipementInfo['ligneHT'];
+    //Get the sensor ID on the associated structure
+    $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
+    //Get the device number
+    $device_number = $sensorManager->getDeviceNumberFromSensorId($sensor_id);
+
+    $allStructureData = array(
+      'sensor_id' => $sensor_id,
+      'device_number' => $device_number,
+      'ligneHT' => $equipement_name,
+      'equipement' => $equipement_pylone,
+      'equipementId' => $equipement_id,
+    );
+
+    View::renderTemplate('Data/viewDataSpectre.html', [
+      'all_structure_data' => $allStructureData
+    ]);
+  }
+*/
   /**
    * When the user perform the search through the form, display basic infos
    * sensor_id, device_number ,ligneHT, equipement, equipementId
@@ -234,6 +273,29 @@ class ControllerData extends Authenticated
     ]);
   }
 
+  public function getChartsSpectre(){
+    $group_name = $_SESSION['group_name'];
+    $site_id = $_POST["site_request"];
+    $equipement_id = $_POST["equipement_request"];
+
+    $drawAll = $_POST["drawAll"];
+    $recordManager = new RecordManager();
+    if ($drawAll == "true") {
+      $getAll = true;
+      $dateMin = $_POST["dateMin"];
+      $dateMax = $_POST["dateMax"];
+
+      $all_charts_data = $recordManager->getAllDataForChart($site_id, $equipement_id, $dateMin, $dateMax);
+      print json_encode($all_charts_data);
+    } else {
+      $type_msg = $_POST["type_msg_request"];
+      $sensor_id = $_POST["id_sensor_request"];
+      $time_data =  $_POST['time_data_request'];
+
+      $all_charts_data = $recordManager->getDataForSpecificChart($time_data, $type_msg, $sensor_id);
+      print json_encode($all_charts_data);
+    }
+  }
   /**
    *Get all the chart data corresponding to choc frequencies
    *

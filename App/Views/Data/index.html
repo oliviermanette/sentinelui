@@ -80,6 +80,12 @@
         <div id="resultcontainer"></div>
     </div>
 
+     <!-- Container for displaying the chart data -->
+    <div id="containerChartsSpectre">
+        <div id="chartsSpectreData">
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}
@@ -92,89 +98,6 @@
 
     $(document).ready(function () {
         var date = Date();
-
-        $("#getData").submit(function (event) {
-            event.preventDefault();
-            if (!$('#siteDB option:selected').val()) {
-                alert("No site is selected");
-                return;
-            }
-            if (!$('#equipment option:selected').val()) {
-                alert("No equipement is selected");
-                return;
-            }
-            var drawAll = true;
-
-            var formData = new FormData();
-            formData.append('site_request', $('#siteDB option:selected').val());
-            formData.append('equipement_request', $('#equipment option:selected').val());
-            formData.append('dateMin', dateMin);
-            formData.append('dateMax', dateMax);
-            formData.append('drawAll', drawAll);
-            console.log("Site request : ", $('#siteDB option:selected').val() );
-            console.log("Equipement request : ",$('#equipment option:selected').val() );
-            xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    var jsonData = this.responseText;
-                    $('#resultcontainer').html(jsonData);
-                    // Call the dataTables jQuery plugin
-                    $('#tableData').DataTable({
-                        "destroy": true, //use for reinitialize datatable
-                    });
-                    $('.dataTables_length').addClass('bs-select');
-
-                    $('#dataTable').DataTable({
-                        'lengthMenu': [
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']
-                        ],
-                        'iDisplayLength': 50
-                    });
-
-                }
-            };
-            xhttp.open("POST", "/ControllerAccueil/getDataTableAfterSubmit", true);
-            xhttp.send(formData);
-
-            xhttp1 = new XMLHttpRequest();
-            xhttp1.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    var data = this.responseText;
-                    //console.log("DATA :", data);
-                    data = JSON.parse(data);
-
-                    removeElement("container-chart");
-
-                    var temperature_data_json = data['temperature_data'];
-                    var choc_data_json = data['choc_data'];
-                    var inclinometre_data_json = data['inclinometre_data'];
-                    var spectre_data_json = data['spectre_data'];
-                    var numberOfSpectre = Object.keys(spectre_data_json).length;
-
-                    addElement("chart-display-container", "div", "container-chart");
-                    addElement("container-chart", "div", "row-chart");
-
-                    for (i = 0; i < numberOfSpectre; i++) {
-                        var name_canva = "canva_" + String(i);
-                        addElement("row-chart", "canvas", name_canva);
-                    }
-                    for (i = 0; i < numberOfSpectre; i++) {
-                        var name_canva = "canva_" + String(i);
-                        var name_spectre_data = "spectre_" + String(i);
-                        var spectre_i = spectre_data_json[name_spectre_data];
-                        console.log("SPECTRE DATA I : ", spectre_i);
-                        drawChartSpectreFromData(spectre_i, name_canva);
-                    }
-                    addElement("row-chart", "canvas", "canvas_temperature");
-                    addElement("row-chart", "canvas", "canvas_inclinometre");
-                    drawChartTemperatureFromData(temperature_data_json, "canvas_temperature");
-                    drawChartInclinometerFromData(inclinometre_data_json, "canvas_inclinometre");
-                }
-            };
-            xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
-            xhttp1.send(formData);
-        });
 
         $("#siteDB").change(function () {
             var formData = new FormData();
@@ -204,8 +127,108 @@
             dateMin = start.format('YYYY-MM-DD');
             dateMax = end.format('YYYY-MM-DD');
         });
+    });
 
+    $("#getData").submit(function (event) {
+        event.preventDefault();
+        if (!$('#siteDB option:selected').val()) {
+            alert("No site is selected");
+            return;
+        }
+        if (!$('#equipment option:selected').val()) {
+            alert("No equipement is selected");
+            return;
+        }
+        var drawAll = true;
 
+        var formData = new FormData();
+        formData.append('site_request', $('#siteDB option:selected').val());
+        formData.append('equipement_request', $('#equipment option:selected').val());
+        formData.append('dateMin', dateMin);
+        formData.append('dateMax', dateMax);
+        formData.append('drawAll', drawAll);
+        console.log("Site request : ", $('#siteDB option:selected').val());
+        console.log("Equipement request : ", $('#equipment option:selected').val());
+
+        //For displaying the table data
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var jsonData = this.responseText;
+                $('#resultcontainer').html(jsonData);
+                // Call the dataTables jQuery plugin
+                $('#tableData').DataTable({
+                    "destroy": true, //use for reinitialize datatable
+                });
+                $('.dataTables_length').addClass('bs-select');
+
+                $('#dataTable').DataTable({
+                    'lengthMenu': [
+                        [10, 25, 50, -1],
+                        [10, 25, 50, 'All']
+                    ],
+                    'iDisplayLength': 50
+                });
+
+            }
+        };
+        xhttp.open("POST", "/ControllerAccueil/getDataTableAfterSubmit", true);
+        xhttp.send(formData);
+
+        //For adding the structure before displaying the chart
+        /*
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+        var jsonData = this.responseText;
+        //console.log("Refresh data : ",jsonData);
+        removeElementAndChilds("chartsSpectreData");
+        addElement("containerChartsSpectre", "div", "chartsSpectreData");
+        $('#chartsSpectreData').html(jsonData);
+        }
+        };
+        xhttp.open("POST", "/ControllerData/getResultsFromSpectreForm", false);
+        xhttp.send(formData);
+        */
+
+        xhttp1 = new XMLHttpRequest();
+        xhttp1.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+               
+                data = JSON.parse(data);
+
+                removeElement("container-chart");
+
+                var temperature_data_json = data['temperature_data'];
+                var choc_data_json = data['choc_data'];
+                var inclinometre_data_json = data['inclinometre_data'];
+                var spectre_data_json = data['spectre_data'];
+                var numberOfSpectre = Object.keys(spectre_data_json).length;
+
+                addElement("chart-display-container", "div", "container-chart");
+                addElement("container-chart", "div", "row-chart");
+
+                for (i = 0; i < numberOfSpectre; i++) {
+                    var name_canva = "canva_" + String(i);
+                    addElement("row-chart", "canvas",name_canva);
+                }
+                for (i = 0; i < numberOfSpectre; i++) {
+                    var name_canva = "canva_" + String(i);
+                    var name_spectre_data = "spectre_" + String(i);
+                    var spectre_i = spectre_data_json[name_spectre_data];
+                    //console.log("SPECTRE DATA I : ", spectre_i);
+                    drawChartSpectreFromData(spectre_i, name_canva);
+                }
+                addElement("row-chart", "canvas", "canvas_temperature");
+                addElement("row-chart", "canvas", "canvas_inclinometre");
+                drawChartTemperatureFromData(temperature_data_json, "canvas_temperature");
+                drawChartInclinometerFromData(inclinometre_data_json, "canvas_inclinometre");
+            }
+        };
+        xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
+        xhttp1.send(formData);
+        
     });
 </script>
 
