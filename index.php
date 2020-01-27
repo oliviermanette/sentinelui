@@ -46,6 +46,9 @@ $router->add('search-data', ['controller' => 'ControllerData', 'action' => 'inde
 $router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'searchChoc']);
 //alerts data visualization
 $router->add('alerts', ['controller' => 'ControllerAlert', 'action' => 'index']);
+//sensors visualization
+$router->add('sensors', ['controller' => 'ControllerSensors', 'action' => 'index']);
+
 
 
 
