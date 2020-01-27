@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Auth;
+use App\Models\ChartsManager;
 use \App\Models\InclinometerManager;
 use \App\Models\SiteManager;
 use \App\Models\EquipementManager;
@@ -322,6 +323,7 @@ class ControllerData extends Authenticated
 
 
     if ($searchSpecificEquipement) {
+
       $equipementInfo = $equipementManager->getEquipementFromId($equipement_id);
 
       $equipement_pylone = $equipementInfo['equipement'];
