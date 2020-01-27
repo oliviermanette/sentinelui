@@ -92,7 +92,7 @@ class ControllerData extends Authenticated
     $max_date = $date_min_max[1];
 
 
-    View::renderTemplate('chocs/index.html', [
+    View::renderTemplate('Chocs/index.html', [
       'all_site'    => $all_site,
       'all_equipment' => $all_equipment,
       'min_date' => $min_date,
