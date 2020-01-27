@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use \Core\View;
+use \App\Models\SensorManager;
 use \App\Auth;
 use \App\Flash;
 
@@ -21,6 +22,11 @@ class ControllerSensors extends Authenticated
 
     public function indexAction()
     {
-        View::renderTemplate('Sensors/index.html', []);
+        $group_name = $_SESSION['group_name'];
+
+        $infoArr = SensorManager::getBriefInfoForGroup($group_name);
+        View::renderTemplate('Sensors/index.html', [
+            'info_sensors_array' => $infoArr
+        ]);
     }
 }

@@ -1,0 +1,31 @@
+{# ViewTableSensors.html #}
+
+<div class="table-responsive">
+    <table id="tableDataSensors" class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <!--<table id="dataTable" class="display" style="width:100%">-->
+        <thead>
+            <tr>
+                <th>#Sensor</th>
+                <th>Numéro du capteur</th>
+                <th>Groupe</th>
+                <th>Equipement associé</th>
+                <th>Status</th>
+                <th>Dernier message reçu</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in info_sensors_array %}
+            <tr>
+                <td>{{ row.id_device_db }}</td>
+                <td>{{ row.device_number }}</td>
+                <td>{{ row.groupe }}</td>
+                <td> {{ row.ligneHT }}</td>
+                <td> {{ row.status }}</td>
+                <td> {{ row.last_message_received }}</td>
+
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
