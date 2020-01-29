@@ -150,6 +150,7 @@ gulp.task('useref', function () {
 function watchFiles() {
     //observer tous les fichiers Sass et lancer la tâche css à chaque fois qu’un fichier Sass est sauvegardé
     gulp.watch("./public/scss/**/*", css);
+    gulp.watch("./vendor/bootstrap/**/*", css);
     gulp.watch(["./public/js/**/*", "!./public/js/**/*.min.js"], js);
     //Reloads the browser whenever HTML, JS or PHP files change
     gulp.watch(["./App/Views/**/*.html", "./public/js/**/*.js", "./**/*.php"], browserSyncReload);

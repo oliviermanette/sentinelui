@@ -26,10 +26,6 @@ class ControllerData extends Authenticated
 
   public $loggedin;
 
-  public function __construct()
-  {
-  }
-
   /**
    * Show the index page for when the user want to retrieve spectre data from the form
    *  /search-data
@@ -64,6 +60,8 @@ class ControllerData extends Authenticated
       'brief_data_record' => $brief_data_record,
     ]);
   }
+
+
 
   /**
    * Show the index for When the user want to retrieve choc data from the form

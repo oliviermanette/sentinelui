@@ -23,10 +23,6 @@ use Core\Controller;
 class ControllerInit extends \Core\Controller
 {
 
-    public function __construct()
-    {
-    }
-
     public function testApiAction(){
         //SensorManager::getDeviceIdObjeniousFromDeveui("0004A30B00E80AC9");
         //SensorManager::getDeviceIdObjeniousFromLabel("19001012");

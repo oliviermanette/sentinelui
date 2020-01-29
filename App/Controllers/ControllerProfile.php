@@ -16,9 +16,6 @@ use \App\Flash;
 class ControllerProfile extends Authenticated
 {
 
-    public function __construct()
-    {
-    }
     /**
      * Show the index page for /profile
      *

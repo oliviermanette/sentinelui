@@ -18,10 +18,6 @@ use \App\Flash;
 class ControllerAlert extends \Core\Controller
 {
 
-    public function __construct()
-    {
-    }
-
     /**
      * Show the index page : when the user go to /alerts 
      *

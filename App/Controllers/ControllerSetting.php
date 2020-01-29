@@ -16,10 +16,6 @@ use \App\Flash;
 class ControllerSetting extends Authenticated
 {
 
-    public function __construct()
-    {
-    }
-
     /**
      * Show the index page for /settings
      *

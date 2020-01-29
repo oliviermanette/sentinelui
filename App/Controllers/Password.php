@@ -42,7 +42,7 @@ class Password extends \Core\Controller
   public function resetAction()
   {
       $token = $this->route_params['token'];
-
+      
       $user = $this->getUserOrExit($token);
 
       View::renderTemplate('Password/reset.html', [

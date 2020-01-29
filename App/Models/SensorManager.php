@@ -124,6 +124,144 @@ class SensorManager extends \Core\Model
   }
 
   /** 
+   * Get last message received from a specific sensor
+   *
+   * @param string $deveui
+   * @return string last date
+   * 
+   */
+  public static function getLastMessageReceivedFromDeveui($deveui){
+    $db = static::getDB();
+     
+    $sql_last_date_received = "SELECT DATE_FORMAT(MAX(DATE(r.date_time)), '%d/%m/%Y') as lastDateReceived FROM sensor AS s 
+    INNER JOIN record AS r ON (s.id = r.sensor_id)
+    AND s.deveui LIKE :deveui
+    GROUP BY s.device_number
+    ";
+
+    $stmt = $db->prepare($sql_last_date_received);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $last_date = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      if (!(empty($last_date))){
+        return $last_date[0];
+      }
+      return 0;
+    }
+  }
+
+  /** 
+   * Get the battery state of sensor
+   *
+   * @param string $deveui
+   * @return int battery value left
+   * date_time | battery_left
+   * 
+   */
+  public static function getLastBatteryStateFromDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_battery_sensor = "SELECT r.date_time, g.battery_level  
+    FROM record AS r
+    LEFT JOIN global AS g ON (g.record_id = r.id)
+    LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+    WHERE s.deveui LIKE :deveui  
+    AND r.msg_type LIKE 'global'  
+    ORDER BY `r`.`date_time` DESC LIMIT 1";
+
+    $stmt = $db->prepare($sql_battery_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $batteryInfoArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $batteryInfoArr;
+    }
+  }
+
+  /** 
+   * Get number total of message received
+   *
+   * @param string $deveui
+   * @return int nbre total message received by the sensor
+  
+   * 
+   */
+  public static function getNbTotalMessagesFromDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_battery_sensor = "SELECT count(*) AS nbreTotMessages
+    FROM record AS r
+    LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+    WHERE s.deveui LIKE :deveui  
+    ORDER BY `r`.`date_time`  DESC";
+
+    $stmt = $db->prepare($sql_battery_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $nbreTotMsg = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $nbreTotMsg;
+    }
+  }
+
+  /** 
+   * Get basic info of sensors given his deveui
+   *
+   * @param string $deveui the deveui of the sensor
+   * @return array results of the query
+   * id_device | id_objenious | device_number | firmware | 
+   * constructor | deveui | groupe | ligneHT | equipement | status |date_installation
+   * 
+   */
+  public static function getBriefInfoForSensor($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_brief_info = "SELECT 
+      DISTINCT sensor.id AS 'id_device', 
+      sensor.id_device AS 'id_objenious', 
+      sensor.device_number AS 'device_number', 
+      sensor.firmware_version AS 'firmware', 
+      sensor.constructeur AS 'constructor', 
+      sensor.deveui AS deveui, 
+      s.nom AS site, 
+      s.latitude AS latitude_site, 
+      s.longitude AS longitude_site,
+      st.latitude AS latitude_sensor, 
+      st.longitude AS longitude_sensor,
+      gn.name AS groupe, 
+      st.transmision_line_name AS `LigneHT`, 
+      st.nom AS `equipement`, 
+      sensor.status AS status, 
+      DATE_FORMAT(
+        sensor.installation_date, '%d/%m/%Y'
+      ) AS date_installation 
+    FROM 
+      sensor 
+      LEFT JOIN record AS r ON (sensor.id = r.sensor_id) 
+      LEFT JOIN structure AS st ON st.id = r.structure_id 
+      LEFT JOIN site AS s ON s.id = st.site_id 
+      LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
+      LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+    WHERE 
+      sensor.deveui LIKE :deveui
+    ";
+
+    $stmt = $db->prepare($sql_brief_info);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $resultsArr = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $resultsArr;
+    }
+  }
+
+
+
+  /** 
    * Get basic info of sensors given a group name
    *
    * @param string $group_name the name of the group
@@ -244,11 +382,30 @@ class SensorManager extends \Core\Model
   {
     $listDeviceArr = SensorManager::getListOfDevicesFromAPI();
     foreach ($listDeviceArr as $deviceArr) {
-      print_r($deviceArr);
       $label = $deviceArr["label"];
       if (strcmp($label, $labelAsked) == 0) {
         $deviceIDObjenious = $deviceArr["id"];
         return $deviceIDObjenious;
+      }
+    }
+  }
+
+  /** 
+   * Get Deveui on Objenious given a label (name of the sensor)
+   *
+   * @param string $labelAsked the name of the sensor
+   * @return int deveui of the device
+   * 
+   */
+  public static function getDeveuiFromLabel($labelAsked)
+  {
+    $listDeviceArr = SensorManager::getListOfDevicesFromAPI();
+    foreach ($listDeviceArr as $deviceArr) {
+      $label = $deviceArr["label"];
+      if (strcmp($label, $labelAsked) == 0) {
+        $propertiesArr = $deviceArr["properties"];
+        $deveui = $propertiesArr["deveui"];
+        return $deveui;
       }
     }
   }

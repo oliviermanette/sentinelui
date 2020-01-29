@@ -24,6 +24,14 @@ session_start();
 $router = new Core\Router();
 
 // Add the routes
+/**
+ * PAGES
+ */
+
+ /** 
+  * ACTION PAGES
+
+  */
 //Homepage
 $router->add('', ['controller' => 'ControllerAccueil', 'action' => 'index']);
 //New login
@@ -50,7 +58,8 @@ $router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'sear
 $router->add('alerts', ['controller' => 'ControllerAlert', 'action' => 'index']);
 //sensors visualization
 $router->add('sensors', ['controller' => 'ControllerSensors', 'action' => 'index']);
-
+//device info display
+$router->add('device/{deviceid:[\da-f]+}/info', ['controller' => 'ControllerSensors', 'action' => 'info']);
 
 
 
@@ -68,3 +77,5 @@ $router->add('api-test', ['controller' => 'ControllerInit', 'action' => 'testApi
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);
+
+

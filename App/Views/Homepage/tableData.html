@@ -18,6 +18,7 @@
             <th>#choc reçus</th>
             <th>Dernier message reçu</th>
             <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +32,8 @@
             <td> {{ row.nb_choc }}</td>
             <td>{{ row.last_message_received}}</td>
             <td>{{ row.status}}</td>
+            <td><a href="/device/{{row.sensor_id}}/info" id="viewSensor{{row.sensor_id}}"
+                name="download">Voir</a></td>
           </tr>
           {% endfor %}
         </tbody>

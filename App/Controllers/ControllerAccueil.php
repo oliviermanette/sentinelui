@@ -22,11 +22,6 @@ class ControllerAccueil extends Authenticated
 
   public $loggedin;
 
-  public function __construct() {
-
-  }
-
-
   /**
   * Show the index page /
   *
@@ -35,7 +30,7 @@ class ControllerAccueil extends Authenticated
   public function indexAction()
   {
     $group_name = $_SESSION['group_name'];
-
+    print_r($this->route_params);
     $sensorManager = new SensorManager();
     $recordManager = new RecordManager();
     $alertManager = new AlertManager();
@@ -82,7 +77,7 @@ class ControllerAccueil extends Authenticated
     $recordManager = new RecordManager();
     $group_name = $_SESSION['group_name'];
 
-    $data_map = $recordManager-> getDataMap($group_name);
+    $data_map = $recordManager->getDataMap($group_name);
 
     $arr = [];
     $inc = 0;
