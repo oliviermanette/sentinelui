@@ -64,6 +64,7 @@ class View
 			$twig->addExtension(new \Twig_Extension_Debug());
 			$twig->addGlobal('current_user', \App\Auth::getUser());
 			$twig->addGlobal('flash_messages', \App\Flash::getMessages());
+			$twig->addGlobal('flash_alerts', \App\Flash::getAlerts());
 			if (isset($_SESSION['group_name'])){
 				$twig->addGlobal('current_alerts', \App\Models\AlertManager::getActiveAlertsInfoTable($_SESSION['group_name'], 3));
 			}

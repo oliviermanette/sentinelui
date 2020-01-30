@@ -30,7 +30,7 @@ class ControllerAccueil extends Authenticated
   public function indexAction()
   {
     $group_name = $_SESSION['group_name'];
-    print_r($this->route_params);
+;
     $sensorManager = new SensorManager();
     $recordManager = new RecordManager();
     $alertManager = new AlertManager();

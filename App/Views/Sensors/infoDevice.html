@@ -154,7 +154,8 @@
                                     <div class="row card-row">
                                         <div class="extend-view-label col-md-5" title="Constructor">Constructeur
                                         </div>
-                                        <div class="extend-view-value col-md-7" title="RTE">{{infoArr.constructor}}</div>
+                                        <div class="extend-view-value col-md-7" title="RTE">{{infoArr.constructor}}
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 right-column">
@@ -177,114 +178,72 @@
                 <div class="col-md-4">
                     <button id="exportData" type="button"
                         class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                        onclick="window.open('/ControllerAccueil/downloadRawData?exportData=csv')"><i
-                            class="fas fa-download fa-sm text-white-50"></i> Exporter données
-                        (CSV)</button>
+                        onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=excel&deveui={{infoArr.deveui}}')"><i
+                            class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
+                        (Excel)</button>
+                </div>
+                <div class="col-md-4">
+                    <button id="exportData" type="button"
+                        class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                        onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=csv&deveui={{infoArr.deveui}}')"><i
+                            class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
+                        (Csv)</button>
                 </div>
             </div>
-            <table id="example" class="table table-striped table-bordered" style="width:100%">
+            <table id="tableDataActivitySensor" class="display compact" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Position</th>
-                        <th>Office</th>
-                        <th>Age</th>
-                        <th>Start date</th>
-                        <th>Salary</th>
+                        <th>Capteur</th>
+                        <th>Date mesure</th>
+                        <th>Type</th>
+                        <th>batterie %</th>
+                        <th>Température °C</th>
+                        <th>Inclinaison X °</th>
+                        <th>Inclinaison Y °</th>
+                        <th>Inclinaison Z °</th>
+                        <th>Amplitude 1 Mg</th>
+                        <th>Frequence 1 Hz</th>
+                        <th>Amplitude 2 Mg</th>
+                        <th>Frequence 2 Hz</th>
+                        <th>Puissance W</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    {% for row in recordRawArr %}
+                    <tr>
+                        <td>{{row.sensor_label}}</td>
+                        <td>{{row.date_mesure}}</td>
+                        <td>{{row.type}}</td>
+                        <td>{{row.battery}}</td>
+                        <td>{{row.temperature}}</td>
+                        <td>{{row.inclinaison_x}}</td>
+                        <td>{{row.inclinaison_y}}</td>
+                        <td>{{row.inclinaison_z}}</td>
+                        <td>{{row.amplitude_1}}</td>
+                        <td>{{row.freq_1}}</td>
+                        <td>{{row.amplitude_2}}</td>
+                        <td>{{row.freq_2}}</td>
+                        <td>{{row.power}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
         <!-- Alert sensors -->
         <div class="card-body">
             <h3 class="card-title">Alertes relevées par le capteur</h3>
-            <div class="table-responsive">
-                <table id="tableDataAlerts" class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <!--<table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">-->
-                    <thead>
-                        <tr>
-                            <th>Début alerte</th>
-                            <th>Type Alerte</th>
-                            <th>Equipement</th>
-                            <th>Ligne HT</th>
-                            <th>Criticité</th>
-                            <th>Valeur</th>
-                            <th>Nom capteur</th>
-                            <th>Statut</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in alerts_active_info_arr %}
-                        <tr id="{{row.alert_id}}">
-                            <td>{{ row.date_time }}</td>
-                            <td>{{ row.label}}</td>
-                            <td>{{ row.equipement_name }}></td>
-                            <td>{{ row.ligneHT }}></td>
-                            <td>{{ row.criticality }}></td>
-                            <td>{{ row.valeur }}</td>
-                            <td>{{ row.device_number }}</td>
-                            <td>{{ row.status}}</td>
-                            <td><a href="/ControllerAlert/deleteAlert?id_alert={{row.alert_id}}"><i
-                                        class="far fa-trash-alt"></i></a>&nbsp
-                                &nbsp
-                                <a
-                                    href="/ControllerAlert/updateAlert?id_alert={{row.alert_id}}&status_alert={{ row.status}}"><i
-                                        class="fas fa-check"></i></a>{{ row.suivi}}
-                            </td>
-
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            {% for message in flash_alerts %}
+            <div class="alert alert-{{ message.type }}" role="alert">
+                {{ message.body }}
             </div>
+            {% endfor %}
+             {% include "Sensors/viewTableDataNewAlerts.html" %}
         </div>
-              <!-- Alert historique sensors -->
-              <div class="card-body">
-                  <h3 class="card-title">Historique des alertes</h3>
-                  <div class="table-responsive">
-                      <table id="tableDataAlerts" class="table table-bordered" id="dataTable" width="100%"
-                          cellspacing="0">
-                          <!--<table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">-->
-                          <thead>
-                              <tr>
-                                  <th>Début alerte</th>
-                                  <th>Type Alerte</th>
-                                  <th>Equipement</th>
-                                  <th>Ligne HT</th>
-                                  <th>Criticité</th>
-                                  <th>Valeur</th>
-                                  <th>Nom capteur</th>
-                                  <th>Statut</th>
-                                  <th>Action</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              {% for row in alerts_active_info_arr %}
-                              <tr id="{{row.alert_id}}">
-                                  <td>{{ row.date_time }}</td>
-                                  <td>{{ row.label}}</td>
-                                  <td>{{ row.equipement_name }}></td>
-                                  <td>{{ row.ligneHT }}></td>
-                                  <td>{{ row.criticality }}></td>
-                                  <td>{{ row.valeur }}</td>
-                                  <td>{{ row.device_number }}</td>
-                                  <td>{{ row.status}}</td>
-                                  <td><a href="/ControllerAlert/deleteAlert?id_alert={{row.alert_id}}"><i
-                                              class="far fa-trash-alt"></i></a>&nbsp
-                                      &nbsp
-                                      <a
-                                          href="/ControllerAlert/updateAlert?id_alert={{row.alert_id}}&status_alert={{ row.status}}"><i
-                                              class="fas fa-check"></i></a>{{ row.suivi}}
-                                  </td>
-
-                              </tr>
-                              {% endfor %}
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
+        <!-- Alert historique sensors -->
+        <div class="card-body">
+            <h3 class="card-title">Historique des alertes</h3>
+                {% include "Sensors/viewTableDataOldAlerts.html" %}
+        </div>
     </div>
 
 </div>
@@ -295,31 +254,40 @@
 
 <script>
     $(document).ready(function () {
-        let data_map_json = JSON.parse('{{ data_map_array|raw}}');
-       
+        let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
+
         console.log(data_map_json);
-        var map = L.map('deviceMap').setView([data_map_json.latitude_sensor,data_map_json.longitude_sensor], 13);
+        var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json.longitude_sensor],
+            13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-           maxZoom: 18,
-           attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
-           id: 'mapbox.streets'
+            maxZoom: 18,
+            attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
+            id: 'mapbox.streets'
         }).addTo(map);
 
 
 
-         if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
-         longitude_sensor = data_map_json.longitude_sensor;
-         latitude_sensor = data_map_json.latitude_sensor;
+        if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
+            longitude_sensor = data_map_json.longitude_sensor;
+            latitude_sensor = data_map_json.latitude_sensor;
 
 
-         sensor_id = data_map_json.sensor_id;
-         site = data_map_json.site;
-         equipement = data_map_json.equipement;
+            sensor_id = data_map_json.sensor_id;
+            site = data_map_json.site;
+            equipement = data_map_json.equipement;
 
-         L.marker([latitude_sensor, longitude_sensor]).addTo(map)
-         .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
-         }
+            L.marker([latitude_sensor, longitude_sensor]).addTo(map)
+                .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+        }
+
+        $('#tableDataActivitySensor').DataTable({
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 10
+        });
 
     });
 </script>

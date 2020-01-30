@@ -851,6 +851,7 @@ class RecordManager extends \Core\Model
     }
   }
 
+
   /** 
    * Get the data for displaying the map
    *

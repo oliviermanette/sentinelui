@@ -180,6 +180,55 @@ class SensorManager extends \Core\Model
     }
   }
 
+
+  /** 
+   * Get all records of a device
+   *
+   * @param string $deveui
+   * @return array records from the device array
+  
+   * 
+   */
+  public static function getRecordsFromDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_record_sensor = "SELECT 
+        sensor.device_number AS 'sensor_label', 
+        DATE_FORMAT(
+          r.date_time,'%d/%m/%Y %H:%i:%S'
+        ) AS `date_mesure`,
+        r.msg_type AS 'type',
+        g.battery_level AS 'battery',
+        inc.temperature AS 'temperature',
+        ROUND(inc.angle_x,3) AS 'inclinaison_x',
+        ROUND(inc.angle_y,3) AS 'inclinaison_y',
+        ROUND(inc.angle_z,3) AS 'inclinaison_z',
+        c.amplitude_1 AS 'amplitude_1',
+        c.freq_1 AS 'freq_1',
+        c.amplitude_2 AS 'amplitude_2',
+        c.freq_2 AS 'freq_2',
+        ROUND(c.power,4) AS 'power'
+        FROM 
+          record AS r 
+          LEFT JOIN inclinometer AS inc ON (inc.record_id = r.id)
+          LEFT JOIN choc AS c ON (c.record_id = r.id)
+          LEFT JOIN global AS g ON (g.record_id = r.id)
+          LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
+        WHERE 
+          sensor.deveui LIKE :deveui
+          AND Date(r.date_time) >= Date(sensor.installation_date) 
+          ORDER BY r.date_time DESC";
+
+    $stmt = $db->prepare($sql_record_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $recordArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $recordArr;
+    }
+  }
+
   /** 
    * Get number total of message received
    *
