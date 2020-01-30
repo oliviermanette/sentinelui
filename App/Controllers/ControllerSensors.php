@@ -77,7 +77,12 @@ class ControllerSensors extends Authenticated
         $variationDayArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 1);
 
         $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
-       
+        
+        //4. chart data
+        $inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
+        $inclinometerDataMonthArr = json_encode($inclinometerDataMonthArr);
+        $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
+        $inclinometerDataWeekArr = json_encode($inclinometerDataWeekArr);
         
         View::renderTemplate('Sensors/infoDevice.html', [
             'infoArr' => $infoArr,
@@ -86,6 +91,8 @@ class ControllerSensors extends Authenticated
             'processedAlertsArr' => $processedAlertsArr,
             'recordRawArr' => $recordRawArr,
             'totalVariationArr' => $totalVariationArr,
+            'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
+            'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
         ]);
 
     }

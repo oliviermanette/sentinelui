@@ -507,6 +507,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
+  console.log(inclinometerData);
   var angle_x = [];
   var angle_y = [];
   var angle_z = [];
@@ -562,10 +563,12 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
         yAxes: [{
           ticks: {
             beginAtZero: false,
+            precison:2,
           },
           scaleLabel: {
-            display: true,
-            labelString: 'Height (m)'
+            display: false,
+            labelString: 'Angle (°)'
+        
           },
         }]
       },

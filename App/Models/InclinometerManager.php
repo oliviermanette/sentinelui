@@ -480,4 +480,54 @@ class InclinometerManager extends \Core\Model
     }
   }
 
+  /**
+   * Compute variation (%) of inclinometer data from today to a specific date in term of days
+   *
+   * @param int $sensor_id sensor id for which we want to compute the variation data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago
+   * @return array  results from the query
+   * sensor_id |deveui |
+   * newAngleX | oldAngleX | pourcentage_variation_anglex | newAngleY | oldAngleY | pourcentage_variation_angleY |
+   * newAngleZ | oldAngleZ | pourcentage_variation_angleZ | newTemp | oldTemp | pourcentage_variation_temp |
+   */
+  public static function getInclinometerDataForLast($deveui, $time_period)
+  {
+    $db = static::getDB();
+
+    $sql_data_inclinometer = "SELECT
+        `sensor_id`,
+        DATE(`date_time`) AS date_d,
+        `nx`,
+        `ny`,
+        `nz`,
+        `temperature`,
+        inc.nx,
+        inc.ny,
+        inc.nz,
+        angle_x,
+        angle_y,
+        angle_z,
+        temperature
+        FROM
+        inclinometer AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+        LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+        WHERE
+        `msg_type` LIKE 'inclinometre'
+        AND s.deveui = :deveui  
+        AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
+        ORDER BY `date_d` ASC
+        ";
+
+    $stmt = $db->prepare($sql_data_inclinometer);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $resultsArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $resultsArr;
+    }
+  }
+
 }
