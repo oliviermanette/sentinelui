@@ -1,0 +1,139 @@
+{# viewInclinometerWidgets.html #}
+
+<div class="card">
+    <div class="card-body">
+        {% set dataType = ['Inclinaison Journalière (par rapport à hier)',
+             'Inclinaison Hebdomadaire (par rapport aux 7 derniers jours)',
+              'Inclinaison Mensuelle (par rapport aux 30 derniers jours)'] %}
+
+        {% for row in totalVariationArr %}
+
+        <h3 class="card-title">{{dataType[loop.index0]}}</h3>
+        <div class="row justify-content-center">
+            <!-- Variation X Card  -->
+            <div class="col-xl-3 col-md-6 mb-2">
+                <div class="card shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Ancien X
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.oldAngleX}} °
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Nouveau X
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.newAngleX}} °
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Variation X
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.pourcentage_variation_angleX}} %
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Variation Y  Card -->
+            <div class="col-xl-3 col-md-6 mb-2">
+                <div class="card shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Ancien Y
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.oldAngleY}} °
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Nouveau Y
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.newAngleY}} °
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Variation Y
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.pourcentage_variation_angleY}} %
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Variation Z Day Card  -->
+            <div class="col-xl-3 col-md-6 mb-2">
+                <div class="card shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Ancien Z
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.oldAngleZ}} °
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Nouveau Z
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.newAngleZ}} °
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Variation Z
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{row.pourcentage_variation_angleZ}} %
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="row justify-content-center">
+        <div class="col">
+        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+            <div id="{{val.equipementId}}">
+                <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-3" data-toggle="buttons">
+                    <label class="btn btn-outline-secondary active">
+                        <input id="option1" type="radio" name="options" value="day" autocomplete="off" checked="">
+                        Jour
+                    </label>
+                    <label class="btn btn-outline-secondary ">
+                        <input id="option2" type="radio" name="options" autocomplete="off" value="week">
+                        Semaine
+                    </label>
+                    <label class="btn btn-outline-secondary">
+                        <input id="option3" type="radio" name="options" autocomplete="off" value="month"> Mois
+                    </label>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+        <div class="canvas">
+            <canvas id="chartAngleInclinometer"></canvas>
+        </div>
+</div>

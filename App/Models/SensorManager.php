@@ -261,7 +261,7 @@ class SensorManager extends \Core\Model
    *
    * @param string $deveui the deveui of the sensor
    * @return array results of the query
-   * id_device | id_objenious | device_number | firmware | 
+   * id_device | id_objenious | device_number | firmware | Hardware |
    * constructor | deveui | groupe | ligneHT | equipement | status |date_installation
    * 
    */
@@ -274,6 +274,7 @@ class SensorManager extends \Core\Model
       sensor.id_device AS 'id_objenious', 
       sensor.device_number AS 'device_number', 
       sensor.firmware_version AS 'firmware', 
+      sensor.hardware_version AS 'hardware',
       sensor.constructeur AS 'constructor', 
       sensor.deveui AS deveui, 
       s.nom AS site, 

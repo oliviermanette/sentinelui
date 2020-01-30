@@ -278,6 +278,82 @@ class InclinometerManager extends \Core\Model
 
 
   /**
+   * Compute variation (%) of inclinometer data from today to a specific date in term of days
+   *
+   * @param int $sensor_id sensor id for which we want to compute the variation data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago
+   * @return array  results from the query
+   * sensor_id |deveui |
+   * newAngleX | oldAngleX | pourcentage_variation_anglex | newAngleY | oldAngleY | pourcentage_variation_angleY |
+   * newAngleZ | oldAngleZ | pourcentage_variation_angleZ | newTemp | oldTemp | pourcentage_variation_temp |
+   */
+  public static function computePercentageVariationAngleValueForLast($deveui, $time_period, $precision = 2)
+  {
+    $db = static::getDB();
+
+    $sql_variation_angle = "SELECT new_values_inclinometer.deveui, 
+      ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
+      ROUND((sum(ABS(newAngleX - oldAngleX))/newAngleX)*100, :precision) as pourcentage_variation_angleX,
+      ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY, 
+      ROUND((sum(ABS(newAngleY - oldAngleY))/newAngleY)*100,:precision) as pourcentage_variation_angleY,
+      ROUND(newAngleZ,:precision) AS newAngleZ, ROUND(oldAngleZ,:precision) AS oldAngleZ,
+      ROUND((sum(ABS(newAngleZ - oldAngleZ))/newAngleZ)*100,:precision) as pourcentage_variation_angleZ,
+      newTemp,oldTemp,
+      ROUND((sum(ABS(newTemp - oldTemp))/newTemp)*100,1) as variation_temperature
+        FROM
+        (SELECT
+            `sensor_id`, deveui,
+            DATE(r.date_time) AS date_d,
+            angle_x AS newAngleX,
+            angle_y AS newAngleY,
+            angle_z AS newAngleZ,
+            temperature AS newTemp
+            FROM
+            inclinometer AS inc
+            LEFT JOIN record AS r ON (r.id = inc.record_id)
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+            WHERE
+            `msg_type` LIKE 'inclinometre'
+            AND deveui = :deveui
+          ORDER BY Date(r.date_time) DESC
+        LIMIT 1) AS new_values_inclinometer
+        JOIN
+        (SELECT
+            `sensor_id`,deveui,
+            Date(r.date_time) AS date_d,
+            angle_x AS oldAngleX,
+            angle_y AS oldAngleY,
+            angle_z AS oldAngleZ,
+            temperature AS oldTemp
+            FROM
+            inclinometer AS inc
+            LEFT JOIN record AS r ON (r.id = inc.record_id)
+            LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+            WHERE
+            `msg_type` LIKE 'inclinometre'
+            AND deveui = :deveui
+            AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
+            ORDER BY
+            date_d ASC
+            LIMIT 1) AS last_values_period_inclinometer
+        ON new_values_inclinometer.sensor_id = last_values_period_inclinometer.sensor_id
+        GROUP BY oldTemp,newTemp, newAngleZ,oldAngleZ,newAngleY,oldAngleY, newAngleX,oldAngleX
+        ";
+
+    $stmt = $db->prepare($sql_variation_angle);
+    $stmt->bindValue(':precision', $precision, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $resultsArr = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      return $resultsArr;
+    }
+  }
+
+  /**
    * Compute variation of inclinometer data from today to a specific date in term fo days
    *
    * @param int $sensor_id sensor id for which we want to compute the variation data
@@ -285,7 +361,7 @@ class InclinometerManager extends \Core\Model
    * compute variation between today and the last value 30 days ago
    * @return array  results from the query
    */
-  public function computeVariationAngleForLast($sensor_id, $time_period){
+  public function computeVariationAngleValueForLast($sensor_id, $time_period){
     $db = static::getDB();
 
     $sql_variation_angle = "select sum(ABS(new_values_inclinometer.angle_x - last_values_period_inclinometer.angle_x)) as variation_angleX,
@@ -349,7 +425,7 @@ class InclinometerManager extends \Core\Model
    * @param str $end_date the first date for the end of the range. Format %YYYY-MM-DD == > 2019-12-10
    * @return array  results from the query
    */
-  public function computeVariationAngleForSpecificPeriod($sensor_id, $start_date, $end_date)
+  public function computeVariationAngleValueForSpecificPeriod($sensor_id, $start_date, $end_date)
   {
     $db = static::getDB();
 
@@ -357,40 +433,40 @@ class InclinometerManager extends \Core\Model
     sum(ABS(new_values_inclinometer.angle_y - last_values_period_inclinometer.angle_y)) as variation_angleY,
     sum(ABS(new_values_inclinometer.angle_z - last_values_period_inclinometer.angle_z)) as variation_angleZ,
     sum(ABS(new_values_inclinometer.temperature - last_values_period_inclinometer.temperature)) as variation_temperature
-    FROM
-  (SELECT
-    `sensor_id`,
-    DATE(r.date_time) AS date_d,
-    angle_x,
-    angle_y,
-    angle_z,
-    temperature
-    FROM
-    inclinometer AS inc
-    LEFT JOIN record AS r ON (r.id = inc.record_id)
-    WHERE
-    `msg_type` LIKE 'inclinometre'
-    AND `sensor_id` LIKE :sensor_id
-  AND DATE(r.date_time) LIKE :start_date
-    LIMIT 1) AS new_values_inclinometer
- JOIN
-(SELECT
-    `sensor_id`,
-    DATE(r.date_time) AS date_d,
-    angle_x,
-    angle_y,
-    angle_z,
-    temperature
-    FROM
-    inclinometer AS inc
-    LEFT JOIN record AS r ON (r.id = inc.record_id)
-    WHERE
-    `msg_type` LIKE 'inclinometre'
-    AND `sensor_id` LIKE :sensor_id
-  AND DATE(r.date_time) LIKE :end_date
-    LIMIT 1) AS last_values_period_inclinometer
-ON new_values_inclinometer.sensor_id = last_values_period_inclinometer.sensor_id
-        ";
+        FROM
+        (SELECT
+        `sensor_id`,
+        DATE(r.date_time) AS date_d,
+        angle_x,
+        angle_y,
+        angle_z,
+        temperature
+        FROM
+        inclinometer AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+        WHERE
+        `msg_type` LIKE 'inclinometre'
+        AND `sensor_id` LIKE :sensor_id
+      AND DATE(r.date_time) LIKE :start_date
+        LIMIT 1) AS new_values_inclinometer
+    JOIN
+    (SELECT
+        `sensor_id`,
+        DATE(r.date_time) AS date_d,
+        angle_x,
+        angle_y,
+        angle_z,
+        temperature
+        FROM
+        inclinometer AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+        WHERE
+        `msg_type` LIKE 'inclinometre'
+        AND `sensor_id` LIKE :sensor_id
+      AND DATE(r.date_time) LIKE :end_date
+        LIMIT 1) AS last_values_period_inclinometer
+    ON new_values_inclinometer.sensor_id = last_values_period_inclinometer.sensor_id
+            ";
 
     $stmt = $db->prepare($sql_variation_angle);
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);

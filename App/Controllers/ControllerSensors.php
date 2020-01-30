@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Models\SensorManager;
+use \App\Models\InclinometerManager;
 use \App\Auth;
 use \App\Flash;
 use App\Models\AlertManager;
@@ -66,14 +67,25 @@ class ControllerSensors extends Authenticated
         }else {
             Flash::addAlert("Attention, des alertes ont été soulevées", Flash::WARNING);
         }
-        
+
+        //Get inclinometer data
+        //1.Variation 1 month (30 days)
+        $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 30);
+        //2.Variation 1 week (7 days)
+        $variationWeekArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 7);
+        //3.Variation 1 day 
+        $variationDayArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 1);
+
+        $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
+       
         
         View::renderTemplate('Sensors/infoDevice.html', [
             'infoArr' => $infoArr,
             'dataMapArray' => $dataMapArr,
             'activeAlertsArr' => $activeAlertsArr,
             'processedAlertsArr' => $processedAlertsArr,
-            'recordRawArr' => $recordRawArr
+            'recordRawArr' => $recordRawArr,
+            'totalVariationArr' => $totalVariationArr,
         ]);
 
     }

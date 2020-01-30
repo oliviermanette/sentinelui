@@ -15,8 +15,10 @@
 
     </div>
 
+    {% include "Sensors/viewInclinometerWidgets.html" %}
+
+
     <div class="card">
-        <!-- Widget sensors -->
         <div class="card-body">
             <h3 class="card-title">Information</h3>
             <div class="d-flex justify-content-between">
@@ -32,29 +34,28 @@
                     </div>
                 </div>
             </div>
-            <!-- Content Row -->
+            <!-- Widget sensors -->
             <div class="mt-3 row">
-                <!-- Capteurs actifs Card  -->
+                <!-- Statut s Card  -->
                 <div class="col-xl-3 col-md-6 mb-4">
                     {% if infoArr.status == "inactive" %}
                     <div class="card border-left-danger shadow h-100 py-2">
-                    {% elseif infoArr.status == "active" %}
-                     <div class="card border-left-success shadow h-100 py-2">
-                    {% endif %}
-                    
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        Statut
-                                    </div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}
+                        {% elseif infoArr.status == "active" %}
+                        <div class="card border-left-success shadow h-100 py-2">
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Statut
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
                 <!-- Capteurs inactifs Card  -->
                 <div class="col-xl-3 col-md-6 mb-4">
@@ -62,11 +63,9 @@
                         <div class="card-body">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        batterie
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">batterie
                                     </div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                        {{infoArr.lastBatteryLevel}} %</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.lastBatteryLevel}} %</div>
                                 </div>
                             </div>
                         </div>
@@ -79,130 +78,130 @@
                         <div class="card-body">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        Dernier message enregistré</div>
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col-auto">
-                                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                                {{infoArr.lastMsgReceived}}
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Dernier message enregistré</div>
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-auto">
+                                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{infoArr.lastMsgReceived}}</div>
                                             </div>
-                                        </div>
-
-                                    </div>
+                                       </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Groupe Card  -->
+                    <!-- Groupe Card  -->
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="card shadow h-100 py-2">
                         <div class="card-body">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-2">
                                     <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        Nombre total de message</div>
+                                            Nombre total de message</div>
                                     <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                        {{infoArr.nbreTotMsg}}
+                                            {{infoArr.nbreTotMsg}}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- Informations sensors -->
-        <div class="card-body">
-            <h3 class="card-title">Information</h3>
-            {% include "Sensors/viewInformationsSensor.html" %}
-        </div>
-        <!-- Activity sensors -->
-        <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <h3 class="card-title">Activités du capteur</h3>
-                </div>
-                <div class="col-md-4">
-                    <button id="exportData" type="button"
-                        class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                        onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=excel&deveui={{infoArr.deveui}}')"><i
-                            class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
-                        (Excel)</button>
-                </div>
-                <div class="col-md-4">
-                    <button id="exportData" type="button"
-                        class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                        onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=csv&deveui={{infoArr.deveui}}')"><i
-                            class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
-                        (Csv)</button>
-                </div>
-            </div>
-            {% include "Sensors/viewTableActivityData.html" %}
 
-        </div>
-        <!-- Alert sensors -->
-        <div class="card-body">
-            <h3 class="card-title">Alertes relevées par le capteur</h3>
-            {% for message in flash_alerts %}
-            <div class="alert alert-{{ message.type }}" role="alert">
-                {{ message.body }}
+                </div>
             </div>
-            {% endfor %}
-            {% include "Sensors/viewTableDataNewAlerts.html" %}
+            <!-- Informations sensors -->
+            <div class="card-body">
+                <h3 class="card-title">Information</h3>
+                {% include "Sensors/viewInformationsSensor.html" %}
+            </div>
+            <!-- Activity sensors -->
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <h3 class="card-title">Activités du capteur</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="exportData" type="button"
+                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                            onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=excel&deveui={{infoArr.deveui}}')"><i
+                                class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
+                            (Excel)</button>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="exportData" type="button"
+                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                            onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=csv&deveui={{infoArr.deveui}}')"><i
+                                class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
+                            (Csv)</button>
+                    </div>
+                </div>
+                {% include "Sensors/viewTableActivityData.html" %}
+
+            </div>
+            <!-- Alert sensors -->
+            <div class="card-body">
+                <h3 class="card-title">Alertes relevées par le capteur</h3>
+                {% for message in flash_alerts %}
+                <div class="alert alert-{{ message.type }}" role="alert">
+                    {{ message.body }}
+                </div>
+                {% endfor %}
+                {% include "Sensors/viewTableDataNewAlerts.html" %}
+            </div>
+            <!-- Alert historique sensors -->
+            <div class="card-body">
+                <h3 class="card-title">Historique des alertes</h3>
+                {% include "Sensors/viewTableDataOldAlerts.html" %}
+            </div>
         </div>
-        <!-- Alert historique sensors -->
-        <div class="card-body">
-            <h3 class="card-title">Historique des alertes</h3>
-            {% include "Sensors/viewTableDataOldAlerts.html" %}
-        </div>
+
+
     </div>
 
-</div>
+    {% endblock %}
 
-{% endblock %}
+    {% block script %}
 
-{% block script %}
+    <script>
+        $(document).ready(function () {
+            let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
 
-<script>
-    $(document).ready(function () {
-        let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
+            console.log(data_map_json);
+            var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json
+                    .longitude_sensor
+                ],
+                13);
 
-        console.log(data_map_json);
-        var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json.longitude_sensor],
-            13);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
-            id: 'mapbox.streets'
-        }).addTo(map);
-
-
-
-        if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
-            longitude_sensor = data_map_json.longitude_sensor;
-            latitude_sensor = data_map_json.latitude_sensor;
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
+                id: 'mapbox.streets'
+            }).addTo(map);
 
 
-            sensor_id = data_map_json.sensor_id;
-            site = data_map_json.site;
-            equipement = data_map_json.equipement;
 
-            L.marker([latitude_sensor, longitude_sensor]).addTo(map)
-                .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
-        }
+            if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
+                longitude_sensor = data_map_json.longitude_sensor;
+                latitude_sensor = data_map_json.latitude_sensor;
 
-        $('#tableDataActivitySensor').DataTable({
-            "lengthMenu": [
-                [10, 25, 50, -1],
-                [10, 25, 50, 'All']
-            ],
-            "iDisplayLength": 10
+
+                sensor_id = data_map_json.sensor_id;
+                site = data_map_json.site;
+                equipement = data_map_json.equipement;
+
+                L.marker([latitude_sensor, longitude_sensor]).addTo(map)
+                    .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+            }
+
+            $('#tableDataActivitySensor').DataTable({
+                "lengthMenu": [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ],
+                "iDisplayLength": 10
+            });
+
         });
+    </script>
 
-    });
-</script>
-
-{% endblock %}
+    {% endblock %}
