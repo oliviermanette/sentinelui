@@ -36,7 +36,12 @@
             <div class="mt-3 row">
                 <!-- Capteurs actifs Card  -->
                 <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card shadow h-100 py-2">
+                    {% if infoArr.status == "inactive" %}
+                    <div class="card border-left-danger shadow h-100 py-2">
+                    {% elseif infoArr.status == "active" %}
+                     <div class="card border-left-success shadow h-100 py-2">
+                    {% endif %}
+                    
                         <div class="card-body">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-2">
@@ -108,66 +113,10 @@
                 </div>
             </div>
         </div>
-        <!-- Informations sensors sensors -->
+        <!-- Informations sensors -->
         <div class="card-body">
             <h3 class="card-title">Information</h3>
-            <div class="card shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="row device-info-container">
-                                <div class="col-md-6 left-column">
-                                    <div class="row card-row">
-                                        <div class="extend-view-label col-md-5" title="groupe">Groupe
-                                        </div>
-                                        <div class="extend-view-value col-md-7" title="{{infoArr.groupe}}">
-                                            {{infoArr.groupe}}
-                                        </div>
-                                    </div>
-                                    <div class="row card-row">
-                                        <div class="extend-view-label col-md-5" title="Date installation">Installé le
-                                        </div>
-                                        <div class="extend-view-value col-md-7" title="{{infoArr.date_installation}}">
-                                            {{infoArr.date_installation}}</div>
-                                    </div>
-                                    <div class="row card-row">
-                                        <div class="extend-view-label col-md-5" title="Device ID">
-                                            Device ID
-                                        </div>
-                                        <div class="extend-view-value col-md-7" title="{{infoArr.id_device}}">
-                                            {{infoArr.id_objenious}}</div>
-                                    </div>
-                                    <div class="row card-row">
-                                        <div class="extend-view-label col-md-5" title="Deveui">Deveui
-                                        </div>
-                                        <div class="extend-view-value col-md-7" title="{{infoArr.deveui}}">
-                                            {{infoArr.deveui}}</div>
-                                    </div>
-
-                                    <div class="row card-row">
-                                        <div class="extend-view-label col-md-5" title="Firmware Version">Version
-                                            firmware
-                                        </div>
-                                        <div class="extend-view-value col-md-7" title="{{infoArr.firmware}}">
-                                            {{infoArr.firmware}}</div>
-                                    </div>
-                                    <div class="row card-row">
-                                        <div class="extend-view-label col-md-5" title="Constructor">Constructeur
-                                        </div>
-                                        <div class="extend-view-value col-md-7" title="RTE">{{infoArr.constructor}}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 right-column">
-                                    <div align="center" id="deviceMap" style="height:200px;"></div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            {% include "Sensors/viewInformationsSensor.html" %}
         </div>
         <!-- Activity sensors -->
         <div class="card-body">
@@ -190,44 +139,8 @@
                         (Csv)</button>
                 </div>
             </div>
-            <table id="tableDataActivitySensor" class="display compact" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Capteur</th>
-                        <th>Date mesure</th>
-                        <th>Type</th>
-                        <th>batterie %</th>
-                        <th>Température °C</th>
-                        <th>Inclinaison X °</th>
-                        <th>Inclinaison Y °</th>
-                        <th>Inclinaison Z °</th>
-                        <th>Amplitude 1 Mg</th>
-                        <th>Frequence 1 Hz</th>
-                        <th>Amplitude 2 Mg</th>
-                        <th>Frequence 2 Hz</th>
-                        <th>Puissance W</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in recordRawArr %}
-                    <tr>
-                        <td>{{row.sensor_label}}</td>
-                        <td>{{row.date_mesure}}</td>
-                        <td>{{row.type}}</td>
-                        <td>{{row.battery}}</td>
-                        <td>{{row.temperature}}</td>
-                        <td>{{row.inclinaison_x}}</td>
-                        <td>{{row.inclinaison_y}}</td>
-                        <td>{{row.inclinaison_z}}</td>
-                        <td>{{row.amplitude_1}}</td>
-                        <td>{{row.freq_1}}</td>
-                        <td>{{row.amplitude_2}}</td>
-                        <td>{{row.freq_2}}</td>
-                        <td>{{row.power}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% include "Sensors/viewTableActivityData.html" %}
+
         </div>
         <!-- Alert sensors -->
         <div class="card-body">
@@ -237,12 +150,12 @@
                 {{ message.body }}
             </div>
             {% endfor %}
-             {% include "Sensors/viewTableDataNewAlerts.html" %}
+            {% include "Sensors/viewTableDataNewAlerts.html" %}
         </div>
         <!-- Alert historique sensors -->
         <div class="card-body">
             <h3 class="card-title">Historique des alertes</h3>
-                {% include "Sensors/viewTableDataOldAlerts.html" %}
+            {% include "Sensors/viewTableDataOldAlerts.html" %}
         </div>
     </div>
 

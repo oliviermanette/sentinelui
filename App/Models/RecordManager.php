@@ -41,7 +41,6 @@ class RecordManager extends \Core\Model
     if ($type_msg == "uplink") {
       //Classic message which has the raw data value (inclinometer...)
       $uplinkDataArr = RecordManager::extractUplinkData($data);
-
       //Add equipement
       $equipementManager->insertStructureType($uplinkDataArr["type_asset"]);
       if (!$equipementManager->insertStructureType($uplinkDataArr["type_asset"])) {
@@ -61,9 +60,9 @@ class RecordManager extends \Core\Model
 
       //Get the type of message received from the uplink (choc, inclinometer, global, spectre)
       $type_msg = $payload_decoded_json["type"];
-      print_r($uplinkDataArr);
+      //print_r($uplinkDataArr);
       //Insert a record inside the Record table of the DB
-      //RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
+      RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
 
       //Choc data
       if ($type_msg == "choc") {

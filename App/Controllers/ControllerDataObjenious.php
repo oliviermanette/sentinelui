@@ -20,10 +20,6 @@ This class handle this HTTP request
 */
 class ControllerDataObjenious extends \Core\Controller{
 
-  public function __construct() {
-
-  }
-
 
   /**
    * When Objenious send an uplink, it goes here
