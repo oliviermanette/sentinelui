@@ -8,3 +8,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-l
 RewriteRule ^(.*)$ /index.php?$1 [L,QSA]
+
+#Log error
+php_flag log_errors On
+php_value error_log logs/all_errors.log
