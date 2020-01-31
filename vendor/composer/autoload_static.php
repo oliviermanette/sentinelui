@@ -7,8 +7,8 @@ namespace Composer\Autoload;
 class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
 {
     public static $files = array (
-        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '3f8bdd3b35094c73a26f0106e3c0f8b2' => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/SendGrid.php',
     );
 
@@ -21,6 +21,8 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         array (
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
+            'Symfony\\Contracts\\Translation\\' => 30,
+            'Symfony\\Component\\Translation\\' => 30,
             'SendGrid\\Stats\\' => 15,
             'SendGrid\\Mail\\' => 14,
             'SendGrid\\Contacts\\' => 18,
@@ -33,6 +35,7 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         'C' => 
         array (
             'Core\\' => 5,
+            'Carbon\\' => 7,
         ),
         'A' => 
         array (
@@ -52,6 +55,14 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         'Symfony\\Polyfill\\Ctype\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
+        ),
+        'Symfony\\Contracts\\Translation\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/translation-contracts',
+        ),
+        'Symfony\\Component\\Translation\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/translation',
         ),
         'SendGrid\\Stats\\' => 
         array (
@@ -77,6 +88,10 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         'Core\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Core',
+        ),
+        'Carbon\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
         ),
         'App\\' => 
         array (
