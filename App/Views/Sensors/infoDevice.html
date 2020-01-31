@@ -204,9 +204,19 @@
                 "iDisplayLength": 10
             });
 
-            //Draw chart inclinometer
+            //Draw chart inclinometer monthly
             let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
             drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer");
+
+            //Draw chart choc
+            //Nb choc
+            let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
+            drawChartNbChocPerDate(nbChocDataMonth, "chartNbChoc");
+
+            //Power
+            let powerChocDataMonth = '{{ powerChocDataMonthArr|raw}}';
+            drawChartPowerChocPerDateBar(powerChocDataMonth, "chartPowerChoc");
+
         });
 
         //When the user want to change the date for displaying the chart concerning the power of choc
@@ -215,18 +225,64 @@
             e.preventDefault();
             let deveui = '{{infoArr.deveui}}';
             var lastXdays = $("input[name='options']:checked").val();
-            
+
             removeElement("canvasInclinometer");
             addElement("canvasInclinometer", "canvas", "chartAngleInclinometer");
-            if (lastXdays === "7" ){
+            if (lastXdays === "7") {
                 let inclinometerDataWeek = '{{ inclinometerDataWeekArr|raw}}';
-                 drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer");
+                drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer");
             }
-            if (lastXdays === "30" ){
+            if (lastXdays === "30") {
                 let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
-                 drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer");
+                drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer");
             }
-            
+
+        });
+
+        $(document).on("click", "#radioButtonNbChoc", function (e) {
+            e.preventDefault();
+            let deveui = '{{infoArr.deveui}}';
+            var lastXdays = $("input[name='options']:checked").val();
+
+            removeElement("chartNbChoc");
+            addElement("canvasNbchoc", "canvas", "chartNbChoc");
+            if (lastXdays === "7") {
+                let nbChocDataWeek = '{{ nbChocDataWeekArr|raw}}';
+                drawChartNbChocPerDate(nbChocDataWeek, "chartNbChoc");
+            }
+            if (lastXdays === "30") {
+                let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
+                drawChartNbChocPerDate(nbChocDataMonth, "chartNbChoc");
+            }
+            if (lastXdays === "1") {
+                let nbChocDataDay = '{{ nbChocDataDay|raw}}';
+                drawChartNbChocPerDate(nbChocDataDay, "chartNbChoc");
+            }
+
+        });
+        $(document).on("click", "#radioButtonPowerChoc", function (e) {
+            e.preventDefault();
+            let deveui = '{{infoArr.deveui}}';
+            var lastXdays = $("input[name='options']:checked").val();
+
+            removeElement("chartPowerChoc");
+            addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
+            if (lastXdays === "7") {
+                let nbPowerDataWeek = '{{ powerChocDataWeekArr|raw}}';
+                console.log(nbPowerDataWeek);
+                drawChartPowerChocPerDateBar(nbPowerDataWeek, "chartPowerChoc");
+            }
+            if (lastXdays === "30") {
+                let nbPowerDataMonth = '{{ powerChocDataMonthArr|raw}}';
+                console.log(nbPowerDataMonth);
+                drawChartPowerChocPerDateBar(nbPowerDataMonth, "chartPowerChoc");
+            }
+            if (lastXdays === "1") {
+                let nbPowerDataDay = '{{ powerChocDataDayArr|raw}}';
+                console.log(nbPowerDataDay);
+                drawChartPowerChocPerDateBar(nbPowerDataDay, "chartPowerChoc");
+            }
+
         });
     </script>
 

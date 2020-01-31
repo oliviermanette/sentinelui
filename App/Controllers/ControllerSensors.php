@@ -9,6 +9,7 @@ use \App\Auth;
 use \App\Flash;
 use App\Models\AlertManager;
 use App\Models\BatteryManager;
+use App\Models\ChocManager;
 
 /**
  * Sensors controller
@@ -79,11 +80,29 @@ class ControllerSensors extends Authenticated
         $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
         
         //4. chart data
+        //Inclinometer
         $inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
         $inclinometerDataMonthArr = json_encode($inclinometerDataMonthArr);
         $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
         $inclinometerDataWeekArr = json_encode($inclinometerDataWeekArr);
-        
+
+        //Choc
+        //Nb choc
+        $nbChocDataMonthArr = ChocManager::getNbChocForLast($deveui,30);
+        $nbChocDataMonthArr = json_encode($nbChocDataMonthArr);
+        $nbChocDataWeekArr = ChocManager::getNbChocForLast($deveui, 7);
+        $nbChocDataWeekArr = json_encode($nbChocDataWeekArr);
+        $nbChocDataDay = ChocManager::getNbChocForLast($deveui, 1);
+        $nbChocDataDay = json_encode($nbChocDataDay);
+
+        //Power choc
+        $powerChocDataMonthArr = ChocManager::getPowerChocForLast($deveui, 30);
+        $powerChocDataMonthArr = json_encode($powerChocDataMonthArr);
+        $powerChocDataWeekArr = ChocManager::getPowerChocForLast($deveui, 7);
+        $powerChocDataWeekArr = json_encode($powerChocDataWeekArr);
+        $powerChocDataDayArr = ChocManager::getPowerChocForLast($deveui, 1);
+        $powerChocDataDayArr = json_encode($powerChocDataDayArr);
+
         View::renderTemplate('Sensors/infoDevice.html', [
             'infoArr' => $infoArr,
             'dataMapArray' => $dataMapArr,
@@ -93,6 +112,12 @@ class ControllerSensors extends Authenticated
             'totalVariationArr' => $totalVariationArr,
             'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
             'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
+            'nbChocDataMonthArr' => $nbChocDataMonthArr,
+            'nbChocDataWeekArr' => $nbChocDataWeekArr,
+            'nbChocDataDay' => $nbChocDataDay,
+            'powerChocDataMonthArr' => $powerChocDataMonthArr,
+            'powerChocDataDayArr' => $powerChocDataDayArr,
+            'powerChocDataWeekArr' => $powerChocDataWeekArr
         ]);
 
     }

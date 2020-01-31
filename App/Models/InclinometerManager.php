@@ -496,7 +496,7 @@ class InclinometerManager extends \Core\Model
   /**
    * Compute variation (%) of inclinometer data from today to a specific date in term of days
    *
-   * @param int $sensor_id sensor id for which we want to compute the variation data
+   * @param int $deveui sensor deveui for which we want to compute the variation data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
    * compute variation between today and the last value 30 days ago
    * @return array  results from the query

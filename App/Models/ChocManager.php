@@ -731,6 +731,90 @@ class ChocManager extends \Core\Model
   }
 
   /**
+   * 
+   * Get number of choc for last X days for a specific 
+   *  
+   
+   * @param int $deveui sensor deveui for which we want to compute the variation data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago
+   * @return array  results from the query
+   * date | number choc
+   */
+  public static function getNbChocForLast($deveui, $time_period)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc = "SELECT
+        date_d,
+        count(*) AS nb_choc
+        FROM
+        (
+          SELECT
+          `sensor_id`,
+          DATE(`date_time`) AS date_d,
+          `amplitude_1`,
+          `amplitude_2`,
+          `time_1`,
+          `time_2`,
+          `freq_1`,
+          `freq_2`,
+          `power`
+          FROM
+          choc
+          LEFT JOIN record AS r ON (r.id = choc.record_id)
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+          WHERE
+          `msg_type` LIKE 'choc'
+          AND s.deveui = :deveui
+          AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
+        ) AS choc_data
+        GROUP BY
+        date_d
+        ORDER BY
+        date_d ASC
+        ";
+
+    $stmt = $db->prepare($sql_nb_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+  //TODO COMMENT AND NETTOYER UN PEU CODE INUTILE
+  public static function getPowerChocForLast($deveui, $time_period)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+      DATE(r.date_time) AS date_d,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE
+      `msg_type` LIKE 'choc'
+      AND s.deveui = :deveui
+      AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
+      ORDER BY `date_d` ASC
+        ";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+  
+
+  /**
    * Get number of choc per week for a specific sensor
    *
    * date | number choc
