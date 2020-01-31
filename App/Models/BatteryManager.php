@@ -67,7 +67,11 @@ class BatteryManager extends \Core\Model
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "global"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :battery) AS id_record';
+      :battery) AS id_record
+      WHERE NOT EXISTS (
+      SELECT record_id FROM global WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
+      ) LIMIT 1';
 
     $db = static::getDB();
     $stmt = $db->prepare($sql_data_record_battery);
@@ -76,6 +80,15 @@ class BatteryManager extends \Core\Model
     $stmt->bindValue(':deveui', $deveui_sensor, PDO::PARAM_STR);
     $stmt->bindValue(':battery', $battery_level, PDO::PARAM_INT);
 
-    return $stmt->execute();
+    $stmt->execute();
+
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      echo "\n0 battery were affected\n";
+      return false;
+    } else {
+      echo "\n 1 battery data was affected.\n";
+      return true;
+    }
   }
 }

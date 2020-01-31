@@ -257,7 +257,11 @@ class InclinometerManager extends \Core\Model
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :nx, :ny, :nz, :angle_x, :angle_y, :angle_z, :temperature) AS id_record';
+      :nx, :ny, :nz, :angle_x, :angle_y, :angle_z, :temperature) AS id_record
+      WHERE NOT EXISTS (
+      SELECT record_id FROM inclinometer WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
+    ) LIMIT 1';
 
       $db = static::getDB();
       $stmt = $db->prepare($sql_data_record_inclinometer);
@@ -272,7 +276,16 @@ class InclinometerManager extends \Core\Model
       $stmt->bindValue(':angle_z', $angleZ, PDO::PARAM_STR);
       $stmt->bindValue(':temperature', $temperature, PDO::PARAM_STR);
 
-      return $stmt->execute();
+    $stmt->execute();
+
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      echo "\n0 inclinometer data were affected\n";
+      return false;
+    } else {
+      echo "\n 1 inclinometer data was affected.\n";
+      return true;
+    }
 
   }
 

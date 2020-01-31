@@ -192,7 +192,11 @@ class SpectreManager extends \Core\Model
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "spectre"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :subspectre, :subspectre_number, :min_freq, :max_freq, :resolution) AS id_record';
+      :subspectre, :subspectre_number, :min_freq, :max_freq, :resolution) AS id_record
+      WHERE NOT EXISTS (
+      SELECT record_id FROM spectre WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
+      ) LIMIT 1';
 
       $db = static::getDB();
       $stmt = $db->prepare($sql_data_record_subspectre);
@@ -205,7 +209,16 @@ class SpectreManager extends \Core\Model
       $stmt->bindValue(':max_freq', $maxFreq, PDO::PARAM_STR);
       $stmt->bindValue(':resolution', $resolution, PDO::PARAM_STR);
 
-      return $stmt->execute();
+      $stmt->execute();
+
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      echo "\n0 spectre were affected\n";
+      return false;
+    } else {
+      echo "\n 1 spectre data was affected.\n";
+      return true;
+    }
 
   }
 

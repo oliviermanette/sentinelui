@@ -1047,7 +1047,11 @@ class ChocManager extends \Core\Model
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :amplitude1, :amplitude2, :time1, :time2, :frequence1, :frequence2, :power) AS id_record';
+      :amplitude1, :amplitude2, :time1, :time2, :frequence1, :frequence2, :power) AS id_record
+      WHERE NOT EXISTS (
+      SELECT record_id FROM choc WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
+    ) LIMIT 1';
 
     $db = static::getDB();
     $stmt = $db->prepare($sql_data_record_choc);
@@ -1062,7 +1066,16 @@ class ChocManager extends \Core\Model
     $stmt->bindValue(':frequence2', $freq2, PDO::PARAM_STR);
     $stmt->bindValue(':power', $totalAreaPower, PDO::PARAM_STR);
 
-    return $stmt->execute();
+    $stmt->execute();
+
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      echo "\n0 choc were affected\n";
+      return false;
+    } else {
+      echo "\n 1 choc data was affected.\n";
+      return true;
+    }
   }
   /**
    * compute choc data to the DB given a json file

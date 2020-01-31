@@ -16,6 +16,7 @@ use App\Config;
 use App\Utilities;
 use App\Controllers\ControllerDataObjenious;
 use PDO;
+use Carbon\Carbon;
 
 class RecordManager extends \Core\Model
 {
@@ -60,65 +61,69 @@ class RecordManager extends \Core\Model
 
       //Get the type of message received from the uplink (choc, inclinometer, global, spectre)
       $type_msg = $payload_decoded_json["type"];
-      //print_r($uplinkDataArr);
+      //print_r($payload_decoded_json);
       //Insert a record inside the Record table of the DB
-      RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
+      $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
 
+      if ($success) {
+        if ($type_msg == "choc") {
+
+          $chocManager = new ChocManager($payload_decoded_json);
+
+          if (!$chocManager->insertChocData($payload_decoded_json)) {
+            return false;
+          }
+
+          $time_period = 30;
+          $chocManager->setStdDevRule(1);
+          $hasAlert = $chocManager->check($sensor_id, 30);
+          $chocValue = $chocManager->getPowerValueChoc();
+
+          //Create new alert if it's the case
+          if ($hasAlert) {
+
+            $eventDataArr = array(
+              "label"  => "high_choc",
+              "deveui"  => $uplinkDataArr["deveui"],
+              "date_time"  => $uplinkDataArr["date_time"],
+              "equipement_id"  => $equipement_id,
+              "value"  => $chocValue
+            );
+
+            $alertManager = new AlertManager($eventDataArr);
+            $alertManager->createFromArr($eventDataArr);
+          }
+        }
+        //battery data
+        else if ($type_msg == "global") {
+          $batteryManager = new BatteryManager();
+
+          if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
+            return false;
+          }
+        }
+        //Inclinometer data
+        else if ($type_msg == "inclinometre") {
+          $inclinometreManager = new InclinometerManager();
+
+          if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
+            return false;
+          }
+        }
+        //Subspectre data
+        else if ($type_msg == "spectre") {
+          $spectreManager = new SpectreManager();
+
+          if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+      //exit();
       //Choc data
-      if ($type_msg == "choc") {
 
-        $chocManager = new ChocManager($payload_decoded_json);
-
-        if (!$chocManager->insertChocData($payload_decoded_json)) {
-          return false;
-        }
-
-        $time_period = 30;
-        $chocManager->setStdDevRule(1);
-        $hasAlert = $chocManager->check($sensor_id, 30);
-        $chocValue = $chocManager->getPowerValueChoc();
-
-        //Create new alert if it's the case
-        if ($hasAlert) {
-
-          $eventDataArr = array(
-            "label"  => "high_choc",
-            "deveui"  => $uplinkDataArr["deveui"],
-            "date_time"  => $uplinkDataArr["date_time"],
-            "equipement_id"  => $equipement_id,
-            "value"  => $chocValue
-          );
-
-          $alertManager = new AlertManager($eventDataArr);
-          $alertManager->createFromArr($eventDataArr);
-        }
-      }
-      //battery data
-      else if ($type_msg == "global") {
-        $batteryManager = new BatteryManager();
-
-        if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
-          return false;
-        }
-      }
-      //Inclinometer data
-      else if ($type_msg == "inclinometre") {
-        $inclinometreManager = new InclinometerManager();
-
-        if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
-          return false;
-        }
-      }
-      //Subspectre data
-      else if ($type_msg == "spectre") {
-        $spectreManager = new SpectreManager();
-
-        if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
-          return false;
-        }
-      }
-
-      return true;
       //If event defined in Objenious 
     } else if ($type_msg == "event") {
 
@@ -144,19 +149,19 @@ class RecordManager extends \Core\Model
    * @param string $group_name group to deal with (RTE)
    * @return void
    */
-  function initPool($group_name){
+  function initPool($group_name)
+  {
 
     $resultsArr = RecordManager::getCoupleStructureIDSensorIDFromRecord($group_name);
     //print_r($resultsArr);
     echo "Add to POOL database : \n";
-    foreach($resultsArr as $coupleArr ) {
+    foreach ($resultsArr as $coupleArr) {
       $structure_id = $coupleArr["structure_id"];
       $sensor_id = $coupleArr["sensor_id"];
       //Add to the DB 
-      if (RecordManager::insertPoolData($structure_id, $sensor_id)){
+      if (RecordManager::insertPoolData($structure_id, $sensor_id)) {
         echo "(Structure_id : " . $structure_id . ", Sensor_id : " . $sensor_id . ") \n";
       }
-    
     }
     echo "\n DONE \n";
   }
@@ -198,7 +203,8 @@ class RecordManager extends \Core\Model
    *  id of the pool
    * 
    */
-  public function getPoolId($structure_id, $sensor_id){
+  public function getPoolId($structure_id, $sensor_id)
+  {
     $db = static::getDB();
 
     $sql_pool_id = "
@@ -225,7 +231,8 @@ class RecordManager extends \Core\Model
    *  sensor_id 
    * 
    */
-  public function getAllSensorIdFromPool(){
+  public function getAllSensorIdFromPool()
+  {
     $db = static::getDB();
 
     $sql = "SELECT sensor_id FROM pool";
@@ -236,7 +243,6 @@ class RecordManager extends \Core\Model
       $sensorIdArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $sensorIdArr;
     }
-
   }
 
   /**
@@ -245,7 +251,8 @@ class RecordManager extends \Core\Model
    * @param int $sensor_id 
    * @return void
    */
-  public static function insertPoolData($structure_id, $sensor_id){
+  public static function insertPoolData($structure_id, $sensor_id)
+  {
 
     $db = static::getDB();
 
@@ -264,11 +271,10 @@ class RecordManager extends \Core\Model
     $ok = $stmt->execute();
 
     $db = null;
-    if ($ok){
+    if ($ok) {
       return true;
     }
     return false;
-
   }
 
   public static function checkTypeMessage($type_msg)
@@ -364,6 +370,7 @@ class RecordManager extends \Core\Model
   public static function extractEventData($data)
   {
     $date_time = RecordManager::convertTimestampToDateTime($data['timestamp']);
+
     $device_id = $data['device_id'];
     $type = $data['type'];
     $device_properties = $data['device_properties'];
@@ -410,9 +417,17 @@ class RecordManager extends \Core\Model
 
   public static function convertTimestampToDateTime($timestamp, $datetimeFormat = 'Y-m-d H:i:s')
   {
+    //Split 2019-11-29T16:01:26.572226000Z to keep only the last part 572226000Z
+    $part = explode(".", $timestamp);
+    $second = substr($part[1], 0, 3);
+    //Finnaly we get 2019-11-29T16:01:26.572Z
+    $secondTimeZone = $second . "Z";
+    $timestamp = $part[0] . "." . $secondTimeZone;
+
     $timezone = new \DateTimeZone(date_default_timezone_get());
+
     $date     = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $timestamp, $timezone);
-    $date = new \DateTime($date);
+    $date = new \DateTime($timestamp, $timezone);
     $date_time = $date->format($datetimeFormat);
 
     return $date_time;
@@ -439,7 +454,7 @@ class RecordManager extends \Core\Model
     (SELECT id FROM structure WHERE nom like :name_asset),
     :payload_raw, :date_time, :type_msg, :longitude, :latitude) AS id_record
     WHERE NOT EXISTS (
-      SELECT date_time FROM record WHERE date_time like :date_time
+      SELECT date_time FROM record WHERE date_time = :date_time
     ) LIMIT 1';
 
     $db = static::getDB();
@@ -453,7 +468,15 @@ class RecordManager extends \Core\Model
     $stmt->bindValue(':longitude', $longitude, PDO::PARAM_STR);
     $stmt->bindValue(':latitude', $latitude, PDO::PARAM_STR);
 
-    return $stmt->execute();
+    $stmt->execute();
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      echo "\n0 rows were affected\n";
+      return false;
+    } else {
+      echo "\nSuccess: At least 1 row was affected.\n";
+      return true;
+    }
   }
 
 
@@ -1185,7 +1208,7 @@ class RecordManager extends \Core\Model
     $spectrenumber = 0;
     if ($stmt->execute()) {
       $row_date_ = $stmt->fetchAll();
-      
+
       foreach ($row_date_ as $row_date) {
         $spectre_name = 'spectre_' . $spectrenumber;
         $current_date = $row_date['date_d'];
@@ -1320,9 +1343,9 @@ class RecordManager extends \Core\Model
   public function getMessagesExchangedDeviceUsingIdFromAPI($device_id, $since = null, $until = null)
   {
 
-    $url = "https://api.objenious.com/v1/devices/".$device_id."/messages";
-    if (isset($since) && isset($until)){
-      $url .= "?since=".$since."&until=".$until;
+    $url = "https://api.objenious.com/v1/devices/" . $device_id . "/messages";
+    if (isset($since) && isset($until)) {
+      $url .= "?since=" . $since . "&until=" . $until;
     }
     $results_api = ControllerDataObjenious::CallAPI("GET", $url);
     $messages_device = $results_api["messages"];
@@ -1465,7 +1488,8 @@ class RecordManager extends \Core\Model
    * @return int id
    * 
    */
-  public function getDataTypeIdFromName($name){
+  public function getDataTypeIdFromName($name)
+  {
 
     $db = static::getDB();
 
@@ -1478,9 +1502,5 @@ class RecordManager extends \Core\Model
       $id = $stmt->fetchAll(PDO::FETCH_COLUMN);
       return $id[0];
     }
-
-    
   }
 }
-
-
