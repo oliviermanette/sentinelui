@@ -20,7 +20,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Ancien X
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 text-gray-800">
                                     {{row.oldAngleX}} °
                                 </div>
                             </div>
@@ -28,7 +28,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Nouveau X
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 text-gray-800">
                                     {{row.newAngleX}} °
                                 </div>
                             </div>
@@ -36,7 +36,11 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Variation X
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if row.pourcentage_variation_angleX != 0 %}
+                                <div class="h5 mb-0 font-weight-bold text-danger">
+                                    {% else %}
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% endif %}
                                     {{row.pourcentage_variation_angleX}} %
                                 </div>
                             </div>
@@ -53,7 +57,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Ancien Y
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 text-gray-800">
                                     {{row.oldAngleY}} °
                                 </div>
                             </div>
@@ -61,7 +65,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Nouveau Y
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 text-gray-800">
                                     {{row.newAngleY}} °
                                 </div>
                             </div>
@@ -69,7 +73,11 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Variation Y
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if row.pourcentage_variation_angleY != 0 %}
+                                <div class="h5 mb-0 font-weight-bold text-danger">
+                                    {% else %}
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% endif %}
                                     {{row.pourcentage_variation_angleY}} %
                                 </div>
                             </div>
@@ -86,7 +94,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Ancien Z
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 text-gray-800">
                                     {{row.oldAngleZ}} °
                                 </div>
                             </div>
@@ -94,7 +102,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Nouveau Z
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 text-gray-800">
                                     {{row.newAngleZ}} °
                                 </div>
                             </div>
@@ -102,7 +110,12 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Variation Z
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                
+                                    {% if row.pourcentage_variation_angleZ != 0 %}
+                                    <div class="h5 mb-0 font-weight-bold text-danger">
+                                        {% else %}
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% endif %}
                                     {{row.pourcentage_variation_angleZ}} %
                                 </div>
                             </div>
