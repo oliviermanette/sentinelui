@@ -39,6 +39,11 @@ function browserSyncReload(done) {
 
 // Bring third party dependencies from vendor into public directory
 function modules() {
+     // Bootstrap JS
+     var bootstrapDatePickerJS = gulp.src('./vendor/bootstrap-daterangepicker/daterangepicker.js')
+         .pipe(gulp.dest('./public/vendor/bootstrap-daterangepicker/js'));
+    var bootstrapDatePickerCSS = gulp.src('./vendor/bootstrap-daterangepicker/daterangepicker.css')
+        .pipe(gulp.dest('./public/vendor/bootstrap-daterangepicker/css'));
     // Bootstrap JS
     var bootstrapJS = gulp.src('./vendor/bootstrap/dist/js/*')
         .pipe(gulp.dest('./public/vendor/bootstrap/js'));
