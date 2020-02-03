@@ -39,7 +39,13 @@
                                 <div class="text-s font-weight-bold text-primary mb-1">Choisissez une date
                                     (optionnel)
                                 </div>
-                                <input type="text" name="daterange" placeholder="" />
+                                <div id="reportrange" class="browser-default custom-select">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span></span>
+                                    <!-- <span>December 30, 2014 - January 28, 2015</span>-->
+                                </div>
+                                <!-- 
+                                <input type="text" name="daterange" placeholder="" />-->
                             </div>
                             <div class="my-2"></div>
                             <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
@@ -65,12 +71,15 @@
 {% block script %}
 
 <script>
-    var dateMax = "";
-    var dateMin = "";
+    let startDate = "";
+    let endDate = "";
+    let diffDays = "";
 
     $(document).ready(function () {
-        init_daterangepicker();
         
+
+        init_daterangepicker();
+
         var date = Date();
         // When the user select a site, the equipement associated is displayed
         $("#siteID").change(function () {
@@ -89,19 +98,6 @@
             xhttp.send(formData);
         });
 
-        $('input[name="daterange"]').daterangepicker({
-            showDropdowns: true,
-            locale: {
-                format: 'DD-MM-YYYY'
-            },
-            opens: 'left',
-            minDate: "{{min_date}}",
-            maxDate: "{{max_date}}"
-        }, function (start, end, label) {
-            dateMin = start.format('YYYY-MM-DD');
-            dateMax = end.format('YYYY-MM-DD');
-        });
-
         $('#tableDataChoc').DataTable({
             "createdRow": function (row, data, dataIndex) {
 
@@ -112,6 +108,8 @@
             ],
             "iDisplayLength": 20
         });
+
+
         var formData = new FormData();
         formData.append('siteID', 26);
         xhttp = new XMLHttpRequest();
@@ -196,10 +194,14 @@
         //TODO the form used here is the one from Homepage - becareful and change later
         formData.append('siteID', $('#siteID option:selected').val());
         formData.append('equipmentID', $('#equipment option:selected').val());
+        formData.append('startDate', startDate);
+        formData.append('endDate', endDate);
+        formData.append('diffDays', diffDays);
 
         console.log("Site selected :", $('#siteID option:selected').val());
         console.log("Equipement selected :", $('#equipment option:selected').val());
-
+        console.log("Start date form :", startDate);
+        console.log("End date form :", endDate);
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -214,13 +216,13 @@
         xhttp.open("POST", "/ControllerData/getResultsFromChocForm", false);
         xhttp.send(formData);
 
-
+        
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var choc_data = this.responseText;
                 choc_data = JSON.parse(choc_data);
-                console.log("Choc data chart : ",choc_data);
+                console.log("Choc data chart : ", choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
 
                     var name_data = "equipement_" + i;
@@ -251,72 +253,73 @@
     });
 
     function init_daterangepicker() {
-            moment.locale('fr');
-            if (typeof ($.fn.daterangepicker) === 'undefined') {
-                return;
-            }
+        moment.locale('fr');
+        if (typeof ($.fn.daterangepicker) === 'undefined') {
+            return;
+        }
 
-            var cb = function (start, end, label) {
-                //console.log(start.toISOString(), end.toISOString(), label);
-                $('#reportrange span').html(start.format('LL') + ' - ' + end.format('LL'));
-            };
-
-            var optionSet = {
-                startDate: moment().subtract(29, 'days'),
-                endDate: moment(),
-                minDate: '01/01/2012',
-                maxDate: moment().format('DD/MM/YYYY'),
-                dateLimit: {
-                    days: 60
-                },
-                showDropdowns: true,
-                showWeekNumbers: true,
-                timePicker: false,
-                timePickerIncrement: 1,
-                timePicker12Hour: true,
-                ranges: {
-                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
-                    'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
-                    'Ce mois': [moment().startOf('month'), moment().endOf('month')]
-                },
-                opens: 'left',
-                buttonClasses: ['btn btn-default'],
-                applyClass: 'btn-small btn-primary',
-                cancelClass: 'btn-small',
-                format: 'DD/MM/YYYY',
-                separator: ' à ',
-                locale: {
-                    applyLabel: 'Appliquer',
-                    cancelLabel: 'Annuler',
-                    fromLabel: 'De',
-                    toLabel: 'à',
-                    customRangeLabel: 'Specifique',
-                    daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
-                    monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
-                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
-                    ],
-                    firstDay: 1
-                }
-            }
-
-            $('#reportrange').daterangepicker(optionSet, cb);
-
-            $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
-                let startDate = picker.startDate;
-                let endDate = picker.endDate;
-                let diffDays = picker.endDate.diff(picker.startDate, 'days');
-                console.log("start/end dates are " + startDate.format(
-                    'L') + " to " + endDate.format('L'));
-                   
-                console.log(`Difference in days: ${diffDays}`);
-                console.log(ev);
-                console.log(picker);
-            });
-    
-
+        var cb = function (start, end, label) {
+            //console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrange span').html(start.format('L') + ' - ' + end.format('L'));
         };
 
+        var optionSet = {
+            startDate: moment().subtract(29, 'days'),
+            endDate: moment(),
+            minDate: '01/01/2012',
+            maxDate: moment().format('DD/MM/YYYY'),
+            dateLimit: {
+                days: 60
+            },
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1,
+            timePicker12Hour: true,
+            ranges: {
+                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
+            locale: {
+                applyLabel: 'Appliquer',
+                cancelLabel: 'Annuler',
+                fromLabel: 'De',
+                toLabel: 'à',
+                customRangeLabel: 'Specifique',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ],
+                firstDay: 1
+            }
+        }
+
+        $('#reportrange').daterangepicker(optionSet, cb);
+
+        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD');
+            endDate = picker.endDate.format('YYYY-MM-DD');;
+            let diffDays = picker.endDate.diff(picker.startDate, 'days');
+            console.log("start/end dates are " + startDate + " to " + endDate);
+
+            console.log(`Difference in days: ${diffDays}`);
+        });
+        $('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
+            startDate = '';
+            endDate = '';
+            $('#reportrange span').html(startDate + ' - ' + endDate);
+        });
+
+
+    };
 </script>
 
 {% endblock %}

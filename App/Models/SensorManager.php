@@ -460,6 +460,9 @@ class SensorManager extends \Core\Model
     }
   }
 
+  
+  
+
   /**
    *
    * @return void

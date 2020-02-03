@@ -355,8 +355,8 @@ class ChocManager extends \Core\Model
       WHERE 
         `msg_type` LIKE 'choc' 
         AND `sensor_id` LIKE :sensor_id 
-        AND Date(r.date_time) BETWEEN :end_date
-        AND :start_date
+        AND Date(r.date_time) BETWEEN :start_date
+        AND :end_date
       ORDER BY 
         `date_d` DESC
     ) AS period_power_data 
@@ -781,6 +781,87 @@ class ChocManager extends \Core\Model
     $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  public static function getNbChocPerDayForDates($deveui, $startDate, $endDate)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc = "SELECT
+        date_d,
+        count(*) AS nb_choc
+        FROM
+        (
+          SELECT
+          `sensor_id`,
+          DATE(`date_time`) AS date_d,
+          `amplitude_1`,
+          `amplitude_2`,
+          `time_1`,
+          `time_2`,
+          `freq_1`,
+          `freq_2`,
+          `power`
+          FROM
+          choc
+          LEFT JOIN record AS r ON (r.id = choc.record_id)
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+          WHERE
+          `msg_type` LIKE 'choc'
+          AND s.deveui = :deveui
+          AND Date(r.date_time) BETWEEN :startDate AND :endDate) AS choc_data
+        GROUP BY
+        date_d
+        ORDER BY
+        date_d ASC
+        ";
+
+    $stmt = $db->prepare($sql_nb_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+    $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      return array();
+    } else {
+      return $results;
+    }
+  }
+  public static function getPowerChocForDates($deveui, $startDate, $endDate)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+      DATE(r.date_time) AS date_d,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE
+      `msg_type` LIKE 'choc'
+      AND s.deveui = :deveui
+      AND Date(r.date_time) BETWEEN :startDate AND :endDate
+      ORDER BY `date_d` ASC
+        ";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+    $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      return array();
+    } else {
       return $results;
     }
   }

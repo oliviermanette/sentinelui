@@ -111,14 +111,15 @@ class InclinometerManager extends \Core\Model
   }
 
 
-  /**
+
+    /**
    * Get all the angles X Y Z received from the sensors given a specific sensor id
    *  sensor_id | date_time | angle_x | angle_y |angle_z | temperature 
    *
    * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
    * @return array  results from the query
    */
-  public function getAngleXYZPerDayForSensor($sensor_id)
+  public static function getAngleXYZPerDayForSensor($deveui, $startDate = NULL, $endDate = NULL)
   {
 
     $db = static::getDB();
@@ -133,21 +134,36 @@ class InclinometerManager extends \Core\Model
     FROM
     inclinometer AS inc
     LEFT JOIN record AS r ON (r.id = inc.record_id)
+    LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
     `msg_type` LIKE 'inclinometre'
-    AND `sensor_id` LIKE :sensor_id
-    ORDER BY
-    date_d ASC
-    ";
+    AND deveui = :deveui ";
+
+    if (!empty($startDate) && !empty($endDate)){
+      $sql_angleXYZ_data .= " AND Date(r.date_time) BETWEEN :startDate AND :endDate ";
+    }
+
+    $sql_angleXYZ_data .= "ORDER BY date_d ASC";
+
 
     $stmt = $db->prepare($sql_angleXYZ_data);
 
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if (!empty($startDate) && !empty($endDate)) {
+      $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+      $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+    }
+
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      return array();
+    } else {
       return $results;
     }
   }
+
 
 
   /**
