@@ -412,6 +412,7 @@ class InclinometerManager extends \Core\Model
         LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
         WHERE
         `msg_type` LIKE 'inclinometre'
+        AND Date(r.date_time) >= Date(s.installation_date)
         AND s.deveui = :deveui ";
 
     if ($time_period != -1) {
@@ -451,6 +452,7 @@ class InclinometerManager extends \Core\Model
 
     $references_values = InclinometerManager::getValuesReference($deveui, $time_period);
 
+    $date_ref = $references_values["date"];
     $angleX_ref = $references_values["angle_x"];
     $angleY_ref = $references_values["angle_y"];
     $angleZ_ref = $references_values["angle_z"];
@@ -468,6 +470,7 @@ class InclinometerManager extends \Core\Model
         LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
         WHERE
         `msg_type` LIKE 'inclinometre'
+        AND Date(r.date_time) >= Date(s.installation_date)
         AND s.deveui = :deveui ";
 
     if ($time_period != -1) {
@@ -487,7 +490,7 @@ class InclinometerManager extends \Core\Model
     $nbResults = count($all_values);
 
     $variationsArr = array();
-    echo "NBRE RESULTS : ".$nbResults."\n";
+    //echo "NBRE RESULTS : ".$nbResults."\n";
     //print_r($all_values);
     foreach ($all_values as $values){
       
@@ -500,14 +503,15 @@ class InclinometerManager extends \Core\Model
       $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
       $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
       $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
-      $tmpArr = array("variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
+      $tmpArr = array(
+        "date"=> $date, "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
         "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature);
       array_push($variationsArr, $tmpArr);
-      //echo "\n Angle Referent X : ".$angleX_ref ." |Angle courant X : ".$angleX." | Variation X :". $variationAngleX . "<br/>\n";
+      //echo "\n Date : ".$date." | Angle Referent X : ".$angleX_ref ." |Angle courant X : ".$angleX." | Variation X :". $variationAngleX . "<br/>\n";
       //echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
     }
 
-    print_r($variationsArr);
+    //print_r($variationsArr);
     $db = null;
     return $variationsArr;
 
@@ -554,6 +558,7 @@ class InclinometerManager extends \Core\Model
             LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
             WHERE
             `msg_type` LIKE 'inclinometre'
+            AND Date(r.date_time) >= Date(s.installation_date)
             AND s.deveui = :deveui ";
 
     if ($time_period != -1) {
@@ -578,7 +583,7 @@ class InclinometerManager extends \Core\Model
     $nbResults = count($all_values);
 
     $variationsArr = array();
-    echo "NBRE RESULTS : " . $nbResults . "\n";
+    //echo "NBRE RESULTS : " . $nbResults . "\n";
     //print_r($all_values);
     foreach ($all_values as $values) {
 
@@ -597,11 +602,11 @@ class InclinometerManager extends \Core\Model
         "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature
       );
       array_push($variationsArr, $tmpArr);
-      echo "\n Angle Referent X : ".$angleX_ref ." |Angle courant X : ".$angleX." | Variation X :". $variationAngleX . "<br/>\n";
-      echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
+      //echo "\n Angle Referent X : ".$angleX_ref ." |Angle courant X : ".$angleX." | Variation X :". $variationAngleX . "<br/>\n";
+      //echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
     }
 
-    print_r($variationsArr);
+    //print_r($variationsArr);
     $db = null;
     return $variationsArr;
   }
@@ -646,6 +651,7 @@ class InclinometerManager extends \Core\Model
             LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
             WHERE
             `msg_type` LIKE 'inclinometre'
+            AND Date(r.date_time) >= Date(s.installation_date)
             AND s.deveui = :deveui ";
 
     if ($time_period != -1) {
@@ -671,7 +677,7 @@ class InclinometerManager extends \Core\Model
     $nbResults = count($all_values);
 
     $variationsArr = array();
-    echo "NBRE RESULTS : " . $nbResults . "\n";
+    //echo "NBRE RESULTS : " . $nbResults . "\n";
     //print_r($all_values);
     foreach ($all_values as $values) {
 
@@ -690,11 +696,11 @@ class InclinometerManager extends \Core\Model
         "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature
       );
       array_push($variationsArr, $tmpArr);
-      echo "\n Angle Referent X : " . $angleX_ref . " |Angle courant X : " . $angleX . " | Variation X :" . $variationAngleX . "<br/>\n";
-      echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
+      //echo "\n Angle Referent X : " . $angleX_ref . " |Angle courant X : " . $angleX . " | Variation X :" . $variationAngleX . "<br/>\n";
+      //echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
     }
 
-    print_r($variationsArr);
+    //print_r($variationsArr);
     $db = null;
     return $variationsArr;
   }

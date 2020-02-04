@@ -611,6 +611,92 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
   });
 }
 
+function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinometre") {
+  if (typeof inclinometerData != 'object') {
+    inclinometerData = JSON.parse(inclinometerData);
+  }
+  console.log(inclinometerData);
+  var variation_angle_x = [];
+  var variation_angle_y = [];
+  var variation_angle_z = [];
+  var date = [];
+
+
+  for (var i in inclinometerData) {
+    //console.log(inclinometerData[i]);
+    variation_angle_x.push(inclinometerData[i].variationAngleX);
+    variation_angle_y.push(inclinometerData[i].variationAngleY);
+    variation_angle_z.push(inclinometerData[i].variationAngleZ);
+    date.push(inclinometerData[i].date)
+  }
+
+  var chartdata = {
+    labels: date,
+    datasets: [{
+        label: 'X %',
+        fill: false,
+        backgroundColor: 'blue',
+        borderColor: 'blue',
+        data: variation_angle_x,
+      },
+      {
+        label: 'Y %',
+        fill: false,
+        backgroundColor: 'orange',
+        borderColor: 'orange',
+        data: variation_angle_y,
+      },
+      {
+        label: 'Z %',
+        fill: false,
+        backgroundColor: 'green',
+        borderColor: 'green',
+        data: variation_angle_z,
+      }
+    ]
+  };
+  var canva_id = "#" + canvaID;
+  var ctx = $(canva_id);
+
+  var options = {
+    responsive: true,
+    hoverMode: 'index',
+    maintainAspectRatio: true,
+    title: {
+      display: true,
+      text: 'Pourcentage de variation de l\'inclinaison au fil du temps'
+    },
+    scales: {
+      yAxes: [{
+        gridLines: {
+          display: true,
+        },
+        ticks: {
+          beginAtZero: false,
+        },
+        scaleLabel: {
+          display: true,
+          labelString: 'Variation %'
+        },
+      }],
+      xAxes: [{
+        ticks: {
+          autoskip: true,
+          maxTicksLimit: 10
+
+        },
+      }]
+    }
+  }
+
+
+  var chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: chartdata,
+    options: options,
+  });
+}
+
 
 /**
  * @desc Draw chart for displaying spectre data in function to resolution

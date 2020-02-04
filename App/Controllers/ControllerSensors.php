@@ -42,11 +42,10 @@ class ControllerSensors extends Authenticated
     public function infoAction(){
 
         //TEST
-        //$data = InclinometerManager::computeDailyVariationPercentageAngleForLast("0004A30B00E7D50F",30);
-        $data = InclinometerManager::computeMonthlyVariationPercentageAngleForLast("0004A30B00E7D50F", -1);
-        
+        //$data = InclinometerManager::computeDailyVariationPercentageAngleForLast("0004A30B00E84D17",-1);
+        //$data = InclinometerManager::computeMonthlyVariationPercentageAngleForLast("0004A30B00E7D50F", -1);
         //END TEST
-        exit();
+        //exit();
         $label_device = $this->route_params["deviceid"];
         $deveui = SensorManager::getDeveuiFromLabel($label_device);
         $id_objenious = SensorManager::getDeviceIdObjeniousFromLabel($label_device);
@@ -96,6 +95,13 @@ class ControllerSensors extends Authenticated
         $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
         $inclinometerDataWeekArr = json_encode($inclinometerDataWeekArr);
 
+        //
+        $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationDayArr = json_encode($percentageVariationDayArr);
+        $percentageVariationWeekArr = InclinometerManager::computeWeeklyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationWeekArr = json_encode($percentageVariationWeekArr);
+        $percentageVariationMonthArr = InclinometerManager::computeMonthlyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationMonthArr = json_encode($percentageVariationMonthArr);
         //Choc
         //Nb choc
         $nbChocDataMonthArr = ChocManager::getNbChocForLast($deveui,30);
@@ -130,7 +136,10 @@ class ControllerSensors extends Authenticated
             'nbChocDataDay' => $nbChocDataDay,
             'powerChocDataMonthArr' => $powerChocDataMonthArr,
             'powerChocDataDayArr' => $powerChocDataDayArr,
-            'powerChocDataWeekArr' => $powerChocDataWeekArr
+            'powerChocDataWeekArr' => $powerChocDataWeekArr,
+            'percentageVariationDayArr' => $percentageVariationDayArr,
+            'percentageVariationWeekArr' => $percentageVariationWeekArr,
+            'percentageVariationMonthArr' => $percentageVariationMonthArr,
         ]);
 
     }

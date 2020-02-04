@@ -211,6 +211,15 @@
             let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
             drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer");
 
+            //Draw chart variation inclinometer percentage
+            let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
+            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationDailyAngleInclinometer");
+            let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
+            drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData, "chartVariationWeeklyAngleInclinometer");
+            let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
+            drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData,
+            "chartVariationMonthlyAngleInclinometer");
+
             //Draw chart choc
             //Nb choc
             let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
