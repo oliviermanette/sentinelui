@@ -213,13 +213,9 @@
 
             //Draw chart variation inclinometer percentage
             let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationDailyAngleInclinometer");
-            let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
-            drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData, "chartVariationWeeklyAngleInclinometer");
-            let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
-            drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData,
-            "chartVariationMonthlyAngleInclinometer");
-
+            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer");
+            
+            
             //Draw chart choc
             //Nb choc
             let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
@@ -297,6 +293,28 @@
 
         });
 
+        $(document).on("click", "#radioButtonPercentageVariationInclinometer", function (e) {
+            e.preventDefault();
+            let deveui = '{{infoArr.deveui}}';
+            var lastXdays = $("input[name='options']:checked").val();
+
+            removeElement("chartVariationAngleInclinometer");
+            addElement("canvasVariationInclinometer", "canvas", "chartVariationAngleInclinometer");
+            if (lastXdays === "7") {
+                let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
+                drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData,"chartVariationAngleInclinometer");
+            }
+            if (lastXdays === "30") {
+                let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
+                drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData, "chartVariationAngleInclinometer");
+
+            }
+            if (lastXdays === "1") {
+                 let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
+                 drawVariationChartAngleXYZFromData(inclinometerVariationDailyData,"chartVariationAngleInclinometer");
+            }
+
+        });
         
         /* DATERANGEPICKER */
 

@@ -169,15 +169,19 @@
                                 <div class="btn-toolbar d-none d-md-block" role="toolbar"
                                     aria-label="Toolbar with buttons">
                                     <div id="{{val.equipementId}}">
-                                        <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-2"
+                                        <div id="radioButtonPercentageVariationInclinometer" class="btn-group btn-group-toggle mx-2"
                                             data-toggle="buttons">
-                                            <label class="btn btn-outline-secondary active">
-                                                <input id="option2" type="radio" name="options" autocomplete="off"
-                                                    value="7"> Semaine
+                                             <label class="btn btn-outline-secondary active">
+                                                 <input type="radio" name="options" autocomplete="off"
+                                                     value="1"> Journalier
+                                             </label>
+                                            <label class="btn btn-outline-secondary">
+                                                <input type="radio" name="options" autocomplete="off"
+                                                    value="7"> Hebdomadaire
                                             </label>
-                                            <label class="btn btn-outline-secondary active">
-                                                <input id="option3" type="radio" name="options" autocomplete="off"
-                                                    value="30" checked=""> Mois
+                                            <label class="btn btn-outline-secondary">
+                                                <input type="radio" name="options" autocomplete="off"
+                                                    value="30" checked=""> Mensuelle
                                             </label>
                                         </div>
                                     </div>
@@ -187,18 +191,8 @@
                     </div>
                     <div class="row justify-content-center">
                         <div class="col-md-12">
-                            <div class="canvasVariationInclinometer">
-                                <canvas id="chartVariationDailyAngleInclinometer"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="canvasVariationInclinometer">
-                                <canvas id="chartVariationWeeklyAngleInclinometer"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="canvasVariationInclinometer">
-                                <canvas id="chartVariationMonthlyAngleInclinometer"></canvas>
+                            <div id="canvasVariationInclinometer">
+                                <canvas id="chartVariationAngleInclinometer"></canvas>
                             </div>
                         </div>
                     </div>
