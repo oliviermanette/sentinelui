@@ -11,6 +11,7 @@
                 <th>Equipement associé</th>
                 <th>Status</th>
                 <th>Dernier message reçu</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -22,6 +23,9 @@
                 <td> {{ row.ligneHT }}</td>
                 <td> {{ row.status }}</td>
                 <td> {{ row.last_message_received }}</td>
+                <td><a href="/device/{{row.device_number}}/info" id="viewSensor{{row.sensor_id}}"
+                        name="download">Voir</a>
+                </td>
 
             </tr>
             {% endfor %}
