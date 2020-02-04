@@ -40,6 +40,13 @@ class ControllerSensors extends Authenticated
      * @return void
      */
     public function infoAction(){
+
+        //TEST
+        //$data = InclinometerManager::computeDailyVariationPercentageAngleForLast("0004A30B00E7D50F",30);
+        $data = InclinometerManager::computeMonthlyVariationPercentageAngleForLast("0004A30B00E7D50F", -1);
+        
+        //END TEST
+        exit();
         $label_device = $this->route_params["deviceid"];
         $deveui = SensorManager::getDeveuiFromLabel($label_device);
         $id_objenious = SensorManager::getDeviceIdObjeniousFromLabel($label_device);

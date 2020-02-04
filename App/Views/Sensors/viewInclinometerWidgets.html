@@ -128,7 +128,7 @@
                     {% endfor %}
 
 
-                    
+
                     <!-- CHART Inclinometre  -->
                     <div class="card-header py-3 d-flex justify-content-center">
                         <h6 class="m-0 font-weight-bold text-primary">Variation inclinaison au fil du temps</h6>
@@ -157,6 +157,39 @@
                         <div class="col-md-12">
                             <div class="canvasInclinometer">
                                 <canvas id="chartAngleInclinometer"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHART Inclinometre  -->
+                    <div class="card-header py-3 d-flex justify-content-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Variation inclinaison au fil
+                            du temps</h6>
+                        <div class="row justify-content-center">
+                            <div class="col">
+                                <div class="btn-toolbar d-none d-md-block" role="toolbar"
+                                    aria-label="Toolbar with buttons">
+                                    <div id="{{val.equipementId}}">
+                                        <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-2"
+                                            data-toggle="buttons">
+                                            <label class="btn btn-outline-secondary active">
+                                                <input id="option2" type="radio" name="options" autocomplete="off"
+                                                    value="7"> Semaine
+                                            </label>
+                                            <label class="btn btn-outline-secondary active">
+                                                <input id="option3" type="radio" name="options" autocomplete="off"
+                                                    value="30" checked=""> Mois
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-12">
+                            <div class="canvasVariationInclinometer">
+                                <canvas id="chartVariationAngleInclinometer"></canvas>
                             </div>
                         </div>
                     </div>
