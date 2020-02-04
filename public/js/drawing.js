@@ -528,21 +528,24 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
         fill: false,
         backgroundColor: 'blue',
         borderColor: 'blue',
-        data: angle_x
+        data: angle_x,
+        yAxisID: "y-axis-1",
       },
       {
         label: 'Y °',
         fill: false,
         backgroundColor: 'orange',
         borderColor: 'orange',
-        data: angle_y
+        data: angle_y,
+        yAxisID: "y-axis-1",
       },
       {
         label: 'Z °',
         fill: false,
         backgroundColor: 'green',
         borderColor: 'green',
-        data: angle_z
+        data: angle_z,
+        yAxisID: "y-axis-2",
       }
     ]
   };
@@ -551,36 +554,55 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
 
   var options = {
     responsive: true,
+    hoverMode: 'index',
     maintainAspectRatio: true,
+    stacked: false,
+    title: {
+      display: true,
+      text: 'Variation de l\'inclinaison au fil du temps'
+    },
     scales: {
-      scales: {
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: false,
-            precison:2,
-          },
-          scaleLabel: {
-            display: false,
-            labelString: 'Angle (°)'
-        
-          },
-        }]
-      },
-      legend: {
-        display: true
-      },
-      title: {
+      yAxes: [{
+        type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
         display: true,
-        text: 'Inclinometre en fonction du temps'
-      }
+        position: "left",
+        id: "y-axis-1",
+        scaleLabel: {
+          display: true,
+          labelString: 'X° and Y°'
+        },
+        ticks: {
+          //min: 0,
+          beginAtZero: false,
+          stepSize: 0.1,
+          autoskip: true,
+          maxTicksLimit: 10
+        },
+      }, {
+        type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+        display: true,
+        position: "right",
+        id: "y-axis-2",
+        scaleLabel: {
+          display: true,
+          labelString: 'Z°'
+        },
+        ticks: {
+          //min: 0,
+          beginAtZero: false,
+          stepSize: 0.1,
+          autoskip: true,
+          maxTicksLimit: 10
+        },
+
+        // grid line settings
+        gridLines: {
+          drawOnChartArea: false, // only want the grid lines for one axis to show up
+        },
+      }],
     }
-  };
+  }
+
 
   var chartInstance = new Chart(ctx, {
     type: 'line',
