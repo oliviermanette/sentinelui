@@ -15,14 +15,6 @@
 
     </div>
 
-    <div class="filter">
-        <div id="reportrange" class="pull-right"
-            style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
-            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-            <span>December 30, 2014 - January 28, 2015</span> <b class="caret"></b>
-        </div>
-    </div>
-
     {% include "Sensors/viewInclinometerWidgets.html" %}
 
 
@@ -314,14 +306,13 @@
         var optionSet = {
             minDate: '{{firstActivity}}',
             maxDate: '{{lastActivity}}',
+            startDate: '{{firstActivity}}',
+            endDate:'{{lastActivity}}',
             dateLimit: {
-                days: 60
+            days: 60
             },
             showDropdowns: true,
             showWeekNumbers: true,
-            timePicker: false,
-            timePickerIncrement: 1,
-            timePicker12Hour: true,
             ranges: {
                 'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
@@ -360,6 +351,13 @@
             startDate = '';
             endDate = '';
             $('#reportrangeNbchoc span').html(startDate + ' - ' + endDate);
+        });
+
+        $('#reportrangeNbchoc').on('show.daterangepicker', function () {
+            let firstActivity = '{{firstActivity}}';
+            let lastActivity = '{{lastActivity}}';
+            console.log(firstActivity);
+            console.log(lastActivity);
         });
     }
     </script>

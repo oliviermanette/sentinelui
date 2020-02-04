@@ -183,8 +183,8 @@ class SensorManager extends \Core\Model
   public static function getDateMinMaxActivity($deveui)
   {
     $db = static::getDB();
-    $query_min_max_date = "SELECT DATE_FORMAT(MIN(Date(r.date_time)), '%d/%m/%Y') AS first_activity,
-     DATE_FORMAT(MAX(Date(r.date_time)), '%d/%m/%Y') AS last_activity  From record AS r 
+    $query_min_max_date = "SELECT DATE_FORMAT(MIN(Date(r.date_time)), '%m/%d/%Y') AS first_activity,
+     DATE_FORMAT(MAX(Date(r.date_time)), '%m/%d/%Y') AS last_activity  From record AS r 
       LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
       WHERE s.deveui = :deveui";
 
@@ -198,10 +198,8 @@ class SensorManager extends \Core\Model
 
       $min_date_time = $row["first_activity"];
       $max_date_time = $row["last_activity"];
-      $min_date = date('d-m-Y', strtotime($min_date_time));
-      $max_date = date('d-m-Y', strtotime($max_date_time));
 
-      $date_min_max = array($min_date, $max_date);
+      $date_min_max = array($min_date_time, $max_date_time);
 
       return $date_min_max;
     }

@@ -178,6 +178,13 @@ class ControllerData extends Authenticated
       $equipement_id = $_POST['equipmentID'];
       $searchSpecificEquipement = true;
     }
+    $startDate="";
+    $endDate = "";
+    if (!empty($_POST['startDate']) && !empty($_POST['endDate'])) {
+      $startDate = $_POST['startDate'];
+      $endDate = $_POST['endDate'];
+      $searchByDate = true;
+    }
 
     if ($searchSpecificEquipement) {
       $equipementInfo = $equipementManager->getEquipementFromId($equipement_id);
@@ -215,7 +222,8 @@ class ControllerData extends Authenticated
         'equipementId' => $equipement_id,
         'lastDate' => $lastdate,
         'nb_choc_received_today' => $nb_choc_received_today,
-        'lastChocPower' => $last_choc_power, 'temperature' => $temperature
+        'lastChocPower' => $last_choc_power, 'temperature' => $temperature,
+        'startDate' => $startDate, 'endDate' => $endDate
       );
     } else {
       $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
@@ -261,7 +269,8 @@ class ControllerData extends Authenticated
           'equipementId' => $equipement_id,
           'lastDate' => $lastdate,
           'nb_choc_received_today' => $nb_choc_received_today,
-          'lastChocPower' => $last_choc_power, 'temperature' => $temperature
+          'lastChocPower' => $last_choc_power, 'temperature' => $temperature,
+          'startDate' => $startDate, 'endDate' => $endDate
         );
 
         $count += 1;

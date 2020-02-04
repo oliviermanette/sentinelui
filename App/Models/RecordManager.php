@@ -765,7 +765,7 @@ class RecordManager extends \Core\Model
   public function getDateLastReceivedData($structure_id)
   {
     $db = static::getDB();
-    $sql_last_date = "SELECT MAX(DATE(r.date_time)) as dateMaxReceived
+    $sql_last_date = "SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') as dateMaxReceived
     FROM record as r
     WHERE r.structure_id = :structure_id";
 
@@ -787,8 +787,8 @@ class RecordManager extends \Core\Model
   function getDateMinMaxFromRecord()
   {
     $db = static::getDB();
-    $query_min_max_date = "SELECT (SELECT Max(date_time) FROM record) AS MaxDateTime,
-    (SELECT Min(date_time) FROM record) AS MinDateTime";
+    $query_min_max_date = "SELECT (SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') FROM record) AS fistActivity,
+    (SELECT DATE_FORMAT(MIN(Date(date_time)), '%d/%m/%Y') FROM record) AS lastActivity";
 
     $stmt = $db->prepare($query_min_max_date);
     $data = array();
@@ -796,8 +796,8 @@ class RecordManager extends \Core\Model
 
       $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      $min_date_time = $row["MinDateTime"];
-      $max_date_time = $row["MaxDateTime"];
+      $min_date_time = $row["fistActivity"];
+      $max_date_time = $row["lastActivity"];
       $min_date = date('d-m-Y', strtotime($min_date_time));
       $max_date = date('d-m-Y', strtotime($max_date_time));
 

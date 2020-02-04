@@ -711,9 +711,11 @@ class ChocManager extends \Core\Model
       FROM
       choc
       LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
       WHERE
       `msg_type` LIKE 'choc'
       AND `sensor_id` LIKE :sensor_id
+      AND Date(r.date_time) >= Date(s.installation_date)
     ) AS choc_data
     GROUP BY
     date_d
@@ -1005,9 +1007,11 @@ class ChocManager extends \Core\Model
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
     `msg_type` LIKE 'choc'
     AND `sensor_id` LIKE :sensor_id 
+    AND Date(r.date_time) >= Date(s.installation_date)
     ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);

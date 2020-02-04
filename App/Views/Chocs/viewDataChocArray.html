@@ -13,10 +13,11 @@
         <!-- /.row-->
         <div class="card">
             <div class="card-body">
+                <span id="period">Période du {{ val.startDate }} au {{ val.endDate }}</span>
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title mb-0">{{ val.equipement }} | {{ val.ligneHT }} | Capteur n° {{val.device_number}} | ID : {{val.sensor_id}}</h4>
-                        <div class="small text-muted">{{val.lastDate}}</div>
+                        <div class="small text-muted">Dernière activité : {{val.lastDate}}</div>
                     </div>
                 </div>
                 <!-- Content Row -->

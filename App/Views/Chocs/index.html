@@ -100,8 +100,8 @@
 
         $('#tableDataChoc').DataTable({
             "createdRow": function (row, data, dataIndex) {
-
             },
+            "order": [[ 7, "desc" ]],
             "lengthMenu": [
                 [10, 25, 50, -1],
                 [10, 25, 50, 'All']
@@ -264,19 +264,15 @@
         };
 
         var optionSet = {
-            startDate: moment().subtract(29, 'days'),
-            endDate: moment(),
-            minDate: '01/01/2012',
-            maxDate: moment().format('DD/MM/YYYY'),
-            dateLimit: {
-                days: 60
-            },
+            minDate: '09/01/2019',
+            maxDate: moment(),
             showDropdowns: true,
             showWeekNumbers: true,
             timePicker: false,
             timePickerIncrement: 1,
             timePicker12Hour: true,
             ranges: {
+                'Aucune Date':['09/01/2019',moment()],
                 'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
                 'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
@@ -305,8 +301,8 @@
         $('#reportrange').daterangepicker(optionSet, cb);
 
         $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
-            startDate = picker.startDate.format('YYYY-MM-DD');
-            endDate = picker.endDate.format('YYYY-MM-DD');;
+            startDate = picker.startDate.format('DD/MM/YYYY');
+            endDate = picker.endDate.format('DD/MM/YYYY');;
             let diffDays = picker.endDate.diff(picker.startDate, 'days');
             console.log("start/end dates are " + startDate + " to " + endDate);
 
