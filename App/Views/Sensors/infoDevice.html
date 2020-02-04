@@ -296,74 +296,72 @@
 
         });
 
+        
         /* DATERANGEPICKER */
 
-        function init_daterangepicker() {
-            moment.locale('fr');
-            if (typeof ($.fn.daterangepicker) === 'undefined') {
-                return;
-            }
+    function init_daterangepicker() {
+        console.log("init date picker");
+        moment.locale('fr');
+        if (typeof ($.fn.daterangepicker) === 'undefined') {
+            return;
+        }
 
-            var cb = function (start, end, label) {
-                //console.log(start.toISOString(), end.toISOString(), label);
-                $('#reportrange span').html(start.format('LL') + ' - ' + end.format('LL'));
-            };
-
-            var optionSet = {
-                startDate: moment().subtract(29, 'days'),
-                endDate: moment(),
-                minDate: '{{min_date}}',
-                maxDate: moment().format('DD/MM/YYYY'),
-                dateLimit: {
-                    days: 60
-                },
-                showDropdowns: true,
-                showWeekNumbers: true,
-                timePicker: false,
-                timePickerIncrement: 1,
-                timePicker12Hour: true,
-                ranges: {
-                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
-                    'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
-                    'Ce mois': [moment().startOf('month'), moment().endOf('month')]
-                },
-                opens: 'left',
-                buttonClasses: ['btn btn-default'],
-                applyClass: 'btn-small btn-primary',
-                cancelClass: 'btn-small',
-                format: 'DD/MM/YYYY',
-                separator: ' à ',
-                locale: {
-                    applyLabel: 'Appliquer',
-                    cancelLabel: 'Annuler',
-                    fromLabel: 'De',
-                    toLabel: 'à',
-                    customRangeLabel: 'Specifique',
-                    daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
-                    monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
-                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
-                    ],
-                    firstDay: 1
-                }
-            }
-
-            $('#reportrange').daterangepicker(optionSet, cb);
-
-            $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
-                let startDate = picker.startDate;
-                let endDate = picker.endDate;
-                let diffDays = picker.endDate.diff(picker.startDate, 'days');
-                console.log("start/end dates are " + startDate.format(
-                    'L') + " to " + endDate.format('L'));
-                   
-                console.log(`Difference in days: ${diffDays}`);
-                console.log(ev);
-                console.log(picker);
-            });
-    
-
+        var cb = function (start, end, label) {
+            //console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrangeNbchoc span').html(start.format('L') + ' - ' + end.format('L'));
         };
+
+        var optionSet = {
+            minDate: '{{firstActivity}}',
+            maxDate: '{{lastActivity}}',
+            dateLimit: {
+                days: 60
+            },
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1,
+            timePicker12Hour: true,
+            ranges: {
+                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
+            locale: {
+                applyLabel: 'Appliquer',
+                cancelLabel: 'Annuler',
+                fromLabel: 'De',
+                toLabel: 'à',
+                customRangeLabel: 'Specifique',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ],
+                firstDay: 1
+            }
+        }
+
+        $('#reportrangeNbchoc').daterangepicker(optionSet, cb);
+
+        $('#reportrangeNbchoc').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD');
+            endDate = picker.endDate.format('YYYY-MM-DD');;
+            let diffDays = picker.endDate.diff(picker.startDate, 'days');
+            
+        });
+        $('#reportrangeNbchoc').on('cancel.daterangepicker', function (ev, picker) {
+            startDate = '';
+            endDate = '';
+            $('#reportrangeNbchoc span').html(startDate + ' - ' + endDate);
+        });
+    }
     </script>
 
     {% endblock %}

@@ -58,6 +58,9 @@ class ControllerSensors extends Authenticated
         
         //get activity of sensors
         $recordRawArr = SensorManager::getRecordsFromDeveui($deveui);
+        $date_min_max = SensorManager::getDateMinMaxActivity($deveui);
+        $firstActivity = $date_min_max[0];
+        $lastActivity = $date_min_max[1];
 
         //Get alerts of the sensors
         $activeAlertsArr = AlertManager::getActiveAlertsInfoTableForSensor($deveui);
@@ -104,6 +107,9 @@ class ControllerSensors extends Authenticated
         $powerChocDataDayArr = json_encode($powerChocDataDayArr);
 
         View::renderTemplate('Sensors/infoDevice.html', [
+            'deveui' => $deveui,
+            'firstActivity' => $firstActivity,
+            'lastActivity' => $lastActivity,
             'infoArr' => $infoArr,
             'dataMapArray' => $dataMapArr,
             'activeAlertsArr' => $activeAlertsArr,

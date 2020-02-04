@@ -856,14 +856,14 @@ class RecordManager extends \Core\Model
         INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
       WHERE 
         gn.name = :group_name 
-        AND Date(r.date_time) >= Date(sensor.installation_date) 
+      
       GROUP BY 
         r.sensor_id, 
         st.nom, 
         s.nom, 
         st.transmision_line_name
     ) AS all_message_rte_sensor";
-
+    //  AND Date(r.date_time) >= Date(sensor.installation_date) 
     $stmt = $db->prepare($query_get_number_record);
     $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
