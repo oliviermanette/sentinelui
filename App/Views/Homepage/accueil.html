@@ -182,6 +182,14 @@
     var date = Date();
     fetchDataMap(showMap);
 
+    
+    $('#tableData tbody').on('click', 'tr', function () {
+        var data = $('#tableData').DataTable().row( this ).data();
+        let label_device = data[0];
+        let link ="/device/"+label_device+"/info";
+        window.location.href=link;
+        //alert( 'You clicked on '+data[0]+'\'s row' );
+    } );
     $('#tableData').DataTable({
       "createdRow": function (row, data, dataIndex) {
         var status = data[7];
