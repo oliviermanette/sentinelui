@@ -24,8 +24,9 @@ class EquipementManager extends \Core\Model
    * @param string $type_asset type of assert to insert (ex : transmission line)
    * @return boolean  return True if insert query successfully executed
    */
-  public function insertStructureType($type_asset)
+  public static function insertStructureType($type_asset)
   {
+
     $sql = 'INSERT INTO structure_type (`typename`)
     SELECT * FROM (SELECT :type_asset) AS tmp
     WHERE NOT EXISTS (
@@ -37,7 +38,14 @@ class EquipementManager extends \Core\Model
 
     $stmt->bindValue(':type_asset', $type_asset, PDO::PARAM_STR);
 
-    return $stmt->execute();
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      echo "\n0 structure were added\n";
+      return false;
+    } else {
+      echo "\n 1 structure added.\n";
+      return true;
+    }
   }
 
   /**

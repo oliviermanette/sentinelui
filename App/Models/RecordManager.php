@@ -42,11 +42,9 @@ class RecordManager extends \Core\Model
     if ($type_msg == "uplink") {
       //Classic message which has the raw data value (inclinometer...)
       $uplinkDataArr = RecordManager::extractUplinkData($data);
-      //Add equipement
-      $equipementManager->insertStructureType($uplinkDataArr["type_asset"]);
-      if (!$equipementManager->insertStructureType($uplinkDataArr["type_asset"])) {
-        return false;
-      }
+      //Add equipement type structure
+      EquipementManager::insertStructureType($uplinkDataArr["type_asset"]);
+  
 
       //As we received a payload message, we need to decode it
       $payload_msg_json = RecordManager::decodePayload($uplinkDataArr["payload_cleartext"]);

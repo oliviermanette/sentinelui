@@ -34,7 +34,7 @@ class ControllerDataObjenious extends \Core\Controller{
     //Parse the JSON content to insert into the DB
     $recordManager = new RecordManager();
     error_log("\nData received\n" . json_encode($data));
-    print_r($data);
+    //print_r($data);
     $recordManager->parseJsonDataAndInsert($data);
     //file_put_contents('php://stdout', print_r($data, TRUE));
     //file_put_contents('./logs/logs.txt', $data);
