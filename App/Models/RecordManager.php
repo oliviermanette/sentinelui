@@ -62,7 +62,7 @@ class RecordManager extends \Core\Model
       //print_r($payload_decoded_json);
       //Insert a record inside the Record table of the DB
       $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["transmission_line_name"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
-
+      exit();
       if ($success) {
         if ($type_msg == "choc") {
 
@@ -312,7 +312,7 @@ class RecordManager extends \Core\Model
     $group_id = $data['group_id'];
     $type = $data['type'];
     $device_id = $data['device_id'];
-    $count = $data['count'];
+    //$count = $data['count'];
     $geolocation_precision = $data['geolocation_precision'];
     $geolocation_type = $data['geolocation_type'];
     $latitude_msg = $data['lat'];
@@ -346,7 +346,7 @@ class RecordManager extends \Core\Model
       "id_uplink"  => $id_uplink,
       "profile"  => $profile,
       "profile_id"  => $profile_id,
-      "nb_message"  => $count,
+      //"nb_message"  => $count,
       "type_asset"  => $type_asset,
       "name_asset"  => $name_asset,
       "transmission_line_name" => $transmission_line_name,
