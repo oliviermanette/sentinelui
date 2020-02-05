@@ -873,7 +873,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-      DATE(r.date_time) AS date_d,
+      r.date_time AS date_d,
       `power`
       FROM
       choc

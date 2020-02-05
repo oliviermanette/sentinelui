@@ -59,6 +59,8 @@ function modules() {
     // ChartJS
     var chartJS = gulp.src('./vendor/chart.js/dist/*.js')
         .pipe(gulp.dest('./public/vendor/chart.js'));
+    var chartJSdatalabel = gulp.src('./vendor/chartjs-plugin-datalabels/dist/*.js')
+        .pipe(gulp.dest('./public/vendor/chartjs-plugin-datalabels.js'));
     // Semantic UI 
     var semantic = gulp.src([
             './vendor/semantic/dist/*.js',

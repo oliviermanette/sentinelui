@@ -1,3 +1,5 @@
+Chart.defaults.global.plugins.datalabels.display = false;
+
 /**
  * @desc Draw chart for displaying number of choc per day 
  * @param json data - data which contain nb of choc and date
@@ -32,6 +34,7 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
   var options = {
     maintainAspectRatio: true,
     responsive: true,
+    plugins: [ChartDataLabels],
     scales: {
       xAxes: [{
         scaleLabel: {
@@ -134,7 +137,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
   console.log(dataChartArr);
   var chartdata = {
     datasets: [{
-      label: "Puissance du choc",
+      label: "Puissance du choc (g)",
       data: dataChartArr,
       fill: false,
       showLine: false,
@@ -151,6 +154,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
     },
     scales: {
       xAxes: [{
+        stacked: true,
         type: "time",
         ticks: {
           source: 'date'
@@ -166,6 +170,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
         }
       }],
       yAxes: [{
+        stacked: false,
         scaleLabel: {
           display: true,
           labelString: 'Puissance'
@@ -194,9 +199,12 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
   if (typeof data != 'object') {
     data = JSON.parse(data);
   }
+  let dataBak = data;
   var powerChocArr = [];
   var datesArr = [];
 
+
+  
   //Create chart data
   // We will fill later the datasets 
   var chartdata = {
@@ -213,6 +221,28 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
   var options = {
     maintainAspectRatio: true,
     responsive: true,
+    tooltips: {
+      callbacks: {
+        title: function (tooltipItem, data) {
+          let date = data['labels'][tooltipItem[0]['index']];
+          return "Le " + date;
+        },
+        label: function (tooltipItem, data) {
+          let power = tooltipItem['value'];
+          return "Puissance : " + power + " g";
+        },
+        afterLabel: function (tooltipItem, data) {
+          let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
+          return "Heure : " + hour;
+        }
+      },
+      backgroundColor: '#FFF',
+      titleFontSize: 16,
+      titleFontColor: '#0066ff',
+      bodyFontColor: '#000',
+      bodyFontSize: 14,
+      displayColors: false
+    },
     scales: {
       xAxes: [{
         stacked: true,
@@ -235,7 +265,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         },
         scaleLabel: {
           display: true,
-          labelString: 'Puissance du choc'
+          labelString: 'Puissance du choc (g)'
         },
         //type: 'logarithmic',
       }]
@@ -261,21 +291,32 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
 
   var powerChocPerDayArr = Array(); //Each array will contain the choc data for a specific day
   var chocPerDayCount = 0;
-
+  //we set a map (key => power value => date time) so that we could then retrieve
+  //the hours thank to the power for tooltip use in the chart
+  var mapPowerDateTime = new Map();
   for (var i in data) {
     count = i;
 
-    if (!datesArr.includes(data[i].date_d)) {
+    let date_time = data[i].date_d;
+    let date = date_time.split(" ")[0];
+    let hour = date_time.split(" ")[1];
+    let power = data[i].power;
+    
+
+    mapPowerDateTime.set(power, date_time);
+    if (!datesArr.includes(date)) {
       chocPerDayCount = 0;
       if (powerChocPerDayArr.length > 0) {
         powerChocArr.push(powerChocPerDayArr);
       }
       powerChocPerDayArr = Array();
-      datesArr.push(data[i].date_d);
+      datesArr.push(date);
+      
 
     }
-    if (datesArr.includes(data[i].date_d)) {
-      powerChocPerDayArr.push(data[i].power);
+    if (datesArr.includes(date)) {
+      powerChocPerDayArr.push(power);
+      
       chocPerDayCount += 1;
     }
 
@@ -292,8 +333,8 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
 
   var colorArr = Array("#919191", "#4b809c", "#106d9c", "#a37524", "#a34f3e");
 
-  //We received max 6 choc per day, so we create 6 datasets for hava maximum 6 stacked bar per day
-  var max_choc_per_day = 6;
+  //We received max 12 choc per day, so we create 6 datasets for hava maximum 6 stacked bar per day
+  var max_choc_per_day = 12;
   for (let i = 0; i < max_choc_per_day; i++) {
     var newDataset = {
       data: []
@@ -303,7 +344,6 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
 
   //Loop over each date to draw value of each choc power
   for (const [key, value] of Object.entries(dict)) {
-
     //Axis date
     chartInstance.data.labels[key] = value["date"];
     chartInstance.update();
@@ -557,6 +597,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
     hoverMode: 'index',
     maintainAspectRatio: true,
     stacked: false,
+
     title: {
       display: true,
       text: 'Variation de l\'inclinaison au fil du temps'
@@ -662,6 +703,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
     responsive: true,
     hoverMode: 'index',
     maintainAspectRatio: true,
+
     title: {
       display: true,
       text: 'Pourcentage de variation de l\'inclinaison au fil du temps'
