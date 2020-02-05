@@ -61,7 +61,7 @@ class RecordManager extends \Core\Model
       $type_msg = $payload_decoded_json["type"];
       //print_r($payload_decoded_json);
       //Insert a record inside the Record table of the DB
-      $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
+      $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["transmission_line_name"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
 
       if ($success) {
         if ($type_msg == "choc") {
@@ -330,8 +330,10 @@ class RecordManager extends \Core\Model
     //exit();
     $date_time = RecordManager::convertTimestampToDateTime($timestamp);
 
-    $name_asset = RecordManager::extractExternalId($external_id);
+    $assetArr = RecordManager::extractExternalId($external_id);
 
+    $name_asset = $assetArr["name_asset"];
+    $transmission_line_name = $assetArr["transmission_line_name"];
     #Provisory solution
     $type_asset = "";
     if (strpos($name_asset, 'tower') !== false) {
@@ -347,6 +349,7 @@ class RecordManager extends \Core\Model
       "nb_message"  => $count,
       "type_asset"  => $type_asset,
       "name_asset"  => $name_asset,
+      "transmission_line_name" => $transmission_line_name,
       "latitude_msg"  => $latitude_msg,
       "longitude_msg"  => $longitude_msg,
       "payload_cleartext"  => $payload_cleartext,
@@ -402,15 +405,17 @@ class RecordManager extends \Core\Model
     $asset_name_no_bracket = str_replace(array('[', ']'), '', $external_id);
     $asset_name_array = explode("-", $asset_name_no_bracket);
     $region = $asset_name_array[0];
-    $ligne = $asset_name_array[1];
+    $transmission_line_name = $asset_name_array[1];
     $desc_asset = $asset_name_array[2];
     $support_asset = $asset_name_array[3];
     $corniere = $asset_name_array[4];
 
     #Build the asset name
     $name_asset = $desc_asset . "_" . $support_asset;
+    $assetArr = array("name_asset"=>$name_asset, "transmission_line_name"=>$transmission_line_name);
 
-    return $name_asset;
+
+    return $assetArr;
   }
 
   public static function convertTimestampToDateTime($timestamp, $datetimeFormat = 'Y-m-d H:i:s')
@@ -444,12 +449,12 @@ class RecordManager extends \Core\Model
    *
    * @return boolean  True if the data has been correctly inserted, False otherwise
    */
-  public static function insertRecordData($deveui_sensor, $name_asset, $payload_cleartext, $date_time, $type_msg, $longitude, $latitude)
+  public static function insertRecordData($deveui_sensor, $name_asset, $transmission_line_name, $payload_cleartext, $date_time, $type_msg, $longitude, $latitude)
   {
     $data_record = 'INSERT INTO  record (`sensor_id`,  `structure_id`, `payload`, `date_time`,  `msg_type`,`longitude`, `latitude`)
     SELECT * FROM
     (SELECT (SELECT id FROM sensor WHERE deveui LIKE :deveui_sensor),
-    (SELECT id FROM structure WHERE nom like :name_asset),
+    (SELECT id FROM structure WHERE nom = :name_asset and structure.transmision_line_name = :transmission_line_name),
     :payload_raw, :date_time, :type_msg, :longitude, :latitude) AS id_record
     WHERE NOT EXISTS (
       SELECT date_time FROM record WHERE date_time = :date_time
@@ -460,6 +465,7 @@ class RecordManager extends \Core\Model
 
     $stmt->bindValue(':deveui_sensor', $deveui_sensor, PDO::PARAM_STR);
     $stmt->bindValue(':name_asset', $name_asset, PDO::PARAM_STR);
+    $stmt->bindValue(':transmission_line_name', $transmission_line_name, PDO::PARAM_STR);
     $stmt->bindValue(':payload_raw', $payload_cleartext, PDO::PARAM_STR);
     $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
     $stmt->bindValue(':type_msg', $type_msg, PDO::PARAM_STR);
@@ -1365,119 +1371,7 @@ class RecordManager extends \Core\Model
     return $messages_device;
   }
 
-  /**
-   * Parse json data and then insert into the DB
-   *
-   * @param json $jsondata json data received from Objenious. This file contain the uplink message
-   * @return boolean  True if data has been correctly inserted, true otherwise
-   */
-  function parseJsonDataAndInsertOLD($jsondata)
-  {
-    //Get all the interesting content from JSON data
-    $id = $jsondata['id'];
-    $profile = $jsondata['profile'];
-    $group = $jsondata['group'];
-    $device_id = $jsondata['device_id'];
-    $count = $jsondata['count'];
-    $geolocation_precision = $jsondata['geolocation_precision'];
-    $geolocation_type = $jsondata['geolocation_type'];
-    $latitude_msg = $jsondata['lat'];
-    $longitude_msg = $jsondata['lng'];
-    $payload_data = $jsondata['payload'];
-    $payload_cleartext = $jsondata['payload_cleartext'];
-    $device_properties = $jsondata['device_properties'];
-    $asset_name = $device_properties['external_id'];
-    $appeui = $device_properties['appeui'];
-    $deveui_sensor = $device_properties['deveui'];
-    $timestamp = $payload_data[0]['timestamp'];
-    $type_msg =  $jsondata['type'];
 
-    #Remove bracket
-    $asset_name_no_bracket = str_replace(array('[', ']'), '', $asset_name);
-    $asset_name_array = explode("-", $asset_name_no_bracket);
-    $region = $asset_name_array[0];
-    $ligne = $asset_name_array[1];
-    $desc_asset = $asset_name_array[2];
-    $support_asset = $asset_name_array[3];
-    $corniere = $asset_name_array[4];
-
-    #Build the asset name
-    $name_asset = $desc_asset . "_" . $support_asset;
-
-    #Provisory solution
-    $type_asset = "";
-    if (strpos($desc_asset, 'pylone') !== false) {
-      $type_asset = "transmission line";
-    } else {
-      $type_asset = "undefined";
-    }
-
-    $geocoder = new \OpenCage\Geocoder\Geocoder(\App\Config::GEOCODER_API_KEY);
-    #$$$res ult = $geocoder->geocode($region, ['language' => 'fr', 'countrycode' => 'fr']);
-
-    //Add structure type to the DB
-    $equipementManager = new EquipementManager();
-    $equipementManager->insertStructureType($type_asset);
-    if (!$equipementManager->insertStructureType($type_asset)) {
-      return false;
-    }
-
-    $datetimeFormat = 'Y-m-d H:i:s';
-    $date = new \DateTime($timestamp);
-    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-    $date_time = $date->format($datetimeFormat);
-
-    //As we received a payload message, we need to decode it
-    $msg_json = RecordManager::decodePayload($payload_cleartext);
-    $payload_decoded_json = json_decode($msg_json, true);
-
-    #Add date time attribute to the decoded payload
-    $payload_decoded_json['date_time'] = $date_time;
-    $payload_decoded_json['deveui'] = $deveui_sensor;
-    print_r($payload_decoded_json);
-
-    //Get the type of message
-    $type_msg = $payload_decoded_json["type"];
-
-    //Insert a record inside the Record table of the DB
-    RecordManager::insertRecordData($deveui_sensor, $name_asset, $payload_cleartext, $date_time, $type_msg, $longitude_msg, $latitude_msg);
-
-    //Then add the corresponding type of data received
-    //Choc data
-    if ($type_msg == "choc") {
-      $chocManager = new ChocManager();
-
-      if (!$chocManager->insertChocData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //battery data
-    else if ($type_msg == "global") {
-      $batteryManager = new BatteryManager();
-
-      if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //Inclinometer data
-    else if ($type_msg == "inclinometre") {
-      $inclinometreManager = new InclinometerManager();
-
-      if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //Subspectre data
-    else if ($type_msg == "spectre") {
-      $spectreManager = new SpectreManager();
-
-      if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
-        return false;
-      }
-    }
-
-    return True;
-  }
 
   /** 
    * Get the datatype ID in the DB from the name
