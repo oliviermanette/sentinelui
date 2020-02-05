@@ -167,7 +167,8 @@
 
     <script>
         $(document).ready(function () {
-            init_daterangepicker();
+            init_daterangepickerNbChoc();
+            init_daterangepickerPowerChoc();
 
 
             let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
@@ -213,9 +214,10 @@
 
             //Draw chart variation inclinometer percentage
             let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer");
-            
-            
+            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData,
+                "chartVariationAngleInclinometer");
+
+
             //Draw chart choc
             //Nb choc
             let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
@@ -250,6 +252,7 @@
 
         $(document).on("click", "#radioButtonNbChoc", function (e) {
             e.preventDefault();
+
             let deveui = '{{infoArr.deveui}}';
             var lastXdays = $("input[name='options']:checked").val();
 
@@ -278,17 +281,17 @@
             addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
             if (lastXdays === "7") {
                 let nbPowerDataWeek = '{{ powerChocDataWeekArr|raw}}';
-                console.log(nbPowerDataWeek);
+                console.log("Week : ", nbPowerDataWeek);
                 drawChartPowerChocPerDateBar(nbPowerDataWeek, "chartPowerChoc");
             }
             if (lastXdays === "30") {
                 let nbPowerDataMonth = '{{ powerChocDataMonthArr|raw}}';
-                console.log(nbPowerDataMonth);
+                console.log("Month :", nbPowerDataMonth);
                 drawChartPowerChocPerDateBar(nbPowerDataMonth, "chartPowerChoc");
             }
             if (lastXdays === "1") {
                 let nbPowerDataDay = '{{ powerChocDataDayArr|raw}}';
-                console.log(nbPowerDataDay);
+                console.log("Day :", nbPowerDataDay);
                 drawChartPowerChocPerDateBar(nbPowerDataDay, "chartPowerChoc");
             }
 
@@ -303,91 +306,213 @@
             addElement("canvasVariationInclinometer", "canvas", "chartVariationAngleInclinometer");
             if (lastXdays === "7") {
                 let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
-                drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData,"chartVariationAngleInclinometer");
+                drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData,
+                    "chartVariationAngleInclinometer");
             }
             if (lastXdays === "30") {
                 let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
-                drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData, "chartVariationAngleInclinometer");
+                drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData,
+                    "chartVariationAngleInclinometer");
 
             }
             if (lastXdays === "1") {
-                 let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-                 drawVariationChartAngleXYZFromData(inclinometerVariationDailyData,"chartVariationAngleInclinometer");
+                let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
+                drawVariationChartAngleXYZFromData(inclinometerVariationDailyData,
+                    "chartVariationAngleInclinometer");
             }
 
         });
-        
+
+
+        function fetchChartNbChoc(startDate, endDate) {
+            let formData = new FormData();
+            let deveui = '{{infoArr.deveui}}';
+            formData.append('startDate', startDate);
+            formData.append('endDate', endDate);
+            formData.append('deveui', deveui);
+
+            let xhttp;
+            xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    let jsonData = this.responseText;
+                    console.log("Data return : ",jsonData);
+                    removeElement("chartNbChoc");
+                    addElement("canvasNbchoc", "canvas", "chartNbChoc");
+                    let nbChocData = jsonData;
+                    drawChartNbChocPerDate(nbChocData, "chartNbChoc");
+                       
+
+                }
+            };
+            xhttp.open("POST", "/ControllerSensors/getChartDataNbChoc", true);
+            xhttp.send(formData);
+        }
+
+        function fetchChartPowerChoc(startDate, endDate) {
+            let formData = new FormData();
+            let deveui = '{{infoArr.deveui}}';
+            formData.append('startDate', startDate);
+            formData.append('endDate', endDate);
+            formData.append('deveui', deveui);
+
+            let xhttp;
+            xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    let jsonData = this.responseText;
+                    
+                    removeElement("chartPowerChoc");
+                    addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
+                    let powerChocData = jsonData;
+                    drawChartPowerChocPerDateBar(powerChocData, "chartPowerChoc");
+                       
+
+                }
+            };
+            xhttp.open("POST", "/ControllerSensors/getChartDataPowerChoc", true);
+            xhttp.send(formData);
+        }
         /* DATERANGEPICKER */
 
-    function init_daterangepicker() {
-        console.log("init date picker");
-        moment.locale('fr');
-        if (typeof ($.fn.daterangepicker) === 'undefined') {
-            return;
-        }
-
-        var cb = function (start, end, label) {
-            //console.log(start.toISOString(), end.toISOString(), label);
-            $('#reportrangeNbchoc span').html(start.format('L') + ' - ' + end.format('L'));
-        };
-
-        var optionSet = {
-            minDate: '{{firstActivity}}',
-            maxDate: '{{lastActivity}}',
-            startDate: '{{firstActivity}}',
-            endDate:'{{lastActivity}}',
-            dateLimit: {
-            days: 60
-            },
-            showDropdowns: true,
-            showWeekNumbers: true,
-            ranges: {
-                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
-                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
-                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
-            },
-            opens: 'left',
-            buttonClasses: ['btn btn-default'],
-            applyClass: 'btn-small btn-primary',
-            cancelClass: 'btn-small',
-            format: 'DD/MM/YYYY',
-            separator: ' à ',
-            locale: {
-                applyLabel: 'Appliquer',
-                cancelLabel: 'Annuler',
-                fromLabel: 'De',
-                toLabel: 'à',
-                customRangeLabel: 'Specifique',
-                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
-                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
-                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
-                ],
-                firstDay: 1
+        function init_daterangepickerNbChoc() {
+            moment.locale('fr');
+            if (typeof ($.fn.daterangepicker) === 'undefined') {
+                return;
             }
+
+            var cb = function (start, end, label) {
+                //console.log(start.toISOString(), end.toISOString(), label);
+                $('#reportrangeNbchoc span').html(start.format('L') + ' - ' + end.format('L'));
+            };
+
+            var optionSet = {
+                minDate: '{{firstActivity}}',
+                maxDate: '{{lastActivity}}',
+                startDate: '{{firstActivity}}',
+                endDate: '{{lastActivity}}',
+                dateLimit: {
+                    days: 60
+                },
+                showDropdowns: true,
+                showWeekNumbers: true,
+                ranges: {
+                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                    'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                    'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+                },
+                opens: 'left',
+                buttonClasses: ['btn btn-default'],
+                applyClass: 'btn-small btn-primary',
+                cancelClass: 'btn-small',
+                format: 'DD/MM/YYYY',
+                separator: ' à ',
+                locale: {
+                    applyLabel: 'Appliquer',
+                    cancelLabel: 'Annuler',
+                    fromLabel: 'De',
+                    toLabel: 'à',
+                    customRangeLabel: 'Specifique',
+                    daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                    monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                    ],
+                    firstDay: 1
+                }
+            }
+
+            $('#reportrangeNbchoc').daterangepicker(optionSet, cb);
+
+            $('#reportrangeNbchoc').on('apply.daterangepicker', function (ev, picker) {
+                startDate = picker.startDate.format('YYYY-MM-DD');
+                endDate = picker.endDate.format('YYYY-MM-DD');;
+                let diffDays = picker.endDate.diff(picker.startDate, 'days');
+                console.log('Selection start : ',startDate);
+                console.log("Selection end : ", endDate);
+                fetchChartNbChoc(startDate, endDate);
+
+            });
+            $('#reportrangeNbchoc').on('cancel.daterangepicker', function (ev, picker) {
+                startDate = '';
+                endDate = '';
+                $('#reportrangeNbchoc span').html(startDate + ' - ' + endDate);
+            });
+
+            $('#reportrangeNbchoc').on('show.daterangepicker', function () {
+                let firstActivity = '{{firstActivity}}';
+                let lastActivity = '{{lastActivity}}';
+                console.log('First Activity : ',firstActivity);
+                console.log("Last Activity : ", lastActivity);
+            });
         }
+        function init_daterangepickerPowerChoc() {
+            moment.locale('fr');
+            if (typeof ($.fn.daterangepicker) === 'undefined') {
+                return;
+            }
 
-        $('#reportrangeNbchoc').daterangepicker(optionSet, cb);
+            var cb = function (start, end, label) {
+                //console.log(start.toISOString(), end.toISOString(), label);
+                $('#reportrangePowerchoc span').html(start.format('L') + ' - ' + end.format('L'));
+            };
 
-        $('#reportrangeNbchoc').on('apply.daterangepicker', function (ev, picker) {
-            startDate = picker.startDate.format('YYYY-MM-DD');
-            endDate = picker.endDate.format('YYYY-MM-DD');;
-            let diffDays = picker.endDate.diff(picker.startDate, 'days');
-            
-        });
-        $('#reportrangeNbchoc').on('cancel.daterangepicker', function (ev, picker) {
-            startDate = '';
-            endDate = '';
-            $('#reportrangeNbchoc span').html(startDate + ' - ' + endDate);
-        });
+            var optionSet = {
+                minDate: '{{firstActivity}}',
+                maxDate: '{{lastActivity}}',
+                startDate: '{{firstActivity}}',
+                endDate: '{{lastActivity}}',
+                dateLimit: {
+                    days: 60
+                },
+                showDropdowns: true,
+                showWeekNumbers: true,
+                ranges: {
+                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                    'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                    'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+                },
+                opens: 'left',
+                buttonClasses: ['btn btn-default'],
+                applyClass: 'btn-small btn-primary',
+                cancelClass: 'btn-small',
+                format: 'DD/MM/YYYY',
+                separator: ' à ',
+                locale: {
+                    applyLabel: 'Appliquer',
+                    cancelLabel: 'Annuler',
+                    fromLabel: 'De',
+                    toLabel: 'à',
+                    customRangeLabel: 'Specifique',
+                    daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                    monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                    ],
+                    firstDay: 1
+                }
+            }
 
-        $('#reportrangeNbchoc').on('show.daterangepicker', function () {
-            let firstActivity = '{{firstActivity}}';
-            let lastActivity = '{{lastActivity}}';
-            console.log(firstActivity);
-            console.log(lastActivity);
-        });
-    }
+            $('#reportrangePowerchoc').daterangepicker(optionSet, cb);
+
+            $('#reportrangePowerchoc').on('apply.daterangepicker', function (ev, picker) {
+                startDate = picker.startDate.format('YYYY-MM-DD');
+                endDate = picker.endDate.format('YYYY-MM-DD');;
+                let diffDays = picker.endDate.diff(picker.startDate, 'days');
+                fetchChartPowerChoc(startDate, endDate);
+
+            });
+            $('#reportrangePowerchoc').on('cancel.daterangepicker', function (ev, picker) {
+                startDate = '';
+                endDate = '';
+                $('#reportrangePowerchoc span').html(startDate + ' - ' + endDate);
+            });
+
+            $('#reportrangePowerchoc').on('show.daterangepicker', function () {
+                let firstActivity = '{{firstActivity}}';
+                let lastActivity = '{{lastActivity}}';
+            });
+        }
     </script>
 
     {% endblock %}

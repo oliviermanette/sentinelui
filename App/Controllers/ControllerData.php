@@ -411,7 +411,7 @@ class ControllerData extends Authenticated
       $deveui = EquipementManager::getDeveuiSensorOnEquipement($equipement_id);
       if ($searchByDate){
         $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
-        $power_choc_per_day = ChocManager::getPowerChocForDates($deveui, $startDate, $endDate);
+        $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
         $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
       }else {
         $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
@@ -447,7 +447,7 @@ class ControllerData extends Authenticated
         //print_r($equipement_id);
        if ($searchByDate) {
           $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
-          $power_choc_per_day = ChocManager::getPowerChocForDates($deveui, $startDate, $endDate);
+          $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
           $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
         } else {
           $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);

@@ -62,7 +62,7 @@ class RecordManager extends \Core\Model
       //print_r($payload_decoded_json);
       //Insert a record inside the Record table of the DB
       $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
-      $success = false;
+     
       if ($success) {
         if ($type_msg == "choc") {
 

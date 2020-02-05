@@ -144,6 +144,33 @@ class ControllerSensors extends Authenticated
 
     }
 
+    public function getChartDataNbChocAction(){
+        if (isset($_POST["deveui"]) && isset($_POST["startDate"]) && isset($_POST["endDate"])){
+            
+            $startDate = $_POST["startDate"];
+            $endDate = $_POST["endDate"];
+            $deveui = $_POST["deveui"];
+            $nbChocData = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
+            
+
+            print json_encode($nbChocData);
+        }
+    }
+
+    public function getChartDataPowerChocAction()
+    {
+        if (isset($_POST["deveui"]) && isset($_POST["startDate"]) && isset($_POST["endDate"])) {
+
+            $startDate = $_POST["startDate"];
+            $endDate = $_POST["endDate"];
+            $deveui = $_POST["deveui"];
+            $nbChocData = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
+
+
+            print json_encode($nbChocData);
+        }
+    }
+
     /**
      * allow the user to download activity data from a specific sensor
      *

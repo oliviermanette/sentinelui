@@ -835,7 +835,7 @@ class ChocManager extends \Core\Model
       return $results;
     }
   }
-  public static function getPowerChocForDates($deveui, $startDate, $endDate)
+  public static function getPowerChocPerDayForDates($deveui, $startDate, $endDate)
   {
     $db = static::getDB();
 
