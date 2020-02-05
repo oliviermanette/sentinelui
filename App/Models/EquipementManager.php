@@ -24,7 +24,7 @@ class EquipementManager extends \Core\Model
    * @param string $type_asset type of assert to insert (ex : transmission line)
    * @return boolean  return True if insert query successfully executed
    */
-  public function insertStructureType($type_asset)
+  public static function insertStructureType($type_asset)
   {
     $sql = 'INSERT INTO structure_type (`typename`)
     SELECT * FROM (SELECT :type_asset) AS tmp
