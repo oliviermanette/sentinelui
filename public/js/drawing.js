@@ -507,7 +507,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
-  console.log(inclinometerData);
+  //console.log(inclinometerData);
   var angle_x = [];
   var angle_y = [];
   var angle_z = [];
@@ -615,7 +615,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
-  console.log(inclinometerData);
+  //console.log(inclinometerData);
   var variation_angle_x = [];
   var variation_angle_y = [];
   var variation_angle_z = [];
@@ -682,7 +682,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
       xAxes: [{
         ticks: {
           autoskip: true,
-          maxTicksLimit: 10
+          maxTicksLimit: 15
 
         },
       }]

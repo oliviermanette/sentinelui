@@ -52,7 +52,8 @@ class RecordManager extends \Core\Model
       #Add date time attribute to the decoded payload
       $payload_decoded_json['date_time'] = $uplinkDataArr["date_time"];
       $payload_decoded_json['deveui'] = $uplinkDataArr["deveui"];
-
+      /*print_r($uplinkDataArr);
+      exit();*/
       $sensor_id = $sensorManager->getSensorIdFromDeveui($uplinkDataArr["deveui"]);
       $equipement_id = $equipementManager->getEquipementIdBySensorId($sensor_id);
 
@@ -61,7 +62,7 @@ class RecordManager extends \Core\Model
       //print_r($payload_decoded_json);
       //Insert a record inside the Record table of the DB
       $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
-
+      $success = false;
       if ($success) {
         if ($type_msg == "choc") {
 
@@ -454,6 +455,9 @@ class RecordManager extends \Core\Model
       SELECT date_time FROM record WHERE date_time = :date_time
     ) LIMIT 1';
 
+    echo "\nDeveui : ". $deveui_sensor ."\n";
+    echo "\name_asset : " . $name_asset . "\n";
+    echo "\date_time : " . $date_time . "\n";
     $db = static::getDB();
     $stmt = $db->prepare($data_record);
 

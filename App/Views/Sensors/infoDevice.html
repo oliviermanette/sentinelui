@@ -238,6 +238,7 @@
             addElement("canvasInclinometer", "canvas", "chartAngleInclinometer");
             if (lastXdays === "7") {
                 let inclinometerDataWeek = '{{ inclinometerDataWeekArr|raw}}';
+                console.log("Last 7 days : ", inclinometerDataWeek);
                 drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer");
             }
             if (lastXdays === "30") {
