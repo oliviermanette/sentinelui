@@ -420,18 +420,23 @@ class RecordManager extends \Core\Model
 
   public static function convertTimestampToDateTime($timestamp, $datetimeFormat = 'Y-m-d H:i:s')
   {
+  
     //Split 2019-11-29T16:01:26.572226000Z to keep only the last part 572226000Z
     $part = explode(".", $timestamp);
     $second = substr($part[1], 0, 3);
     //Finnaly we get 2019-11-29T16:01:26.572Z
     $secondTimeZone = $second . "Z";
     $timestamp = $part[0] . "." . $secondTimeZone;
-
-    $timezone = new \DateTimeZone(date_default_timezone_get());
-
-    $date     = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $timestamp, $timezone);
-    $date = new \DateTime($timestamp, $timezone);
-    $date_time = $date->format($datetimeFormat);
+    
+    //Objenious work with UTC Timezone
+    $timezoneUTC = new \DateTimeZone('UTC');
+    //Create object DateTime
+    $datetime = new \DateTime($timestamp, $timezoneUTC);
+    //Convert to TimeZone France
+    $france_time = new \DateTimeZone('CET');
+    $datetime->setTimezone($france_time);
+    
+    $date_time = $datetime->format($datetimeFormat);
 
     return $date_time;
   }
