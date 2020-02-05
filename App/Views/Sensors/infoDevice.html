@@ -14,10 +14,6 @@
         </div>
 
     </div>
-
-    {% include "Sensors/viewInclinometerWidgets.html" %}
-    {% include "Sensors/viewChocsCharts.html" %}
-
     <div class="card">
         <div class="card-body">
             <h3 class="card-title">Information</h3>
@@ -158,8 +154,11 @@
             </div>
         </div>
 
-
+        {% include "Sensors/viewInclinometerWidgets.html" %}
+        {% include "Sensors/viewChocsCharts.html" %}
     </div>
+
+
 
     {% endblock %}
 
@@ -336,12 +335,12 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     let jsonData = this.responseText;
-                    console.log("Data return : ",jsonData);
+                    console.log("Data return : ", jsonData);
                     removeElement("chartNbChoc");
                     addElement("canvasNbchoc", "canvas", "chartNbChoc");
                     let nbChocData = jsonData;
                     drawChartNbChocPerDate(nbChocData, "chartNbChoc");
-                       
+
 
                 }
             };
@@ -361,12 +360,12 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     let jsonData = this.responseText;
-                    
+
                     removeElement("chartPowerChoc");
                     addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
                     let powerChocData = jsonData;
                     drawChartPowerChocPerDateBar(powerChocData, "chartPowerChoc");
-                       
+
 
                 }
             };
@@ -428,7 +427,7 @@
                 startDate = picker.startDate.format('YYYY-MM-DD');
                 endDate = picker.endDate.format('YYYY-MM-DD');;
                 let diffDays = picker.endDate.diff(picker.startDate, 'days');
-                console.log('Selection start : ',startDate);
+                console.log('Selection start : ', startDate);
                 console.log("Selection end : ", endDate);
                 fetchChartNbChoc(startDate, endDate);
 
@@ -442,10 +441,11 @@
             $('#reportrangeNbchoc').on('show.daterangepicker', function () {
                 let firstActivity = '{{firstActivity}}';
                 let lastActivity = '{{lastActivity}}';
-                console.log('First Activity : ',firstActivity);
+                console.log('First Activity : ', firstActivity);
                 console.log("Last Activity : ", lastActivity);
             });
         }
+
         function init_daterangepickerPowerChoc() {
             moment.locale('fr');
             if (typeof ($.fn.daterangepicker) === 'undefined') {

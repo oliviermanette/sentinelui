@@ -65,7 +65,8 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
     },
     title: {
       display: true,
-      text: 'Nombre de choc'
+      text: 'Nombre de choc enregistré',
+      fontSize : 15
     }
   }
   //Create the instance
@@ -204,7 +205,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
   var datesArr = [];
 
 
-  
+
   //Create chart data
   // We will fill later the datasets 
   var chartdata = {
@@ -225,20 +226,22 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
       callbacks: {
         title: function (tooltipItem, data) {
           let date = data['labels'][tooltipItem[0]['index']];
-          return "Le " + date;
+          let hour = mapPowerDateTime.get(tooltipItem[0]['value']).split(" ")[1];
+          //console.log(tooltipItem[0]['value']);
+          return "Le " + date + " à " + hour;
         },
         label: function (tooltipItem, data) {
           let power = tooltipItem['value'];
           return "Puissance : " + power + " g";
         },
         afterLabel: function (tooltipItem, data) {
-          let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
-          return "Heure : " + hour;
+          //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
+          //return "Heure : " + hour;
         }
       },
       backgroundColor: '#FFF',
-      titleFontSize: 16,
-      titleFontColor: '#0066ff',
+      titleFontSize: 15,
+      titleFontColor: '#233754',
       bodyFontColor: '#000',
       bodyFontSize: 14,
       displayColors: false
@@ -275,7 +278,8 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     },
     title: {
       display: true,
-      text: 'Puissance des chocs'
+      text: 'Puissance des chocs enregistré',
+      fontSize: 15
     }
   }
 
@@ -301,7 +305,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     let date = date_time.split(" ")[0];
     let hour = date_time.split(" ")[1];
     let power = data[i].power;
-    
+
 
     mapPowerDateTime.set(power, date_time);
     if (!datesArr.includes(date)) {
@@ -311,12 +315,12 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
       }
       powerChocPerDayArr = Array();
       datesArr.push(date);
-      
+
 
     }
     if (datesArr.includes(date)) {
       powerChocPerDayArr.push(power);
-      
+
       chocPerDayCount += 1;
     }
 
