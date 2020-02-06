@@ -425,7 +425,7 @@ class RecordManager extends \Core\Model
     $part = explode(".", $timestamp);
     $second = substr($part[1], 0, 3);
     //Finnaly we get 2019-11-29T16:01:26.572Z
-    $secondTimeZone = $second . "Z";
+    $secondTimeZone = $second; //. "Z";
     $timestamp = $part[0] . "." . $secondTimeZone;
     
     //Objenious work with UTC Timezone
