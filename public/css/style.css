@@ -2,6 +2,14 @@
 Alert
 **/
 
+td.details-control {
+    background: url('../ressources/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    background: url('../ressources/details_close.png') no-repeat center center;
+}
+
 .alert {
   border: 1px solid #ccc;
   padding: 6px;

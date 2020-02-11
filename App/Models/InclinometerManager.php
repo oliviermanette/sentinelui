@@ -317,19 +317,20 @@ class InclinometerManager extends \Core\Model
    *
    * @param int $sensor_id sensor id for which we want to compute the variation data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
-   * compute variation between today and the last value 30 days ago
+   * compute variation between today and the last value 30 days ago . Defaut $time_period = - 1 i.e we take 
+   * values since the first record (installation date )
    * @return array  results from the query
    * sensor_id |deveui |
    * newAngleX | oldAngleX | pourcentage_variation_anglex | newAngleY | oldAngleY | pourcentage_variation_angleY |
    * newAngleZ | oldAngleZ | pourcentage_variation_angleZ | newTemp | oldTemp | pourcentage_variation_temp |
    */
-  public static function computePercentageVariationAngleValueForLast($deveui, $time_period, $precision = 2)
+  public static function computePercentageVariationAngleValueForLast($deveui, $time_period = -1, $precision = 2)
   {
     $db = static::getDB();
 
-    $sql_variation_angle = "SELECT new_values_inclinometer.deveui, 
+    $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui, 
       ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
-      ROUND((sum(ABS(newAngleX - oldAngleX))/newAngleX)*100, :precision) as pourcentage_variation_angleX,
+      IFNULL(ROUND((sum(ABS(newAngleX - oldAngleX))/newAngleX)*100, :precision),0) AS pourcentage_variation_angleX,
       ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY, 
       ROUND((sum(ABS(newAngleY - oldAngleY))/newAngleY)*100,:precision) as pourcentage_variation_angleY,
       ROUND(newAngleZ,:precision) AS newAngleZ, ROUND(oldAngleZ,:precision) AS oldAngleZ,
@@ -339,7 +340,7 @@ class InclinometerManager extends \Core\Model
         FROM
         (SELECT
             `sensor_id`, deveui,
-            DATE(r.date_time) AS date_d,
+            DATE(r.date_time) AS last_date,
             angle_x AS newAngleX,
             angle_y AS newAngleY,
             angle_z AS newAngleZ,
@@ -356,7 +357,7 @@ class InclinometerManager extends \Core\Model
         JOIN
         (SELECT
             `sensor_id`,deveui,
-            Date(r.date_time) AS date_d,
+            Date(r.date_time) AS first_date,
             angle_x AS oldAngleX,
             angle_y AS oldAngleY,
             angle_z AS oldAngleZ,
@@ -367,14 +368,20 @@ class InclinometerManager extends \Core\Model
             LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
             WHERE
             `msg_type` LIKE 'inclinometre'
-            AND deveui = :deveui
-            AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
-            ORDER BY
-            date_d ASC
-            LIMIT 1) AS last_values_period_inclinometer
-        ON new_values_inclinometer.sensor_id = last_values_period_inclinometer.sensor_id
-        GROUP BY oldTemp,newTemp, newAngleZ,oldAngleZ,newAngleY,oldAngleY, newAngleX,oldAngleX
-        ";
+            AND deveui = :deveui ";
+
+            if ($time_period != -1) {
+              $sql_variation_angle .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+            } else {
+              $sql_variation_angle .= "  AND Date(r.date_time) > s.installation_date ";
+            }
+            $sql_variation_angle .= "
+              ORDER BY
+              first_date ASC
+              LIMIT 1) AS last_values_period_inclinometer
+          ON new_values_inclinometer.sensor_id = last_values_period_inclinometer.sensor_id
+          GROUP BY last_date,first_date,oldTemp,newTemp, newAngleZ,oldAngleZ,newAngleY,oldAngleY, newAngleX,oldAngleX
+          ";
 
     $stmt = $db->prepare($sql_variation_angle);
     $stmt->bindValue(':precision', $precision, PDO::PARAM_INT);
@@ -398,7 +405,8 @@ class InclinometerManager extends \Core\Model
    * all records in account so the first record will correspond to installation date
    * @return array which contain the reference values (angleX, angleY, angleZ, temperature)
    */
-  private static function getValuesReference($deveui, $time_period = -1){
+  private static function getValuesReference($deveui, $time_period = -1)
+  {
     $db = static::getDB();
     $sql_reference_values = "SELECT
         Date(r.date_time) AS date,
@@ -492,20 +500,21 @@ class InclinometerManager extends \Core\Model
     $variationsArr = array();
     //echo "NBRE RESULTS : ".$nbResults."\n";
     //print_r($all_values);
-    foreach ($all_values as $values){
-      
+    foreach ($all_values as $values) {
+
       $date = $values["date"];
       $angleX = $values["angle_x"];
       $angleY = $values["angle_y"];
       $angleZ = $values["angle_z"];
       $temperature = $values["temperature"];
-      $variationAngleX = (($angleX - $angleX_ref)/ $angleX_ref) * 100;
+      $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
       $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
       $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
       $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
       $tmpArr = array(
-        "date"=> $date, "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
-        "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature);
+        "date" => $date, "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
+        "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature
+      );
       array_push($variationsArr, $tmpArr);
       //echo "\n Date : ".$date." | Angle Referent X : ".$angleX_ref ." |Angle courant X : ".$angleX." | Variation X :". $variationAngleX . "<br/>\n";
       //echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
@@ -514,8 +523,6 @@ class InclinometerManager extends \Core\Model
     //print_r($variationsArr);
     $db = null;
     return $variationsArr;
-
-    
   }
 
   /**
@@ -570,7 +577,7 @@ class InclinometerManager extends \Core\Model
             ON r.date_time = t.max_date_time
             order by r.date_time ASC
          ";
-            
+
 
     $stmt = $db->prepare($sql_monthly_values);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);

@@ -38,7 +38,7 @@ class RecordManager extends \Core\Model
 
     //Check what kind of message we received from the sensor
     $type_msg = RecordManager::checkTypeMessage($type_msg);
-
+    
     if ($type_msg == "uplink") {
       //Classic message which has the raw data value (inclinometer...)
       $uplinkDataArr = RecordManager::extractUplinkData($data);
@@ -124,7 +124,7 @@ class RecordManager extends \Core\Model
 
       //If event defined in Objenious 
     } else if ($type_msg == "event") {
-
+      
       $eventDataArr = RecordManager::extractEventData($data);
 
       $sensor_id = $sensorManager->getSensorIdFromDeveui($eventDataArr["deveui"]);
@@ -824,6 +824,7 @@ class RecordManager extends \Core\Model
     $query_get_number_record = "
         SELECT 
     sensor_id, 
+    deveui,
     site, 
     ligneHT, 
     equipement, 
@@ -837,6 +838,7 @@ class RecordManager extends \Core\Model
     (
       SELECT 
         sensor.device_number AS 'sensor_id', 
+        sensor.deveui AS 'deveui',
         s.nom AS `site`, 
          sensor.status AS status,
         st.transmision_line_name AS `LigneHT`, 
@@ -869,8 +871,36 @@ class RecordManager extends \Core\Model
     $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $res = $stmt->fetchAll();
-      return $res;
+      $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      //Get variation inclinometer 
+      $newDataArr = array();
+      foreach ($res as $data){
+        $deveui=$data["deveui"];
+        //$sensor_deveui = SensorManager::getDeveuiFromLabel($sensor_label);
+        $variationArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, -1, 2);
+        $variationX = $variationArr["pourcentage_variation_angleX"];
+        $variationY = $variationArr["pourcentage_variation_angleY"];
+        $variationZ = $variationArr["pourcentage_variation_angleZ"];
+        //echo $variationX . "</br>\n";
+        if (empty($variationX) ){
+          $variationX = 0;
+        }
+        if (empty($variationY)) {
+          $variationX = 0;
+        }
+        if (empty($variationZ)) {
+          $variationX = 0;
+        }
+        $data["variationX"] = $variationX;
+        $data["variationY"] = $variationY;
+        $data["variationZ"] = $variationZ; 
+        array_push($newDataArr, $data);
+      }
+      
+      $tmpArr = array();
+      $obj = new \stdClass();
+      $obj->data = $newDataArr;
+      return $obj;
     }
   }
 

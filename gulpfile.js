@@ -71,6 +71,8 @@ function modules() {
     var dataTables = gulp.src([
             './vendor/datatables.net/js/*.js',
             './vendor/datatables.net-dt/js/*.js',
+            './vendor/datatables.net-responsive/js/*.js',
+            './vendor/datatables.net-responsive/css/*.css',
             './vendor/datatables.net-dt/css/*.css'
         ])
         .pipe(gulp.dest('./public/vendor/datatables'));

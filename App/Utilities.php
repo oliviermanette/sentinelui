@@ -10,6 +10,12 @@ namespace App;
 class Utilities
 {
 
+  public static function saveJsonObject($data, $path){
+    $fp = fopen($path, 'w');
+    fwrite($fp, json_encode($data));
+    fclose($fp);
+
+  }
 
   // Find the number of combinaison K among n
   public static function nbreCombinaison($k, $n){

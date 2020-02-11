@@ -77,7 +77,21 @@ class SensorManager extends \Core\Model
       return $id_sensor[0];
     }
   }
+  public static function getDeveuiFromSensorLabel($device_number)
+  {
+    $db = static::getDB();
 
+    $sql_deveui_sensor = "SELECT deveui FROM `sensor` 
+      WHERE device_number = :device_number ";
+
+    $stmt = $db->prepare($sql_deveui_sensor);
+    $stmt->bindValue(':device_number', $device_number, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $id_sensor[0];
+    }
+  }
   /** 
    * Get the device number of a device given his id
    *
@@ -120,6 +134,22 @@ class SensorManager extends \Core\Model
     if ($stmt->execute()) {
       $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
       return $id_sensor[0];
+    }
+  }
+
+  public static function getSensorLabelFromDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_id_sensor = "SELECT device_number FROM `sensor` 
+      WHERE deveui = :deveui ";
+
+    $stmt = $db->prepare($sql_id_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $device_label= $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $device_label[0];
     }
   }
 

@@ -7,8 +7,10 @@ use \App\Auth;
 use \App\Models\SiteManager;
 use \App\Models\AlertManager;
 use \App\Models\EquipementManager;
+use App\Models\InclinometerManager;
 use \App\Models\RecordManager;
 use \App\Models\SensorManager;
+use App\Utilities;
 
 /**
  * Controller Accueil
@@ -38,7 +40,9 @@ class ControllerAccueil extends Authenticated
     $nb_active_sensors = $sensorManager->getNumberActiveSensorFromDB("RTE");
     $nb_inactive_sensors =  $sensorManager->getNumberInactiveSensorFromDB("RTE");
     $nb_active_alerts = $alertManager->getNumberActiveAlertsForGroup($group_name);
-
+    
+    //Create object txt that will contain the brief records
+    Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
 
     View::renderTemplate('Homepage/accueil.html', [
       'nb_active_sensors' => $nb_active_sensors,

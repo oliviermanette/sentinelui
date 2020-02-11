@@ -8,23 +8,24 @@
 
     <form class="card">
         <div class="card-body">
-            <h3 class="card-title">Edit Settings</h3>
+            <h3 class="card-title">Paramètres</h3>
             <div class="row">
                 <div class="col-sm-3">
-                    <label><strong>Shock threshold</strong></label>
-                    <input type="range" class="custom-range" name="amountRangeShock" min="0" max="5" value="0"
+                    <label><strong>Seuil des chocs (SD)</strong></label>
+                    <input type="range" class="custom-range" name="amountRangeShock" min="1" max="3" value="0"
                         oninput="this.form.amountInputShock.value=this.value" />
-                    <input type="number" name="amountInputShock" min="0" max="5" value="0"
+                    <input type="number" name="amountInputShock" min="1" max="3" value="1"
                         oninput="this.form.amountRangeShock.value=this.value" />
                 </div>
                 <div class="col-sm-3">
-                    <label><strong>Inclinometer threshold</strong></label>
-                    <input type="range" class="custom-range" name="amountRangeInclinometer" min="0" max="5" value="0"
+                    <label><strong>Seuil de l'inclinomètre (SD)</strong></label>
+                    <input type="range" class="custom-range" name="amountRangeInclinometer" min="1" max="3" value="1"
                         oninput="this.form.amountInputInclinometer.value=this.value" />
-                    <input type="number" name="amountInputInclinometer" min="0" max="5" value="0"
+                    <input type="number" name="amountInputInclinometer" min="1" max="3" value="1"
                         oninput="this.form.amountRangeInclinometer.value=this.value" />
                 </div>
             </div>
+            <!--
             <div class="row">
                 <div class="form-group">
                     <div class="form-label">Toggle switches</div>
@@ -47,9 +48,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
         <div class="card-footer text-right">
-            <button type="submit" class="btn btn-primary">Update Setting</button>
+            <button type="submit" class="btn btn-primary">Mettre à jour les paramètres</button>
         </div>
     </form>
 

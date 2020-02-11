@@ -200,6 +200,12 @@
             }
 
             $('#tableDataActivitySensor').DataTable({
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 'tr'
+                    }
+                },
                 "lengthMenu": [
                     [10, 25, 50, -1],
                     [10, 25, 50, 'All']
