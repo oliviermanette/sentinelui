@@ -261,6 +261,13 @@
         targets: 0,
         className: 'details-control',
         orderable: false,
+        },
+        {
+        targets: 6,
+        "render": function (data, type, row, meta) {
+            let status = row["status"];
+            return '<b>' + status +'</b>';
+        }
         }
         
       ],
@@ -293,12 +300,11 @@
       table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
     });
 
-    // Handle click on "Collapse All" button
+    /* Handle click on "Collapse All" button
     $('#btn-hide-all-children').on('click', function () {
       // Collapse row details
       table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
-    });
-
+    });*/
 
     // Add event listener for opening and closing details
     $('#tableData tbody').on('click', 'td.details-control', function () {
