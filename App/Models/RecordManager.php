@@ -822,7 +822,7 @@ class RecordManager extends \Core\Model
     $db = static::getDB();
 
     $query_get_number_record = "
-        SELECT 
+       SELECT 
     sensor_id, 
     deveui,
     site, 
@@ -833,12 +833,14 @@ class RecordManager extends \Core\Model
     DATE_FORMAT(
       last_message_received, '%d/%m/%Y'
     ) AS `last_message_received` ,
+    DATE_FORMAT(date_installation, '%d/%m/%Y') AS 'date_installation',
     status
   FROM 
     (
       SELECT 
         sensor.device_number AS 'sensor_id', 
         sensor.deveui AS 'deveui',
+        sensor.installation_date AS 'date_installation',
         s.nom AS `site`, 
          sensor.status AS status,
         st.transmision_line_name AS `LigneHT`, 
@@ -851,16 +853,20 @@ class RecordManager extends \Core\Model
           Date(r.date_time)
         ) AS `last_message_received` 
       FROM 
-        record AS r 
-        INNER JOIN structure AS st ON st.id = r.structure_id 
-        INNER JOIN site AS s ON s.id = st.site_id 
-        INNER JOIN sensor ON (sensor.id = r.sensor_id) 
-        INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
-        INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+        sensor
+        LEFT JOIN record AS r ON (r.sensor_id = sensor.id)
+        LEFT JOIN structure AS st ON st.id = r.structure_id 
+        LEFT JOIN site AS s ON s.id = st.site_id 
+        LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
+        LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
       WHERE 
         gn.name = :group_name 
       
       GROUP BY 
+        sensor.deveui,
+        sensor.device_number,
+        sensor.installation_date,
+        sensor.status,
         r.sensor_id, 
         st.nom, 
         s.nom, 
@@ -886,10 +892,10 @@ class RecordManager extends \Core\Model
           $variationX = 0;
         }
         if (empty($variationY)) {
-          $variationX = 0;
+          $variationY = 0;
         }
         if (empty($variationZ)) {
-          $variationX = 0;
+          $variationZ = 0;
         }
         $data["variationX"] = $variationX;
         $data["variationY"] = $variationY;

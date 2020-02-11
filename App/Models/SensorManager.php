@@ -377,11 +377,11 @@ class SensorManager extends \Core\Model
     $db = static::getDB();
 
     $sql_brief_info = "SELECT 
-    id_device_db,
     groupe,
     device_number, 
     ligneHT, 
-    equipement, 
+    equipement,
+    site,
     DATE_FORMAT(
       last_message_received, '%d/%m/%Y'
     ) AS `last_message_received` ,
@@ -398,18 +398,19 @@ class SensorManager extends \Core\Model
         gn.name AS groupe,
         st.transmision_line_name AS `LigneHT`, 
         st.nom AS `equipement`, 
+        s.nom AS 'site',
         Max(
           Date(r.date_time)
         ) AS `last_message_received` 
       FROM 
         record AS r 
-        INNER JOIN structure AS st ON st.id = r.structure_id 
-        INNER JOIN site AS s ON s.id = st.site_id 
-        INNER JOIN sensor ON (sensor.id = r.sensor_id) 
-        INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
-        INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+        LEFT JOIN structure AS st ON st.id = r.structure_id 
+        LEFT JOIN site AS s ON s.id = st.site_id 
+        LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
+        LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
+        LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
       WHERE 
-        gn.name = :group_name 
+        gn.name = :group_name
         AND Date(r.date_time) >= Date(sensor.installation_date) 
       GROUP BY 
         r.sensor_id, 

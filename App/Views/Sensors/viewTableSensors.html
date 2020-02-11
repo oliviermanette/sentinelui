@@ -5,9 +5,9 @@
         <!--<table id="dataTable" class="display" style="width:100%">-->
         <thead>
             <tr>
-                <th>#Sensor</th>
                 <th>Numéro du capteur</th>
                 <th>Groupe</th>
+                <th>Site</th>
                 <th>Equipement associé</th>
                 <th>Status</th>
                 <th>Dernier message reçu</th>
@@ -17,9 +17,9 @@
         <tbody>
             {% for row in info_sensors_array %}
             <tr>
-                <td>{{ row.id_device_db }}</td>
                 <td>{{ row.device_number }}</td>
                 <td>{{ row.groupe }}</td>
+                <td>{{ row.site }}</td>
                 <td> {{ row.ligneHT }}</td>
                 <td> {{ row.status }}</td>
                 <td> {{ row.last_message_received }}</td>
