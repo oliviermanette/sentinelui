@@ -286,17 +286,17 @@
             addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
             if (lastXdays === "7") {
                 let nbPowerDataWeek = '{{ powerChocDataWeekArr|raw}}';
-                console.log("Week : ", nbPowerDataWeek);
+                //console.log("Week : ", nbPowerDataWeek);
                 drawChartPowerChocPerDateBar(nbPowerDataWeek, "chartPowerChoc");
             }
             if (lastXdays === "30") {
                 let nbPowerDataMonth = '{{ powerChocDataMonthArr|raw}}';
-                console.log("Month :", nbPowerDataMonth);
+                //console.log("Month :", nbPowerDataMonth);
                 drawChartPowerChocPerDateBar(nbPowerDataMonth, "chartPowerChoc");
             }
             if (lastXdays === "1") {
                 let nbPowerDataDay = '{{ powerChocDataDayArr|raw}}';
-                console.log("Day :", nbPowerDataDay);
+                //console.log("Day :", nbPowerDataDay);
                 drawChartPowerChocPerDateBar(nbPowerDataDay, "chartPowerChoc");
             }
 
