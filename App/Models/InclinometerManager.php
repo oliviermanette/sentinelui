@@ -340,7 +340,7 @@ class InclinometerManager extends \Core\Model
         FROM
         (SELECT
             `sensor_id`, deveui,
-            DATE(r.date_time) AS last_date,
+            DATE_FORMAT(r.date_time, '%d/%m/%Y') AS last_date,
             angle_x AS newAngleX,
             angle_y AS newAngleY,
             angle_z AS newAngleZ,
@@ -352,12 +352,12 @@ class InclinometerManager extends \Core\Model
             WHERE
             `msg_type` LIKE 'inclinometre'
             AND deveui = :deveui
-          ORDER BY Date(r.date_time) DESC
+          ORDER BY last_date DESC
         LIMIT 1) AS new_values_inclinometer
         JOIN
         (SELECT
             `sensor_id`,deveui,
-            Date(r.date_time) AS first_date,
+            DATE_FORMAT(r.date_time, '%d/%m/%Y') AS first_date,
             angle_x AS oldAngleX,
             angle_y AS oldAngleY,
             angle_z AS oldAngleZ,
@@ -409,7 +409,7 @@ class InclinometerManager extends \Core\Model
   {
     $db = static::getDB();
     $sql_reference_values = "SELECT
-        Date(r.date_time) AS date,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
         angle_x,
         angle_y,
         angle_z,
@@ -467,7 +467,7 @@ class InclinometerManager extends \Core\Model
     $temperature_ref = $references_values["temperature"];
 
     $sql_all_values = "SELECT
-        Date(r.date_time) AS date ,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
         angle_x,
         angle_y,
         angle_z,
@@ -548,7 +548,7 @@ class InclinometerManager extends \Core\Model
     $temperature_ref = $references_values["temperature"];
 
     $sql_monthly_values = "SELECT
-          Date(r.date_time) AS date ,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
           angle_x,
           angle_y,
           angle_z,
@@ -641,7 +641,7 @@ class InclinometerManager extends \Core\Model
     $temperature_ref = $references_values["temperature"];
 
     $sql_weekly_values = "SELECT
-          Date(r.date_time) AS date ,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
           angle_x,
           angle_y,
           angle_z,
@@ -731,7 +731,7 @@ class InclinometerManager extends \Core\Model
     FROM
     (SELECT
         `sensor_id`,
-        DATE(r.date_time) AS date_d,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         angle_x,
         angle_y,
         angle_z,
@@ -747,7 +747,7 @@ class InclinometerManager extends \Core\Model
     JOIN
     (SELECT
         `sensor_id`,
-        Date(r.date_time) AS date_d,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         angle_x,
         angle_y,
         angle_z,
@@ -796,7 +796,7 @@ class InclinometerManager extends \Core\Model
         FROM
         (SELECT
         `sensor_id`,
-        DATE(r.date_time) AS date_d,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         angle_x,
         angle_y,
         angle_z,
@@ -812,7 +812,7 @@ class InclinometerManager extends \Core\Model
     JOIN
     (SELECT
         `sensor_id`,
-        DATE(r.date_time) AS date_d,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,,
         angle_x,
         angle_y,
         angle_z,
@@ -857,7 +857,7 @@ class InclinometerManager extends \Core\Model
 
     $sql_data_inclinometer = "SELECT
         `sensor_id`,
-        DATE(`date_time`) AS date_d,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         `nx`,
         `ny`,
         `nz`,

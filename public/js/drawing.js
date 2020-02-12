@@ -360,6 +360,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         data: []
       };
       chartInstance.data.datasets.push(newDataset);
+      
     }
 
     //Loop over each date to draw value of each choc power

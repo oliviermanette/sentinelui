@@ -136,7 +136,7 @@ class ChocManager extends \Core\Model
     s.nom AS site,
     st.nom AS equipement,
     st.transmision_line_name AS ligneHT,
-    r.date_time,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
     r.payload,
     r.msg_type AS 'Type message',
     amplitude_1,
@@ -157,7 +157,7 @@ class ChocManager extends \Core\Model
     WHERE
     gn.name = :group_name
     AND Date(r.date_time) >= Date(sensor.installation_date)
-    ORDER BY Date(r.date_time) DESC
+    ORDER BY date_d DESC
     ";
 
     $stmt = $db->prepare($sql_choc_data);
@@ -188,7 +188,7 @@ class ChocManager extends \Core\Model
       (
         SELECT 
           `sensor_id`, 
-          r.date_time AS date_d, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
           power 
         FROM 
           choc AS inc 
@@ -240,7 +240,7 @@ class ChocManager extends \Core\Model
     (
       SELECT 
         `sensor_id`, 
-        Date(r.date_time) AS date_d, 
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         power 
       FROM 
         choc AS inc 
@@ -295,7 +295,7 @@ class ChocManager extends \Core\Model
       (
         SELECT 
           `sensor_id`, 
-          r.date_time AS date_d, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
           power 
         FROM 
           choc AS inc 
@@ -347,7 +347,7 @@ class ChocManager extends \Core\Model
     (
       SELECT 
         `sensor_id`, 
-        Date(r.date_time) AS date_d, 
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         power 
       FROM 
         choc AS inc 
@@ -411,7 +411,7 @@ class ChocManager extends \Core\Model
       (
         SELECT 
           sensor.id, 
-          r.date_time AS dateTime, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS dateTime,
           power 
         FROM 
           choc 
@@ -488,7 +488,7 @@ class ChocManager extends \Core\Model
       (
         SELECT 
           sensor.id, 
-          r.date_time AS dateTime, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS dateTime, 
           power 
         FROM 
           choc 
@@ -538,7 +538,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_last_choc = "SELECT 
-    r.date_time as date, 
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
     power 
     FROM 
     choc 
@@ -602,7 +602,7 @@ class ChocManager extends \Core\Model
    */
   public function getAllPowerDataChoc()
   {
-    $sql = "SELECT sensor.id, r.date_time, power
+    $sql = "SELECT sensor.id, DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d, power
     FROM choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     LEFT JOIN sensor ON (sensor.id = r.sensor_id)
@@ -700,7 +700,7 @@ class ChocManager extends \Core\Model
     (
       SELECT
       `sensor_id`,
-      DATE(`date_time`) AS date_d,
+      DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
       `amplitude_1`,
       `amplitude_2`,
       `time_1`,
@@ -754,7 +754,7 @@ class ChocManager extends \Core\Model
         (
           SELECT
           `sensor_id`,
-          DATE(`date_time`) AS date_d,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
           `amplitude_1`,
           `amplitude_2`,
           `time_1`,
@@ -798,7 +798,7 @@ class ChocManager extends \Core\Model
         (
           SELECT
           `sensor_id`,
-          DATE(`date_time`) AS date_d,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
           `amplitude_1`,
           `amplitude_2`,
           `time_1`,
@@ -840,7 +840,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-      DATE(r.date_time) AS date_d,
+      DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
       `power`
       FROM
       choc
@@ -873,7 +873,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-      r.date_time AS date_d,
+      DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
       `power`
       FROM
       choc
@@ -1002,7 +1002,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-    DATE(r.date_time) AS date_d,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
     `power`
     FROM
     choc
@@ -1036,7 +1036,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-    DATE(r.date_time) AS date_d,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
     `power`
     FROM
     choc
