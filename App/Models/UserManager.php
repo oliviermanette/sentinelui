@@ -378,4 +378,6 @@ class UserManager extends \Core\Model
 
         return false;
     }
+
+    
 }
