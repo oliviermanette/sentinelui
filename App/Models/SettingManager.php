@@ -17,10 +17,13 @@ class SettingManager extends \Core\Model
         }
     }
 
-    public function save()
-    {
-    }
-
+    /**
+     * find all the settings belong to a specific group
+     *
+     * @param string $group_name group name
+     *
+     * @return array  array which contains all the settings applied to this specific group
+     */
     public static function findByGroupName($group_name)
     {
         $db = static::getDB();
@@ -39,6 +42,14 @@ class SettingManager extends \Core\Model
         }
     }
 
+
+    /**
+     * Get the value for the shock thresh setting
+     *
+     * @param string $group_name group name
+     *
+     * @return int  value that is applied for this specific setting
+     */
     public static function getShockThresh($group_name){
 
         $db = static::getDB();
@@ -57,6 +68,13 @@ class SettingManager extends \Core\Model
         }
     }
 
+    /**
+     * Get the value for the inclinometer thresh setting
+     *
+     * @param string $group_name group name
+     *
+     * @return int  value that is applied for this specific setting
+     */
     public static function getInclinometerThresh($group_name)
     {
 
@@ -76,6 +94,13 @@ class SettingManager extends \Core\Model
         }
     }
 
+    /**
+     * Get the value for the time period setting
+     *
+     * @param string $group_name group name
+     *
+     * @return int  value that is applied for this specific setting
+     */
     public static function getTimePeriodCheck($group_name)
     {
 
@@ -94,6 +119,15 @@ class SettingManager extends \Core\Model
             return (int) $timePeriodCheck;
         }
     }
+
+    /**
+     * update the value for the shock thresh setting
+     *
+     * @param string $group_name group name where we want to apply this setting
+     * @param int $shockThreshValue value to apply
+     *
+     * @return void 
+     */
     public static function updateShockThresh($group_name, $shockThreshValue){
         $db = static::getDB();
 
@@ -111,6 +145,14 @@ class SettingManager extends \Core\Model
         return $stmt->execute();
     }
 
+    /**
+     * update the value for the inclinometer thresh setting
+     *
+     * @param string $group_name group name where we want to apply this setting
+     * @param int $inclinometerThreshValue value to apply
+     *
+     * @return void 
+     */
     public static function updateInclinometerThresh($group_name, $inclinometerThreshValue)
     {
         $db = static::getDB();
@@ -133,6 +175,14 @@ class SettingManager extends \Core\Model
         
     }
 
+    /**
+     * update the value for the time period setting
+     *
+     * @param string $group_name group name where we want to apply this setting
+     * @param int $timePeriodValue value to apply
+     *
+     * @return void 
+     */
     public static function updateTimePeriodCheck($group_name, $timePeriodValue)
     {
         $db = static::getDB();

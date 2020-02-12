@@ -41,10 +41,18 @@ class ControllerProfile extends Authenticated
         View::renderTemplate('Support/index.html', []);
     }
 
+    /**
+     * update the profil after having submitted the form in the profile page
+     *
+     * @return void
+     */
     public function updateAction(){
+        //Get data from form
         $dataProfil = $_POST;
+        //Get the current user
         $user = Auth::getUser();
         $user_id = $user->id;
+        //Edit account by updating the DB
         if(UserManager::editAccount($user_id, $dataProfil)){
             Flash::addMessage('Mise à jour réussie du profil');
         }else{

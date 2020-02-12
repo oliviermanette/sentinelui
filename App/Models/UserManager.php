@@ -148,7 +148,14 @@ class UserManager extends \Core\Model
     return $stmt->fetch();
   }
 
-  public static function findGroupsById($id)
+  /**
+   * Find all groups that belong to a specific user by ID
+   *
+   * @param string $id The user ID
+   *
+   * @return array array which contains all the groups
+   */
+  public static function findGroupsById($user_id)
   {
 
     $sql = "SELECT gn.name
@@ -159,7 +166,7 @@ class UserManager extends \Core\Model
 
     $db = static::getDB();
     $stmt = $db->prepare($sql);
-    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
 
     $group_array = array();
     if ($stmt->execute()) {
@@ -168,7 +175,15 @@ class UserManager extends \Core\Model
       return $group_array;
     }
   }
-  public static function findNameUserById($id)
+
+  /**
+   * Find the first name of an user using his id
+   *
+   * @param string $id The user ID
+   *
+   * @return array 
+   */
+  public static function findNameUserById($user_id)
   {
     $sql = "SELECT u.first_name
     FROM user AS u
@@ -178,7 +193,7 @@ class UserManager extends \Core\Model
 
     $db = static::getDB();
     $stmt = $db->prepare($sql);
-    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
 
     $group_array = array();
     if ($stmt->execute()) {
@@ -380,20 +395,28 @@ class UserManager extends \Core\Model
     return false;
   }
 
+  /**
+   * Update the profile account in the DB
+   * 
+   * @param int $user_id The id of the user
+   * @param array $data array that contain the profile information for updating
+   *
+   * @return boolean  True if the profil was updated successfully, false otherwise
+   */
   public static function editAccount($user_id, $data)
   {
     $db = static::getDB();
-    var_dump($data);
-    $company = $_POST["company"];
-    $username = $_POST["username"];
-    $email = $_POST["email"];
-    $first_name = $_POST["first_name"];
-    $last_name = $_POST["last_name"];
-    $adress = $_POST["adress"];
-    $phone_number = $_POST["phone_number"];
-    $city = $_POST["city"];
-    $zip_code = $_POST["zip_code"];
-    $country = $_POST["country"];
+
+    $company = $data["company"];
+    $username = $data["username"];
+    $email = $data["email"];
+    $first_name = $data["first_name"];
+    $last_name = $data["last_name"];
+    $adress = $data["adress"];
+    $phone_number = $data["phone_number"];
+    $city = $data["city"];
+    $zip_code = $data["zip_code"];
+    $country = $data["country"];
     ;
     $sql = "UPDATE user
         SET user.country = :country, user.zip_code = :zip_code, user.phone_number = :phone_number,
