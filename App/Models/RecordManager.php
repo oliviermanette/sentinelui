@@ -58,24 +58,24 @@ class RecordManager extends \Core\Model
 
       //Get the type of message received from the uplink (choc, inclinometer, global, spectre)
       $type_msg = $payload_decoded_json["type"];
-      //print_r($payload_decoded_json);
+    
       //Insert a record inside the Record table of the DB
       $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
-      
+      //$success = true;
       if ($success) {
         if ($type_msg == "choc") {
 
           $chocManager = new ChocManager($payload_decoded_json);
-
+          
           if (!$chocManager->insertChocData($payload_decoded_json)) {
             return false;
           }
           $group_name = $uplinkDataArr["group_name"];
           $shockTreshSTD = SettingManager::getShockThresh($group_name);
-          $time_period = 30;
+          $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
 
           $chocManager->setStdDevRule($shockTreshSTD);
-          $hasAlert = $chocManager->check($sensor_id, 30);
+          $hasAlert = $chocManager->check($sensor_id, $timePeriodCheck);
           $chocValue = $chocManager->getPowerValueChoc();
 
           //Create new alert if it's the case
@@ -103,11 +103,63 @@ class RecordManager extends \Core\Model
         }
         //Inclinometer data
         else if ($type_msg == "inclinometre") {
-          $inclinometreManager = new InclinometerManager();
+          
+          $inclinometreManager = new InclinometerManager($payload_decoded_json);
 
           if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
             return false;
           }
+
+          $group_name = $uplinkDataArr["group_name"];
+          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
+          $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
+          
+          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
+
+          $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
+          $hasAlertArr = $inclinometreManager->check($sensor_id, $timePeriodCheck);
+
+          
+          if ($hasAlertArr["alertOnX"]){
+            $angleX = $inclinometreManager->getAngleX();
+            $eventDataArr = array(
+              "label"  => "high_inclinometer_variationX",
+              "deveui"  => $uplinkDataArr["deveui"],
+              "date_time"  => $uplinkDataArr["date_time"],
+              "equipement_id"  => $equipement_id,
+              "value"  => $angleX
+            );
+            $alertManager = new AlertManager($eventDataArr);
+            $alertManager->createFromArr($eventDataArr);         
+          }
+          if ($hasAlertArr["alertOnY"]) {
+            $angleY = $inclinometreManager->getAngleY();
+            $eventDataArr = array(
+              "label"  => "high_inclinometer_variationY",
+              "deveui"  => $uplinkDataArr["deveui"],
+              "date_time"  => $uplinkDataArr["date_time"],
+              "equipement_id"  => $equipement_id,
+              "value"  => $angleY
+            );
+            $alertManager = new AlertManager($eventDataArr);
+            $alertManager->createFromArr($eventDataArr);
+          }
+          if ($hasAlertArr["alertOnZ"]) {
+            $angleZ = $inclinometreManager->getAngleZ();
+            $eventDataArr = array(
+              "label"  => "high_inclinometer_variationY",
+              "deveui"  => $uplinkDataArr["deveui"],
+              "date_time"  => $uplinkDataArr["date_time"],
+              "equipement_id"  => $equipement_id,
+              "value"  => $angleZ
+            );
+
+            $alertManager = new AlertManager($eventDataArr);
+            $alertManager->createFromArr($eventDataArr);
+          }
+          
+          
+        
         }
         //Subspectre data
         else if ($type_msg == "spectre") {
@@ -1407,119 +1459,7 @@ class RecordManager extends \Core\Model
     return $messages_device;
   }
 
-  /**
-   * Parse json data and then insert into the DB
-   *
-   * @param json $jsondata json data received from Objenious. This file contain the uplink message
-   * @return boolean  True if data has been correctly inserted, true otherwise
-   */
-  function parseJsonDataAndInsertOLD($jsondata)
-  {
-    //Get all the interesting content from JSON data
-    $id = $jsondata['id'];
-    $profile = $jsondata['profile'];
-    $group = $jsondata['group'];
-    $device_id = $jsondata['device_id'];
-    $count = $jsondata['count'];
-    $geolocation_precision = $jsondata['geolocation_precision'];
-    $geolocation_type = $jsondata['geolocation_type'];
-    $latitude_msg = $jsondata['lat'];
-    $longitude_msg = $jsondata['lng'];
-    $payload_data = $jsondata['payload'];
-    $payload_cleartext = $jsondata['payload_cleartext'];
-    $device_properties = $jsondata['device_properties'];
-    $asset_name = $device_properties['external_id'];
-    $appeui = $device_properties['appeui'];
-    $deveui_sensor = $device_properties['deveui'];
-    $timestamp = $payload_data[0]['timestamp'];
-    $type_msg =  $jsondata['type'];
 
-    #Remove bracket
-    $asset_name_no_bracket = str_replace(array('[', ']'), '', $asset_name);
-    $asset_name_array = explode("-", $asset_name_no_bracket);
-    $region = $asset_name_array[0];
-    $ligne = $asset_name_array[1];
-    $desc_asset = $asset_name_array[2];
-    $support_asset = $asset_name_array[3];
-    $corniere = $asset_name_array[4];
-
-    #Build the asset name
-    $name_asset = $desc_asset . "_" . $support_asset;
-
-    #Provisory solution
-    $type_asset = "";
-    if (strpos($desc_asset, 'pylone') !== false) {
-      $type_asset = "transmission line";
-    } else {
-      $type_asset = "undefined";
-    }
-
-    $geocoder = new \OpenCage\Geocoder\Geocoder(\App\Config::GEOCODER_API_KEY);
-    #$$$res ult = $geocoder->geocode($region, ['language' => 'fr', 'countrycode' => 'fr']);
-
-    //Add structure type to the DB
-    $equipementManager = new EquipementManager();
-    $equipementManager->insertStructureType($type_asset);
-    if (!$equipementManager->insertStructureType($type_asset)) {
-      return false;
-    }
-
-    $datetimeFormat = 'Y-m-d H:i:s';
-    $date = new \DateTime($timestamp);
-    $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-    $date_time = $date->format($datetimeFormat);
-
-    //As we received a payload message, we need to decode it
-    $msg_json = RecordManager::decodePayload($payload_cleartext);
-    $payload_decoded_json = json_decode($msg_json, true);
-
-    #Add date time attribute to the decoded payload
-    $payload_decoded_json['date_time'] = $date_time;
-    $payload_decoded_json['deveui'] = $deveui_sensor;
-    print_r($payload_decoded_json);
-
-    //Get the type of message
-    $type_msg = $payload_decoded_json["type"];
-
-    //Insert a record inside the Record table of the DB
-    RecordManager::insertRecordData($deveui_sensor, $name_asset, $payload_cleartext, $date_time, $type_msg, $longitude_msg, $latitude_msg);
-
-    //Then add the corresponding type of data received
-    //Choc data
-    if ($type_msg == "choc") {
-      $chocManager = new ChocManager();
-
-      if (!$chocManager->insertChocData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //battery data
-    else if ($type_msg == "global") {
-      $batteryManager = new BatteryManager();
-
-      if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //Inclinometer data
-    else if ($type_msg == "inclinometre") {
-      $inclinometreManager = new InclinometerManager();
-
-      if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
-        return false;
-      }
-    }
-    //Subspectre data
-    else if ($type_msg == "spectre") {
-      $spectreManager = new SpectreManager();
-
-      if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
-        return false;
-      }
-    }
-
-    return True;
-  }
 
   /** 
    * Get the datatype ID in the DB from the name

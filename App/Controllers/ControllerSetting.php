@@ -29,15 +29,17 @@ class ControllerSetting extends Authenticated
         
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentUser();
-
+       
         //Get the shock threshold and inclinometer threshold
         //TODO : change and make it more reusable
         $settingsShock = $settingsArr[0];
         $settingsInclinometer = $settingsArr[1];
+        $settingsTimePeriod = $settingsArr[2];
 
         View::renderTemplate('Profile/settings.html', [
             'settingsShock' => $settingsShock,
-            'settingsInclinometer' => $settingsInclinometer
+            'settingsInclinometer' => $settingsInclinometer,
+            'settingsTimePeriod' => $settingsTimePeriod
         ]);
 
     }
@@ -47,9 +49,11 @@ class ControllerSetting extends Authenticated
         $group_name = $_SESSION['group_name'];
         $shockThresh = $_POST["shockThresh"];
         $inclinometerThresh = $_POST["inclinometerThresh"];
+        $timePeriod = $_POST["rangeDateCheck"];
 
         if (SettingManager::updateShockThresh($group_name, $shockThresh) &&
-        SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh)){
+        SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh) &&
+        SettingManager::updateTimePeriodCheck($group_name, $timePeriod)){
             Flash::addMessage('Mise à jour réussie des paramètres');
         }
         else {

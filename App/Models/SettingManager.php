@@ -72,7 +72,26 @@ class SettingManager extends \Core\Model
 
         if ($stmt->execute()) {
             $inclinometerThresh = $stmt->fetch(PDO::FETCH_COLUMN);
-            return (int) $inclinometerThresh;
+            return (int)$inclinometerThresh;
+        }
+    }
+
+    public static function getTimePeriodCheck($group_name)
+    {
+
+        $db = static::getDB();
+
+        $sql = "SELECT value  AS thresh FROM group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            WHERE group_name.name = :group_name AND settings.name = 'timePeriodCheck'";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $timePeriodCheck = $stmt->fetch(PDO::FETCH_COLUMN);
+            return (int) $timePeriodCheck;
         }
     }
     public static function updateShockThresh($group_name, $shockThreshValue){
@@ -112,5 +131,26 @@ class SettingManager extends \Core\Model
         }
         return false;
         
+    }
+
+    public static function updateTimePeriodCheck($group_name, $timePeriodValue)
+    {
+        $db = static::getDB();
+
+        $sql = "UPDATE group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            SET group_settings.value = :timePeriodValue
+            WHERE group_name.name = :group_name AND settings.name = 'timePeriodCheck'
+            ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':timePeriodValue', $timePeriodValue, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
 }
