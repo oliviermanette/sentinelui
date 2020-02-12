@@ -41,6 +41,39 @@ class SettingManager extends \Core\Model
 
     public static function getShockThresh($group_name){
 
+        $db = static::getDB();
+
+        $sql = "SELECT value  AS thresh FROM group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            WHERE group_name.name = :group_name AND settings.name = 'shock_thresh'";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $shockThresh = $stmt->fetch(PDO::FETCH_COLUMN);
+            return (int)$shockThresh;
+        }
+    }
+
+    public static function getInclinometerThresh($group_name)
+    {
+
+        $db = static::getDB();
+
+        $sql = "SELECT value  AS thresh FROM group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            WHERE group_name.name = :group_name AND settings.name = 'inclinometer_thresh'";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $inclinometerThresh = $stmt->fetch(PDO::FETCH_COLUMN);
+            return (int) $inclinometerThresh;
+        }
     }
     public static function updateShockThresh($group_name, $shockThreshValue){
         $db = static::getDB();

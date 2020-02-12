@@ -52,8 +52,7 @@ class RecordManager extends \Core\Model
       #Add date time attribute to the decoded payload
       $payload_decoded_json['date_time'] = $uplinkDataArr["date_time"];
       $payload_decoded_json['deveui'] = $uplinkDataArr["deveui"];
-      /*print_r($uplinkDataArr);
-      exit();*/
+  
       $sensor_id = $sensorManager->getSensorIdFromDeveui($uplinkDataArr["deveui"]);
       $equipement_id = $equipementManager->getEquipementIdBySensorId($sensor_id);
 
@@ -71,9 +70,11 @@ class RecordManager extends \Core\Model
           if (!$chocManager->insertChocData($payload_decoded_json)) {
             return false;
           }
-
+          $group_name = $uplinkDataArr["group_name"];
+          $shockTreshSTD = SettingManager::getShockThresh($group_name);
           $time_period = 30;
-          $chocManager->setStdDevRule(1);
+
+          $chocManager->setStdDevRule($shockTreshSTD);
           $hasAlert = $chocManager->check($sensor_id, 30);
           $chocValue = $chocManager->getPowerValueChoc();
 
@@ -309,6 +310,7 @@ class RecordManager extends \Core\Model
     $profile = $data['profile'];
     $profile_id = $data['profile_id'];
     $group = $data['group'];
+    $group = explode("-", $group)[0];
     $group_id = $data['group_id'];
     $type = $data['type'];
     $device_id = $data['device_id'];
@@ -344,6 +346,7 @@ class RecordManager extends \Core\Model
       "id_uplink"  => $id_uplink,
       "profile"  => $profile,
       "profile_id"  => $profile_id,
+      "group_name" => $group,
       //"nb_message"  => $count,
       "type_asset"  => $type_asset,
       "name_asset"  => $name_asset,
@@ -419,7 +422,7 @@ class RecordManager extends \Core\Model
     $part = explode(".", $timestamp);
     $second = substr($part[1], 0, 3);
     //Finnaly we get 2019-11-29T16:01:26.572Z
-    $secondTimeZone = $second . "Z";
+    $secondTimeZone = $second;
     $timestamp = $part[0] . "." . $secondTimeZone;
 
     $timezone = new \DateTimeZone(date_default_timezone_get());
