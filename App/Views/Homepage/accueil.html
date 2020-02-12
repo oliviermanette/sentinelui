@@ -205,9 +205,11 @@
 
 
   $(document).ready(function () {
+    
     var date = Date();
     fetchDataMap(showMap);
 
+    $.fn.dataTable.moment( 'DD/MM/YYYY' );
     var table = $('#tableData').DataTable({
       responsive: true,
       responsive: {
@@ -274,7 +276,7 @@
         }
         
       ],
-       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
           var status = aData["status"];
         if (status == "active") {
           $('td', nRow).css({
@@ -287,13 +289,13 @@
             "background-color": "rgba(254, 16, 16, 0.15)"
           })
         }
-       },      
-      
+      },      
       "lengthMenu": [
         [10, 25, 50, -1],
         [10, 25, 50, 'All']
       ],
       "iDisplayLength": 20,
+      "order": [[ 5, "desc" ]],
 
     });
 
