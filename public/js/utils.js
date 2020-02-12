@@ -94,3 +94,11 @@ function hideElement(parentId) {
 function hex2dec(hex) {
   return parseInt(hex, 16);
 }
+
+function isEmpty(obj) {
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key))
+      return false;
+  }
+  return true;
+}
