@@ -26,7 +26,7 @@ class ControllerSetting extends Authenticated
     {
 
         Auth::rememberRequestedPage();
-
+        
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentUser();
 
@@ -43,14 +43,13 @@ class ControllerSetting extends Authenticated
     }
 
     public function updateAction(){
-        $user = Auth::getUser();
-        $user_id = $user->id;
 
+        $group_name = $_SESSION['group_name'];
         $shockThresh = $_POST["shockThresh"];
         $inclinometerThresh = $_POST["inclinometerThresh"];
 
-        if (SettingManager::updateShockThresh($user_id, $shockThresh) &&
-        SettingManager::updateInclinometerThresh($user_id, $inclinometerThresh)){
+        if (SettingManager::updateShockThresh($group_name, $shockThresh) &&
+        SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh)){
             Flash::addMessage('Mise à jour réussie des paramètres');
         }
         else {
@@ -63,8 +62,10 @@ class ControllerSetting extends Authenticated
     public function getSettingsForCurrentUser(){
         $user = Auth::getUser();
         $user_id = $user->id;
-        $settings = SettingManager::findByUserId($user_id);
+        $group_name = $_SESSION['group_name'];
 
+        $settings = SettingManager::findByGroupName($group_name);
+        
         return $settings;
     }
 

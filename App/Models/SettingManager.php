@@ -21,17 +21,17 @@ class SettingManager extends \Core\Model
     {
     }
 
-    public static function findByUserId($user_id)
+    public static function findByGroupName($group_name)
     {
         $db = static::getDB();
 
-        $sql = 'SELECT user_id, email, name, value FROM `user_settings`
-            LEFT JOIN settings ON (settings.id = user_settings.settings_id)
-            LEFT JOIN user ON (user.id = user_settings.user_id)
-            WHERE user_id = :user_id';
+        $sql = "SELECT group_name.name, settings.name, value FROM `group_settings`
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            WHERE group_name.name = :group_name";
 
         $stmt = $db->prepare($sql);
-        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             $settingsArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -39,36 +39,39 @@ class SettingManager extends \Core\Model
         }
     }
 
-    public static function updateShockThresh($user_id, $shockThreshValue){
+    public static function getShockThresh($group_name){
+
+    }
+    public static function updateShockThresh($group_name, $shockThreshValue){
         $db = static::getDB();
 
-        $sql = "UPDATE user_settings
-        LEFT JOIN settings ON (settings.id = user_settings.settings_id)
-        LEFT JOIN user ON (user.id = user_settings.user_id)
-        SET user_settings.value = :shockThreshValue
-        WHERE user_id = :user_id AND settings.name = 'shock_thresh'
-        ";
+        $sql = "UPDATE group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            SET group_settings.value = :shockThreshValue
+            WHERE group_name.name = :group_name AND settings.name = 'shock_thresh'
+            ";
 
         $stmt = $db->prepare($sql);
-        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
         $stmt->bindValue(':shockThreshValue', $shockThreshValue, PDO::PARAM_INT);
 
         return $stmt->execute();
     }
 
-    public static function updateInclinometerThresh($user_id, $inclinometerThreshValue)
+    public static function updateInclinometerThresh($group_name, $inclinometerThreshValue)
     {
         $db = static::getDB();
 
-        $sql = "UPDATE user_settings
-        LEFT JOIN settings ON (settings.id = user_settings.settings_id)
-        LEFT JOIN user ON (user.id = user_settings.user_id)
-        SET user_settings.value = :inclinometerThreshValue
-        WHERE user_id = :user_id AND settings.name = 'inclinometer_thresh'
-        ";
+        $sql = "UPDATE group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            SET group_settings.value = :inclinometerThreshValue
+            WHERE group_name.name = :group_name AND settings.name = 'inclinometer_thresh'
+            ";
 
         $stmt = $db->prepare($sql);
-        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
         $stmt->bindValue(':inclinometerThreshValue', $inclinometerThreshValue, PDO::PARAM_INT);
 
         if ($stmt->execute()){
