@@ -31,7 +31,7 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
     }]
   };
 
-  var canva_id = "#" + canvaID
+  var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
 
   //Options for the chart
@@ -72,7 +72,7 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
       text: 'Nombre de choc enregistré',
       fontSize: 15
     }
-  }
+  };
   //Create the instance
   var chartInstance = new Chart(ctx, {
     type: 'bar',
@@ -139,7 +139,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
   var dict = []; // create an empty array
 
 
-  var canva_id = "#" + canvaID
+  var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
 
 
@@ -187,7 +187,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
         }
       }]
     }
-  }
+  };
 
   var chartInstance = new Chart(ctx, {
     type: 'scatter',
@@ -231,7 +231,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
       }]
     };
 
-    var canva_id = "#" + canvaID
+    var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
 
     //Create options for chart dataset
@@ -241,13 +241,13 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
       tooltips: {
         callbacks: {
           title: function (tooltipItem, data) {
-            let date = data['labels'][tooltipItem[0]['index']];
-            let hour = mapPowerDateTime.get(tooltipItem[0]['value']).split(" ")[1];
+            let date = data.labels[tooltipItem[0].index];
+            let hour = mapPowerDateTime.get(tooltipItem[0].value).split(" ")[1];
             //console.log(tooltipItem[0]['value']);
             return "Le " + date + " à " + hour;
           },
           label: function (tooltipItem, data) {
-            let power = tooltipItem['value'];
+            let power = tooltipItem.value;
             return "Puissance : " + power + " g";
           },
           afterLabel: function (tooltipItem, data) {
@@ -297,7 +297,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         text: 'Puissance des chocs enregistré',
         fontSize: 15
       }
-    }
+    };
 
     //Create chart Instance
     var chartInstance = new Chart(ctx, {
@@ -315,7 +315,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     //the hours thank to the power for tooltip use in the chart
     var mapPowerDateTime = new Map();
     for (var i in data) {
-      count = i;
+      //count = i;
 
       let date_time = data[i].date_d;
       let date = date_time.split(" ")[0];
@@ -344,10 +344,10 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     powerChocArr.push(powerChocPerDayArr);
 
     var dict = []; // create an empty dict which will contain date associated with power values
-    for (var i in datesArr) {
+    for (var d in datesArr) {
       dict.push({
-        date: datesArr[i],
-        powerValues: powerChocArr[i]
+        date: datesArr[d],
+        powerValues: powerChocArr[d]
       });
     }
 
@@ -365,12 +365,12 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     //Loop over each date to draw value of each choc power
     for (const [key, value] of Object.entries(dict)) {
       //Axis date
-      chartInstance.data.labels[key] = value["date"];
+      chartInstance.data.labels[key] = value.date;
       chartInstance.update();
 
       var count = 0;
       //Convert to float 
-      var powerValueArray = value["powerValues"].map(function (v) {
+      var powerValueArray = value.powerValues.map(function (v) {
         return parseFloat(v);
       });
 
@@ -430,7 +430,7 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
       data: temperature
     }]
   };
-  var canva_id = "#" + canvaID
+  var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
 
   var options = {
@@ -461,7 +461,7 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
       display: true,
       text: 'Temperature en fonction du temps'
     }
-  }
+  };
 
   var chartInstance = new Chart(ctx, {
     type: 'line',
@@ -668,7 +668,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           },
         }],
       }
-    }
+    };
 
 
     var chartInstance = new Chart(ctx, {
@@ -687,7 +687,7 @@ function drawNoDataAvailable(canvaID) {
         // No data is present
         var ctx = chart.chart.ctx;
         var width = chart.chart.width;
-        var height = chart.chart.height
+        var height = chart.chart.height;
         chart.clear();
 
         ctx.save();
@@ -731,7 +731,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
     variation_angle_x.push(inclinometerData[i].variationAngleX);
     variation_angle_y.push(inclinometerData[i].variationAngleY);
     variation_angle_z.push(inclinometerData[i].variationAngleZ);
-    date.push(inclinometerData[i].date)
+    date.push(inclinometerData[i].date);
   }
 
   var chartdata = {
@@ -792,7 +792,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
         },
       }]
     }
-  }
+  };
 
 
   var chartInstance = new Chart(ctx, {
@@ -832,13 +832,13 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   var index_stop = 4;
   var dataChartArr = [];
 
-  for (var i = 0; i < subspectre.length; i++) {
-    for (var j = 0; j < subspectre[i].length / 2; j++) {
-      var y_data_amplitudeArr = hex2dec(subspectre[i].substring(index_start, index_stop))
+  for (var s = 0; s < subspectre.length; s++) {
+    for (var j = 0; j < subspectre[s].length / 2; j++) {
+      var y_data_amplitudeArr = hex2dec(subspectre[s].substring(index_start, index_stop));
       if (j > 0) {
-        min_freq = min_freq + resolutionData[i];
+        min_freq = min_freq + resolutionData[s];
       }
-      if (j < (subspectre[i].length / 2) - 1) {
+      if (j < (subspectre[s].length / 2) - 1) {
         var obj = {
           x: min_freq,
           y: y_data_amplitudeArr
@@ -934,7 +934,7 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
   var timeDataArr = [];
   var timeArr_1 = [];
   var timeArr_2 = [];
-  var dateDataArr = []
+  var dateDataArr = [];
 
   amplitudeArr.push(parseFloat(chocData[0].amplitudeArr_1));
   amplitudeArr.push(parseFloat(chocData[0].amplitudeArr_2));
@@ -950,17 +950,17 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
   };
   dataChartArr.push(obj);
   for (var i = 0; i < 2; i++) {
-    var obj = {
+    var obj_1 = {
       x: timeDataArr[i],
       y: amplitudeArr[i]
     };
-    dataChartArr.push(obj);
+    dataChartArr.push(obj_1);
   }
-  var obj = {
+  var obj_2 = {
     x: timeDataArr[0] + timeDataArr[1],
     y: 0
   };
-  dataChartArr.push(obj);
+  dataChartArr.push(obj_2);
 
   var chartdata = {
     datasets: [{
@@ -1028,7 +1028,7 @@ function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectr
   subspectre_hex = subspectreData[0].payload;
   min_freq = parseInt(subspectreData[0].min_freq);
   max_freq = parseInt(subspectreData[0].max_freq);
-  resolution = parseInt(subspectreData[0].resolution)
+  resolution = parseInt(subspectreData[0].resolution);
   subspectre_number = subspectreData[0].subspectre_number;
 
   var index_start = 2;
@@ -1040,7 +1040,7 @@ function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectr
 
   for (var i = 0; i < subspectre_hex.length / 2; i++) {
 
-    var y_data_amplitudeArr = hex2dec(subspectre_hex.substring(index_start, index_stop))
+    var y_data_amplitudeArr = hex2dec(subspectre_hex.substring(index_start, index_stop));
 
     if (i > 0) {
       min_freq = min_freq + resolution;
