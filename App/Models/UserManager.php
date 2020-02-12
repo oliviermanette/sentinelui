@@ -379,5 +379,8 @@ class UserManager extends \Core\Model
         return false;
     }
 
+    public function editAccount(){
+      
+    }
     
 }

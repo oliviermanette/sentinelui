@@ -29,7 +29,7 @@ class ControllerSetting extends Authenticated
         
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentUser();
-       
+
         //Get the shock threshold and inclinometer threshold
         //TODO : change and make it more reusable
         $settingsShock = $settingsArr[0];

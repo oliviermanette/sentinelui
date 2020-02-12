@@ -23,6 +23,7 @@ class ControllerProfile extends Authenticated
      */
     public function indexAction()
     {
+        Auth::rememberRequestedPage();
         View::renderTemplate('Profile/index.html', []);
     }
 
@@ -33,5 +34,11 @@ class ControllerProfile extends Authenticated
      */
     public function supportAction(){
         View::renderTemplate('Support/index.html', []);
+    }
+
+    public function updateAction(){
+
+
+        $this->redirect(Auth::getReturnToPage());
     }
 }
