@@ -24,7 +24,12 @@ class ControllerProfile extends Authenticated
     public function indexAction()
     {
         Auth::rememberRequestedPage();
-        View::renderTemplate('Profile/index.html', []);
+
+        $user = Auth::getUser();
+
+        View::renderTemplate('Profile/index.html', [
+            'user' => $user
+        ]);
     }
 
     /**
@@ -37,7 +42,14 @@ class ControllerProfile extends Authenticated
     }
 
     public function updateAction(){
-
+        $dataProfil = $_POST;
+        $user = Auth::getUser();
+        $user_id = $user->id;
+        if(UserManager::editAccount($user_id, $dataProfil)){
+            Flash::addMessage('Mise à jour réussie du profil');
+        }else{
+            Flash::addMessage('Erreur avec la mise à jour du profil', Flash::WARNING);
+        }
 
         $this->redirect(Auth::getReturnToPage());
     }
