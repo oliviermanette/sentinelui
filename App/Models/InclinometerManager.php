@@ -1142,6 +1142,37 @@ class InclinometerManager extends \Core\Model
     }
   }
 
+  public static function getAllTemperatureDataFromSensorId($sensor_id){
+    $db = static::getDB();
+
+    $sql_query_temperature = "SELECT
+    `temperature`,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d
+    FROM
+    inclinometer AS inc
+    LEFT JOIN record AS r ON (r.id = inc.record_id)
+    LEFT JOIN sensor on sensor.id = r.sensor_id
+    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
+    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+    WHERE
+    Date(r.date_time) >= Date(sensor.installation_date)
+    AND `msg_type` LIKE 'inclinometre'
+    AND r.sensor_id = :sensor_id
+    AND Date(r.date_time) >= Date(sensor.installation_date)
+    ORDER BY
+    `date_d` ASC";
+
+    $stmt = $db->prepare($sql_query_temperature);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    $db = null;
+    return $res;
+  
+  }
+
   /**
    * Set the rule to check if the variation value of inclinaison in inside the range or not.
    * the rule corresponds to 1 SD, 2SD or three SD (SD = standard Deviation)

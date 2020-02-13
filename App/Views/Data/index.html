@@ -17,7 +17,7 @@
                             <div class="col-sm-6 col-md-4">
                                 <div class="mb-2">
                                     <label class="form-label">Choisissez un site</label>
-                                    <select class="browser-default custom-select" name="siteDB" id="siteDB">
+                                    <select class="browser-default custom-select" name="siteSpectre" id="siteSpectre">
                                         <option value="" selected>Choisissez un site</option>
 
                                         {% for site in all_site %}
@@ -30,7 +30,8 @@
                             <div class="col-sm-6 col-md-4">
                                 <div class="mb-2">
                                     <label class="form-label">Choisissez un équipement</label>
-                                    <select class="browser-default custom-select" name="equipment" id="equipment">
+                                    <select class="browser-default custom-select" name="equipmentField"
+                                        id="equipmentField">
                                         <option value="" selected>Choisissez un équipement associé</option>
                                         {% for equipment in all_equipment %}
                                         <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
@@ -41,14 +42,18 @@
                             <div class="col-md-4">
                                 <div class="mb-2">
                                     <label class="form-label">Choisissez une date (optionnel)</label>
-                                    <input type="text" name="daterange" placeholder="" />
+                                    <div id="reportrange" class="browser-default custom-select">
+                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                        <span></span>
+                                        <!-- <span>December 30, 2014 - January 28, 2015</span>-->
+                                    </div>
                                 </div>
                             </div>
                             <div class="container">
                                 <div class="row">
                                     <div class="col text-center">
                                         <button type="submit" id="submit" class="btn btn-info">Montrer les
-                                            données</button>
+                                            spectres</button>
                                     </div>
                                 </div>
                             </div>
@@ -103,13 +108,15 @@
 {% block script %}
 
 <script>
-    var dateMax = "";
-    var dateMin = "";
+    var startDate = "";
+    var endDate = "";
+    let diffDays = "";
 
     $(document).ready(function () {
+        init_daterangepicker();
         var date = Date();
 
-        $("#siteDB").change(function () {
+        $("#siteSpectre").change(function () {
             var formData = new FormData();
             formData.append('site_id', $(this).children("option:selected").val());
             var xhttp = new XMLHttpRequest();
@@ -125,40 +132,28 @@
             xhttp.send(formData);
         });
 
-        $('input[name="daterange"]').daterangepicker({
-            showDropdowns: true,
-            locale: {
-                format: 'DD-MM-YYYY'
-            },
-            opens: 'left',
-            minDate: "{{min_date}}",
-            maxDate: "{{max_date}}"
-        }, function (start, end, label) {
-            dateMin = start.format('YYYY-MM-DD');
-            dateMax = end.format('YYYY-MM-DD');
-        });
     });
 
     $("#getData").submit(function (event) {
         event.preventDefault();
-        if (!$('#siteDB option:selected').val()) {
-            alert("No site is selected");
+        if (!$('#siteSpectre option:selected').val()) {
+            alert("Selectionnez un site");
             return;
         }
-        if (!$('#equipment option:selected').val()) {
-            alert("No equipement is selected");
+        if (!$('#equipmentField option:selected').val()) {
+            alert("Selectionner un équippement");
             return;
         }
-        var drawAll = true;
 
         var formData = new FormData();
-        formData.append('site_request', $('#siteDB option:selected').val());
-        formData.append('equipement_request', $('#equipment option:selected').val());
-        formData.append('dateMin', dateMin);
-        formData.append('dateMax', dateMax);
-        formData.append('drawAll', drawAll);
-        console.log("Site request : ", $('#siteDB option:selected').val());
-        console.log("Equipement request : ", $('#equipment option:selected').val());
+        formData.append('site_request', $('#siteSpectre option:selected').val());
+        formData.append('equipement_request', $('#equipmentField option:selected').val());
+        formData.append('startDate', startDate);
+        formData.append('endDate', endDate);
+        console.log("Site request : ", $('#siteSpectre option:selected').val());
+        console.log("Equipement request : ", $('#equipmentField option:selected').val());
+        console.log("Start date: ", startDate);
+        console.log("endDate date: ", endDate);
 
         //For displaying the table data
         xhttp = new XMLHttpRequest();
@@ -169,6 +164,15 @@
                 // Call the dataTables jQuery plugin
                 $('#tableData').DataTable({
                     "destroy": true, //use for reinitialize datatable
+                    responsive: true,
+                    responsive: {
+                        details: {
+                        type: 'column',
+                        target: 'tr'
+                        }
+                    },
+                    orderCellsTop: true,
+                    fixedHeader: true,
                 });
                 $('.dataTables_length').addClass('bs-select');
 
@@ -185,22 +189,6 @@
         xhttp.open("POST", "/ControllerAccueil/getDataTableAfterSubmit", true);
         xhttp.send(formData);
 
-        //For adding the structure before displaying the chart
-        /*
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-        var jsonData = this.responseText;
-        //console.log("Refresh data : ",jsonData);
-        removeElementAndChilds("chartsSpectreData");
-        addElement("containerChartsSpectre", "div", "chartsSpectreData");
-        $('#chartsSpectreData').html(jsonData);
-        }
-        };
-        xhttp.open("POST", "/ControllerData/getResultsFromSpectreForm", false);
-        xhttp.send(formData);
-        */
-
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -209,9 +197,6 @@
 
                 removeElement("container-chart");
 
-                var temperature_data_json = data['temperature_data'];
-                var choc_data_json = data['choc_data'];
-                var inclinometre_data_json = data['inclinometre_data'];
                 var spectre_data_json = data['spectre_data'];
                 var numberOfSpectre = Object.keys(spectre_data_json).length;
 
@@ -229,16 +214,77 @@
                     //console.log("SPECTRE DATA I : ", spectre_i);
                     drawChartSpectreFromData(spectre_i, name_canva);
                 }
-                addElement("row-chart", "canvas", "canvas_temperature");
-                addElement("row-chart", "canvas", "canvas_inclinometre");
-                drawChartTemperatureFromData(temperature_data_json, "canvas_temperature");
-                drawChartInclinometerFromData(inclinometre_data_json, "canvas_inclinometre");
+            
             }
         };
         xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
         xhttp1.send(formData);
 
     });
+
+    function init_daterangepicker() {
+        moment.locale('fr');
+        if (typeof ($.fn.daterangepicker) === 'undefined') {
+            return;
+        }
+
+        var cb = function (start, end, label) {
+            //console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrange span').html(start.format('L') + ' - ' + end.format('L'));
+        };
+
+        var optionSet = {
+            minDate: '09/01/2019',
+            maxDate: moment(),
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1,
+            timePicker12Hour: true,
+            ranges: {
+                'Aucune Date':['09/01/2019',moment()],
+                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
+            locale: {
+                applyLabel: 'Appliquer',
+                cancelLabel: 'Annuler',
+                fromLabel: 'De',
+                toLabel: 'à',
+                customRangeLabel: 'Specifique',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ],
+                firstDay: 1
+            }
+        }
+
+        $('#reportrange').daterangepicker(optionSet, cb);
+
+        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD');
+            endDate = picker.endDate.format('YYYY-MM-DD');;
+            let diffDays = picker.endDate.diff(picker.startDate, 'days');
+            console.log("start/end dates are " + startDate + " to " + endDate);
+
+            console.log(`Difference in days: ${diffDays}`);
+        });
+        $('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
+            startDate = '';
+            endDate = '';
+            $('#reportrange span').html(startDate + ' - ' + endDate);
+        });
+
+    };
 </script>
 
 {% endblock %}

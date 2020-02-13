@@ -44,8 +44,6 @@ class ControllerData extends Authenticated
     $all_equipment = $equipementManager->getEquipements($group_name);
 
     $recordManager = new RecordManager();
-    $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
-
 
     $date_min_max = $recordManager->getDateMinMaxFromRecord();
 
@@ -57,7 +55,6 @@ class ControllerData extends Authenticated
       'all_equipment' => $all_equipment,
       'min_date' => $min_date,
       'max_date' => $max_date,
-      'brief_data_record' => $brief_data_record,
     ]);
   }
 

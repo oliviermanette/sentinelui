@@ -1064,7 +1064,8 @@ class RecordManager extends \Core\Model
 
     $db = static::getDB();
 
-    $sql_query_all_specific_msg =  "SELECT r.sensor_id AS `sensorID`, r.date_time AS `dateTime`,
+    $sql =  "SELECT sensor.device_number AS `sensorID`, 
+    DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS `dateTime`,
     r.msg_type AS `typeMessage`, s.nom AS `site`, st.nom AS `equipement`
     FROM record as r
     LEFT JOIN sensor on sensor.id=r.sensor_id
@@ -1075,21 +1076,21 @@ class RecordManager extends \Core\Model
     WHERE ";
 
     if (!empty($dateMin) && !empty($dateMax)) {
-      $sql_query_all_specific_msg =  "(date(r.date_time) BETWEEN date(CONCAT(:date_min, '%')) and date(CONCAT(:date_max, '%'))) AND ";
+      $sql .= "date(r.date_time) BETWEEN date(:date_min) and date(:date_max) AND ";
     }
 
-    $sql_query_all_specific_msg .= "Date(r.date_time) >= Date(sensor.installation_date)
-    AND s.id LIKE :site_id AND r.msg_type LIKE CONCAT(:type_msg, '%') AND st.id LIKE :equipment_id order by r.date_time desc ";
+    $sql .= "Date(r.date_time) >= Date(sensor.installation_date)
+      AND s.id = :site_id AND st.id = :equipment_id order by r.date_time desc ";
 
-    $stmt = $db->prepare($sql_query_all_specific_msg);
+    $stmt = $db->prepare($sql);
 
     if (!empty($dateMin) && !empty($dateMax)) {
       $stmt->bindValue(':date_min', $dateMin, PDO::PARAM_STR);
       $stmt->bindValue(':date_max', $dateMax, PDO::PARAM_STR);
     }
-    $stmt->bindValue(':type_msg', $typeMSG, PDO::PARAM_STR);
-    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_STR);
-    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_STR);
+    //$stmt->bindValue(':type_msg', $typeMSG, PDO::PARAM_INT);
+    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
+    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
 
@@ -1105,194 +1106,18 @@ class RecordManager extends \Core\Model
     //All
     $data = array();
     //Find ID sensor from site ID and equipement ID
-    $sql_query_id =  "SELECT DISTINCT(`sensor_id`) FROM `record` AS r
-    JOIN structure as st ON (st.id=r.structure_id)
-    JOIN site as s ON (s.id=st.site_id)
-    WHERE s.id = :site_id AND st.id = :equipment_id ";
-
-    $stmt = $db->prepare($sql_query_id);
-
-    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
-    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_INT);
-
-    $stmt->execute();
-    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    $sensor_id = $res['sensor_id'];
-
-    //Temperature
-    $sql_query_temperature = "SELECT
-    `temperature`,
-    DATE(r.date_time) AS date_d
-    FROM
-    inclinometer AS inc
-    LEFT JOIN record AS r ON (r.id = inc.record_id)
-    LEFT JOIN sensor on sensor.id = r.sensor_id
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE
-    gn.name = :group_name
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    AND `msg_type` LIKE :msg_type
-    AND r.sensor_id LIKE :sensor_id
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    ORDER BY
-    `date_d` DESC";
-
-    $stmt = $db->prepare($sql_query_temperature);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $stmt->bindValue(':msg_type', "inclinometre", PDO::PARAM_STR);
-    $stmt->bindValue(':group_name', $_SESSION['group_name'], PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data["temperature_data"][] = $row;
-      }
-    }
-
-    $query_inclinometre = "SELECT r.sensor_id, DATE(r.date_time) AS date_d,  inc.nx, inc.ny, inc.nz, angle_x, angle_y, angle_z, temperature
-    FROM inclinometer AS inc
-    LEFT JOIN record AS r ON (r.id = inc.record_id)
-    LEFT JOIN sensor on sensor.id=r.sensor_id
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE
-    gn.name = :group_name
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    AND `msg_type` LIKE :msg_type
-    AND r.sensor_id LIKE :sensor_id
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    ORDER BY
-    `date_d` DESC";
-
-    $stmt = $db->prepare($query_inclinometre);
-
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $stmt->bindValue(':msg_type', "inclinometre", PDO::PARAM_STR);
-    $stmt->bindValue(':group_name', $_SESSION['group_name'], PDO::PARAM_STR);
-
-    $stmt->execute();
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data["inclinometre_data"][] = $row;
-      }
-    }
-
-
-    //Simplifier TODO
-    $sql_query_date_max_choc = "SELECT
-    MAX(date_d) AS max_date
-    FROM
-    (
-      SELECT
-      `sensor_id`,
-      DATE(r.date_time) AS date_d,
-      amplitude_1,
-      amplitude_2,
-      time_1,
-      time_2,
-      freq_1,
-      freq_2,
-      power
-      FROM
-      choc
-      LEFT JOIN record AS r ON (r.id = choc.record_id)
-      LEFT JOIN sensor on sensor.id = r.sensor_id
-      WHERE
-      `msg_type` LIKE :msg_type
-      AND `sensor_id` LIKE :sensor_id
-      AND Date(r.date_time) >= Date(sensor.installation_date)
-    ) AS TMP";
-
-    $stmt = $db->prepare($sql_query_date_max_choc);
-    $stmt->bindValue(':msg_type', "choc", PDO::PARAM_STR);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-    $stmt->execute();
-
-    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    $max_date_choc = $res['max_date'];
-
-
-    $sql_query_choc = "SELECT
-    `sensor_id`,
-    DATE(`date_time`) AS date_d,
-    amplitude_1,
-    amplitude_2,
-    time_1,
-    time_2,
-    freq_1,
-    freq_2,
-    power
-    FROM
-    choc
-    LEFT JOIN record AS r ON (r.id = choc.record_id)
-    WHERE
-    `msg_type` LIKE :msg_type
-    AND `sensor_id` LIKE :sensor_id
-    AND DATE(r.date_time) = :max_date_choc";
-
-    $stmt = $db->prepare($sql_query_choc);
-
-    $stmt->bindValue(':msg_type', "choc", PDO::PARAM_STR);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $stmt->bindValue(':max_date_choc', $max_date_choc, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data["choc_data"][] = $row;
-      }
-    }
-
-
-    //All Spectre
-    $sql_query_date_max_spectre = "SELECT
-    MAX(date_d) AS max_date
-    FROM
-    (
-      SELECT
-      s.nom AS site,
-      st.nom AS equipement,
-      r.sensor_id,
-      r.date_time as date_d,
-      subspectre,
-      subspectre_number,
-      min_freq,
-      max_freq,
-      resolution
-      FROM
-      spectre AS sp
-      LEFT JOIN record AS r ON (r.id = sp.record_id)
-      JOIN sensor on sensor.id = r.sensor_id
-      JOIN structure as st ON (st.id = r.structure_id)
-      JOIN site as s ON (s.id = st.site_id)
-      WHERE
-      sp.subspectre_number LIKE '001'
-      AND r.sensor_id LIKE :sensor_id
-      AND Date(r.date_time) >= Date(sensor.installation_date)
-      ORDER BY
-      r.date_time ASC
-    ) AS first_subspectre_msg";
-
-    $stmt = $db->prepare($sql_query_date_max_spectre);
-
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-    $stmt->execute();
-
-    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    $max_date = $res['max_date'];
-
-
-    $query_all_dates = "SELECT Date(r.date_time) as date_d FROM
+    $sensor_id = SensorManager::getSensorIdUsingSiteAndEquipementID($site_id, $equipment_id);
+    
+    $query_all_dates = "SELECT r.date_time as date_d FROM
     `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)
     JOIN structure as st ON (st.id=r.structure_id)
     JOIN site as s ON (s.id=st.site_id)
-    WHERE sp.subspectre_number LIKE '001' AND r.sensor_id LIKE :sensor_id ";
+    WHERE sp.subspectre_number = '001' AND r.sensor_id = :sensor_id ";
     if (!empty($dateMin) && !empty($dateMax)) {
       $query_all_dates .= "AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
     }
-    $query_all_dates .= "ORDER BY r.date_time ASC";
+    $query_all_dates .= "ORDER BY r.date_time DESC";
 
     //echo "</br>";
     $stmt = $db->prepare($query_all_dates);
@@ -1305,13 +1130,14 @@ class RecordManager extends \Core\Model
         $spectre_name = 'spectre_' . $spectrenumber;
         $current_date = $row_date['date_d'];
         //Reconstruct the all spectre for the current date
-        $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, Date(r.date_time) AS date,
+        $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, r.date_time AS date,
         `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
         JOIN record AS r ON (r.id=sp.record_id)
         JOIN structure as st ON (st.id=r.structure_id)
         JOIN site as s ON (s.id=st.site_id)
-        WHERE r.sensor_id LIKE :sensor_id AND (DATE(r.date_time) BETWEEN DATE('$current_date') AND DATE_ADD('$current_date', INTERVAL 4 DAY))
-        ORDER BY r.date_time ASC";
+        WHERE r.sensor_id = :sensor_id AND r.date_time >= '$current_date'
+        ORDER BY r.date_time ASC 
+        LIMIT 5";
 
         $stmt = $db->prepare($query_all_spectre_i);
         $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);

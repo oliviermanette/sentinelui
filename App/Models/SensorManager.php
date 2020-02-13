@@ -137,6 +137,29 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getSensorIdUsingSiteAndEquipementID($site_id, $equipement_id){
+    $db = static::getDB();
+
+    $sql_query_id =  "SELECT DISTINCT(`sensor_id`) FROM `record` AS r
+    JOIN structure as st ON (st.id=r.structure_id)
+    JOIN site as s ON (s.id=st.site_id)
+    WHERE s.id = :site_id AND st.id = :equipement_id ";
+
+    $stmt = $db->prepare($sql_query_id);
+
+    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
+    $stmt->bindValue(':equipement_id', $equipement_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $sensor_id = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $sensor_id;
+    }
+
+    $db = null;
+
+    return $sensor_id;
+  }
+
   public static function getSensorLabelFromDeveui($deveui)
   {
     $db = static::getDB();
@@ -162,7 +185,7 @@ class SensorManager extends \Core\Model
    */
   public static function getLastMessageReceivedFromDeveui($deveui){
     $db = static::getDB();
-     
+    
     $sql_last_date_received = "SELECT DATE_FORMAT(MAX(DATE(r.date_time)), '%d/%m/%Y') as lastDateReceived FROM sensor AS s 
     INNER JOIN record AS r ON (s.id = r.sensor_id)
     AND s.deveui LIKE :deveui
@@ -214,7 +237,7 @@ class SensorManager extends \Core\Model
   {
     $db = static::getDB();
     $query_min_max_date = "SELECT DATE_FORMAT(MIN(Date(r.date_time)), '%m/%d/%Y') AS first_activity,
-     DATE_FORMAT(MAX(Date(r.date_time)), '%m/%d/%Y') AS last_activity  From record AS r 
+      DATE_FORMAT(MAX(Date(r.date_time)), '%m/%d/%Y') AS last_activity  From record AS r 
       LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
       WHERE s.deveui = :deveui";
 
