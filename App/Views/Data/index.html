@@ -12,36 +12,46 @@
         <div class="card-body">
             <div class="container">
                 <form name="contact-form" class="ui form" action="" method="post" id="getData">
-                    <div class="ui form">
-                        <div class="four fields">
-                            <div class="field">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un site</div>
-                                <select class="browser-default custom-select" name="siteDB" id="siteDB">
-                                    <option value="" selected>Choisissez un site</option>
+                    <div class="ui form d-flex justify-content-center">
+                        <div class="row four fields ">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                    <label class="form-label">Choisissez un site</label>
+                                    <select class="browser-default custom-select" name="siteDB" id="siteDB">
+                                        <option value="" selected>Choisissez un site</option>
 
-                                    {% for site in all_site %}
-                                    <option value={{ site.site_id }}>{{ site.site }} </option>
-                                    {% endfor %}
+                                        {% for site in all_site %}
+                                        <option value={{ site.site_id }}>{{ site.site }} </option>
+                                        {% endfor %}
 
-                                </select>
-                            </div>
-                            <div class="field" id="equipmentField">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un équipement associé
+                                    </select>
                                 </div>
-                                <select class="browser-default custom-select" name="equipment" id="equipment">
-                                    <option value="" selected>Choisissez un équipement associé</option>
-                                    {% for equipment in all_equipment %}
-                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
-                                    {% endfor %}
-                                </select>
                             </div>
-                            <div class="field">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez une date (optionnel)
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                    <label class="form-label">Choisissez un équipement</label>
+                                    <select class="browser-default custom-select" name="equipment" id="equipment">
+                                        <option value="" selected>Choisissez un équipement associé</option>
+                                        {% for equipment in all_equipment %}
+                                        <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
-                                <input type="text" name="daterange" placeholder="" />
                             </div>
-                            <div class="my-2"></div>
-                            <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <label class="form-label">Choisissez une date (optionnel)</label>
+                                    <input type="text" name="daterange" placeholder="" />
+                                </div>
+                            </div>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col text-center">
+                                        <button type="submit" id="submit" class="btn btn-info">Montrer les
+                                            données</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -80,7 +90,7 @@
         <div id="resultcontainer"></div>
     </div>
 
-     <!-- Container for displaying the chart data -->
+    <!-- Container for displaying the chart data -->
     <div id="containerChartsSpectre">
         <div id="chartsSpectreData">
         </div>
@@ -195,7 +205,6 @@
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
-               
                 data = JSON.parse(data);
 
                 removeElement("container-chart");
@@ -211,7 +220,7 @@
 
                 for (i = 0; i < numberOfSpectre; i++) {
                     var name_canva = "canva_" + String(i);
-                    addElement("row-chart", "canvas",name_canva);
+                    addElement("row-chart", "canvas", name_canva);
                 }
                 for (i = 0; i < numberOfSpectre; i++) {
                     var name_canva = "canva_" + String(i);
@@ -228,7 +237,7 @@
         };
         xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
         xhttp1.send(formData);
-        
+
     });
 </script>
 
