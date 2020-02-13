@@ -642,7 +642,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           ticks: {
             //min: 0,
             beginAtZero: false,
-            stepSize: 0.1,
+            stepSize: 1.0,
             autoskip: true,
             maxTicksLimit: 10
           },
@@ -668,6 +668,12 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             drawOnChartArea: false, // only want the grid lines for one axis to show up
           },
         }],
+        xAxes: [{
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 15
+          },
+        }]
       }
     };
 

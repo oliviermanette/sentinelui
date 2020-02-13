@@ -43,6 +43,14 @@ class InclinometerManager extends \Core\Model
     }
   }
 
+
+  /**
+   * Check if the inclinaison received by the sensor
+   * is inside a specific range ( 1SD, 2SD , 3SD) to trigger an alert
+   * @param int $sensor_id sensor id to target
+   * @param int $time_period check for the last X days
+   * @return true if an alert is triggered 
+   */
   public function check($sensor_id, $time_period)
   {
 
@@ -112,6 +120,15 @@ class InclinometerManager extends \Core\Model
     }
   }
 
+  /**
+   * Compute average of inclinaison (X, Y, Z) received from today to a specific date in term of days
+   * 
+   * @param int $sensor_id sensor id for which we want to compute the average inclinaison data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago. Defaut = 1 i.e since the installation date
+   * @return array  results from the query (avgInclinaisonArr with contain the average value for
+   * angleX, angleY and angleZ)
+   */
   public static function computeAvgInclinaisonForLast($sensor_id, $time_period = -1)
   {
     $db = static::getDB();
@@ -171,6 +188,16 @@ class InclinometerManager extends \Core\Model
     }
   }
 
+
+  /**
+   * Compute the standard deviation of inclinaison (X, Y, Z) received from today to a specific date in term of days
+   * 
+   * @param int $sensor_id sensor id for which we want to compute the std dev inclinaison data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago. Defaut = 1 i.e since the installation date
+   * @return array  results from the query (stdDevInclinaisonArr with contain the std dev value for
+   * angleX, angleY and angleZ)
+   */
   public static function computeStdDevInclinaisonForLast($sensor_id, $time_period = -1)
   {
     $db = static::getDB();
@@ -634,7 +661,7 @@ class InclinometerManager extends \Core\Model
   {
     $db = static::getDB();
     $sql_reference_values = "SELECT
-        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS date,
         angle_x,
         angle_y,
         angle_z,
@@ -692,7 +719,7 @@ class InclinometerManager extends \Core\Model
     $temperature_ref = $references_values["temperature"];
 
     $sql_all_values = "SELECT
-        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS date,
         angle_x,
         angle_y,
         angle_z,
@@ -773,7 +800,7 @@ class InclinometerManager extends \Core\Model
     $temperature_ref = $references_values["temperature"];
 
     $sql_monthly_values = "SELECT
-          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS date,
           angle_x,
           angle_y,
           angle_z,
@@ -801,7 +828,7 @@ class InclinometerManager extends \Core\Model
             YEAR(Date(r.date_time))) AS t
             ON r.date_time = t.max_date_time
             order by r.date_time ASC
-         ";
+            ";
 
 
     $stmt = $db->prepare($sql_monthly_values);
@@ -866,7 +893,7 @@ class InclinometerManager extends \Core\Model
     $temperature_ref = $references_values["temperature"];
 
     $sql_weekly_values = "SELECT
-          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS date,
           angle_x,
           angle_y,
           angle_z,
@@ -1082,7 +1109,7 @@ class InclinometerManager extends \Core\Model
 
     $sql_data_inclinometer = "SELECT
         `sensor_id`,
-        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
+        DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS date_d,
         `nx`,
         `ny`,
         `nz`,
@@ -1102,7 +1129,7 @@ class InclinometerManager extends \Core\Model
         `msg_type` LIKE 'inclinometre'
         AND s.deveui = :deveui  
         AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
-        ORDER BY `date_d` ASC
+        ORDER BY r.date_time ASC
         ";
 
     $stmt = $db->prepare($sql_data_inclinometer);
