@@ -877,7 +877,7 @@ class RecordManager extends \Core\Model
     $db = static::getDB();
 
     $query_get_number_record = "
-       SELECT 
+    SELECT 
     sensor_id, 
     deveui,
     site, 
@@ -886,7 +886,7 @@ class RecordManager extends \Core\Model
     nb_messages,
     nb_choc, 
     DATE_FORMAT(
-      last_message_received, '%d/%m/%Y'
+      last_message_received, '%d/%m/%Y %H:%i:%s'
     ) AS `last_message_received` ,
     DATE_FORMAT(date_installation, '%d/%m/%Y') AS 'date_installation',
     status
@@ -897,7 +897,7 @@ class RecordManager extends \Core\Model
         sensor.deveui AS 'deveui',
         sensor.installation_date AS 'date_installation',
         s.nom AS `site`, 
-         sensor.status AS status,
+        sensor.status AS status,
         st.transmision_line_name AS `LigneHT`, 
         st.nom AS `equipement`, 
         sum(
@@ -905,7 +905,7 @@ class RecordManager extends \Core\Model
         ) AS 'nb_choc', 
         count(*) AS 'nb_messages', 
         Max(
-          Date(r.date_time)
+          r.date_time
         ) AS `last_message_received` 
       FROM 
         sensor
@@ -938,7 +938,7 @@ class RecordManager extends \Core\Model
       foreach ($res as $data){
         $deveui=$data["deveui"];
         //$sensor_deveui = SensorManager::getDeveuiFromLabel($sensor_label);
-        $variationArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, -1, 2);
+        $variationArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, -1, 3);
         $variationX = $variationArr["pourcentage_variation_angleX"];
         $variationY = $variationArr["pourcentage_variation_angleY"];
         $variationZ = $variationArr["pourcentage_variation_angleZ"];
