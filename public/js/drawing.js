@@ -205,7 +205,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
  * @return chart instance
  */
 function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
-
+  
   if (typeof data != 'object') {
     data = JSON.parse(data);
   }
@@ -242,6 +242,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         callbacks: {
           title: function (tooltipItem, data) {
             let date = data.labels[tooltipItem[0].index];
+            
             let hour = mapPowerDateTime.get(tooltipItem[0].value).split(" ")[1];
             //console.log(tooltipItem[0]['value']);
             return "Le " + date + " à " + hour;

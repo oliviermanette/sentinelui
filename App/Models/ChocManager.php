@@ -856,7 +856,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-      DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
+      r.date_time AS date_d,
       `power`
       FROM
       choc
@@ -889,7 +889,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-      DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
+      r.date_time AS date_d,
       `power`
       FROM
       choc
