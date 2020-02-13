@@ -36,6 +36,7 @@
 
 <script>
     $(document).ready(function () {
+        $.fn.dataTable.moment( 'DD/MM/YYYY' );
         /*$('#tableDataSensors thead tr').clone(true).appendTo('#tableDataSensors thead');
         $('#tableDataSensors thead tr:eq(1) th').each(function (i) {
             if (i != 0) {
@@ -54,7 +55,7 @@
         });*/
 
         $('#tableDataSensors').DataTable({
-             responsive: true,
+            responsive: true,
             responsive: {
                 details: {
                 type: 'column',
@@ -64,7 +65,6 @@
             orderCellsTop: true,
             fixedHeader: true,
             "createdRow": function (row, data, dataIndex) {
-               
                 var status = data[4];
                 if (status == "active") {
                     $(row).css({
@@ -82,7 +82,8 @@
                 [10, 25, 50, -1],
                 [10, 25, 50, 'All']
             ],
-            "iDisplayLength": 20
+            "iDisplayLength": 20,
+            "order": [[ 5, "desc" ]]
         });
 
         $('#tableDataNewAlerts').DataTable({
@@ -133,7 +134,7 @@
         });
 
         $('#tableDataProcessedAlerts').DataTable({
-             responsive: true,
+            responsive: true,
             responsive: {
                 details: {
                 type: 'column',
