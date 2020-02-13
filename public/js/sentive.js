@@ -8,14 +8,14 @@
         $(".sidebar").toggleClass("toggled");
         if ($(".sidebar").hasClass("toggled")) {
             $('.sidebar .collapse').collapse('hide');
-        };
+        }
     });
 
     // Close any open menu accordions when window is resized below 768px
     $(window).resize(function () {
         if ($(window).width() < 768) {
             $('.sidebar .collapse').collapse('hide');
-        };
+        }
     });
 
     // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
@@ -48,3 +48,26 @@
     });
 
 })(jQuery); // End of use strict
+
+
+/**
+ * Add jQuery Validation plugin method for a valid password
+ *
+ * Valid passwords contain at least one letter and one number.
+ */
+$.validator.addMethod('validPassword',
+    function (value, element, param) {
+
+        if (value != '') {
+            if (value.match(/.*[a-z]+.*/i) == null) {
+                return false;
+            }
+            if (value.match(/.*\d+.*/) == null) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+    'Must contain at least one letter and one number'
+);
