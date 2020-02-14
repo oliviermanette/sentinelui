@@ -177,20 +177,19 @@ class TimeSeries extends \Core\Model
         $this->sensor_id = $sensor_id;
         $structure_id = $spectreArr["structure_id"];
         $this->structure_id = $structure_id;
-
+        
         //Loop over the 5 subspectre to get the full spectre
         for ($i = 0; $i < 5; $i++) {
             $subspectreName = "subspectre_" . $i;
-            //echo $subspectreName;
             //get the subspectre data
             if (array_key_exists($subspectreName, $spectreArr)) {
                 $subspectreData = $spectreArr[$subspectreName];
 
-                $subspectreDataValuesHex = $subspectreData["data"];
+                $subspectreDataValuesHex = $subspectreData["subspectre"];
                 $resolution = $subspectreData["resolution"];
                 $min_freq = $subspectreData["min_freq"];
                 $max_freq = $subspectreData["max_freq"];
-
+                
                 //fill in the subspectre array with the subspectre data value in hexa
                 array_push($this->listSubspectreArr, $subspectreDataValuesHex);
 
@@ -211,11 +210,7 @@ class TimeSeries extends \Core\Model
                     array_push($this->listPeakArr, $peak);
                     $dataValueTmpArr = array("x" => $axisX_freq, "y" => $axisY_amplitude);
                     array_push($this->timeSerieArr, $dataValueTmpArr);
-                    
-                    /*We keep only the data when the amplitude is not null
-                    if ($data_amplitude_j_hex != 0) {
-                       
-                    }*/
+            
 
                     $axisX_freq = $axisX_freq + $resolution;
                 }

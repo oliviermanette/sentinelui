@@ -85,7 +85,6 @@
 
     </br>
 
-
     <!-- Container for displaying the chart data -->
     <div id="chart-display-container" class="container">
     </div>
@@ -194,10 +193,12 @@
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
                 data = JSON.parse(data);
-
+                console.log("Data spectre : ",data);
                 removeElement("container-chart");
 
                 var spectre_data_json = data['spectre_data'];
+                var site_id = data['site_id'];
+                var equipement_id = data['equipment_id'];
                 var numberOfSpectre = Object.keys(spectre_data_json).length;
 
                 addElement("chart-display-container", "div", "container-chart");
@@ -206,6 +207,12 @@
                 for (i = 0; i < numberOfSpectre; i++) {
                     var name_canva = "canva_" + String(i);
                     addElement("row-chart", "canvas", name_canva);
+                    var name_spectre_data = "spectre_" + String(i);
+                    var date_subspectre0 = spectre_data_json[name_spectre_data][0]["date"];
+                    console.log(date_subspectre0);
+                    var link =
+                    "/ControllerData/downloadSpectre?siteID="+site_id+"&equipementID="+equipement_id+"&requestedDate="+date_subspectre0;
+                    addButton("row-chart", "Telecharger le spectre", link);
                 }
                 for (i = 0; i < numberOfSpectre; i++) {
                     var name_canva = "canva_" + String(i);

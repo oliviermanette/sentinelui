@@ -1105,15 +1105,19 @@ class RecordManager extends \Core\Model
     $db = static::getDB();
     //All
     $data = array();
+    $data["site_id"] = $site_id;
+    $data["equipment_id"] = $equipment_id;
     //Find ID sensor from site ID and equipement ID
     $sensor_id = SensorManager::getSensorIdUsingSiteAndEquipementID($site_id, $equipment_id);
     
     $query_all_dates = "SELECT r.date_time as date_d FROM
     `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)
+    JOIN sensor ON (sensor.id=r.sensor_id)
     JOIN structure as st ON (st.id=r.structure_id)
     JOIN site as s ON (s.id=st.site_id)
-    WHERE sp.subspectre_number = '001' AND r.sensor_id = :sensor_id ";
+    WHERE sp.subspectre_number = '001' AND r.sensor_id = :sensor_id 
+    AND Date(r.date_time) >= Date(sensor.installation_date) ";
     if (!empty($dateMin) && !empty($dateMax)) {
       $query_all_dates .= "AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
     }
@@ -1125,7 +1129,7 @@ class RecordManager extends \Core\Model
     $spectrenumber = 0;
     if ($stmt->execute()) {
       $row_date_ = $stmt->fetchAll();
-
+      
       foreach ($row_date_ as $row_date) {
         $spectre_name = 'spectre_' . $spectrenumber;
         $current_date = $row_date['date_d'];
@@ -1150,7 +1154,6 @@ class RecordManager extends \Core\Model
         $spectrenumber++;
       }
     }
-    //print json_encode($data);
     return $data;
     //
   }

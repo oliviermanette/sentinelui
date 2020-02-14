@@ -7,6 +7,9 @@ use \App\Auth;
 use App\Models\ChartsManager;
 use \App\Models\InclinometerManager;
 use \App\Models\SiteManager;
+use \App\Models\SpectreManager;
+use \App\Models\TimeSeriesManager;
+use \App\Models\TimeSeries;
 use \App\Models\EquipementManager;
 use \App\Models\SensorManager;
 use \App\Models\ScoreManager;
@@ -469,6 +472,19 @@ class ControllerData extends Authenticated
     print json_encode($allStructureData);
   }
 
+  public function downloadSpectreAction(){
+    $equipement_id = $_GET['equipementID'];
+    $site_id= $_GET['siteID'];
+    $requestedDate = $_GET['requestedDate'];
+
+    $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $equipement_id, $requestedDate);
+    
+    $timeSerie = new TimeSeries();
+    $timeSerie->createFromSpectreArr($allSubSpectresArr);
+    //print_r($timeSerie->getTimeSerieData());
+    ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $requestedDate);
+
+  }
 
 
   /**
