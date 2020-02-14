@@ -110,7 +110,7 @@
             </div>
             <!-- Informations sensors -->
             <div class="card-body">
-                <h3 class="card-title">Information</h3>
+                
                 {% include "Sensors/viewInformationsSensor.html" %}
             </div>
             <!-- Activity sensors -->
@@ -139,7 +139,8 @@
             </div>
             <!-- Alert sensors -->
             <div class="card-body">
-                <h3 class="card-title">Alertes relevées par le capteur</h3>
+                <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi des alertes</h3>
+                <h4 class="card-title">Alertes relevées par le capteur</h4>
                 {% for message in flash_alerts %}
                 <div class="alert alert-{{ message.type }}" role="alert">
                     {{ message.body }}
@@ -156,6 +157,7 @@
 
         {% include "Sensors/viewInclinometerWidgets.html" %}
         {% include "Sensors/viewChocsCharts.html" %}
+        {% include "Sensors/viewTemperatureWidget.html" %}
     </div>
 
 
@@ -231,6 +233,10 @@
             //Power
             let powerChocDataMonth = '{{ powerChocDataMonthArr|raw}}';
             drawChartPowerChocPerDateBar(powerChocDataMonth, "chartPowerChoc");
+
+            //Draw temperature
+            let temperatureData= '{{ temperatureArr|raw}}';
+            drawChartTemperatureFromData(temperatureData, "chartTemperature");
 
         });
 

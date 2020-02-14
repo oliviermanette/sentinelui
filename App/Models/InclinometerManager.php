@@ -447,28 +447,32 @@ class InclinometerManager extends \Core\Model
    * @param string $date if we want to retrieve the data for specific date format Y-M-D
    * @return array  results from the query
    */
-  public function getAllTemperatureRecordsForSensor($sensor_id, $date = null)
+  public static function getTemperatureRecordsForSensor($deveui, $time_period = -1)
   {
     $db = static::getDB();
 
-    $sql = "SELECT `temperature`, DATE(`date_time`) AS date_d FROM `record`
-    WHERE `msg_type` LIKE 'inclinometre' AND `sensor_id` LIKE :sensor_id ";
+    $sql = "SELECT `temperature`, DATE(r.date_time) AS date_d 
+      FROM `record` AS r
+      LEFT JOIN inclinometer AS inc ON (inc.record_id = r.id)
+      LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE r.msg_type = 'inclinometre' AND s.deveui = :deveui ";
 
-    if (!empty($date)) {
-      $sql .= "AND Date(`date_time`) = :dateD ";
+    if ($time_period != -1) {
+      $sql .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    } else {
+      $sql .= " AND Date(r.date_time) > s.installation_date ";
     }
 
-    $sql .= " ORDER BY date_d ASC";
+    $sql .= " ORDER BY r.date_time ASC";
 
     $stmt = $db->prepare($sql);
-    if (!empty($date)) {
-      $stmt->bindValue(':dateD', $date, PDO::PARAM_STR);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
-
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $all_temp = $stmt->fetchAll();
+      $all_temp = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $all_temp;
     }
   }
@@ -657,7 +661,7 @@ class InclinometerManager extends \Core\Model
    * all records in account so the first record will correspond to installation date
    * @return array which contain the reference values (angleX, angleY, angleZ, temperature)
    */
-  private static function getValuesReference($deveui, $time_period = -1)
+  public static function getValuesReference($deveui, $time_period = -1)
   {
     $db = static::getDB();
     $sql_reference_values = "SELECT

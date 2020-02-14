@@ -4,12 +4,39 @@
 
     <div class="card-body">
         {% set dataType = ['Inclinaison Journalière (par rapport à hier)',
-             'Inclinaison Hebdomadaire (par rapport aux 7 derniers jours)',
-              'Inclinaison Mensuelle (par rapport aux 30 derniers jours)'] %}
+        'Inclinaison Hebdomadaire (par rapport aux 7 derniers jours)',
+        'Inclinaison Mensuelle (par rapport aux 30 derniers jours)'] %}
+        <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi de l'inclinaison</h3>
 
+        <div class="card h-100 py-2 mb-3">
+            <div class="card-body">
+                <h6 class="card-title"><b>Valeurs de références depuis le jour d'installation</b></h6>
+                <div class="row card-row">
+                    <div class="extend-view-label col-md-4" title="groupe">Inclinaison X
+                    </div>
+                    <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_x}}">
+                        {{inclinaisonRefArr.angle_x}} °
+                    </div>
+                </div>
+                <div class="row card-row">
+                    <div class="extend-view-label col-md-4" title="groupe">Inclinaison Y
+                    </div>
+                    <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_y}}">
+                        {{inclinaisonRefArr.angle_y}} °
+                    </div>
+                </div>
+                <div class="row card-row">
+                    <div class="extend-view-label col-md-4" title="groupe">Inclinaison Z
+                    </div>
+                    <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_z}}">
+                        {{inclinaisonRefArr.angle_z}} °
+                    </div>
+                </div>
+            </div>
+        </div>
         {% for row in totalVariationArr %}
 
-        <h3 class="card-title">{{dataType[loop.index0]}}</h3>
+        <h4 class="card-title">{{dataType[loop.index0]}}</h4>
         <div class="row justify-content-center">
             <!-- Variation X Card  -->
             <div class="col">
@@ -167,19 +194,19 @@
                                 <div class="btn-toolbar d-none d-md-block" role="toolbar"
                                     aria-label="Toolbar with buttons">
                                     <div id="{{val.equipementId}}">
-                                        <div id="radioButtonPercentageVariationInclinometer" class="btn-group btn-group-toggle mx-2"
-                                            data-toggle="buttons">
-                                             <label class="btn btn-outline-secondary active">
-                                                 <input type="radio" name="options" autocomplete="off"
-                                                     value="1" checked=""> Journalier
-                                             </label>
-                                            <label class="btn btn-outline-secondary">
-                                                <input type="radio" name="options" autocomplete="off"
-                                                    value="7"> Hebdomadaire
+                                        <div id="radioButtonPercentageVariationInclinometer"
+                                            class="btn-group btn-group-toggle mx-2" data-toggle="buttons">
+                                            <label class="btn btn-outline-secondary active">
+                                                <input type="radio" name="options" autocomplete="off" value="1"
+                                                    checked=""> Journalier
                                             </label>
                                             <label class="btn btn-outline-secondary">
-                                                <input type="radio" name="options" autocomplete="off"
-                                                    value="30" > Mensuelle
+                                                <input type="radio" name="options" autocomplete="off" value="7">
+                                                Hebdomadaire
+                                            </label>
+                                            <label class="btn btn-outline-secondary">
+                                                <input type="radio" name="options" autocomplete="off" value="30">
+                                                Mensuelle
                                             </label>
                                         </div>
                                     </div>

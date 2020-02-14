@@ -1158,7 +1158,6 @@ class RecordManager extends \Core\Model
     //
   }
 
-
   public function getDataForSpecificChart($time_data, $type_msg, $sensor_id)
   {
     $db = static::getDB();

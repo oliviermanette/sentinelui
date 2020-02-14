@@ -79,6 +79,10 @@ class ControllerSensors extends Authenticated
         }
 
         //Get inclinometer data
+        //References values
+        $inclinaisonRefArr = InclinometerManager::getValuesReference($deveui, -1);
+        //var_dump($inclinaisonRefArr);
+        
         //1.Variation 1 month (30 days)
         $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 30);
         //2.Variation 1 week (7 days)
@@ -119,6 +123,10 @@ class ControllerSensors extends Authenticated
         $powerChocDataDayArr = ChocManager::getPowerChocForLast($deveui, 1);
         $powerChocDataDayArr = json_encode($powerChocDataDayArr);
 
+        //Temperature data
+        $tempArr = InclinometerManager::getTemperatureRecordsForSensor($deveui,-1);
+        $tempArr = json_encode($tempArr);
+
         View::renderTemplate('Sensors/infoDevice.html', [
             'deveui' => $deveui,
             'firstActivity' => $firstActivity,
@@ -140,6 +148,8 @@ class ControllerSensors extends Authenticated
             'percentageVariationDayArr' => $percentageVariationDayArr,
             'percentageVariationWeekArr' => $percentageVariationWeekArr,
             'percentageVariationMonthArr' => $percentageVariationMonthArr,
+            'inclinaisonRefArr' => $inclinaisonRefArr,
+            'temperatureArr' => $tempArr,
         ]);
 
     }
