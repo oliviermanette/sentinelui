@@ -12,10 +12,11 @@
         <div class="card-body">
             <div class="container">
                 <form role="form" method="post" name="equipementrequest" id="equipementrequest">
-                    <div class="ui form">
-                        <div class="four fields">
-                            <div class="field" id="siteField">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un site</div>
+                    <div class="ui form d-flex justify-content-center">
+                        <div class="row four fields ">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                <label class="form-label">Choisissez un site</label>
                                 <select class="browser-default custom-select" name="siteID" id="siteID">
                                     <option value="" selected>Choisissez un site</option>
                                     {% for site in all_site %}
@@ -24,31 +25,38 @@
 
                                 </select>
                             </div>
-                            <div class="field" id="equipmentField">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un équipement
-                                    associé
-                                </div>
-                                <select class="browser-default custom-select" name="structure" id="structureID">
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                <label class="form-label">Choisissez un équipement</label>
+                                <select class="browser-default custom-select" name="equipmentField" id="equipmentField">
                                     <option value="" selected>Choisissez un équipement associé</option>
                                     {% for equipment in all_equipment %}
                                     <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="field">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez une date
-                                    (optionnel)
-                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                <label class="form-label">Choisissez une date (optionnel)</label>
                                 <div id="reportrange" class="browser-default custom-select">
                                     <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                                     <span></span>
                                     <!-- <span>December 30, 2014 - January 28, 2015</span>-->
                                 </div>
+                                </div>
                                 <!-- 
                                 <input type="text" name="daterange" placeholder="" />-->
                             </div>
-                            <div class="my-2"></div>
-                            <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col text-center">
+                                        <button type="submit" id="submit" class="btn btn-info">Montrer les
+                                            données</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -193,13 +201,13 @@
         var formData = new FormData();
         //TODO the form used here is the one from Homepage - becareful and change later
         formData.append('siteID', $('#siteID option:selected').val());
-        formData.append('equipmentID', $('#equipment option:selected').val());
+        formData.append('equipmentID', $('#equipmentField option:selected').val());
         formData.append('startDate', startDate);
         formData.append('endDate', endDate);
         formData.append('diffDays', diffDays);
 
         /*console.log("Site selected :", $('#siteID option:selected').val());
-        console.log("Equipement selected :", $('#equipment option:selected').val());
+        console.log("Equipement selected :", $('#equipmentField option:selected').val());
         console.log("Start date form :", startDate);
         console.log("End date form :", endDate);*/
         xhttp = new XMLHttpRequest();
@@ -222,7 +230,7 @@
             if (this.readyState == 4 && this.status == 200) {
                 var choc_data = this.responseText;
                 choc_data = JSON.parse(choc_data);
-                console.log("Choc data chart : ", choc_data);
+                //console.log("Choc data chart : ", choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
 
                     var name_data = "equipement_" + i;

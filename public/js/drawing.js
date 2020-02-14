@@ -36,7 +36,7 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
 
     //Options for the chart
     var options = {
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       responsive: true,
       plugins: [ChartDataLabels],
       scales: {
@@ -236,7 +236,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
 
     //Create options for chart dataset
     var options = {
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       responsive: true,
       tooltips: {
         callbacks: {
