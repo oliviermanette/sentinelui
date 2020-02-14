@@ -1,3 +1,5 @@
+Chart.defaults.global.plugins.datalabels.display = false;
+
 /**
  * @desc Draw chart for displaying number of choc per day 
  * @param json data - data which contain nb of choc and date
@@ -7,70 +9,78 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
   if (typeof data != 'object') {
     data = JSON.parse(data);
   }
+  if (isEmpty(data)) {
 
-  var nb_choc = [];
-  var date = [];
+    drawNoDataAvailable(canvaID);
 
-  for (var i in data) {
-    nb_choc.push(data[i].nb_choc);
-    date.push(data[i].date_d);
-  }
+  } else {
+    var nb_choc = [];
+    var date = [];
 
-  //Create the dataset 
-  var chartdata = {
-    labels: date,
-    datasets: [{
-      labels: date,
-      data: nb_choc
-    }]
-  };
-
-  var canva_id = "#" + canvaID
-  var ctx = $(canva_id);
-
-  //Options for the chart
-  var options = {
-    maintainAspectRatio: true,
-    responsive: true,
-    scales: {
-      xAxes: [{
-        scaleLabel: {
-          display: true,
-          labelString: 'Date'
-        },
-        gridLines: {
-          display: false
-        }
-      }],
-      yAxes: [{
-        ticks: {
-          beginAtZero: true,
-          stepSize: 1
-        },
-        gridLines: {
-          display: false
-        },
-        scaleLabel: {
-          display: true,
-          labelString: 'Nombre Choc'
-        },
-        //type: 'logarithmic',
-      }]
-    },
-    legend: {
-      display: false
-    },
-    title: {
-      display: true,
-      text: 'Nombre de choc'
+    for (var i in data) {
+      nb_choc.push(data[i].nb_choc);
+      date.push(data[i].date_d);
     }
+
+    //Create the dataset 
+    var chartdata = {
+      labels: date,
+      datasets: [{
+        labels: date,
+        data: nb_choc
+      }]
+    };
+
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
+
+    //Options for the chart
+    var options = {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: [ChartDataLabels],
+      scales: {
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          },
+          gridLines: {
+            display: false
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 1
+          },
+          gridLines: {
+            display: false
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Nombre Choc'
+          },
+          //type: 'logarithmic',
+        }]
+      },
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Nombre de choc enregistré',
+        fontSize: 15
+      }
+    };
+    //Create the instance
+    var chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: chartdata,
+      options: options
+    });
+
   }
-  //Create the instance
-  var chartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: chartdata,
-    options: options
-  });
 
 }
 
@@ -83,104 +93,109 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
   if (typeof data != 'object') {
     data = JSON.parse(data);
   }
+  if (isEmpty(data)) {
 
-  var power_choc = [];
-  var date = [];
+    drawNoDataAvailable(canvaID);
 
-  var power_choc_per_day = Array();
-  var count_choc_per_day = 0;
+  } else {
+    var power_choc = [];
+    var date = [];
 
-  var dataChartArr = [];
-  var count_date = -1;
+    var power_choc_per_day = Array();
+    var count_choc_per_day = 0;
 
-  for (var i in data) {
-    var date_d = new Date(data[i].date_d);
-    date_d = getFormattedDate(date_d);
-    var obj = {
-      x: date_d,
-      y: data[i].power
-    };
-    dataChartArr.push(obj);
-    count = i;
-    if (!date.includes(data[i].date_d)) {
-      count_date += 1;
-      count_choc_per_day = 0;
-      if (power_choc_per_day.length > 0) {
-        power_choc.push(power_choc_per_day);
+    var dataChartArr = [];
+    var count_date = -1;
+
+    for (var i in data) {
+      var date_d = new Date(data[i].date_d);
+      date_d = getFormattedDate(date_d);
+      var obj = {
+        x: date_d,
+        y: data[i].power
+      };
+      dataChartArr.push(obj);
+      count = i;
+      if (!date.includes(data[i].date_d)) {
+        count_date += 1;
+        count_choc_per_day = 0;
+        if (power_choc_per_day.length > 0) {
+          power_choc.push(power_choc_per_day);
+        }
+        power_choc_per_day = Array();
+        date.push(data[i].date_d);
+
       }
-      power_choc_per_day = Array();
-      date.push(data[i].date_d);
+      if (date.includes(data[i].date_d)) {
+        //console.log(data[i].date_d, " number of choc : ", count_choc_per_day);
+        power_choc_per_day.push(data[i].power);
+        count_choc_per_day += 1;
+
+      }
 
     }
-    if (date.includes(data[i].date_d)) {
-      //console.log(data[i].date_d, " number of choc : ", count_choc_per_day);
-      power_choc_per_day.push(data[i].power);
-      count_choc_per_day += 1;
+    power_choc.push(power_choc_per_day);
 
-    }
-
-  }
-  power_choc.push(power_choc_per_day);
-
-  var dict = []; // create an empty array
+    var dict = []; // create an empty array
 
 
-  var canva_id = "#" + canvaID
-  var ctx = $(canva_id);
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
 
 
-  var timeFormat = 'DD/MM/YYYY';
+    var timeFormat = 'DD/MM/YYYY';
 
-  console.log(dataChartArr);
-  var chartdata = {
-    datasets: [{
-      label: "Puissance du choc",
-      data: dataChartArr,
-      fill: false,
-      showLine: false,
-      backgroundColor: "#F5DEB3",
-      borderColor: 'red'
-    }]
-  };
-  var options = {
-    maintainAspectRatio: true,
-    responsive: true,
-    title: {
-      display: true,
-      text: "Chart.js Time Scale"
-    },
-    scales: {
-      xAxes: [{
-        type: "time",
-        ticks: {
-          source: 'date'
-        },
-        time: {
-          format: timeFormat,
-          unit: 'day',
-          tooltipFormat: 'DD/MM/YYYY',
+    var chartdata = {
+      datasets: [{
+        label: "Puissance du choc (g)",
+        data: dataChartArr,
+        fill: false,
+        showLine: false,
+        backgroundColor: "#F5DEB3",
+        borderColor: 'red'
+      }]
+    };
+    var options = {
+      maintainAspectRatio: true,
+      responsive: true,
+      title: {
+        display: true,
+        text: "Chart.js Time Scale"
+      },
+      scales: {
+        xAxes: [{
+          stacked: true,
+          type: "time",
+          ticks: {
+            source: 'date'
+          },
+          time: {
+            format: timeFormat,
+            unit: 'day',
+            tooltipFormat: 'DD/MM/YYYY',
+            scaleLabel: {
+              display: true,
+              labelString: 'Date'
+            }
+          }
+        }],
+        yAxes: [{
+          stacked: false,
           scaleLabel: {
             display: true,
-            labelString: 'Date'
+            labelString: 'Puissance'
           }
-        }
-      }],
-      yAxes: [{
-        scaleLabel: {
-          display: true,
-          labelString: 'Puissance'
-        }
-      }]
-    }
+        }]
+      }
+    };
+
+    var chartInstance = new Chart(ctx, {
+      type: 'scatter',
+      data: chartdata,
+      options: options
+    });
+
   }
-
-  var chartInstance = new Chart(ctx, {
-    type: 'scatter',
-    data: chartdata,
-    options: options
-  });
-
-
 
 }
 
@@ -194,149 +209,197 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
   if (typeof data != 'object') {
     data = JSON.parse(data);
   }
-  var powerChocArr = [];
-  var datesArr = [];
 
-  //Create chart data
-  // We will fill later the datasets 
-  var chartdata = {
-    labels: [],
-    datasets: [{
-      data: []
-    }]
-  };
+  if (isEmpty(data)) {
 
-  var canva_id = "#" + canvaID
-  var ctx = $(canva_id);
+    drawNoDataAvailable(canvaID);
 
-  //Create options for chart dataset
-  var options = {
-    maintainAspectRatio: true,
-    responsive: true,
-    scales: {
-      xAxes: [{
-        stacked: true,
-        scaleLabel: {
-          display: true,
-          labelString: 'Date'
-        },
-        gridLines: {
-          display: false
-        }
-      }],
-      yAxes: [{
-        stacked: true,
-        ticks: {
-          beginAtZero: true,
-          stepSize: 0.1
-        },
-        gridLines: {
-          display: false
-        },
-        scaleLabel: {
-          display: true,
-          labelString: 'Puissance du choc'
-        },
-        //type: 'logarithmic',
+  } else {
+
+    let dataBak = data;
+    var powerChocArr = [];
+    var datesArr = [];
+
+
+
+    //Create chart data
+    // We will fill later the datasets 
+    var chartdata = {
+      labels: [],
+      datasets: [{
+        data: []
       }]
-    },
-    legend: {
-      display: false
-    },
-    title: {
-      display: true,
-      text: 'Puissance des chocs'
-    }
-  }
-
-  //Create chart Instance
-  var chartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: chartdata,
-    options: options
-  });
-
-  //From the array of date and choc power, and check if for a specific date, we have multiple choc
-  //If it's the case, we gather for this date all the choc data
-
-  var powerChocPerDayArr = Array(); //Each array will contain the choc data for a specific day
-  var chocPerDayCount = 0;
-
-  for (var i in data) {
-    count = i;
-
-    if (!datesArr.includes(data[i].date_d)) {
-      chocPerDayCount = 0;
-      if (powerChocPerDayArr.length > 0) {
-        powerChocArr.push(powerChocPerDayArr);
-      }
-      powerChocPerDayArr = Array();
-      datesArr.push(data[i].date_d);
-
-    }
-    if (datesArr.includes(data[i].date_d)) {
-      powerChocPerDayArr.push(data[i].power);
-      chocPerDayCount += 1;
-    }
-
-  }
-  powerChocArr.push(powerChocPerDayArr);
-
-  var dict = []; // create an empty dict which will contain date associated with power values
-  for (var i in datesArr) {
-    dict.push({
-      date: datesArr[i],
-      powerValues: powerChocArr[i]
-    });
-  }
-
-  var colorArr = Array("#919191", "#4b809c", "#106d9c", "#a37524", "#a34f3e");
-
-  //We received max 6 choc per day, so we create 6 datasets for hava maximum 6 stacked bar per day
-  var max_choc_per_day = 6;
-  for (let i = 0; i < max_choc_per_day; i++) {
-    var newDataset = {
-      data: []
     };
-    chartInstance.data.datasets.push(newDataset);
-  }
 
-  //Loop over each date to draw value of each choc power
-  for (const [key, value] of Object.entries(dict)) {
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
 
-    //Axis date
-    chartInstance.data.labels[key] = value["date"];
-    chartInstance.update();
+    //Create options for chart dataset
+    var options = {
+      maintainAspectRatio: false,
+      responsive: true,
+      tooltips: {
+        callbacks: {
+          title: function (tooltipItem, data) {
+            let date = data.labels[tooltipItem[0].index];
 
-    var count = 0;
-    //Convert to float 
-    var powerValueArray = value["powerValues"].map(function (v) {
-      return parseFloat(v);
+            let hour = mapPowerDateTime.get(tooltipItem[0].value).split(" ")[1];
+            //console.log(tooltipItem[0]['value']);
+            return "Le " + date + " à " + hour;
+          },
+          label: function (tooltipItem, data) {
+            let power = tooltipItem.value;
+            return "Puissance : " + power + " g";
+          },
+          afterLabel: function (tooltipItem, data) {
+            //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
+            //return "Heure : " + hour;
+          }
+        },
+        backgroundColor: '#FFF',
+        titleFontSize: 15,
+        titleFontColor: '#233754',
+        bodyFontColor: '#000',
+        bodyFontSize: 14,
+        displayColors: false
+      },
+      scales: {
+        xAxes: [{
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          },
+          gridLines: {
+            display: false
+          }
+        }],
+        yAxes: [{
+          stacked: true,
+          ticks: {
+            beginAtZero: true,
+            stepSize: 0.1
+          },
+          gridLines: {
+            display: false
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Puissance du choc (g)'
+          },
+          //type: 'logarithmic',
+        }]
+      },
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Puissance des chocs enregistré',
+        fontSize: 15
+      }
+    };
+
+    //Create chart Instance
+    var chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: chartdata,
+      options: options
     });
 
+    //From the array of date and choc power, and check if for a specific date, we have multiple choc
+    //If it's the case, we gather for this date all the choc data
 
-    var max_choc_value_per_day = Math.max.apply(null, powerValueArray);
-    var min_choc_value_per_day = Math.min.apply(null, powerValueArray);
+    var powerChocPerDayArr = Array(); //Each array will contain the choc data for a specific day
+    var chocPerDayCount = 0;
+    //we set a map (key => power value => date time) so that we could then retrieve
+    //the hours thank to the power for tooltip use in the chart
+    var mapPowerDateTime = new Map();
+    for (var i in data) {
+      //count = i;
 
-    //For each day, loop all over the choc data
-    for (let index = 0; index < max_choc_per_day; index++) {
+      let date_time = data[i].date_d;
+      let date = date_time.split(" ")[0];
+      let hour = date_time.split(" ")[1];
+      let power = data[i].power;
 
-      if (index >= 0 && index < powerValueArray.length) {
-        //it exists
-        if (powerValueArray[index] == max_choc_value_per_day) {
-          chartInstance.data.datasets[index].backgroundColor = "#d93c1c";
-        } else {
-          chartInstance.data.datasets[index].backgroundColor = colorArr[index];
+
+      mapPowerDateTime.set(power, date_time);
+      if (!datesArr.includes(date)) {
+        chocPerDayCount = 0;
+        if (powerChocPerDayArr.length > 0) {
+          powerChocArr.push(powerChocPerDayArr);
         }
-        chartInstance.data.datasets[index].data[key] = powerValueArray[index];
+        powerChocPerDayArr = Array();
+        datesArr.push(date);
+
+
       }
-      //Put value at 0 for stacked bar
-      else {
-        chartInstance.data.datasets[index].data[key] = 0;
+      if (datesArr.includes(date)) {
+        powerChocPerDayArr.push(power);
+
+        chocPerDayCount += 1;
       }
+
     }
-    // Finally, make sure you update your chart, to get the result on your screen
-    chartInstance.update();
+    powerChocArr.push(powerChocPerDayArr);
+
+    var dict = []; // create an empty dict which will contain date associated with power values
+    for (var d in datesArr) {
+      dict.push({
+        date: datesArr[d],
+        powerValues: powerChocArr[d]
+      });
+    }
+
+    var colorArr = Array("#919191", "#4b809c", "#106d9c", "#a37524", "#a34f3e");
+
+    //We received max 12 choc per day, so we create 6 datasets for hava maximum 6 stacked bar per day
+    var max_choc_per_day = 12;
+    for (let i = 0; i < max_choc_per_day; i++) {
+      var newDataset = {
+        data: []
+      };
+      chartInstance.data.datasets.push(newDataset);
+
+    }
+
+    //Loop over each date to draw value of each choc power
+    for (const [key, value] of Object.entries(dict)) {
+      //Axis date
+      chartInstance.data.labels[key] = value.date;
+      chartInstance.update();
+
+      var count = 0;
+      //Convert to float 
+      var powerValueArray = value.powerValues.map(function (v) {
+        return parseFloat(v);
+      });
+
+
+      var max_choc_value_per_day = Math.max.apply(null, powerValueArray);
+      var min_choc_value_per_day = Math.min.apply(null, powerValueArray);
+
+      //For each day, loop all over the choc data
+      for (let index = 0; index < max_choc_per_day; index++) {
+
+        if (index >= 0 && index < powerValueArray.length) {
+          //it exists
+          if (powerValueArray[index] == max_choc_value_per_day) {
+            chartInstance.data.datasets[index].backgroundColor = "#d93c1c";
+          } else {
+            chartInstance.data.datasets[index].backgroundColor = colorArr[index];
+          }
+          chartInstance.data.datasets[index].data[key] = powerValueArray[index];
+        }
+        //Put value at 0 for stacked bar
+        else {
+          chartInstance.data.datasets[index].data[key] = 0;
+        }
+      }
+      // Finally, make sure you update your chart, to get the result on your screen
+      chartInstance.update();
+    }
   }
 }
 
@@ -353,8 +416,10 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
   var date = [];
 
   for (var i in temperatureData) {
-    temperature.push(temperatureData[i].temperature);
-    date.push(temperatureData[i].date_d);
+    if (temperatureData[i].temperature < 100) {
+      temperature.push(temperatureData[i].temperature);
+      date.push(temperatureData[i].date_d);
+    }
   }
 
   var chartdata = {
@@ -369,17 +434,21 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
       data: temperature
     }]
   };
-  var canva_id = "#" + canvaID
+  var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
 
   var options = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
     scales: {
       xAxes: [{
         scaleLabel: {
           display: true,
           labelString: 'Date'
+        },
+        ticks:{
+          autoskip: true,
+          maxTicksLimit: 20
         }
       }],
       yAxes: [{
@@ -400,7 +469,7 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
       display: true,
       text: 'Temperature en fonction du temps'
     }
-  }
+  };
 
   var chartInstance = new Chart(ctx, {
     type: 'line',
@@ -507,42 +576,200 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
-  console.log(inclinometerData);
-  var angle_x = [];
-  var angle_y = [];
-  var angle_z = [];
+
+  if (isEmpty(inclinometerData)) {
+
+    drawNoDataAvailable(canvaID);
+
+  } else {
+    // Object is NOT empty
+    var angle_x = [];
+    var angle_y = [];
+    var angle_z = [];
+    var date = [];
+
+    for (var i in inclinometerData) {
+      angle_x.push(inclinometerData[i].angle_x);
+      angle_y.push(inclinometerData[i].angle_y);
+      angle_z.push(inclinometerData[i].angle_z);
+      date.push(inclinometerData[i].date_d);
+    }
+
+    var chartdata = {
+      labels: date,
+      datasets: [{
+          label: 'X °',
+          fill: false,
+          backgroundColor: 'blue',
+          borderColor: 'blue',
+          data: angle_x,
+          yAxisID: "y-axis-1",
+        },
+        {
+          label: 'Y °',
+          fill: false,
+          backgroundColor: 'orange',
+          borderColor: 'orange',
+          data: angle_y,
+          yAxisID: "y-axis-1",
+        },
+        {
+          label: 'Z °',
+          fill: false,
+          backgroundColor: 'green',
+          borderColor: 'green',
+          data: angle_z,
+          yAxisID: "y-axis-2",
+        }
+      ]
+    };
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
+
+    var options = {
+      responsive: true,
+      hoverMode: 'index',
+      maintainAspectRatio: true,
+      stacked: false,
+
+      title: {
+        display: true,
+        text: 'Variation de l\'inclinaison au fil du temps'
+      },
+      scales: {
+        yAxes: [{
+          type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+          display: true,
+          position: "left",
+          id: "y-axis-1",
+          scaleLabel: {
+            display: true,
+            labelString: 'X° and Y°'
+          },
+          ticks: {
+            //min: 0,
+            beginAtZero: false,
+            stepSize: 1.0,
+            autoskip: true,
+            maxTicksLimit: 10
+          },
+        }, {
+          type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+          display: true,
+          position: "right",
+          id: "y-axis-2",
+          scaleLabel: {
+            display: true,
+            labelString: 'Z°'
+          },
+          ticks: {
+            //min: 0,
+            beginAtZero: false,
+            stepSize: 0.1,
+            autoskip: true,
+            maxTicksLimit: 10
+          },
+
+          // grid line settings
+          gridLines: {
+            drawOnChartArea: false, // only want the grid lines for one axis to show up
+          },
+        }],
+        xAxes: [{
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 15
+          },
+        }]
+      }
+    };
+
+
+    var chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: chartdata,
+      options: options,
+    });
+  }
+}
+
+function drawNoDataAvailable(canvaID) {
+
+  Chart.plugins.register({
+    afterDraw: function (chart) {
+      if (chart.data.datasets.length === 0) {
+        // No data is present
+        var ctx = chart.chart.ctx;
+        var width = chart.chart.width;
+        var height = chart.chart.height;
+        chart.clear();
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = "22px normal 'Helvetica Nueue'";
+        ctx.fillStyle = "gray";
+        ctx.fillText('Pas de données disponible', width / 2, height / 2);
+        ctx.restore();
+      }
+    }
+  });
+
+
+  var canva_id = "#" + canvaID;
+  var ctx = $(canva_id);
+
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: []
+    }
+  });
+
+}
+
+function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinometre") {
+  if (typeof inclinometerData != 'object') {
+    inclinometerData = JSON.parse(inclinometerData);
+  }
+  //console.log(inclinometerData);
+  var variation_angle_x = [];
+  var variation_angle_y = [];
+  var variation_angle_z = [];
   var date = [];
 
-  for (var i in inclinometerData) {
-    angle_x.push(inclinometerData[i].angle_x);
-    angle_y.push(inclinometerData[i].angle_y);
-    angle_z.push(inclinometerData[i].angle_z);
-    date.push(inclinometerData[i].date_d);
-  }
 
+  for (var i in inclinometerData) {
+    //console.log(inclinometerData[i]);
+    variation_angle_x.push(inclinometerData[i].variationAngleX);
+    variation_angle_y.push(inclinometerData[i].variationAngleY);
+    variation_angle_z.push(inclinometerData[i].variationAngleZ);
+    date.push(inclinometerData[i].date);
+  }
 
   var chartdata = {
     labels: date,
     datasets: [{
-        label: 'X °',
+        label: 'X %',
         fill: false,
         backgroundColor: 'blue',
         borderColor: 'blue',
-        data: angle_x
+        data: variation_angle_x,
       },
       {
-        label: 'Y °',
+        label: 'Y %',
         fill: false,
         backgroundColor: 'orange',
         borderColor: 'orange',
-        data: angle_y
+        data: variation_angle_y,
       },
       {
-        label: 'Z °',
+        label: 'Z %',
         fill: false,
         backgroundColor: 'green',
         borderColor: 'green',
-        data: angle_z
+        data: variation_angle_z,
       }
     ]
   };
@@ -551,36 +778,36 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
 
   var options = {
     responsive: true,
+    hoverMode: 'index',
     maintainAspectRatio: true,
+
+    title: {
+      display: true,
+      text: 'Pourcentage de variation de l\'inclinaison au fil du temps'
+    },
     scales: {
-      scales: {
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: false,
-            precison:2,
-          },
-          scaleLabel: {
-            display: false,
-            labelString: 'Angle (°)'
-        
-          },
-        }]
-      },
-      legend: {
-        display: true
-      },
-      title: {
-        display: true,
-        text: 'Inclinometre en fonction du temps'
-      }
+      yAxes: [{
+        gridLines: {
+          display: true,
+        },
+        ticks: {
+          beginAtZero: false,
+        },
+        scaleLabel: {
+          display: true,
+          labelString: 'Variation %'
+        },
+      }],
+      xAxes: [{
+        ticks: {
+          autoskip: true,
+          maxTicksLimit: 15
+
+        },
+      }]
     }
   };
+
 
   var chartInstance = new Chart(ctx, {
     type: 'line',
@@ -619,13 +846,13 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   var index_stop = 4;
   var dataChartArr = [];
 
-  for (var i = 0; i < subspectre.length; i++) {
-    for (var j = 0; j < subspectre[i].length / 2; j++) {
-      var y_data_amplitudeArr = hex2dec(subspectre[i].substring(index_start, index_stop))
+  for (var s = 0; s < subspectre.length; s++) {
+    for (var j = 0; j < subspectre[s].length / 2; j++) {
+      var y_data_amplitudeArr = hex2dec(subspectre[s].substring(index_start, index_stop));
       if (j > 0) {
-        min_freq = min_freq + resolutionData[i];
+        min_freq = min_freq + resolutionData[s];
       }
-      if (j < (subspectre[i].length / 2) - 1) {
+      if (j < (subspectre[s].length / 2) - 1) {
         var obj = {
           x: min_freq,
           y: y_data_amplitudeArr
@@ -721,7 +948,7 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
   var timeDataArr = [];
   var timeArr_1 = [];
   var timeArr_2 = [];
-  var dateDataArr = []
+  var dateDataArr = [];
 
   amplitudeArr.push(parseFloat(chocData[0].amplitudeArr_1));
   amplitudeArr.push(parseFloat(chocData[0].amplitudeArr_2));
@@ -737,17 +964,17 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
   };
   dataChartArr.push(obj);
   for (var i = 0; i < 2; i++) {
-    var obj = {
+    var obj_1 = {
       x: timeDataArr[i],
       y: amplitudeArr[i]
     };
-    dataChartArr.push(obj);
+    dataChartArr.push(obj_1);
   }
-  var obj = {
+  var obj_2 = {
     x: timeDataArr[0] + timeDataArr[1],
     y: 0
   };
-  dataChartArr.push(obj);
+  dataChartArr.push(obj_2);
 
   var chartdata = {
     datasets: [{
@@ -815,7 +1042,7 @@ function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectr
   subspectre_hex = subspectreData[0].payload;
   min_freq = parseInt(subspectreData[0].min_freq);
   max_freq = parseInt(subspectreData[0].max_freq);
-  resolution = parseInt(subspectreData[0].resolution)
+  resolution = parseInt(subspectreData[0].resolution);
   subspectre_number = subspectreData[0].subspectre_number;
 
   var index_start = 2;
@@ -827,7 +1054,7 @@ function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectr
 
   for (var i = 0; i < subspectre_hex.length / 2; i++) {
 
-    var y_data_amplitudeArr = hex2dec(subspectre_hex.substring(index_start, index_stop))
+    var y_data_amplitudeArr = hex2dec(subspectre_hex.substring(index_start, index_stop));
 
     if (i > 0) {
       min_freq = min_freq + resolution;

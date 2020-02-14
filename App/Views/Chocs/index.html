@@ -12,10 +12,11 @@
         <div class="card-body">
             <div class="container">
                 <form role="form" method="post" name="equipementrequest" id="equipementrequest">
-                    <div class="ui form">
-                        <div class="four fields">
-                            <div class="field" id="siteField">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un site</div>
+                    <div class="ui form d-flex justify-content-center">
+                        <div class="row four fields ">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                <label class="form-label">Choisissez un site</label>
                                 <select class="browser-default custom-select" name="siteID" id="siteID">
                                     <option value="" selected>Choisissez un site</option>
                                     {% for site in all_site %}
@@ -24,25 +25,38 @@
 
                                 </select>
                             </div>
-                            <div class="field" id="equipmentField">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez un équipement
-                                    associé
-                                </div>
-                                <select class="browser-default custom-select" name="structure" id="structureID">
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                <label class="form-label">Choisissez un équipement</label>
+                                <select class="browser-default custom-select" name="equipmentField" id="equipmentField">
                                     <option value="" selected>Choisissez un équipement associé</option>
                                     {% for equipment in all_equipment %}
                                     <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="field">
-                                <div class="text-s font-weight-bold text-primary mb-1">Choisissez une date
-                                    (optionnel)
-                                </div>
-                                <input type="text" name="daterange" placeholder="" />
                             </div>
-                            <div class="my-2"></div>
-                            <button type="submit" id="submit" class="btn btn-info">Montrer les données</button>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                <label class="form-label">Choisissez une date (optionnel)</label>
+                                <div id="reportrange" class="browser-default custom-select">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span></span>
+                                    <!-- <span>December 30, 2014 - January 28, 2015</span>-->
+                                </div>
+                                </div>
+                                <!-- 
+                                <input type="text" name="daterange" placeholder="" />-->
+                            </div>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col text-center">
+                                        <button type="submit" id="submit" class="btn btn-info">Montrer les
+                                            données</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -65,10 +79,15 @@
 {% block script %}
 
 <script>
-    var dateMax = "";
-    var dateMin = "";
+    let startDate = "";
+    let endDate = "";
+    let diffDays = "";
 
     $(document).ready(function () {
+        
+
+        init_daterangepicker();
+
         var date = Date();
         // When the user select a site, the equipement associated is displayed
         $("#siteID").change(function () {
@@ -87,29 +106,18 @@
             xhttp.send(formData);
         });
 
-        $('input[name="daterange"]').daterangepicker({
-            showDropdowns: true,
-            locale: {
-                format: 'DD-MM-YYYY'
-            },
-            opens: 'left',
-            minDate: "{{min_date}}",
-            maxDate: "{{max_date}}"
-        }, function (start, end, label) {
-            dateMin = start.format('YYYY-MM-DD');
-            dateMax = end.format('YYYY-MM-DD');
-        });
-
         $('#tableDataChoc').DataTable({
             "createdRow": function (row, data, dataIndex) {
-
             },
+            "order": [[ 7, "desc" ]],
             "lengthMenu": [
                 [10, 25, 50, -1],
                 [10, 25, 50, 'All']
             ],
             "iDisplayLength": 20
         });
+
+
         var formData = new FormData();
         formData.append('siteID', 26);
         xhttp = new XMLHttpRequest();
@@ -193,11 +201,15 @@
         var formData = new FormData();
         //TODO the form used here is the one from Homepage - becareful and change later
         formData.append('siteID', $('#siteID option:selected').val());
-        formData.append('equipmentID', $('#equipment option:selected').val());
+        formData.append('equipmentID', $('#equipmentField option:selected').val());
+        formData.append('startDate', startDate);
+        formData.append('endDate', endDate);
+        formData.append('diffDays', diffDays);
 
-        console.log("Site selected :", $('#siteID option:selected').val());
-        console.log("Equipement selected :", $('#equipment option:selected').val());
-
+        /*console.log("Site selected :", $('#siteID option:selected').val());
+        console.log("Equipement selected :", $('#equipmentField option:selected').val());
+        console.log("Start date form :", startDate);
+        console.log("End date form :", endDate);*/
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -212,13 +224,13 @@
         xhttp.open("POST", "/ControllerData/getResultsFromChocForm", false);
         xhttp.send(formData);
 
-
+        
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var choc_data = this.responseText;
                 choc_data = JSON.parse(choc_data);
-                console.log("Choc data chart : ",choc_data);
+                //console.log("Choc data chart : ", choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
 
                     var name_data = "equipement_" + i;
@@ -247,6 +259,71 @@
         xhttp1.open("POST", "/ControllerData/getChartsChoc", false);
         xhttp1.send(formData);
     });
+
+    function init_daterangepicker() {
+        moment.locale('fr');
+        if (typeof ($.fn.daterangepicker) === 'undefined') {
+            return;
+        }
+
+        var cb = function (start, end, label) {
+            //console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrange span').html(start.format('L') + ' - ' + end.format('L'));
+        };
+
+        var optionSet = {
+            minDate: '09/01/2019',
+            maxDate: moment(),
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1,
+            timePicker12Hour: true,
+            ranges: {
+                'Aucune Date':['09/01/2019',moment()],
+                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
+            locale: {
+                applyLabel: 'Appliquer',
+                cancelLabel: 'Annuler',
+                fromLabel: 'De',
+                toLabel: 'à',
+                customRangeLabel: 'Specifique',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ],
+                firstDay: 1
+            }
+        }
+
+        $('#reportrange').daterangepicker(optionSet, cb);
+
+        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('DD/MM/YYYY');
+            endDate = picker.endDate.format('DD/MM/YYYY');;
+            let diffDays = picker.endDate.diff(picker.startDate, 'days');
+            console.log("start/end dates are " + startDate + " to " + endDate);
+
+            console.log(`Difference in days: ${diffDays}`);
+        });
+        $('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
+            startDate = '';
+            endDate = '';
+            $('#reportrange span').html(startDate + ' - ' + endDate);
+        });
+
+
+    };
 </script>
 
 {% endblock %}

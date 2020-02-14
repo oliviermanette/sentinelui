@@ -77,7 +77,21 @@ class SensorManager extends \Core\Model
       return $id_sensor[0];
     }
   }
+  public static function getDeveuiFromSensorLabel($device_number)
+  {
+    $db = static::getDB();
 
+    $sql_deveui_sensor = "SELECT deveui FROM `sensor` 
+      WHERE device_number = :device_number ";
+
+    $stmt = $db->prepare($sql_deveui_sensor);
+    $stmt->bindValue(':device_number', $device_number, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $id_sensor[0];
+    }
+  }
   /** 
    * Get the device number of a device given his id
    *
@@ -123,6 +137,45 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getSensorIdUsingSiteAndEquipementID($site_id, $equipement_id){
+    $db = static::getDB();
+
+    $sql_query_id =  "SELECT DISTINCT(`sensor_id`) FROM `record` AS r
+    JOIN structure as st ON (st.id=r.structure_id)
+    JOIN site as s ON (s.id=st.site_id)
+    WHERE s.id = :site_id AND st.id = :equipement_id ";
+
+    $stmt = $db->prepare($sql_query_id);
+
+    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
+    $stmt->bindValue(':equipement_id', $equipement_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $sensor_id = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $sensor_id;
+    }
+
+    $db = null;
+
+    return $sensor_id;
+  }
+
+  public static function getSensorLabelFromDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_id_sensor = "SELECT device_number FROM `sensor` 
+      WHERE deveui = :deveui ";
+
+    $stmt = $db->prepare($sql_id_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $device_label= $stmt->fetchAll(PDO::FETCH_COLUMN);
+      return $device_label[0];
+    }
+  }
+
   /** 
    * Get last message received from a specific sensor
    *
@@ -132,7 +185,7 @@ class SensorManager extends \Core\Model
    */
   public static function getLastMessageReceivedFromDeveui($deveui){
     $db = static::getDB();
-     
+    
     $sql_last_date_received = "SELECT DATE_FORMAT(MAX(DATE(r.date_time)), '%d/%m/%Y') as lastDateReceived FROM sensor AS s 
     INNER JOIN record AS r ON (s.id = r.sensor_id)
     AND s.deveui LIKE :deveui
@@ -180,6 +233,30 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getDateMinMaxActivity($deveui)
+  {
+    $db = static::getDB();
+    $query_min_max_date = "SELECT DATE_FORMAT(MIN(Date(r.date_time)), '%m/%d/%Y') AS first_activity,
+      DATE_FORMAT(MAX(Date(r.date_time)), '%m/%d/%Y') AS last_activity  From record AS r 
+      LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE s.deveui = :deveui";
+
+    $stmt = $db->prepare($query_min_max_date);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    $data = array();
+    if ($stmt->execute()) {
+
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      $min_date_time = $row["first_activity"];
+      $max_date_time = $row["last_activity"];
+
+      $date_min_max = array($min_date_time, $max_date_time);
+
+      return $date_min_max;
+    }
+  }
 
   /** 
    * Get all records of a device
@@ -323,11 +400,11 @@ class SensorManager extends \Core\Model
     $db = static::getDB();
 
     $sql_brief_info = "SELECT 
-    id_device_db,
     groupe,
     device_number, 
     ligneHT, 
-    equipement, 
+    equipement,
+    site,
     DATE_FORMAT(
       last_message_received, '%d/%m/%Y'
     ) AS `last_message_received` ,
@@ -344,18 +421,19 @@ class SensorManager extends \Core\Model
         gn.name AS groupe,
         st.transmision_line_name AS `LigneHT`, 
         st.nom AS `equipement`, 
+        s.nom AS 'site',
         Max(
           Date(r.date_time)
         ) AS `last_message_received` 
       FROM 
         record AS r 
-        INNER JOIN structure AS st ON st.id = r.structure_id 
-        INNER JOIN site AS s ON s.id = st.site_id 
-        INNER JOIN sensor ON (sensor.id = r.sensor_id) 
-        INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
-        INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+        LEFT JOIN structure AS st ON st.id = r.structure_id 
+        LEFT JOIN site AS s ON s.id = st.site_id 
+        LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
+        LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
+        LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
       WHERE 
-        gn.name = :group_name 
+        gn.name = :group_name
         AND Date(r.date_time) >= Date(sensor.installation_date) 
       GROUP BY 
         r.sensor_id, 
@@ -459,6 +537,9 @@ class SensorManager extends \Core\Model
       }
     }
   }
+
+  
+  
 
   /**
    *

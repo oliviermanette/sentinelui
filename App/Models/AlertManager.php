@@ -52,10 +52,7 @@ class AlertManager extends \Core\Model
         SELECT * FROM
         (SELECT (SELECT id FROM type_alert WHERE type_alert.label LIKE :label),
         :deveui, :structure_id, 1, :date_time, :data_value) AS alert_record
-        WHERE NOT EXISTS (
-            SELECT date_time, structure_id FROM alerts WHERE date_time = :date_time 
-            AND structure_id = :structure_id
-            )";
+        ";
         //echo "\n QUERY : $sql";
 
         $stmt = $db->prepare($sql);

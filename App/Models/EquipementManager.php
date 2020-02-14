@@ -164,6 +164,31 @@ class EquipementManager extends \Core\Model
     }
   }
 
+  
+  /**
+   * Get deveui of a sensor on a specific structure
+   * 
+   * @param int $structure_id structure id to get the sensor id
+   * @return string  deveui
+   */
+  public static function getDeveuiSensorOnEquipement($structure_id)
+  {
+    $db = static::getDB();
+
+    $sql_sensor_id = "SELECT DISTINCT sensor.deveui AS deveui FROM sensor
+    LEFT JOIN record as r ON (r.sensor_id = sensor.id)
+    LEFT JOIN structure as st ON (r.structure_id = st.id)
+    WHERE st.id = :structure_id";
+
+    $stmt = $db->prepare($sql_sensor_id);
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $deveui = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $deveui;
+    }
+  }
+
   /**
    * Get an equipement from a sensor ID
    * 

@@ -54,7 +54,7 @@ class SpectreManager extends \Core\Model
         $subspectre_name = 'subspectre_' . $subspectreID;
         $date_time = date('Y-m-d', strtotime($date_time . "+1 days"));
         
-        $subspectreArr = SpectreManager::getSubspectreForSensorID($sensor_id, $date_time);
+        $subspectreArr = SpectreManager::getSpecificSubspectreForSensorID($sensor_id, $date_time);
 
         //There is a result found
         if (is_array($subspectreArr)){
@@ -89,6 +89,26 @@ class SpectreManager extends \Core\Model
     $fullSpectreArr = $this->reconstituteAllSpectreForSensor($sensor_id);
 
     return $fullSpectreArr;
+  }
+
+  public static function reconstituteSpectre($site_id, $structure_id, $date_request){
+    //Find ID sensor from site ID and equipement ID
+    $sensor_id = SensorManager::getSensorIdUsingSiteAndEquipementID($site_id, $structure_id);
+    $firstSubSpectreArr = SpectreManager::getFirstSubspectreForSensorID($sensor_id, $date_request);
+    
+    $record_id = $firstSubSpectreArr["record_id"]; 
+    $startingDate = $firstSubSpectreArr['date_time'];
+
+    $allSubSpectresArr = SpectreManager::getAllsubspectreForSensorId($sensor_id, $startingDate);
+    $allSubSpectresArr["record_id"] = $record_id;
+    $allSubSpectresArr["date_time"] = $startingDate;
+    $allSubSpectresArr["sensor_id"] = $sensor_id;
+    $allSubSpectresArr["structure_id"] = $structure_id;
+    $allSubSpectresArr["site_id"] = $site_id;
+
+
+    return $allSubSpectresArr;
+
   }
 
   /**
@@ -134,9 +154,76 @@ class SpectreManager extends \Core\Model
       return $results;
     }
 
-
   }
 
+  public static function getFirstSubspectreForSensorID($sensor_id, $date_time){
+    $db = static::getDB();
+
+    $sql_subspectre_data = " SELECT record_id, device_number, sensor_id, structure_id, date_time, subspectre FROM
+      (SELECT 
+      sensor.device_number AS device_number,
+      s.nom AS site, 
+      st.id AS structure_id,
+      st.nom AS equipement, 
+      r.id as record_id,
+      r.sensor_id, 
+      r.date_time as date_time, 
+      subspectre, 
+      subspectre_number, 
+      min_freq, 
+      max_freq, 
+      resolution 
+    FROM 
+      spectre AS sp 
+      LEFT JOIN record AS r ON (r.id = sp.record_id) 
+      JOIN sensor on sensor.id = r.sensor_id 
+      JOIN structure as st ON (st.id = r.structure_id) 
+      JOIN site as s ON (s.id = st.site_id) 
+    WHERE 
+      sp.subspectre_number = '001' 
+      AND r.sensor_id = :sensor_id
+      AND Date(r.date_time) >= Date(sensor.installation_date) 
+      AND r.date_time = :date_time
+    ORDER BY 
+      r.date_time ASC) AS first_subpsectre_sensor";
+
+    $stmt = $db->prepare($sql_subspectre_data);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  public static function getAllsubspectreForSensorId($sensor_id, $date_requested){
+    $db = static::getDB();
+
+    $sql_subspectre_data = "
+        SELECT s.nom, st.nom, r.sensor_id, r.date_time AS date_time,
+        `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
+        JOIN record AS r ON (r.id=sp.record_id)
+        JOIN structure as st ON (st.id=r.structure_id)
+        JOIN site as s ON (s.id=st.site_id)
+        WHERE r.sensor_id = :sensor_id AND r.date_time >= :date_requested
+        ORDER BY r.date_time ASC 
+        LIMIT 5";
+
+    $stmt = $db->prepare($sql_subspectre_data);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':date_requested', $date_requested, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $subspectresTMPArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $subspectresArr = array();
+      $subspectreID = 0;
+      foreach ($subspectresTMPArr as $subArr){
+        $subspectre_name = 'subspectre_' . $subspectreID;
+        $subspectresArr[$subspectre_name]= $subArr;
+        $subspectreID +=1;
+      }
+      return $subspectresArr;
+    }
+  }
 
   /**
    * Get specific subspectre received from a sensor given a date
@@ -144,7 +231,7 @@ class SpectreManager extends \Core\Model
    * @param int $snesor_id
    * @return array  results from the query
    */
-  public static function getSubspectreForSensorID($sensor_id, $date_request){
+  public static function getSpecificSubspectreForSensorID($sensor_id, $date_request){
     $db = static::getDB();
 
     $sql_query_get_spectre = "SELECT r.sensor_id, st.id AS structure_id, r.date_time AS date_d,

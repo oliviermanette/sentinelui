@@ -11,7 +11,7 @@
   <h3 class="text-center">Bonjour {{ current_user.first_name }} </h3>
   {% endif %}
   </br>
-  
+
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Vue d'ensemble</h1>
@@ -56,22 +56,22 @@
     <div class="col-xl-3 col-md-6 mb-4">
       <div class="card border-left-warning shadow h-100 py-2">
         <a href="/alerts">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Alertes</div>
-              <div class="row no-gutters align-items-center">
-                <div class="col-auto">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Alertes</div>
+                <div class="row no-gutters align-items-center">
+                  <div class="col-auto">
                     <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{nb_active_alerts}}</div>
-                </div>
+                  </div>
 
+                </div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
               </div>
             </div>
-            <div class="col-auto">
-              <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-            </div>
           </div>
-        </div>
         </a>
       </div>
     </div>
@@ -116,6 +116,32 @@
 {% block script %}
 
 <script>
+  /* Formatting function for row details - modify as you need */
+  function format(d) {
+    // `d` is the original data object for the row
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+      '<tr>' +
+      '<td><b>Nombre de messages reçus:</b></td>' +
+      '<td>' + d.nb_messages +'</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Nombre de choc reçus:</b></td>' +
+      '<td>' + d.nb_choc +'</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Variation X (depuis l\'installation):</b></td>' +
+      '<td>' + d.variationX +' °</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Variation Y (depuis l\'installation):</b></td>' +
+      '<td>' + d.variationY +' °</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Variation Z ((depuis l\'installation)</b></td>' +
+      '<td>' + d.variationZ +' °</td>' +
+      '</tr>' +
+      '</table>';
+  }
   $(document).on("click", "a.showAll", function (e) {
     e.preventDefault();
     var drawAll = true;
@@ -179,31 +205,128 @@
 
 
   $(document).ready(function () {
+    
     var date = Date();
     fetchDataMap(showMap);
 
-    $('#tableData').DataTable({
-      "createdRow": function (row, data, dataIndex) {
-        var status = data[7];
+    $.fn.dataTable.moment( 'DD/MM/YYYY HH:mm:ss' );
+    var table = $('#tableData').DataTable({
+      responsive: true,
+      responsive: {
+        details: {
+          type: 'column',
+          target: 'tr'
+        }
+      },
+      "ajax": "../../public/data/HomepageBriefDataRecord.json",
+      "columns": [{
+        "className": 'details-control',
+          "orderable": false,
+          "searchable": true,
+          "data": null,
+          "defaultContent": ''
+        },
+        {
+          "data": "sensor_id"
+        },
+        {
+          "data": "site"
+        },
+        {
+          "data": "equipement"
+        },
+        {
+          "data": "ligneHT"
+        },
+        {
+          "data": "last_message_received"
+        },
+        {
+          "data": "status"
+        },
+        {
+        "data": "date_installation"
+        },
+        {
+        "": ""
+        },
+    
+      ],
+      "columnDefs": [{
+        "targets": 8,
+        "visible": true,
+        "data": "download_link",
+        "render": function (data, type, row, meta) {
+          let sensor_id = row["sensor_id"];
+          let url = "/device/" + sensor_id + "/info";
+          return '<a href="' + url + '">En savoir plus</a>';
+          }
+        },
+        {
+        targets: 0,
+        className: 'details-control',
+        orderable: false,
+        },
+        {
+        targets: 6,
+        "render": function (data, type, row, meta) {
+            let status = row["status"];
+            return '<b>' + status +'</b>';
+        }
+        }
+        
+      ],
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var status = aData["status"];
         if (status == "active") {
-          $(row).css({
+          $('td', nRow).css({
             //green
-            "background-color": "rgba(135, 254, 16, 0.15)"
+            "background-color": "rgba(152,251,152, 0.15)"
           })
         } else {
-          $(row).css({
+          $('td', nRow).css({
             //Red
             "background-color": "rgba(254, 16, 16, 0.15)"
           })
         }
-      },
+      },      
       "lengthMenu": [
         [10, 25, 50, -1],
         [10, 25, 50, 'All']
       ],
-      "iDisplayLength": 20
+      "iDisplayLength": 20,
+      "order": [[ 5, "desc" ]],
+
     });
-    
+
+    // Handle click on "Expand All" button
+    $('#btn-show-all-children').on('click', function () {
+      // Expand row details
+      table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
+    });
+
+    /* Handle click on "Collapse All" button
+    $('#btn-hide-all-children').on('click', function () {
+      // Collapse row details
+      table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
+    });*/
+
+    // Add event listener for opening and closing details
+    $('#tableData tbody').on('click', 'td.details-control', function () {
+      var tr = $(this).closest('tr');
+      var row = table.row(tr);
+
+      if (row.child.isShown()) {
+        // This row is already open - close it
+        row.child.hide();
+        tr.removeClass('shown');
+      } else {
+        // Open this row
+        row.child(format(row.data())).show();
+        tr.addClass('shown');
+      }
+    });
+
   });
 
 

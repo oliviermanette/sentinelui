@@ -28,8 +28,8 @@ gulp.task('browserSync', function () {
         server: {
             baseDir: './'
         },
-    })
-})
+    });
+});
 
 // BrowserSync reload
 function browserSyncReload(done) {
@@ -39,6 +39,11 @@ function browserSyncReload(done) {
 
 // Bring third party dependencies from vendor into public directory
 function modules() {
+    // Bootstrap JS
+    var bootstrapDatePickerJS = gulp.src('./vendor/bootstrap-daterangepicker/daterangepicker.js')
+        .pipe(gulp.dest('./public/vendor/bootstrap-daterangepicker/js'));
+    var bootstrapDatePickerCSS = gulp.src('./vendor/bootstrap-daterangepicker/daterangepicker.css')
+        .pipe(gulp.dest('./public/vendor/bootstrap-daterangepicker/css'));
     // Bootstrap JS
     var bootstrapJS = gulp.src('./vendor/bootstrap/dist/js/*')
         .pipe(gulp.dest('./public/vendor/bootstrap/js'));
@@ -50,10 +55,12 @@ function modules() {
         .pipe(gulp.dest('./public/vendor/bootstrap/scss'));
     // Leaflet
     var leafletJS = gulp.src('./vendor/leaflet/*.js')
-            .pipe(gulp.dest('./public/vendor/leaflet/'));
+        .pipe(gulp.dest('./public/vendor/leaflet/'));
     // ChartJS
     var chartJS = gulp.src('./vendor/chart.js/dist/*.js')
         .pipe(gulp.dest('./public/vendor/chart.js'));
+    var chartJSdatalabel = gulp.src('./vendor/chartjs-plugin-datalabels/dist/*.js')
+        .pipe(gulp.dest('./public/vendor/chartjs-plugin-datalabels.js'));
     // Semantic UI 
     var semantic = gulp.src([
             './vendor/semantic/dist/*.js',
@@ -64,6 +71,8 @@ function modules() {
     var dataTables = gulp.src([
             './vendor/datatables.net/js/*.js',
             './vendor/datatables.net-dt/js/*.js',
+            './vendor/datatables.net-responsive/js/*.js',
+            './vendor/datatables.net-responsive/css/*.css',
             './vendor/datatables.net-dt/css/*.css'
         ])
         .pipe(gulp.dest('./public/vendor/datatables'));
@@ -132,7 +141,7 @@ function js() {
         .pipe(plugins.rename({
             suffix: '.min'
         }))
-        .pipe(gulp.dest('./public/js'))
+        .pipe(gulp.dest('./public/js'));
 }
 
 //JS gulp-useref concatène tous les fichiers CSS ou JavaScript en un seul
@@ -143,7 +152,7 @@ gulp.task('useref', function () {
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(plugins.useref())
-        .pipe(gulp.dest('./public/dist'))
+        .pipe(gulp.dest('./public/dist'));
 });
 
 // Watch files

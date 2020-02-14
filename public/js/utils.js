@@ -1,4 +1,9 @@
 /**
+ * UTILS HTML 
+ */
+
+
+/**
  * @desc remove specific element based on ID on html 
  * @param string id - the class to remove in a specific attribute
  * @return 
@@ -22,32 +27,6 @@ function removeElementAndChilds(id) {
       parent.removeChild(parent.firstChild);
     }
   }
-}
-
-/**
- * @desc format a date to the following format DD/MM/YYYY
- * @param Date date - date to change format
- * @return string new format 
- */
-function getFormattedDate(date) {
-
-  var year = date.getFullYear();
-
-  var month = (1 + date.getMonth()).toString();
-  month = month.length > 1 ? month : '0' + month;
-
-  var day = date.getDate().toString();
-  day = day.length > 1 ? day : '0' + day;
-
-  return day + '/' + month + '/' + year;
-}
-
-// parse a date in dd/mm/yyyy format
-function parseDate(input) {
-  var parts = input.split('/');
-  console.log(parts);
-  var date = new Date(parts[0], parts[1] - 1, parts[2]).toString(); // Note: months are 0-based
-  return date.toDateString();
 }
 
 /**
@@ -84,7 +63,58 @@ function showElement(parentId) {
 function hideElement(parentId) {
   var p = document.getElementById(parentId);
   p.style.display = "none";
+  
 }
+
+function addButton(parentId, text, link, className = "btn btn-sm btn-primary shadow-sm mx-auto d-block") {
+  // 1. Create the button
+  var button = document.createElement("button");
+  button.className += className;
+  button.innerHTML = text;
+  button.addEventListener("click", function () {
+    window.open(link);
+  });
+  if (document.getElementById(parentId)) {
+    var myDiv = document.getElementById(parentId);
+    //appending button to div 
+    myDiv.appendChild(button);
+
+  }
+}
+
+
+/**
+ * UTILS DATES 
+ */
+
+/**
+ * @desc format a date to the following format DD/MM/YYYY
+ * @param Date date - date to change format
+ * @return string new format 
+ */
+function getFormattedDate(date) {
+
+  var year = date.getFullYear();
+
+  var month = (1 + date.getMonth()).toString();
+  month = month.length > 1 ? month : '0' + month;
+
+  var day = date.getDate().toString();
+  day = day.length > 1 ? day : '0' + day;
+
+  return day + '/' + month + '/' + year;
+}
+
+// parse a date in dd/mm/yyyy format
+function parseDate(input) {
+  var parts = input.split('/');
+  var date = new Date(parts[0], parts[1] - 1, parts[2]).toString(); // Note: months are 0-based
+  return date.toDateString();
+}
+
+/**
+ * UTILS OTHERS 
+ */
 
 /**
  * @desc convert hex to base 10 decimal
@@ -93,4 +123,12 @@ function hideElement(parentId) {
  */
 function hex2dec(hex) {
   return parseInt(hex, 16);
+}
+
+function isEmpty(obj) {
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key))
+      return false;
+  }
+  return true;
 }

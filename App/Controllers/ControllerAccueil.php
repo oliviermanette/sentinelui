@@ -7,8 +7,10 @@ use \App\Auth;
 use \App\Models\SiteManager;
 use \App\Models\AlertManager;
 use \App\Models\EquipementManager;
+use App\Models\InclinometerManager;
 use \App\Models\RecordManager;
 use \App\Models\SensorManager;
+use App\Utilities;
 
 /**
  * Controller Accueil
@@ -38,7 +40,9 @@ class ControllerAccueil extends Authenticated
     $nb_active_sensors = $sensorManager->getNumberActiveSensorFromDB("RTE");
     $nb_inactive_sensors =  $sensorManager->getNumberInactiveSensorFromDB("RTE");
     $nb_active_alerts = $alertManager->getNumberActiveAlertsForGroup($group_name);
-
+    
+    //Create object txt that will contain the brief records
+    Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
 
     View::renderTemplate('Homepage/accueil.html', [
       'nb_active_sensors' => $nb_active_sensors,
@@ -62,7 +66,7 @@ class ControllerAccueil extends Authenticated
 
     $equipementManager = new EquipementManager();
     $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
-    View::renderTemplate('Homepage/formSelect.html', [
+    View::renderTemplate('Others/changeEquipementForm.html', [
       'all_equipment' => $all_equipment,
     ]);
 
@@ -168,23 +172,19 @@ class ControllerAccueil extends Authenticated
   }
 
   public function getDataTableAfterSubmitAction(){
-
-
     $site_id = $_POST["site_request"];
     $equipement_id = $_POST["equipement_request"];
-    $dateMin = '';
-    $dateMax = '';
 
-    if (isset($_POST["dateMin"])){
-      $dateMin = $_POST["dateMin"];
+    if (isset($_POST["startDate"])){
+      $startDate = $_POST["startDate"];
     }
-    if (isset($_POST["dateMax"])){
-      $dateMax = $_POST["dateMax"];
+    if (isset($_POST["endDate"])){
+      $endDate = $_POST["endDate"];
     }
     $typeMSG = '';
 
     $recordManager = new RecordManager();
-    $all_specific_msg = $recordManager->getAllSpecificMsgForSpecificId($site_id, $equipement_id, $typeMSG, $dateMin, $dateMax );
+    $all_specific_msg = $recordManager->getAllSpecificMsgForSpecificId($site_id, $equipement_id, $typeMSG, $startDate, $endDate );
 
     View::renderTemplate('Homepage/viewTableDataSpecific.html', [
       'all_specific_msg'    => $all_specific_msg,
@@ -199,25 +199,14 @@ class ControllerAccueil extends Authenticated
   public function getAllChartsAction(){
     $site_id = $_POST["site_request"];
     $equipement_id = $_POST["equipement_request"];
+    $startDate = $_POST["startDate"];
+    $endDate = $_POST["endDate"];
 
-
-    $drawAll = $_POST["drawAll"];
     $recordManager = new RecordManager();
-    if ($drawAll == "true"){
-      $getAll = true;
-      $dateMin = $_POST["dateMin"];
-      $dateMax = $_POST["dateMax"];
 
-      $all_charts_data = $recordManager->getAllDataForChart($site_id, $equipement_id, $dateMin, $dateMax );
-      print json_encode($all_charts_data);
-    }else {
-      $type_msg = $_POST["type_msg_request"];
-      $sensor_id = $_POST["id_sensor_request"];
-      $time_data =  $_POST['time_data_request'];
-
-      $all_charts_data = $recordManager->getDataForSpecificChart($time_data, $type_msg, $sensor_id );
-      print json_encode($all_charts_data);
-    }
+    $all_charts_data = $recordManager->getAllDataForChart($site_id, $equipement_id, $startDate, $endDate );
+    print json_encode($all_charts_data);
+    
 
   }
 

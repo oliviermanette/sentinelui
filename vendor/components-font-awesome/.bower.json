@@ -35,15 +35,14 @@
     "composer.json"
   ],
   "homepage": "https://github.com/components/font-awesome",
-  "version": "5.11.2",
-  "_release": "5.11.2",
+  "version": "5.12.1",
+  "_release": "5.12.1",
   "_resolution": {
     "type": "version",
-    "tag": "5.11.2",
-    "commit": "f4f114c4ab37d101e6a15370769bc0af681792fa"
+    "tag": "5.12.1",
+    "commit": "f033e952d0e20684443c0466045deae61fd4e733"
   },
   "_source": "https://github.com/components/font-awesome.git",
   "_target": "^5.11.2",
-  "_originalSource": "components-font-awesome",
-  "_direct": true
+  "_originalSource": "components-font-awesome"
 }

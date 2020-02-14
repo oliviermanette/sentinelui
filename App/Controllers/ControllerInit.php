@@ -89,6 +89,16 @@ class ControllerInit extends \Core\Controller
 
     public function goTestTimeSeriesAction()
     {
+        $structure_id = 2;
+        $site_id = 26;
+        $date_request = '2020-01-10 15:39:02';
+        $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $structure_id, $date_request);
+        //var_dump($allSubSpectresArr);
+        $timeSerie = new TimeSeries();
+        $timeSerie->createFromSpectreArr($allSubSpectresArr);
+        //print_r($timeSerie->getTimeSerieData());
+        ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $date_request);
+        /*
         //Example1
         $allSpectreArr = array();
         $TS1_peakArr = array("520" => 1, "860" => 2);
@@ -113,7 +123,7 @@ class ControllerInit extends \Core\Controller
             //$combiArr =  Utilities::getCombinationFromArray($arrayTest);
             //echo "Nbre combination ".count($combiArr) ."\n";
             //print_r($combiArr);
-        }
+        }*/
     }
 
 
@@ -150,7 +160,7 @@ class ControllerInit extends \Core\Controller
     public static function downloadCSV($data, $date)
     {
         $timestamp = time();
-        $filename = 'Export_spectre_finistere_tower_106_' . $date . '.csv';
+        $filename = 'Export_spectre' . $date . '.csv';
 
         header('Content-Type: text/csv; charset=utf-8');
         header("Content-Disposition: attachment; filename=\"$filename\"");

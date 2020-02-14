@@ -30,6 +30,7 @@ class ChocManager extends \Core\Model
    */
   public function __construct($chocDataJson = null)
   {
+
     if (isset($chocDataJson)) {
       $dataChoc = $this->parseChocData($chocDataJson);
       $this->frequence_1 = $dataChoc["freq1"];
@@ -71,7 +72,7 @@ class ChocManager extends \Core\Model
           $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
       }
 
-      echo "\n";
+      echo "\n</br>";
       echo "\n Value power current choc : $this->power ";
       echo "\n Average choc last days : $avgPowerChoc \n";
       echo "\n High Tresh last days : $highTresh \n";
@@ -84,7 +85,6 @@ class ChocManager extends \Core\Model
         echo "No alert ! \n";
         return false;
       }
-    } else {
     }
   }
 
@@ -98,7 +98,7 @@ class ChocManager extends \Core\Model
    */
   public function setStdDevRule($rule)
   {
-    if ($rule > 0 && $rule < 4) {
+    if ($rule > 0 && $rule < 6) {
       $this->rule = $rule;
     }
   }
@@ -136,7 +136,7 @@ class ChocManager extends \Core\Model
     s.nom AS site,
     st.nom AS equipement,
     st.transmision_line_name AS ligneHT,
-    r.date_time,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
     r.payload,
     r.msg_type AS 'Type message',
     amplitude_1,
@@ -157,7 +157,7 @@ class ChocManager extends \Core\Model
     WHERE
     gn.name = :group_name
     AND Date(r.date_time) >= Date(sensor.installation_date)
-    ORDER BY Date(r.date_time) DESC
+    ORDER BY date_d DESC
     ";
 
     $stmt = $db->prepare($sql_choc_data);
@@ -178,7 +178,7 @@ class ChocManager extends \Core\Model
    * @return array  results from the query
  
    */
-  public static function computeAvgPowerChocForLast($sensor_id, $time_period = 30)
+  public static function computeAvgPowerChocForLast($sensor_id, $time_period = -1)
   {
     $db = static::getDB();
     $sql_avg = "SELECT 
@@ -188,17 +188,23 @@ class ChocManager extends \Core\Model
       (
         SELECT 
           `sensor_id`, 
-          r.date_time AS date_d, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
           power 
         FROM 
           choc AS inc 
           LEFT JOIN record AS r ON (r.id = inc.record_id) 
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE 
           `msg_type` LIKE 'choc' 
-          AND `sensor_id` LIKE :sensor_id 
-          AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY 
-          AND CURDATE() 
-        ORDER BY 
+          AND `sensor_id` LIKE :sensor_id ";
+
+    if ($time_period != -1) {
+      $sql_avg .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    } else {
+      $sql_avg .= "  AND Date(r.date_time) > s.installation_date ";
+    }
+
+    $sql_avg .= " ORDER BY 
           `date_d` DESC
       ) AS power_data 
     GROUP BY 
@@ -207,7 +213,9 @@ class ChocManager extends \Core\Model
 
     $stmt = $db->prepare($sql_avg);
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
-    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
 
     if ($stmt->execute()) {
       $results = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -240,7 +248,7 @@ class ChocManager extends \Core\Model
     (
       SELECT 
         `sensor_id`, 
-        Date(r.date_time) AS date_d, 
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         power 
       FROM 
         choc AS inc 
@@ -284,37 +292,45 @@ class ChocManager extends \Core\Model
    * compute variation between today and the last value 30 days ago
    * @return array  results from the query
    */
-  public function computeStdDevChocForLast($sensor_id, $time_period = 30)
+  public function computeStdDevChocForLast($sensor_id, $time_period = -1)
   {
     $db = static::getDB();
 
-    $sql_avg = "SELECT 
+    $sql_stdDev = "SELECT 
       sensor_id, 
       STDDEV(power) AS stdDev_power 
     FROM 
       (
         SELECT 
           `sensor_id`, 
-          r.date_time AS date_d, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
           power 
         FROM 
           choc AS inc 
           LEFT JOIN record AS r ON (r.id = inc.record_id) 
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE 
           `msg_type` LIKE 'choc' 
-          AND `sensor_id` LIKE :sensor_id 
-          AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY 
-          AND CURDATE() 
-        ORDER BY 
-          `date_d` DESC
-      ) AS power_data 
-    GROUP BY 
-      sensor_id
-    ";
+          AND `sensor_id` LIKE :sensor_id ";
 
-    $stmt = $db->prepare($sql_avg);
+    if ($time_period != -1) {
+      $sql_stdDev .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    } else {
+      $sql_stdDev .= "  AND Date(r.date_time) > s.installation_date ";
+    }
+
+    $sql_stdDev .= "ORDER BY 
+            `date_d` DESC
+          ) AS power_data 
+          GROUP BY 
+          sensor_id
+          ";
+
+    $stmt = $db->prepare($sql_stdDev);
     $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
-    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
 
     if ($stmt->execute()) {
       $results = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -347,7 +363,7 @@ class ChocManager extends \Core\Model
     (
       SELECT 
         `sensor_id`, 
-        Date(r.date_time) AS date_d, 
+        DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
         power 
       FROM 
         choc AS inc 
@@ -355,8 +371,8 @@ class ChocManager extends \Core\Model
       WHERE 
         `msg_type` LIKE 'choc' 
         AND `sensor_id` LIKE :sensor_id 
-        AND Date(r.date_time) BETWEEN :end_date
-        AND :start_date
+        AND Date(r.date_time) BETWEEN :start_date
+        AND :end_date
       ORDER BY 
         `date_d` DESC
     ) AS period_power_data 
@@ -411,7 +427,7 @@ class ChocManager extends \Core\Model
       (
         SELECT 
           sensor.id, 
-          r.date_time AS dateTime, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS dateTime,
           power 
         FROM 
           choc 
@@ -488,7 +504,7 @@ class ChocManager extends \Core\Model
       (
         SELECT 
           sensor.id, 
-          r.date_time AS dateTime, 
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS dateTime, 
           power 
         FROM 
           choc 
@@ -538,7 +554,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_last_choc = "SELECT 
-    r.date_time as date, 
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
     power 
     FROM 
     choc 
@@ -602,7 +618,7 @@ class ChocManager extends \Core\Model
    */
   public function getAllPowerDataChoc()
   {
-    $sql = "SELECT sensor.id, r.date_time, power
+    $sql = "SELECT sensor.id, DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d, power
     FROM choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     LEFT JOIN sensor ON (sensor.id = r.sensor_id)
@@ -700,7 +716,7 @@ class ChocManager extends \Core\Model
     (
       SELECT
       `sensor_id`,
-      DATE(`date_time`) AS date_d,
+      DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
       `amplitude_1`,
       `amplitude_2`,
       `time_1`,
@@ -711,9 +727,11 @@ class ChocManager extends \Core\Model
       FROM
       choc
       LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
       WHERE
       `msg_type` LIKE 'choc'
       AND `sensor_id` LIKE :sensor_id
+      AND Date(r.date_time) >= Date(s.installation_date)
     ) AS choc_data
     GROUP BY
     date_d
@@ -729,6 +747,171 @@ class ChocManager extends \Core\Model
       return $results;
     }
   }
+
+  /**
+   * 
+   * Get number of choc for last X days for a specific 
+   *  
+   
+   * @param int $deveui sensor deveui for which we want to compute the variation data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago
+   * @return array  results from the query
+   * date | number choc
+   */
+  public static function getNbChocForLast($deveui, $time_period)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc = "SELECT
+        date_d,
+        count(*) AS nb_choc
+        FROM
+        (
+          SELECT
+          `sensor_id`,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
+          `amplitude_1`,
+          `amplitude_2`,
+          `time_1`,
+          `time_2`,
+          `freq_1`,
+          `freq_2`,
+          `power`
+          FROM
+          choc
+          LEFT JOIN record AS r ON (r.id = choc.record_id)
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+          WHERE
+          `msg_type` LIKE 'choc'
+          AND s.deveui = :deveui
+          AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
+        ) AS choc_data
+        GROUP BY
+        date_d
+        ORDER BY
+        date_d ASC
+        ";
+
+    $stmt = $db->prepare($sql_nb_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  public static function getNbChocPerDayForDates($deveui, $startDate, $endDate)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc = "SELECT
+        date_d,
+        count(*) AS nb_choc
+        FROM
+        (
+          SELECT
+          `sensor_id`,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
+          `amplitude_1`,
+          `amplitude_2`,
+          `time_1`,
+          `time_2`,
+          `freq_1`,
+          `freq_2`,
+          `power`
+          FROM
+          choc
+          LEFT JOIN record AS r ON (r.id = choc.record_id)
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+          WHERE
+          `msg_type` LIKE 'choc'
+          AND s.deveui = :deveui
+          AND Date(r.date_time) BETWEEN :startDate AND :endDate) AS choc_data
+        GROUP BY
+        date_d
+        ORDER BY
+        date_d ASC
+        ";
+
+    $stmt = $db->prepare($sql_nb_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+    $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      return array();
+    } else {
+      return $results;
+    }
+  }
+  public static function getPowerChocPerDayForDates($deveui, $startDate, $endDate)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+      r.date_time AS date_d,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE
+      `msg_type` LIKE 'choc'
+      AND s.deveui = :deveui
+      AND Date(r.date_time) BETWEEN :startDate AND :endDate
+      ORDER BY `date_d` ASC
+        ";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+    $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      return array();
+    } else {
+      return $results;
+    }
+  }
+  //TODO COMMENT AND NETTOYER UN PEU CODE INUTILE
+  public static function getPowerChocForLast($deveui, $time_period)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+      r.date_time AS date_d,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE
+      `msg_type` LIKE 'choc'
+      AND s.deveui = :deveui
+      AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
+      ORDER BY `date_d` ASC
+        ";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
 
   /**
    * Get number of choc per week for a specific sensor
@@ -835,14 +1018,16 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-    DATE(r.date_time) AS date_d,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s')  AS date_d,
     `power`
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
     `msg_type` LIKE 'choc'
     AND `sensor_id` LIKE :sensor_id 
+    AND Date(r.date_time) >= Date(s.installation_date)
     ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);
@@ -867,7 +1052,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-    DATE(r.date_time) AS date_d,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
     `power`
     FROM
     choc

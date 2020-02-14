@@ -36,7 +36,8 @@
 
 <script>
     $(document).ready(function () {
-        $('#tableDataSensors thead tr').clone(true).appendTo('#tableDataSensors thead');
+        $.fn.dataTable.moment( 'DD/MM/YYYY' );
+        /*$('#tableDataSensors thead tr').clone(true).appendTo('#tableDataSensors thead');
         $('#tableDataSensors thead tr:eq(1) th').each(function (i) {
             if (i != 0) {
                 var title = $(this).text();
@@ -51,13 +52,19 @@
                     }
                 });
             }
-        });
+        });*/
 
         $('#tableDataSensors').DataTable({
+            responsive: true,
+            responsive: {
+                details: {
+                type: 'column',
+                target: 'tr'
+                }
+            },
             orderCellsTop: true,
             fixedHeader: true,
             "createdRow": function (row, data, dataIndex) {
-                console.log(data);
                 var status = data[4];
                 if (status == "active") {
                     $(row).css({
@@ -75,10 +82,18 @@
                 [10, 25, 50, -1],
                 [10, 25, 50, 'All']
             ],
-            "iDisplayLength": 20
+            "iDisplayLength": 20,
+            "order": [[ 5, "desc" ]]
         });
 
         $('#tableDataNewAlerts').DataTable({
+             responsive: true,
+            responsive: {
+                details: {
+                type: 'column',
+                target: 'tr'
+                }
+            },
             "createdRow": function (row, data, dataIndex, cells) {
                 var type_raw_message = data[1];
                 var statut = data[7];
@@ -105,6 +120,12 @@
                         break;
                 }
             },
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
             "lengthMenu": [
                 [10, 25, 50, -1],
                 [10, 25, 50, 'All']
@@ -113,6 +134,13 @@
         });
 
         $('#tableDataProcessedAlerts').DataTable({
+            responsive: true,
+            responsive: {
+                details: {
+                type: 'column',
+                target: 'tr'
+                }
+            },
             "createdRow": function (row, data, dataIndex, cells) {
                 var type_raw_message = data[1];
                 var statut = data[7];

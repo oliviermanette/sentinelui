@@ -38,13 +38,12 @@ class RecordManager extends \Core\Model
 
     //Check what kind of message we received from the sensor
     $type_msg = RecordManager::checkTypeMessage($type_msg);
-
+    
     if ($type_msg == "uplink") {
       //Classic message which has the raw data value (inclinometer...)
       $uplinkDataArr = RecordManager::extractUplinkData($data);
-      //Add equipement type structure
+      //Add equipement
       EquipementManager::insertStructureType($uplinkDataArr["type_asset"]);
-  
 
       //As we received a payload message, we need to decode it
       $payload_msg_json = RecordManager::decodePayload($uplinkDataArr["payload_cleartext"]);
@@ -53,13 +52,13 @@ class RecordManager extends \Core\Model
       #Add date time attribute to the decoded payload
       $payload_decoded_json['date_time'] = $uplinkDataArr["date_time"];
       $payload_decoded_json['deveui'] = $uplinkDataArr["deveui"];
-
+  
       $sensor_id = $sensorManager->getSensorIdFromDeveui($uplinkDataArr["deveui"]);
       $equipement_id = $equipementManager->getEquipementIdBySensorId($sensor_id);
 
       //Get the type of message received from the uplink (choc, inclinometer, global, spectre)
       $type_msg = $payload_decoded_json["type"];
-      //print_r($payload_decoded_json);
+    
       //Insert a record inside the Record table of the DB
       $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["transmission_line_name"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
       
@@ -67,14 +66,16 @@ class RecordManager extends \Core\Model
         if ($type_msg == "choc") {
 
           $chocManager = new ChocManager($payload_decoded_json);
-
+          
           if (!$chocManager->insertChocData($payload_decoded_json)) {
             return false;
           }
+          $group_name = $uplinkDataArr["group_name"];
+          $shockTreshSTD = SettingManager::getShockThresh($group_name);
+          $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
 
-          $time_period = 30;
-          $chocManager->setStdDevRule(1);
-          $hasAlert = $chocManager->check($sensor_id, 30);
+          $chocManager->setStdDevRule($shockTreshSTD);
+          $hasAlert = $chocManager->check($sensor_id, $timePeriodCheck);
           $chocValue = $chocManager->getPowerValueChoc();
 
           //Create new alert if it's the case
@@ -102,11 +103,63 @@ class RecordManager extends \Core\Model
         }
         //Inclinometer data
         else if ($type_msg == "inclinometre") {
-          $inclinometreManager = new InclinometerManager();
+          
+          $inclinometreManager = new InclinometerManager($payload_decoded_json);
 
           if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
             return false;
           }
+
+          $group_name = $uplinkDataArr["group_name"];
+          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
+          $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
+          
+          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
+
+          $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
+          $hasAlertArr = $inclinometreManager->check($sensor_id, $timePeriodCheck);
+
+          
+          if ($hasAlertArr["alertOnX"]){
+            $angleX = $inclinometreManager->getAngleX();
+            $eventDataArr = array(
+              "label"  => "high_inclinometer_variationX",
+              "deveui"  => $uplinkDataArr["deveui"],
+              "date_time"  => $uplinkDataArr["date_time"],
+              "equipement_id"  => $equipement_id,
+              "value"  => $angleX
+            );
+            $alertManager = new AlertManager($eventDataArr);
+            $alertManager->createFromArr($eventDataArr);         
+          }
+          if ($hasAlertArr["alertOnY"]) {
+            $angleY = $inclinometreManager->getAngleY();
+            $eventDataArr = array(
+              "label"  => "high_inclinometer_variationY",
+              "deveui"  => $uplinkDataArr["deveui"],
+              "date_time"  => $uplinkDataArr["date_time"],
+              "equipement_id"  => $equipement_id,
+              "value"  => $angleY
+            );
+            $alertManager = new AlertManager($eventDataArr);
+            $alertManager->createFromArr($eventDataArr);
+          }
+          if ($hasAlertArr["alertOnZ"]) {
+            $angleZ = $inclinometreManager->getAngleZ();
+            $eventDataArr = array(
+              "label"  => "high_inclinometer_variationY",
+              "deveui"  => $uplinkDataArr["deveui"],
+              "date_time"  => $uplinkDataArr["date_time"],
+              "equipement_id"  => $equipement_id,
+              "value"  => $angleZ
+            );
+
+            $alertManager = new AlertManager($eventDataArr);
+            $alertManager->createFromArr($eventDataArr);
+          }
+          
+          
+        
         }
         //Subspectre data
         else if ($type_msg == "spectre") {
@@ -124,7 +177,7 @@ class RecordManager extends \Core\Model
 
       //If event defined in Objenious 
     } else if ($type_msg == "event") {
-
+      
       $eventDataArr = RecordManager::extractEventData($data);
 
       $sensor_id = $sensorManager->getSensorIdFromDeveui($eventDataArr["deveui"]);
@@ -309,6 +362,7 @@ class RecordManager extends \Core\Model
     $profile = $data['profile'];
     $profile_id = $data['profile_id'];
     $group = $data['group'];
+    $group = explode("-", $group)[0];
     $group_id = $data['group_id'];
     $type = $data['type'];
     $device_id = $data['device_id'];
@@ -465,6 +519,9 @@ class RecordManager extends \Core\Model
       SELECT date_time FROM record WHERE date_time = :date_time
     ) LIMIT 1';
 
+    echo "\nDeveui : ". $deveui_sensor ."\n";
+    echo "\name_asset : " . $name_asset . "\n";
+    echo "\date_time : " . $date_time . "\n";
     $db = static::getDB();
     $stmt = $db->prepare($data_record);
 
@@ -774,7 +831,7 @@ class RecordManager extends \Core\Model
   public function getDateLastReceivedData($structure_id)
   {
     $db = static::getDB();
-    $sql_last_date = "SELECT MAX(DATE(r.date_time)) as dateMaxReceived
+    $sql_last_date = "SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') as dateMaxReceived
     FROM record as r
     WHERE r.structure_id = :structure_id";
 
@@ -796,8 +853,8 @@ class RecordManager extends \Core\Model
   function getDateMinMaxFromRecord()
   {
     $db = static::getDB();
-    $query_min_max_date = "SELECT (SELECT Max(date_time) FROM record) AS MaxDateTime,
-    (SELECT Min(date_time) FROM record) AS MinDateTime";
+    $query_min_max_date = "SELECT (SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') FROM record) AS fistActivity,
+    (SELECT DATE_FORMAT(MIN(Date(date_time)), '%d/%m/%Y') FROM record) AS lastActivity";
 
     $stmt = $db->prepare($query_min_max_date);
     $data = array();
@@ -805,8 +862,8 @@ class RecordManager extends \Core\Model
 
       $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      $min_date_time = $row["MinDateTime"];
-      $max_date_time = $row["MaxDateTime"];
+      $min_date_time = $row["fistActivity"];
+      $max_date_time = $row["lastActivity"];
       $min_date = date('d-m-Y', strtotime($min_date_time));
       $max_date = date('d-m-Y', strtotime($max_date_time));
 
@@ -830,23 +887,27 @@ class RecordManager extends \Core\Model
     $db = static::getDB();
 
     $query_get_number_record = "
-        SELECT 
+    SELECT 
     sensor_id, 
+    deveui,
     site, 
     ligneHT, 
     equipement, 
     nb_messages,
     nb_choc, 
     DATE_FORMAT(
-      last_message_received, '%d/%m/%Y'
+      last_message_received, '%d/%m/%Y %H:%i:%s'
     ) AS `last_message_received` ,
+    DATE_FORMAT(date_installation, '%d/%m/%Y') AS 'date_installation',
     status
   FROM 
     (
       SELECT 
         sensor.device_number AS 'sensor_id', 
+        sensor.deveui AS 'deveui',
+        sensor.installation_date AS 'date_installation',
         s.nom AS `site`, 
-         sensor.status AS status,
+        sensor.status AS status,
         st.transmision_line_name AS `LigneHT`, 
         st.nom AS `equipement`, 
         sum(
@@ -854,31 +915,63 @@ class RecordManager extends \Core\Model
         ) AS 'nb_choc', 
         count(*) AS 'nb_messages', 
         Max(
-          Date(r.date_time)
+          r.date_time
         ) AS `last_message_received` 
       FROM 
-        record AS r 
-        INNER JOIN structure AS st ON st.id = r.structure_id 
-        INNER JOIN site AS s ON s.id = st.site_id 
-        INNER JOIN sensor ON (sensor.id = r.sensor_id) 
-        INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
-        INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
+        sensor
+        LEFT JOIN record AS r ON (r.sensor_id = sensor.id)
+        LEFT JOIN structure AS st ON st.id = r.structure_id 
+        LEFT JOIN site AS s ON s.id = st.site_id 
+        LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
+        LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
       WHERE 
         gn.name = :group_name 
-        AND Date(r.date_time) >= Date(sensor.installation_date) 
+      
       GROUP BY 
+        sensor.deveui,
+        sensor.device_number,
+        sensor.installation_date,
+        sensor.status,
         r.sensor_id, 
         st.nom, 
         s.nom, 
         st.transmision_line_name
     ) AS all_message_rte_sensor";
-
+    //  AND Date(r.date_time) >= Date(sensor.installation_date) 
     $stmt = $db->prepare($query_get_number_record);
     $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $res = $stmt->fetchAll();
-      return $res;
+      $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      //Get variation inclinometer 
+      $newDataArr = array();
+      foreach ($res as $data){
+        $deveui=$data["deveui"];
+        //$sensor_deveui = SensorManager::getDeveuiFromLabel($sensor_label);
+        $variationArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, -1, 3);
+        $variationX = $variationArr["pourcentage_variation_angleX"];
+        $variationY = $variationArr["pourcentage_variation_angleY"];
+        $variationZ = $variationArr["pourcentage_variation_angleZ"];
+        //echo $variationX . "</br>\n";
+        if (empty($variationX) ){
+          $variationX = 0;
+        }
+        if (empty($variationY)) {
+          $variationY = 0;
+        }
+        if (empty($variationZ)) {
+          $variationZ = 0;
+        }
+        $data["variationX"] = $variationX;
+        $data["variationY"] = $variationY;
+        $data["variationZ"] = $variationZ; 
+        array_push($newDataArr, $data);
+      }
+      
+      $tmpArr = array();
+      $obj = new \stdClass();
+      $obj->data = $newDataArr;
+      return $obj;
     }
   }
 
@@ -981,7 +1074,8 @@ class RecordManager extends \Core\Model
 
     $db = static::getDB();
 
-    $sql_query_all_specific_msg =  "SELECT r.sensor_id AS `sensorID`, r.date_time AS `dateTime`,
+    $sql =  "SELECT sensor.device_number AS `sensorID`, 
+    DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS `dateTime`,
     r.msg_type AS `typeMessage`, s.nom AS `site`, st.nom AS `equipement`
     FROM record as r
     LEFT JOIN sensor on sensor.id=r.sensor_id
@@ -992,21 +1086,21 @@ class RecordManager extends \Core\Model
     WHERE ";
 
     if (!empty($dateMin) && !empty($dateMax)) {
-      $sql_query_all_specific_msg =  "(date(r.date_time) BETWEEN date(CONCAT(:date_min, '%')) and date(CONCAT(:date_max, '%'))) AND ";
+      $sql .= "date(r.date_time) BETWEEN date(:date_min) and date(:date_max) AND ";
     }
 
-    $sql_query_all_specific_msg .= "Date(r.date_time) >= Date(sensor.installation_date)
-    AND s.id LIKE :site_id AND r.msg_type LIKE CONCAT(:type_msg, '%') AND st.id LIKE :equipment_id order by r.date_time desc ";
+    $sql .= "Date(r.date_time) >= Date(sensor.installation_date)
+      AND s.id = :site_id AND st.id = :equipment_id order by r.date_time desc ";
 
-    $stmt = $db->prepare($sql_query_all_specific_msg);
+    $stmt = $db->prepare($sql);
 
     if (!empty($dateMin) && !empty($dateMax)) {
       $stmt->bindValue(':date_min', $dateMin, PDO::PARAM_STR);
       $stmt->bindValue(':date_max', $dateMax, PDO::PARAM_STR);
     }
-    $stmt->bindValue(':type_msg', $typeMSG, PDO::PARAM_STR);
-    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_STR);
-    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_STR);
+    //$stmt->bindValue(':type_msg', $typeMSG, PDO::PARAM_INT);
+    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
+    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
 
@@ -1021,195 +1115,23 @@ class RecordManager extends \Core\Model
     $db = static::getDB();
     //All
     $data = array();
+    $data["site_id"] = $site_id;
+    $data["equipment_id"] = $equipment_id;
     //Find ID sensor from site ID and equipement ID
-    $sql_query_id =  "SELECT DISTINCT(`sensor_id`) FROM `record` AS r
-    JOIN structure as st ON (st.id=r.structure_id)
-    JOIN site as s ON (s.id=st.site_id)
-    WHERE s.id = :site_id AND st.id = :equipment_id ";
-
-    $stmt = $db->prepare($sql_query_id);
-
-    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
-    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_INT);
-
-    $stmt->execute();
-    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    $sensor_id = $res['sensor_id'];
-
-    //Temperature
-    $sql_query_temperature = "SELECT
-    `temperature`,
-    DATE(r.date_time) AS date_d
-    FROM
-    inclinometer AS inc
-    LEFT JOIN record AS r ON (r.id = inc.record_id)
-    LEFT JOIN sensor on sensor.id = r.sensor_id
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE
-    gn.name = :group_name
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    AND `msg_type` LIKE :msg_type
-    AND r.sensor_id LIKE :sensor_id
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    ORDER BY
-    `date_d` DESC";
-
-    $stmt = $db->prepare($sql_query_temperature);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $stmt->bindValue(':msg_type', "inclinometre", PDO::PARAM_STR);
-    $stmt->bindValue(':group_name', $_SESSION['group_name'], PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data["temperature_data"][] = $row;
-      }
-    }
-
-    $query_inclinometre = "SELECT r.sensor_id, DATE(r.date_time) AS date_d,  inc.nx, inc.ny, inc.nz, angle_x, angle_y, angle_z, temperature
-    FROM inclinometer AS inc
-    LEFT JOIN record AS r ON (r.id = inc.record_id)
-    LEFT JOIN sensor on sensor.id=r.sensor_id
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE
-    gn.name = :group_name
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    AND `msg_type` LIKE :msg_type
-    AND r.sensor_id LIKE :sensor_id
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-    ORDER BY
-    `date_d` DESC";
-
-    $stmt = $db->prepare($query_inclinometre);
-
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $stmt->bindValue(':msg_type', "inclinometre", PDO::PARAM_STR);
-    $stmt->bindValue(':group_name', $_SESSION['group_name'], PDO::PARAM_STR);
-
-    $stmt->execute();
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data["inclinometre_data"][] = $row;
-      }
-    }
-
-
-    //Simplifier TODO
-    $sql_query_date_max_choc = "SELECT
-    MAX(date_d) AS max_date
-    FROM
-    (
-      SELECT
-      `sensor_id`,
-      DATE(r.date_time) AS date_d,
-      amplitude_1,
-      amplitude_2,
-      time_1,
-      time_2,
-      freq_1,
-      freq_2,
-      power
-      FROM
-      choc
-      LEFT JOIN record AS r ON (r.id = choc.record_id)
-      LEFT JOIN sensor on sensor.id = r.sensor_id
-      WHERE
-      `msg_type` LIKE :msg_type
-      AND `sensor_id` LIKE :sensor_id
-      AND Date(r.date_time) >= Date(sensor.installation_date)
-    ) AS TMP";
-
-    $stmt = $db->prepare($sql_query_date_max_choc);
-    $stmt->bindValue(':msg_type', "choc", PDO::PARAM_STR);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-    $stmt->execute();
-
-    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    $max_date_choc = $res['max_date'];
-
-
-    $sql_query_choc = "SELECT
-    `sensor_id`,
-    DATE(`date_time`) AS date_d,
-    amplitude_1,
-    amplitude_2,
-    time_1,
-    time_2,
-    freq_1,
-    freq_2,
-    power
-    FROM
-    choc
-    LEFT JOIN record AS r ON (r.id = choc.record_id)
-    WHERE
-    `msg_type` LIKE :msg_type
-    AND `sensor_id` LIKE :sensor_id
-    AND DATE(r.date_time) = :max_date_choc";
-
-    $stmt = $db->prepare($sql_query_choc);
-
-    $stmt->bindValue(':msg_type', "choc", PDO::PARAM_STR);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $stmt->bindValue(':max_date_choc', $max_date_choc, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data["choc_data"][] = $row;
-      }
-    }
-
-
-    //All Spectre
-    $sql_query_date_max_spectre = "SELECT
-    MAX(date_d) AS max_date
-    FROM
-    (
-      SELECT
-      s.nom AS site,
-      st.nom AS equipement,
-      r.sensor_id,
-      r.date_time as date_d,
-      subspectre,
-      subspectre_number,
-      min_freq,
-      max_freq,
-      resolution
-      FROM
-      spectre AS sp
-      LEFT JOIN record AS r ON (r.id = sp.record_id)
-      JOIN sensor on sensor.id = r.sensor_id
-      JOIN structure as st ON (st.id = r.structure_id)
-      JOIN site as s ON (s.id = st.site_id)
-      WHERE
-      sp.subspectre_number LIKE '001'
-      AND r.sensor_id LIKE :sensor_id
-      AND Date(r.date_time) >= Date(sensor.installation_date)
-      ORDER BY
-      r.date_time ASC
-    ) AS first_subspectre_msg";
-
-    $stmt = $db->prepare($sql_query_date_max_spectre);
-
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-    $stmt->execute();
-
-    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    $max_date = $res['max_date'];
-
-
-    $query_all_dates = "SELECT Date(r.date_time) as date_d FROM
+    $sensor_id = SensorManager::getSensorIdUsingSiteAndEquipementID($site_id, $equipment_id);
+    
+    $query_all_dates = "SELECT r.date_time as date_d FROM
     `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)
+    JOIN sensor ON (sensor.id=r.sensor_id)
     JOIN structure as st ON (st.id=r.structure_id)
     JOIN site as s ON (s.id=st.site_id)
-    WHERE sp.subspectre_number LIKE '001' AND r.sensor_id LIKE :sensor_id ";
+    WHERE sp.subspectre_number = '001' AND r.sensor_id = :sensor_id 
+    AND Date(r.date_time) >= Date(sensor.installation_date) ";
     if (!empty($dateMin) && !empty($dateMax)) {
       $query_all_dates .= "AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
     }
-    $query_all_dates .= "ORDER BY r.date_time ASC";
+    $query_all_dates .= "ORDER BY r.date_time DESC";
 
     //echo "</br>";
     $stmt = $db->prepare($query_all_dates);
@@ -1217,18 +1139,19 @@ class RecordManager extends \Core\Model
     $spectrenumber = 0;
     if ($stmt->execute()) {
       $row_date_ = $stmt->fetchAll();
-
+      
       foreach ($row_date_ as $row_date) {
         $spectre_name = 'spectre_' . $spectrenumber;
         $current_date = $row_date['date_d'];
         //Reconstruct the all spectre for the current date
-        $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, Date(r.date_time) AS date,
+        $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, r.date_time AS date,
         `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
         JOIN record AS r ON (r.id=sp.record_id)
         JOIN structure as st ON (st.id=r.structure_id)
         JOIN site as s ON (s.id=st.site_id)
-        WHERE r.sensor_id LIKE :sensor_id AND (DATE(r.date_time) BETWEEN DATE('$current_date') AND DATE_ADD('$current_date', INTERVAL 4 DAY))
-        ORDER BY r.date_time ASC";
+        WHERE r.sensor_id = :sensor_id AND r.date_time >= '$current_date'
+        ORDER BY r.date_time ASC 
+        LIMIT 5";
 
         $stmt = $db->prepare($query_all_spectre_i);
         $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
@@ -1241,11 +1164,9 @@ class RecordManager extends \Core\Model
         $spectrenumber++;
       }
     }
-    //print json_encode($data);
     return $data;
     //
   }
-
 
   public function getDataForSpecificChart($time_data, $type_msg, $sensor_id)
   {

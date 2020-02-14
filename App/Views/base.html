@@ -9,23 +9,32 @@
 
   <base href="/">
 
-  <!-- Bootstrap core JavaScript-->
+
+  <!-- Jquery core JavaScript-->
   <script src="public/vendor/jquery/jquery.min.js"></script>
   <script src="public/vendor/datatables/jquery.dataTables.min.js"></script>
+  <!-- Bootstrap core JavaScript-->
   <script src="public/vendor/bootstrap/js/bootstrap.min.js"></script>
   <script src="public/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="public/vendor/semantic/semantic.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+
 
 
   <!-- Bootstrap core CSS -->
-  <link rel="stylesheet" type="text/css" href="public/vendor/semantic/semantic.min.css">
-  <link rel="stylesheet" href="public/vendor/bootstrap/css/bootstrap.min.css">
-
+  <link href="public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="public/vendor/bootstrap-daterangepicker/css/daterangepicker.css" rel="stylesheet">
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+  <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css" rel="stylesheet"
+    type="text/css">
 
-  <!--<link rel="stylesheet" type="text/css" href="public/vendor/datables/jquery.dataTables.min.css"> -->
+  <!-- Date range picker core CSS -->
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin="" />
   <link rel="stylesheet" href="public/css/style.css">
 
   <!-- Custom fonts for this template-->
@@ -74,7 +83,7 @@
       <li class="nav-item">
         <a class="nav-link" href="/search-data">
           <i class="fas fa-fw fa-chart-area"></i>
-          <span>Données</span></a>
+          <span>Spectres</span></a>
       </li>
 
       <!-- Nav Item - Choc -->
@@ -84,38 +93,38 @@
           <span>Chocs</span></a>
       </li>
 
-            <!-- Nav Item - Alerte -->
-            <li class="nav-item">
-              <a class="nav-link" href="/alerts">
-                <i class="fas fa-bell"></i>
-                <span>Alertes</span></a>
-            </li>
+      <!-- Nav Item - Alerte -->
+      <li class="nav-item">
+        <a class="nav-link" href="/alerts">
+          <i class="fas fa-bell"></i>
+          <span>Alertes</span></a>
+      </li>
 
-            <!-- Nav Item - Alerte -->
-            <li class="nav-item">
-              <a class="nav-link" href="/sensors">
-                <i class="fab fa-bandcamp"></i>
-                <span>Capteurs</span></a>
-            </li>
+      <!-- Nav Item - Alerte -->
+      <li class="nav-item">
+        <a class="nav-link" href="/sensors">
+          <i class="fab fa-bandcamp"></i>
+          <span>Capteurs</span></a>
+      </li>
 
-          <!-- Divider -->
-          <hr class="sidebar-divider d-none d-md-block">
-             <!-- Heading -->
-             <div class="sidebar-heading">
-               Administration
-             </div>
+      <!-- Divider -->
+      <hr class="sidebar-divider d-none d-md-block">
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        Administration
+      </div>
 
-             <!-- Nav Item - Dashboard -->
-             <li class="nav-item">
-               <a class="nav-link" href="/settings">
-                 <i class="fas fa-fw fa-tachometer-alt"></i>
-                 <span>Paramètres</span></a>
-             </li>
-             <li class="nav-item">
-               <a class="nav-link" href="/support">
-                 <i class="fas fa-ticket-alt"></i>
-                 <span>Support</span></a>
-             </li>
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item">
+        <a class="nav-link" href="/settings">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Paramètres</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/support">
+          <i class="fas fa-ticket-alt"></i>
+          <span>Support</span></a>
+      </li>
 
 
 
@@ -188,7 +197,7 @@
                 <i class="fas fa-bell fa-fw"></i>
                 <!-- Counter - Alerts -->
                 {% if current_alerts|length > 3 %}
-                 <span class="badge badge-danger badge-counter">{{ current_alerts|length }}+</span>
+                <span class="badge badge-danger badge-counter">{{ current_alerts|length }}+</span>
                 {% else %}
                 <span class="badge badge-danger badge-counter">{{ current_alerts|length }}</span>
                 {% endif %}
@@ -200,19 +209,19 @@
                   Alerts Center
                 </h6>
                 {% for row in current_alerts %}
-                   <a class="dropdown-item d-flex align-items-center" href="/alerts">
-                     <div class="mr-3">
-                       <div class="icon-circle bg-warning">
-                         <i class="fas fa-exclamation-triangle text-white"></i>
-                       </div>
-                     </div>
-                     <div>
-                       <div class="small text-gray-500">{{row.date_time}}</div>
-                       <span class="font-weight-bold">{{row.label}}</span>
-                       <span>{{row.equipement_name}} </span>
-                        <span>{{row.ligneHT}} </span>
-                     </div>
-                   </a>
+                <a class="dropdown-item d-flex align-items-center" href="/alerts">
+                  <div class="mr-3">
+                    <div class="icon-circle bg-warning">
+                      <i class="fas fa-exclamation-triangle text-white"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="small text-gray-500">{{row.date_time}}</div>
+                    <span class="font-weight-bold">{{row.label}}</span>
+                    <span>{{row.equipement_name}} </span>
+                    <span>{{row.ligneHT}} </span>
+                  </div>
+                </a>
                 {% endfor %}
                 <a class="dropdown-item text-center small text-gray-500" href="/alerts">Montrer toutes les alertes</a>
               </div>
@@ -224,20 +233,20 @@
               <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-envelope fa-fw"></i>-->
-                <!-- Counter - Messages -->
-                <!--
+            <!-- Counter - Messages -->
+            <!--
                 <span class="badge badge-danger badge-counter">0</span>
                
               </a> -->
-              <!-- Dropdown - Messages -->
-              <!--
+            <!-- Dropdown - Messages -->
+            <!--
               <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                 aria-labelledby="messagesDropdown">
                 <h6 class="dropdown-header">
                   Message Center
                 </h6>
                 -->
-                <!--
+            <!--
                     <a class="dropdown-item d-flex align-items-center" href="#">
                       <div class="dropdown-list-image mr-3">
                         <img class="rounded-circle" src="https://source.unsplash.com/fn_BT9fwg_E/60x60" alt="">
@@ -352,13 +361,19 @@
     <script src="public/js/sentive.min.js"></script>
 
     <!-- Page level plugins -->
-    <script src="public/vendor/chart.js/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
-    <script type="text/javascript" src="public/vendor/jquery-validation/jquery.validate.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.10.20/sorting/datetime-moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <!-- bootstrap-daterangepicker -->
+    <script src="public/vendor/bootstrap-daterangepicker/js/daterangepicker.js"></script>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+      integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+      crossorigin=""></script>
     <script src="public/vendor/leaflet/Leaflet.Control.Custom.js"></script>
 
     <script src="public/js/drawing.js"></script>

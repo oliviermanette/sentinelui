@@ -9,6 +9,7 @@ use \App\Auth;
 use \App\Flash;
 use App\Models\AlertManager;
 use App\Models\BatteryManager;
+use App\Models\ChocManager;
 
 /**
  * Sensors controller
@@ -39,6 +40,12 @@ class ControllerSensors extends Authenticated
      * @return void
      */
     public function infoAction(){
+
+        //TEST
+        //$data = InclinometerManager::computeDailyVariationPercentageAngleForLast("0004A30B00E84D17",-1);
+        //$data = InclinometerManager::computeMonthlyVariationPercentageAngleForLast("0004A30B00E7D50F", -1);
+        //END TEST
+        //exit();
         $label_device = $this->route_params["deviceid"];
         $deveui = SensorManager::getDeveuiFromLabel($label_device);
         $id_objenious = SensorManager::getDeviceIdObjeniousFromLabel($label_device);
@@ -57,6 +64,9 @@ class ControllerSensors extends Authenticated
         
         //get activity of sensors
         $recordRawArr = SensorManager::getRecordsFromDeveui($deveui);
+        $date_min_max = SensorManager::getDateMinMaxActivity($deveui);
+        $firstActivity = $date_min_max[0];
+        $lastActivity = $date_min_max[1];
 
         //Get alerts of the sensors
         $activeAlertsArr = AlertManager::getActiveAlertsInfoTableForSensor($deveui);
@@ -69,6 +79,10 @@ class ControllerSensors extends Authenticated
         }
 
         //Get inclinometer data
+        //References values
+        $inclinaisonRefArr = InclinometerManager::getValuesReference($deveui, -1);
+        //var_dump($inclinaisonRefArr);
+        
         //1.Variation 1 month (30 days)
         $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 30);
         //2.Variation 1 week (7 days)
@@ -79,12 +93,44 @@ class ControllerSensors extends Authenticated
         $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
         
         //4. chart data
+        //Inclinometer
         $inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
         $inclinometerDataMonthArr = json_encode($inclinometerDataMonthArr);
         $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
         $inclinometerDataWeekArr = json_encode($inclinometerDataWeekArr);
-        
+
+        //
+        $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationDayArr = json_encode($percentageVariationDayArr);
+        $percentageVariationWeekArr = InclinometerManager::computeWeeklyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationWeekArr = json_encode($percentageVariationWeekArr);
+        $percentageVariationMonthArr = InclinometerManager::computeMonthlyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationMonthArr = json_encode($percentageVariationMonthArr);
+        //Choc
+        //Nb choc
+        $nbChocDataMonthArr = ChocManager::getNbChocForLast($deveui,30);
+        $nbChocDataMonthArr = json_encode($nbChocDataMonthArr);
+        $nbChocDataWeekArr = ChocManager::getNbChocForLast($deveui, 7);
+        $nbChocDataWeekArr = json_encode($nbChocDataWeekArr);
+        $nbChocDataDay = ChocManager::getNbChocForLast($deveui, 1);
+        $nbChocDataDay = json_encode($nbChocDataDay);
+
+        //Power choc
+        $powerChocDataMonthArr = ChocManager::getPowerChocForLast($deveui, 30);
+        $powerChocDataMonthArr = json_encode($powerChocDataMonthArr);
+        $powerChocDataWeekArr = ChocManager::getPowerChocForLast($deveui, 7);
+        $powerChocDataWeekArr = json_encode($powerChocDataWeekArr);
+        $powerChocDataDayArr = ChocManager::getPowerChocForLast($deveui, 1);
+        $powerChocDataDayArr = json_encode($powerChocDataDayArr);
+
+        //Temperature data
+        $tempArr = InclinometerManager::getTemperatureRecordsForSensor($deveui,-1);
+        $tempArr = json_encode($tempArr);
+
         View::renderTemplate('Sensors/infoDevice.html', [
+            'deveui' => $deveui,
+            'firstActivity' => $firstActivity,
+            'lastActivity' => $lastActivity,
             'infoArr' => $infoArr,
             'dataMapArray' => $dataMapArr,
             'activeAlertsArr' => $activeAlertsArr,
@@ -93,8 +139,46 @@ class ControllerSensors extends Authenticated
             'totalVariationArr' => $totalVariationArr,
             'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
             'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
+            'nbChocDataMonthArr' => $nbChocDataMonthArr,
+            'nbChocDataWeekArr' => $nbChocDataWeekArr,
+            'nbChocDataDay' => $nbChocDataDay,
+            'powerChocDataMonthArr' => $powerChocDataMonthArr,
+            'powerChocDataDayArr' => $powerChocDataDayArr,
+            'powerChocDataWeekArr' => $powerChocDataWeekArr,
+            'percentageVariationDayArr' => $percentageVariationDayArr,
+            'percentageVariationWeekArr' => $percentageVariationWeekArr,
+            'percentageVariationMonthArr' => $percentageVariationMonthArr,
+            'inclinaisonRefArr' => $inclinaisonRefArr,
+            'temperatureArr' => $tempArr,
         ]);
 
+    }
+
+    public function getChartDataNbChocAction(){
+        if (isset($_POST["deveui"]) && isset($_POST["startDate"]) && isset($_POST["endDate"])){
+            
+            $startDate = $_POST["startDate"];
+            $endDate = $_POST["endDate"];
+            $deveui = $_POST["deveui"];
+            $nbChocData = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
+            
+
+            print json_encode($nbChocData);
+        }
+    }
+
+    public function getChartDataPowerChocAction()
+    {
+        if (isset($_POST["deveui"]) && isset($_POST["startDate"]) && isset($_POST["endDate"])) {
+
+            $startDate = $_POST["startDate"];
+            $endDate = $_POST["endDate"];
+            $deveui = $_POST["deveui"];
+            $nbChocData = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
+
+
+            print json_encode($nbChocData);
+        }
     }
 
     /**

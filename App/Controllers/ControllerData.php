@@ -7,6 +7,9 @@ use \App\Auth;
 use App\Models\ChartsManager;
 use \App\Models\InclinometerManager;
 use \App\Models\SiteManager;
+use \App\Models\SpectreManager;
+use \App\Models\TimeSeriesManager;
+use \App\Models\TimeSeries;
 use \App\Models\EquipementManager;
 use \App\Models\SensorManager;
 use \App\Models\ScoreManager;
@@ -44,8 +47,6 @@ class ControllerData extends Authenticated
     $all_equipment = $equipementManager->getEquipements($group_name);
 
     $recordManager = new RecordManager();
-    $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
-
 
     $date_min_max = $recordManager->getDateMinMaxFromRecord();
 
@@ -57,7 +58,6 @@ class ControllerData extends Authenticated
       'all_equipment' => $all_equipment,
       'min_date' => $min_date,
       'max_date' => $max_date,
-      'brief_data_record' => $brief_data_record,
     ]);
   }
 
@@ -102,54 +102,7 @@ class ControllerData extends Authenticated
   }
 
 
-  /*
-  public function getResultsFromSpectreFormAction()
-  {
 
-
-    $equipementManager = new EquipementManager();
-    $recordManager = new RecordManager();
-    $scoreManager = new ScoreManager();
-    $chocManager = new ChocManager();
-    $siteManager = new SiteManager();
-    $inclinometerManager = new InclinometerManager();
-    $sensorManager = new SensorManager();
-
-    if (isset($_POST['equipement_request'])) {
-      $equipement_id = $_POST['equipement_request'];
-    }
-    if (isset($_POST['site_request'])) {
-      $site_id = $_POST['site_request'];
-    }
-    if (isset($_POST['dateMin'])) {
-      $dateMin = $_POST['dateMin'];
-    }
-    if (isset($_POST['dateMax'])) {
-      $dateMax = $_POST['dateMax'];
-    }
-    $all_charts_data = $recordManager->getAllDataForChart($site_id, $equipement_id, $dateMin, $dateMax);
-    
-    $equipementInfo = $equipementManager->getEquipementFromId($equipement_id);
-    $equipement_pylone = $equipementInfo['equipement'];
-    $equipement_name = $equipementInfo['ligneHT'];
-    //Get the sensor ID on the associated structure
-    $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-    //Get the device number
-    $device_number = $sensorManager->getDeviceNumberFromSensorId($sensor_id);
-
-    $allStructureData = array(
-      'sensor_id' => $sensor_id,
-      'device_number' => $device_number,
-      'ligneHT' => $equipement_name,
-      'equipement' => $equipement_pylone,
-      'equipementId' => $equipement_id,
-    );
-
-    View::renderTemplate('Data/viewDataSpectre.html', [
-      'all_structure_data' => $allStructureData
-    ]);
-  }
-*/
   /**
    * When the user perform the search through the form, display basic infos
    * sensor_id, device_number ,ligneHT, equipement, equipementId
@@ -174,9 +127,16 @@ class ControllerData extends Authenticated
     if (isset($_POST['siteID'])) {
       $siteID = $_POST['siteID'];
     }
-    if (isset($_POST['equipmentID'])) {
+    if (!empty($_POST['equipmentID'])) {
       $equipement_id = $_POST['equipmentID'];
       $searchSpecificEquipement = true;
+    }
+    $startDate="";
+    $endDate = "";
+    if (!empty($_POST['startDate']) && !empty($_POST['endDate'])) {
+      $startDate = $_POST['startDate'];
+      $endDate = $_POST['endDate'];
+      $searchByDate = true;
     }
 
     if ($searchSpecificEquipement) {
@@ -215,7 +175,8 @@ class ControllerData extends Authenticated
         'equipementId' => $equipement_id,
         'lastDate' => $lastdate,
         'nb_choc_received_today' => $nb_choc_received_today,
-        'lastChocPower' => $last_choc_power, 'temperature' => $temperature
+        'lastChocPower' => $last_choc_power, 'temperature' => $temperature,
+        'startDate' => $startDate, 'endDate' => $endDate
       );
     } else {
       $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
@@ -228,7 +189,7 @@ class ControllerData extends Authenticated
         $equipement_id = $equipement['equipement_id'];
         $equipement_pylone = $equipement['equipement'];
         $equipement_name = $equipement['ligneHT'];
-
+        
         //Get the sensor ID on the associated structure
         $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
         //Get the device number
@@ -261,7 +222,8 @@ class ControllerData extends Authenticated
           'equipementId' => $equipement_id,
           'lastDate' => $lastdate,
           'nb_choc_received_today' => $nb_choc_received_today,
-          'lastChocPower' => $last_choc_power, 'temperature' => $temperature
+          'lastChocPower' => $last_choc_power, 'temperature' => $temperature,
+          'startDate' => $startDate, 'endDate' => $endDate
         );
 
         $count += 1;
@@ -374,15 +336,22 @@ class ControllerData extends Authenticated
     $chocManager = new ChocManager();
 
     $searchSpecificEquipement = false;
-    if (isset($_POST['siteID'])) {
+    $searchByDate = false;
+    if (!empty($_POST['siteID'])) {
       $siteID = $_POST['siteID'];
     }
-    if (isset($_POST['equipmentID'])) {
+    if (!empty($_POST['equipmentID'])) {
       $equipement_id = $_POST['equipmentID'];
       $searchSpecificEquipement = true;
     }
+    if (!empty($_POST['startDate']) && !empty($_POST['endDate'])) {
+      $startDate = $_POST['startDate'];
+      $endDate = $_POST['endDate'];
+      $searchByDate = true;
+      
+    }
 
-
+    //Attention à la date valide (inferieur data d'activité et installation)
 
     if ($searchSpecificEquipement) {
 
@@ -392,15 +361,20 @@ class ControllerData extends Authenticated
       $equipement_name = $equipementInfo['ligneHT'];
       #Retrieve the sensor id
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-      //print_r($equipement_id);
-      $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
-      //print_r($nb_choc_per_day);
-      $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
-
-      //Get inclinometer data angle
-      $angleDataXYZ = $inclinometerManager->getAngleXYZPerDayForSensor($sensor_id);
-
+      $deveui = EquipementManager::getDeveuiSensorOnEquipement($equipement_id);
+      if ($searchByDate){
+        $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
+        $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
+        $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
+      }else {
+        $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
+        $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
+        $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
+      }
+            
       $allStructureData["equipement_0"] = array(
+        
+        'deveui' => $deveui,
         'sensor_id' => $sensor_id,
         'equipement_name' => $equipement_pylone,
         'equipementId' => $equipement_id,
@@ -420,15 +394,20 @@ class ControllerData extends Authenticated
         $equipement_name = $equipement['ligneHT'];
 
         $equipement_id = $equipements_site[$count]['equipement_id'];
+        $deveui = EquipementManager::getDeveuiSensorOnEquipement($equipement_id);
         #Retrieve the sensor id
         $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
         //print_r($equipement_id);
-        $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
-        //print_r($nb_choc_per_day);
-        $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
-
-        //Get inclinometer data angle
-        $angleDataXYZ = $inclinometerManager->getAngleXYZPerDayForSensor($sensor_id);
+       if ($searchByDate) {
+          $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
+          $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
+          $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
+        } else {
+          $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
+          $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
+          //Get inclinometer data angle
+          $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
+        }
 
         $allStructureData[$index_array] = array(
           'sensor_id' => $sensor_id,
@@ -446,6 +425,19 @@ class ControllerData extends Authenticated
     print json_encode($allStructureData);
   }
 
+  public function downloadSpectreAction(){
+    $equipement_id = $_GET['equipementID'];
+    $site_id= $_GET['siteID'];
+    $requestedDate = $_GET['requestedDate'];
+
+    $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $equipement_id, $requestedDate);
+    
+    $timeSerie = new TimeSeries();
+    $timeSerie->createFromSpectreArr($allSubSpectresArr);
+    //print_r($timeSerie->getTimeSerieData());
+    ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $requestedDate);
+
+  }
 
 
   /**
