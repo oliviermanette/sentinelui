@@ -93,7 +93,7 @@ class ControllerSensors extends Authenticated
         $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
         
         //4. chart data
-        //Inclinometer
+        //Inclinometer raw data
         $inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
         $inclinometerDataMonthArr = json_encode($inclinometerDataMonthArr);
         $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
@@ -101,12 +101,12 @@ class ControllerSensors extends Authenticated
         $inclinometerDataDayArr = InclinometerManager::getInclinometerDataForLast($deveui, -1);
         $inclinometerDataDayArr = json_encode($inclinometerDataDayArr);
 
-        //
-        $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, -1);
+        //percentage variation
+        $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationDayArr = json_encode($percentageVariationDayArr);
-        $percentageVariationWeekArr = InclinometerManager::computeWeeklyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationWeekArr = InclinometerManager::computeWeeklyVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationWeekArr = json_encode($percentageVariationWeekArr);
-        $percentageVariationMonthArr = InclinometerManager::computeMonthlyVariationPercentageAngleForLast($deveui, -1);
+        $percentageVariationMonthArr = InclinometerManager::computeMonthlyVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationMonthArr = json_encode($percentageVariationMonthArr);
         //Choc
         //Nb choc

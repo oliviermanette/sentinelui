@@ -71,7 +71,15 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
         display: true,
         text: 'Nombre de choc enregistré',
         fontSize: 15
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     };
     //Create the instance
     var chartInstance = new Chart(ctx, {
@@ -186,7 +194,15 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
             labelString: 'Puissance'
           }
         }]
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     };
 
     var chartInstance = new Chart(ctx, {
@@ -297,7 +313,15 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         display: true,
         text: 'Puissance des chocs enregistré',
         fontSize: 15
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     };
 
     //Create chart Instance
@@ -468,7 +492,15 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
     title: {
       display: true,
       text: 'Temperature en fonction du temps'
-    }
+    },
+    pan: {
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
   };
 
   var chartInstance = new Chart(ctx, {
@@ -556,7 +588,15 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
       title: {
         display: true,
         text: 'Inclinometre en fonction du temps'
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     }
   };
 
@@ -749,9 +789,19 @@ function drawNoDataAvailable(canvaID) {
 
 }
 
-function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinometre") {
+function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true, canvaID = "canvas_inclinometre") {
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
+  }
+
+  let title = "";
+  let label = "";
+  if (percentage){
+    title = "Pourcentage de variation de l\'inclinaison au fil du temps";
+    label = "Variation %";
+  }else {
+    title = "Variation absolue de l\'inclinaison au fil du temps";
+    label = "Variation absolue °";
   }
   //console.log(inclinometerData);
   var variation_angle_x = [];
@@ -803,7 +853,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
 
     title: {
       display: true,
-      text: 'Pourcentage de variation de l\'inclinaison au fil du temps'
+      text: title
     },
     scales: {
       yAxes: [{
@@ -815,7 +865,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
         },
         scaleLabel: {
           display: true,
-          labelString: 'Variation %'
+          labelString: label
         },
       }],
       xAxes: [{
@@ -825,7 +875,15 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
 
         },
       }]
-    }
+    },
+    pan: {
+        enabled: true,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: true,
+        mode: 'xy',
+      }
   };
 
 
@@ -943,7 +1001,15 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
     title: {
       display: true,
       text: title
-    }
+    },
+    pan: {
+        enabled: true,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: true,
+        mode: 'xy',
+      }
   };
   var chartInstance = new Chart(ctx, {
     type: 'scatter',
