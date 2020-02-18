@@ -28,6 +28,18 @@
                             oninput="this.form.inclinometerThresh.value=this.value" />
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label><strong>Seuil de variation maximum de l'inclinomètre</strong></label>
+                        <input type="range" class="custom-range" name="inclinometerRangeThresh" min="1" max="6"
+                            value="{{ settingsRangeInclinometer.value }}"
+                            oninput="this.form.amountInputRangeInclinometer.value=this.value" />
+                        <input type="number" name="amountInputRangeInclinometer" min="1" max="6"
+                            value="{{ settingsRangeInclinometer.value }}"
+                            oninput="this.form.inclinometerRangeThresh.value=this.value" />
+                    </div>
+
+                </div>
                 </br>
                 <div class="row">
                     <div class="col-sm-6">

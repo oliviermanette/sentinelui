@@ -35,11 +35,13 @@ class ControllerSetting extends Authenticated
         $settingsShock = $settingsArr[0];
         $settingsInclinometer = $settingsArr[1];
         $settingsTimePeriod = $settingsArr[2];
+        $settingsRangeInclinometer= $settingsArr[3];
 
         View::renderTemplate('Profile/settings.html', [
             'settingsShock' => $settingsShock,
             'settingsInclinometer' => $settingsInclinometer,
-            'settingsTimePeriod' => $settingsTimePeriod
+            'settingsTimePeriod' => $settingsTimePeriod,
+            'settingsRangeInclinometer' => $settingsRangeInclinometer,
         ]);
 
     }
@@ -50,10 +52,12 @@ class ControllerSetting extends Authenticated
         $shockThresh = $_POST["shockThresh"];
         $inclinometerThresh = $_POST["inclinometerThresh"];
         $timePeriod = $_POST["rangeDateCheck"];
+        $inclinometerRangeThresh = $_POST["inclinometerRangeThresh"];
 
         if (SettingManager::updateShockThresh($group_name, $shockThresh) &&
         SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh) &&
-        SettingManager::updateTimePeriodCheck($group_name, $timePeriod)){
+        SettingManager::updateTimePeriodCheck($group_name, $timePeriod) 
+        && SettingManager::updateInclinometerRangeThresh($group_name, $inclinometerRangeThresh)){
             Flash::addMessage('Mise à jour réussie des paramètres');
         }
         else {
