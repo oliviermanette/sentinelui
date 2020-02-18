@@ -119,7 +119,7 @@ class AlertManager extends \Core\Model
      * @param int $id_alert if of the alert to delete
      * @return void  
      */
-    public function delete($id_alert)
+    public static function delete($id_alert)
     {
         $alert = static::findByID($id_alert);
 
@@ -137,7 +137,7 @@ class AlertManager extends \Core\Model
      * @param int $status_alert status (1 or 0)
      * @return void  
      */
-    public function updateStatus($id_alert, $status_alert)
+    public static function updateStatus($id_alert, $status_alert)
     {
         $alert = static::findByID($id_alert);
 
@@ -342,7 +342,7 @@ class AlertManager extends \Core\Model
      * @param string $group_name check alert for a specific group 
      * @return void
      */
-    public function getProcessedAlertsInfoTable($group_name)
+    public static function getProcessedAlertsInfoTable($group_name)
     {
         $db = static::getDB();
 
@@ -404,7 +404,7 @@ class AlertManager extends \Core\Model
      * @param string $group_name group for checking the number of alert
      * @return array 
      */
-    public function getNumberActiveAlertsForGroup($group_name)
+    public static function getNumberActiveAlertsForGroup($group_name)
     {
         $db = static::getDB();
 

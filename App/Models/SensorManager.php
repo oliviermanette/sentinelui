@@ -721,7 +721,7 @@ class SensorManager extends \Core\Model
    * @param string $group_name the group we want to check the number of actif sensor
    * @return array  array results
    */
-  public function getNumberActiveSensorFromDB($group_name)
+  public static function getNumberActiveSensorFromDB($group_name)
   {
     $db = static::getDB();
 
@@ -750,7 +750,7 @@ class SensorManager extends \Core\Model
    * @param string $group_name the group we want to check the number of actif sensor
    * @return array  array results
    */
-  public function getNumberInactiveSensorFromDB($group_name)
+  public static function getNumberInactiveSensorFromDB($group_name)
   {
     $db = static::getDB();
 

@@ -32,14 +32,11 @@ class ControllerAccueil extends Authenticated
   public function indexAction()
   {
     $group_name = $_SESSION['group_name'];
-;
-    $sensorManager = new SensorManager();
-    $recordManager = new RecordManager();
-    $alertManager = new AlertManager();
-    $brief_data_record = $recordManager->getBriefInfoFromRecord($group_name);
-    $nb_active_sensors = $sensorManager->getNumberActiveSensorFromDB("RTE");
-    $nb_inactive_sensors =  $sensorManager->getNumberInactiveSensorFromDB("RTE");
-    $nb_active_alerts = $alertManager->getNumberActiveAlertsForGroup($group_name);
+
+    $brief_data_record = RecordManager::getBriefInfoFromRecord($group_name);
+    $nb_active_sensors = SensorManager::getNumberActiveSensorFromDB("RTE");
+    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensorFromDB("RTE");
+    $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($group_name);
     
     //Create object txt that will contain the brief records
     Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
@@ -53,24 +50,6 @@ class ControllerAccueil extends Authenticated
 
   }
 
-  /**
-   * Change structure when the user select the site in order to show only the structure
-   * associated to a specific site
-   *
-   * @return void
-   */
-  public function changeEquipementAction(){
-
-    $siteID = $_POST['site_id'];
-    $group_name = $_SESSION['group_name'];
-
-    $equipementManager = new EquipementManager();
-    $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
-    View::renderTemplate('Others/changeEquipementForm.html', [
-      'all_equipment' => $all_equipment,
-    ]);
-
-  }
 
   /**
    * Handle the map data 
@@ -78,10 +57,9 @@ class ControllerAccueil extends Authenticated
    * @return void
    */
   public function loadDataMapAction(){
-    $recordManager = new RecordManager();
     $group_name = $_SESSION['group_name'];
 
-    $data_map = $recordManager->getDataMap($group_name);
+    $data_map = RecordManager::getDataMap($group_name);
 
     $arr = [];
     $inc = 0;
@@ -97,79 +75,7 @@ class ControllerAccueil extends Authenticated
 
   }
 
-  /**
-   * allow the user to download raw data from the homepage
-   *
-   * @return void
-   */
-  public function downloadRawDataAction(){
-    $recordManager = new RecordManager();
-    $data = $recordManager->getAllRawRecord();
-    //var_dump($raw_data);
 
-    if ($_GET['exportData'] == "csv"){
-      $timestamp = time();
-      $filename = 'Export_data_sensors_' . $timestamp . '.csv';
-
-      header('Content-Type: text/csv; charset=utf-8');
-      header("Content-Disposition: attachment; filename=\"$filename\"");
-
-      $columnNames = array();
-      if(!empty($data)){
-        //We only need to loop through the first row of our result
-        //in order to collate the column names.
-        $firstRow = $data[0];
-        foreach($firstRow as $colName => $val){
-          $columnNames[] = $colName;
-        }
-      }
-
-      $output = fopen("php://output", "w");
-      //Start off by writing the column names to the file.
-      fputcsv($output, $columnNames);
-      //If we want to personalize the names
-      /*fputcsv($output, array('Deveui', 'Site', 'Equipement', 'Date Time',
-      'payload', 'Type message', 'payload', 'Amplitude 1', 'Amplitude 2',
-      'Time 1', 'Time 2', 'X', 'Y', 'Z', 'Temperature', 'Batterie'));*/
-      //Then, loop through the rows and write them to the CSV file.
-      foreach ($data as $row) {
-        fputcsv($output, $row);
-      }
-
-      //Close the file pointer.
-      fclose($output);
-      exit();
-    }
-    else if ($_GET['exportData'] == "excel"){
-      $timestamp = time();
-      $filename = 'Export_data_sensors_' . $timestamp . '.xls';
-
-      header("Content-Type: application/vnd.ms-excel");
-      header("Content-Disposition: attachment; filename=\"$filename\"");
-
-      $isPrintHeader = false;
-
-      $columnNames = array();
-      if(!empty($data)){
-        //We only need to loop through the first row of our result
-        //in order to collate the column names.
-        $firstRow = $data[0];
-        if (! $isPrintHeader) {
-          foreach($firstRow as $colName => $val){
-            echo $colName ."\t" ;
-            //echo implode("\t", array_keys($colName)) . "\n";
-            $isPrintHeader = true;
-          }
-          echo "\n";
-        }
-        foreach ($data as $row) {
-          echo implode("\t", array_values($row)) . "\n";
-        }
-        echo "\n";
-      }
-    }
-
-  }
 
   public function getDataTableAfterSubmitAction(){
     $site_id = $_POST["site_request"];
@@ -202,23 +108,9 @@ class ControllerAccueil extends Authenticated
     $startDate = $_POST["startDate"];
     $endDate = $_POST["endDate"];
 
-    $recordManager = new RecordManager();
-
-    $all_charts_data = $recordManager->getAllDataForChart($site_id, $equipement_id, $startDate, $endDate );
+    $all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate );
     print json_encode($all_charts_data);
     
-
   }
 
-
-
-  /**
-  * After filter
-  *
-  * @return void
-  */
-  protected function after()
-  {
-    //echo " (after)";
-  }
 }

@@ -306,6 +306,9 @@ function getCombination($n)
 
   }
 
+  public static function normedSquare($nx, $ny, $nz){
+    return sqrt(pow($nx, 2) + pow($ny, 2) + pow($nz, 2));
+  }
 
   public static function microToSecond($valueMicro){
     return $valueMicro/1E6;

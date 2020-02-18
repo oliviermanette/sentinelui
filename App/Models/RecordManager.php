@@ -881,7 +881,7 @@ class RecordManager extends \Core\Model
    *  sensor_id | site | ligneHT | equipement | nb_messages | nb_chocs | last_message_received | status 
    * 
    */
-  function getBriefInfoFromRecord($group_name)
+  public static function getBriefInfoFromRecord($group_name)
   {
 
     $db = static::getDB();
@@ -984,7 +984,7 @@ class RecordManager extends \Core\Model
    *  sensor_id | latitude_site | longitude_site | latitude_sensor | longitude_sensor | site | equipement 
    * 
    */
-  function getDataMap($group_name)
+  public static function getDataMap($group_name)
   {
     $db = static::getDB();
 
@@ -1109,7 +1109,7 @@ class RecordManager extends \Core\Model
     }
   }
 
-  public function getAllDataForChart($site_id, $equipment_id, $dateMin, $dateMax)
+  public static function getAllDataForChart($site_id, $equipment_id, $dateMin, $dateMax)
   {
 
     $db = static::getDB();
