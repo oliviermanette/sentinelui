@@ -215,13 +215,15 @@
                 "iDisplayLength": 10
             });
 
+            let inclinometerRangeThresh = "{{ inclinometerRangeThresh|raw}}";
+
             //Draw chart inclinometer monthly
-            let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
-            drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer");
+            let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
+            drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", inclinometerRangeThresh);
 
             //Draw chart variation inclinometer percentage
             let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData,
+            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, false,
                 "chartVariationAngleInclinometer");
 
 
@@ -249,14 +251,19 @@
 
             removeElement("canvasInclinometer");
             addElement("canvasInclinometer", "canvas", "chartAngleInclinometer");
+            if (lastXdays === "-1") {
+                let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
+                console.log("Since installation date : ", inclinometerDataDay);
+                drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", inclinometerRangeThresh);
+            }
             if (lastXdays === "7") {
                 let inclinometerDataWeek = '{{ inclinometerDataWeekArr|raw}}';
                 console.log("Last 7 days : ", inclinometerDataWeek);
-                drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer");
+                drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer", inclinometerRangeThresh);
             }
             if (lastXdays === "30") {
                 let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
-                drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer");
+                drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer", inclinometerRangeThresh);
             }
 
         });
@@ -317,18 +324,18 @@
             addElement("canvasVariationInclinometer", "canvas", "chartVariationAngleInclinometer");
             if (lastXdays === "7") {
                 let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
-                drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData,
+                drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData, false,
                     "chartVariationAngleInclinometer");
             }
             if (lastXdays === "30") {
                 let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
-                drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData,
+                drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData, false,
                     "chartVariationAngleInclinometer");
 
             }
             if (lastXdays === "1") {
                 let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-                drawVariationChartAngleXYZFromData(inclinometerVariationDailyData,
+                drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, false,
                     "chartVariationAngleInclinometer");
             }
 

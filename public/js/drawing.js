@@ -71,7 +71,15 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
         display: true,
         text: 'Nombre de choc enregistré',
         fontSize: 15
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     };
     //Create the instance
     var chartInstance = new Chart(ctx, {
@@ -186,7 +194,15 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
             labelString: 'Puissance'
           }
         }]
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     };
 
     var chartInstance = new Chart(ctx, {
@@ -297,7 +313,15 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         display: true,
         text: 'Puissance des chocs enregistré',
         fontSize: 15
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     };
 
     //Create chart Instance
@@ -468,7 +492,15 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
     title: {
       display: true,
       text: 'Temperature en fonction du temps'
-    }
+    },
+    pan: {
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
   };
 
   var chartInstance = new Chart(ctx, {
@@ -556,7 +588,15 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
       title: {
         display: true,
         text: 'Inclinometre en fonction du temps'
-      }
+      },
+      pan: {
+          enabled: false,
+          mode: 'xy'
+        },
+        zoom: {
+          enabled: false,
+          mode: 'xy',
+        }
     }
   };
 
@@ -634,7 +674,8 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
 
       title: {
         display: true,
-        text: 'Variation de l\'inclinaison au fil du temps'
+        text: "Valeurs d'inclinaison en fonction du temps",
+        fontSize:18,
       },
       scales: {
         yAxes: [{
@@ -647,9 +688,10 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             labelString: 'X° and Y°'
           },
           ticks: {
-            //min: 0,
+            min: -10,
+            max: 10,
             beginAtZero: false,
-            stepSize: 1.0,
+            stepSize: 0.5,
             autoskip: true,
             maxTicksLimit: 10
           },
@@ -665,7 +707,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           ticks: {
             //min: 0,
             beginAtZero: false,
-            stepSize: 0.1,
+            stepSize: 10,
             autoskip: true,
             maxTicksLimit: 10
           },
@@ -681,7 +723,26 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             maxTicksLimit: 15
           },
         }]
-      }
+      },
+      // Container for pan options
+      pan: {
+          // Boolean to enable panning
+          enabled: true,
+
+          // Panning directions. Remove the appropriate direction to disable 
+          // Eg. 'y' would only allow panning in the y direction
+          mode: 'xy'
+        },
+
+        // Container for zoom options
+        zoom: {
+          // Boolean to enable zooming
+          enabled: true,
+
+          // Zooming directions. Remove the appropriate direction to disable 
+          // Eg. 'y' would only allow zooming in the y direction
+          mode: 'xy',
+        }
     };
 
 
@@ -729,9 +790,19 @@ function drawNoDataAvailable(canvaID) {
 
 }
 
-function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinometre") {
+function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true, canvaID = "canvas_inclinometre", threshAnnotation = 2) {
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
+  }
+
+  let title = "";
+  let label = "";
+  if (percentage){
+    title = "Pourcentage de variation de l\'inclinaison au fil du temps";
+    label = "Variation %";
+  }else {
+    title = "Variation absolue de l\'inclinaison au fil du temps";
+    label = "Variation absolue °";
   }
   //console.log(inclinometerData);
   var variation_angle_x = [];
@@ -756,6 +827,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
         backgroundColor: 'blue',
         borderColor: 'blue',
         data: variation_angle_x,
+        yAxisID: "y-axis-0",
       },
       {
         label: 'Y %',
@@ -763,6 +835,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
         backgroundColor: 'orange',
         borderColor: 'orange',
         data: variation_angle_y,
+        yAxisID: "y-axis-0",
       },
       {
         label: 'Z %',
@@ -770,6 +843,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
         backgroundColor: 'green',
         borderColor: 'green',
         data: variation_angle_z,
+        yAxisID: "y-axis-0",
       }
     ]
   };
@@ -783,19 +857,23 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
 
     title: {
       display: true,
-      text: 'Pourcentage de variation de l\'inclinaison au fil du temps'
+      text: title,
+      fontSize: 18,
     },
     scales: {
       yAxes: [{
+        id: "y-axis-0",
         gridLines: {
           display: true,
         },
         ticks: {
           beginAtZero: false,
+          min: -threshAnnotation - 1,
+          max: threshAnnotation + 1,
         },
         scaleLabel: {
           display: true,
-          labelString: 'Variation %'
+          labelString: label
         },
       }],
       xAxes: [{
@@ -804,7 +882,57 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID = "canvas_
           maxTicksLimit: 15
 
         },
-      }]
+      }],
+      
+    },
+    pan: {
+        enabled: true,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: true,
+        mode: 'xy',
+      },
+      annotation: {
+        events: ['click'],
+        drawTime: 'afterDatasetsDraw',
+        annotations: [{
+          id: 'hline1',
+          type: 'line',
+          mode: 'horizontal',
+          scaleID: 'y-axis-0',
+          value: threshAnnotation,
+          borderColor: 'red',
+          borderDash: [2, 2],
+          label: {
+            enabled: true,
+            content: 'Seuil d\'alerte haut',
+            backgroundColor: "red",
+          },
+          onClick: function (e) {
+            var link = "/settings";
+            window.open(link);
+          },
+        }, {
+          id: 'hline2',
+          type: 'line',
+          mode: 'horizontal',
+          scaleID: 'y-axis-0',
+          value: -threshAnnotation,
+          borderColor: 'red',
+          borderDash: [2, 2],
+          label: {
+            backgroundColor: "red",
+            content: "Seuil d\'alerte bas",
+            enabled: true
+          },
+          onClick: function (e) {
+            var link = "/settings";
+            window.open(link);
+          },
+        }
+      ],
+
     }
   };
 
@@ -923,7 +1051,15 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
     title: {
       display: true,
       text: title
-    }
+    },
+    pan: {
+        enabled: true,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: true,
+        mode: 'xy',
+      }
   };
   var chartInstance = new Chart(ctx, {
     type: 'scatter',

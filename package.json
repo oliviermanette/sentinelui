@@ -37,6 +37,8 @@
     "uglify-es": "3.3.9"
   },
   "dependencies": {
+    "chartjs-plugin-annotation": "^0.5.7",
+    "chartjs-plugin-zoom": "^0.7.5",
     "gulp": "latest"
   }
 }

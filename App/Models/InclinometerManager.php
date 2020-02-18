@@ -710,7 +710,7 @@ class InclinometerManager extends \Core\Model
    * all records in account
    * @return array which contain daily variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
-  public static function computeDailyVariationPercentageAngleForLast($deveui, $time_period = -1)
+  public static function computeDailyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
   {
     $db = static::getDB();
 
@@ -762,11 +762,20 @@ class InclinometerManager extends \Core\Model
       $angleX = $values["angle_x"];
       $angleY = $values["angle_y"];
       $angleZ = $values["angle_z"];
-      $temperature = $values["temperature"];
-      $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
-      $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
-      $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
-      $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      if ($percentage){
+        $temperature = $values["temperature"];
+        $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
+        $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
+        $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
+        $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      }else {
+        $temperature = $values["temperature"];
+        $variationAngleX = $angleX - $angleX_ref;
+        $variationAngleY = $angleY - $angleY_ref;
+        $variationAngleZ = $angleZ - $angleZ_ref;
+        $variationTemperature = $temperature - $temperature_ref;
+      }
+      
       $tmpArr = array(
         "date" => $date, "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
         "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature
@@ -914,7 +923,7 @@ class InclinometerManager extends \Core\Model
             LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
             WHERE
             `msg_type` LIKE 'inclinometre'
-            AND Date(r.date_time) >= Date(s.installation_date)
+            AND Date(r.date_time) > Date(s.installation_date)
             AND s.deveui = :deveui ";
 
     if ($time_period != -1) {
@@ -1131,14 +1140,21 @@ class InclinometerManager extends \Core\Model
         LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE
         `msg_type` LIKE 'inclinometre'
-        AND s.deveui = :deveui  
-        AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
-        ORDER BY r.date_time ASC
-        ";
+        AND Date(r.date_time) > Date(s.installation_date)
+        AND s.deveui = :deveui  ";
+
+        if ($time_period != -1) {
+      $sql_data_inclinometer .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+        }
+
+    $sql_data_inclinometer .= " ORDER BY r.date_time ASC";
+
 
     $stmt = $db->prepare($sql_data_inclinometer);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
 
     if ($stmt->execute()) {
       $resultsArr = $stmt->fetchAll(PDO::FETCH_ASSOC);

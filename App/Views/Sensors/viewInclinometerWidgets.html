@@ -8,32 +8,113 @@
         'Inclinaison Mensuelle (par rapport aux 30 derniers jours)'] %}
         <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi de l'inclinaison</h3>
 
-        <div class="card h-100 py-2 mb-3">
-            <div class="card-body">
-                <h6 class="card-title"><b>Valeurs de références depuis le jour d'installation</b></h6>
-                <div class="row card-row">
-                    <div class="extend-view-label col-md-4" title="groupe">Inclinaison X
-                    </div>
-                    <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_x}}">
-                        {{inclinaisonRefArr.angle_x}} °
-                    </div>
+        <div id="accordion" class="py-2 mb-3">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="false" aria-controls="collapseOne">
+                            Valeurs de référence - Jour d'installation
+                        </button>
+                    </h5>
                 </div>
-                <div class="row card-row">
-                    <div class="extend-view-label col-md-4" title="groupe">Inclinaison Y
-                    </div>
-                    <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_y}}">
-                        {{inclinaisonRefArr.angle_y}} °
-                    </div>
-                </div>
-                <div class="row card-row">
-                    <div class="extend-view-label col-md-4" title="groupe">Inclinaison Z
-                    </div>
-                    <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_z}}">
-                        {{inclinaisonRefArr.angle_z}} °
+
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <h6 class="card-title"><b>Valeurs de références depuis le jour d'installation</b></h6>
+                        <div class="row card-row">
+                            <div class="extend-view-label col-md-4" title="groupe">Inclinaison X
+                            </div>
+                            <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_x}}">
+                                {{inclinaisonRefArr.angle_x}} °
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="extend-view-label col-md-4" title="groupe">Inclinaison Y
+                            </div>
+                            <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_y}}">
+                                {{inclinaisonRefArr.angle_y}} °
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="extend-view-label col-md-4" title="groupe">Inclinaison Z
+                            </div>
+                            <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_z}}">
+                                {{inclinaisonRefArr.angle_z}} °
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+            <!-- CHART Inclinometre angle  -->
+            <div class="card-header py-3 d-flex justify-content-center">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                            <div id="{{val.equipementId}}">
+                                <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-2"
+                                    data-toggle="buttons">
+                                    <label class="btn btn-outline-secondary">
+                                        <input id="option1" type="radio" name="options" autocomplete="off" value="-1"
+                                            checked=""> Depuis l'installation
+                                    </label>
+                                    <label class="btn btn-outline-secondary">
+                                        <input id="option2" type="radio" name="options" autocomplete="off" value="7">
+                                        Dernier 7 jours
+                                    </label>
+                                    <label class="btn btn-outline-secondary active">
+                                        <input id="option3" type="radio" name="options" autocomplete="off" value="30">
+                                        Dernier 30 jours
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div class="canvasInclinometer">
+                        <canvas id="chartAngleInclinometer"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHART percentage variation Inclinometre  -->
+            <div class="card-header py-3 d-flex justify-content-center">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                            <div id="{{val.equipementId}}">
+                                <div id="radioButtonPercentageVariationInclinometer"
+                                    class="btn-group btn-group-toggle mx-2" data-toggle="buttons">
+                                    <label class="btn btn-outline-secondary active">
+                                        <input type="radio" name="options" autocomplete="off" value="1" checked="">
+                                        Journalier
+                                    </label>
+                                    <label class="btn btn-outline-secondary">
+                                        <input type="radio" name="options" autocomplete="off" value="7">
+                                        Hebdomadaire
+                                    </label>
+                                    <label class="btn btn-outline-secondary">
+                                        <input type="radio" name="options" autocomplete="off" value="30">
+                                        Mensuelle
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div id="canvasVariationInclinometer">
+                        <canvas id="chartVariationAngleInclinometer"></canvas>
+                    </div>
+                </div>
+            </div>
+
         {% for row in totalVariationArr %}
 
         <h4 class="card-title">{{dataType[loop.index0]}}</h4>
@@ -156,71 +237,7 @@
 
 
 
-                    <!-- CHART Inclinometre angle  -->
-                    <div class="card-header py-3 d-flex justify-content-center">
-                        <div class="row justify-content-center">
-                            <div class="col">
-                                <div class="btn-toolbar d-none d-md-block" role="toolbar"
-                                    aria-label="Toolbar with buttons">
-                                    <div id="{{val.equipementId}}">
-                                        <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-2"
-                                            data-toggle="buttons">
-                                            <label class="btn btn-outline-secondary">
-                                                <input id="option2" type="radio" name="options" autocomplete="off"
-                                                    value="7"> Dernier 7 jours
-                                            </label>
-                                            <label class="btn btn-outline-secondary active">
-                                                <input id="option3" type="radio" name="options" autocomplete="off"
-                                                    value="30" checked=""> Dernier 30 jours
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-md-12">
-                            <div class="canvasInclinometer">
-                                <canvas id="chartAngleInclinometer"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CHART percentage variation Inclinometre  -->
-                    <div class="card-header py-3 d-flex justify-content-center">
-                        <div class="row justify-content-center">
-                            <div class="col">
-                                <div class="btn-toolbar d-none d-md-block" role="toolbar"
-                                    aria-label="Toolbar with buttons">
-                                    <div id="{{val.equipementId}}">
-                                        <div id="radioButtonPercentageVariationInclinometer"
-                                            class="btn-group btn-group-toggle mx-2" data-toggle="buttons">
-                                            <label class="btn btn-outline-secondary active">
-                                                <input type="radio" name="options" autocomplete="off" value="1"
-                                                    checked=""> Journalier
-                                            </label>
-                                            <label class="btn btn-outline-secondary">
-                                                <input type="radio" name="options" autocomplete="off" value="7">
-                                                Hebdomadaire
-                                            </label>
-                                            <label class="btn btn-outline-secondary">
-                                                <input type="radio" name="options" autocomplete="off" value="30">
-                                                Mensuelle
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-md-12">
-                            <div id="canvasVariationInclinometer">
-                                <canvas id="chartVariationAngleInclinometer"></canvas>
-                            </div>
-                        </div>
-                    </div>
+                
 
                 </div>
 
