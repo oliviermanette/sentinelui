@@ -634,6 +634,21 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
       angle_z.push(inclinometerData[i].angle_z);
       date.push(inclinometerData[i].date_d);
     }
+    const avgX = computeAverage(angle_x);
+    const avgY = computeAverage(angle_y);
+    const avgZ = computeAverage(angle_z);
+    var rangeHighAxisX = parseInt((avgX+avgY)/2 + 10);
+    var rangeLowAxisX = parseInt((avgX + avgY) / 2 - 10);
+    var rangeHighAxisZ = parseInt(avgZ + 10);
+    var rangeLowAxisZ = parseInt(avgZ - 10);
+
+    var dragOptions = {
+      animationDuration: 1000,
+      borderColor: 'rgba(225,225,225,0.3)',
+      borderWidth: 5,
+      backgroundColor: 'rgb(225,225,225)',
+    };
+    
 
     var chartdata = {
       labels: date,
@@ -688,8 +703,8 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             labelString: 'X° and Y°'
           },
           ticks: {
-            min: -10,
-            max: 10,
+            min: rangeLowAxisX,
+            max: rangeHighAxisX,
             beginAtZero: false,
             stepSize: 0.5,
             autoskip: true,
@@ -706,8 +721,8 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           },
           ticks: {
             //TODO : change ratio automatic according to values
-            min: 160,
-            max: 180,
+            min: rangeLowAxisZ,
+            max: rangeHighAxisZ,
             beginAtZero: false,
             stepSize: 10,
             autoskip: true,
@@ -730,20 +745,22 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
       pan: {
           // Boolean to enable panning
           enabled: true,
-
+          drag: dragOptions,
           // Panning directions. Remove the appropriate direction to disable 
           // Eg. 'y' would only allow panning in the y direction
-          mode: 'xy'
+          mode: 'y'
         },
 
         // Container for zoom options
         zoom: {
           // Boolean to enable zooming
           enabled: true,
-
           // Zooming directions. Remove the appropriate direction to disable 
           // Eg. 'y' would only allow zooming in the y direction
-          mode: 'xy',
+          mode: 'y',
+          // Speed of zoom via mouse wheel
+          // (percentage of zoom on a wheel event)
+          speed: 0.1,
         }
     };
 
@@ -753,7 +770,13 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
       data: chartdata,
       options: options,
     });
+
+    return chartInstance;
   }
+}
+
+function resetZoom(chartInstance) {
+  chartInstance.resetZoom();
 }
 
 function drawNoDataAvailable(canvaID) {
@@ -889,11 +912,11 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
     },
     pan: {
         enabled: true,
-        mode: 'xy'
+        mode: 'y'
       },
       zoom: {
         enabled: true,
-        mode: 'xy',
+        mode: 'y',
       },
       annotation: {
         events: ['click'],
@@ -1056,11 +1079,11 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
     },
     pan: {
         enabled: true,
-        mode: 'xy'
+        mode: 'y'
       },
       zoom: {
         enabled: true,
-        mode: 'xy',
+        mode: 'y',
       }
   };
   var chartInstance = new Chart(ctx, {

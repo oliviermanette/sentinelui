@@ -82,6 +82,17 @@ function addButton(parentId, text, link, className = "btn btn-sm btn-primary sha
   }
 }
 
+function computeAverage(arrayData){
+  var sum = 0;
+  for (var i = 0; i < arrayData.length; i++) {
+    sum += parseFloat(arrayData[i]); //don't forget to add the base
+  }
+
+  var avg = sum / arrayData.length;
+
+  return avg;
+}
+
 
 /**
  * UTILS DATES 
