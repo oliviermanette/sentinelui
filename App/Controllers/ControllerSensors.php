@@ -10,6 +10,7 @@ use \App\Flash;
 use App\Models\AlertManager;
 use App\Models\BatteryManager;
 use App\Models\ChocManager;
+use App\Models\SettingManager;
 
 /**
  * Sensors controller
@@ -129,8 +130,12 @@ class ControllerSensors extends Authenticated
         $tempArr = InclinometerManager::getTemperatureRecordsForSensor($deveui,-1);
         $tempArr = json_encode($tempArr);
 
+        //Get settings
+        $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($_SESSION['group_name']);
+
         View::renderTemplate('Sensors/infoDevice.html', [
             'deveui' => $deveui,
+            'inclinometerRangeThresh' => $inclinometerRangeThresh,
             'firstActivity' => $firstActivity,
             'lastActivity' => $lastActivity,
             'infoArr' => $infoArr,

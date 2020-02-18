@@ -790,7 +790,7 @@ function drawNoDataAvailable(canvaID) {
 
 }
 
-function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true, canvaID = "canvas_inclinometre") {
+function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true, canvaID = "canvas_inclinometre", threshAnnotation = 2) {
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
@@ -827,6 +827,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
         backgroundColor: 'blue',
         borderColor: 'blue',
         data: variation_angle_x,
+        yAxisID: "y-axis-0",
       },
       {
         label: 'Y %',
@@ -834,6 +835,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
         backgroundColor: 'orange',
         borderColor: 'orange',
         data: variation_angle_y,
+        yAxisID: "y-axis-0",
       },
       {
         label: 'Z %',
@@ -841,6 +843,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
         backgroundColor: 'green',
         borderColor: 'green',
         data: variation_angle_z,
+        yAxisID: "y-axis-0",
       }
     ]
   };
@@ -859,11 +862,14 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
     },
     scales: {
       yAxes: [{
+        id: "y-axis-0",
         gridLines: {
           display: true,
         },
         ticks: {
           beginAtZero: false,
+          min: -threshAnnotation - 1,
+          max: threshAnnotation + 1,
         },
         scaleLabel: {
           display: true,
@@ -876,7 +882,8 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
           maxTicksLimit: 15
 
         },
-      }]
+      }],
+      
     },
     pan: {
         enabled: true,
@@ -885,7 +892,48 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
       zoom: {
         enabled: true,
         mode: 'xy',
-      }
+      },
+      annotation: {
+        events: ['click'],
+        drawTime: 'afterDatasetsDraw',
+        annotations: [{
+          id: 'hline1',
+          type: 'line',
+          mode: 'horizontal',
+          scaleID: 'y-axis-0',
+          value: threshAnnotation,
+          borderColor: 'red',
+          borderDash: [2, 2],
+          label: {
+            enabled: true,
+            content: 'Seuil d\'alerte haut',
+            backgroundColor: "red",
+          },
+          onClick: function (e) {
+            var link = "/settings";
+            window.open(link);
+          },
+        }, {
+          id: 'hline2',
+          type: 'line',
+          mode: 'horizontal',
+          scaleID: 'y-axis-0',
+          value: -threshAnnotation,
+          borderColor: 'red',
+          borderDash: [2, 2],
+          label: {
+            backgroundColor: "red",
+            content: "Seuil d\'alerte bas",
+            enabled: true
+          },
+          onClick: function (e) {
+            var link = "/settings";
+            window.open(link);
+          },
+        }
+      ],
+
+    }
   };
 
 

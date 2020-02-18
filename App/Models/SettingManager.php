@@ -95,6 +95,32 @@ class SettingManager extends \Core\Model
     }
 
     /**
+     * Get the value for the inclinometer thresh range setting
+     *
+     * @param string $group_name group name
+     *
+     * @return int  value that is applied for this specific setting
+     */
+    public static function getInclinometerRangeThresh($group_name)
+    {
+
+        $db = static::getDB();
+
+        $sql = "SELECT value  AS thresh FROM group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            WHERE group_name.name = :group_name AND settings.name = 'inclinometer_range_thresh'";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $inclinometerThresh = $stmt->fetch(PDO::FETCH_COLUMN);
+            return (int) $inclinometerThresh;
+        }
+    }
+
+    /**
      * Get the value for the time period setting
      *
      * @param string $group_name group name
