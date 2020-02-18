@@ -705,7 +705,9 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             labelString: 'Z°'
           },
           ticks: {
-            //min: 0,
+            //TODO : change ratio automatic according to values
+            min: 160,
+            max: 180,
             beginAtZero: false,
             stepSize: 10,
             autoskip: true,
