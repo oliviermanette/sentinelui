@@ -113,9 +113,8 @@ class RecordManager extends \Core\Model
           $group_name = $uplinkDataArr["group_name"];
           $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
           $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
+          $tinclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
           
-          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
-
           $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
           $hasAlertArr = $inclinometreManager->check($sensor_id, $timePeriodCheck);
 
