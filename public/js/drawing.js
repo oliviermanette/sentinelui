@@ -674,7 +674,8 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
 
       title: {
         display: true,
-        text: 'Variation de l\'inclinaison au fil du temps'
+        text: "Valeurs d'inclinaison en fonction du temps",
+        fontSize:18,
       },
       scales: {
         yAxes: [{
@@ -853,7 +854,8 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
 
     title: {
       display: true,
-      text: title
+      text: title,
+      fontSize: 18,
     },
     scales: {
       yAxes: [{
