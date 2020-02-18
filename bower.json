@@ -17,6 +17,7 @@
   "dependencies": {
     "chart.js": "^2.9.3",
     "chartjs-plugin-datalabels":"0.7.0",
+    "chartjs-plugin-zoom": "0.7.5",
     "bootstrap": "^4.4.1",
     "bootstrap-daterangepicker": "https://github.com/dangrossman/daterangepicker.git#master",
     "components-font-awesome": "^5.11.2",

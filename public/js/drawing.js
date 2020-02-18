@@ -647,9 +647,10 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             labelString: 'X° and Y°'
           },
           ticks: {
-            //min: 0,
+            min: -10,
+            max: 10,
             beginAtZero: false,
-            stepSize: 1.0,
+            stepSize: 0.5,
             autoskip: true,
             maxTicksLimit: 10
           },
@@ -665,7 +666,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           ticks: {
             //min: 0,
             beginAtZero: false,
-            stepSize: 0.1,
+            stepSize: 10,
             autoskip: true,
             maxTicksLimit: 10
           },
@@ -681,7 +682,26 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             maxTicksLimit: 15
           },
         }]
-      }
+      },
+      // Container for pan options
+      pan: {
+          // Boolean to enable panning
+          enabled: true,
+
+          // Panning directions. Remove the appropriate direction to disable 
+          // Eg. 'y' would only allow panning in the y direction
+          mode: 'xy'
+        },
+
+        // Container for zoom options
+        zoom: {
+          // Boolean to enable zooming
+          enabled: true,
+
+          // Zooming directions. Remove the appropriate direction to disable 
+          // Eg. 'y' would only allow zooming in the y direction
+          mode: 'xy',
+        }
     };
 
 

@@ -914,7 +914,7 @@ class InclinometerManager extends \Core\Model
             LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
             WHERE
             `msg_type` LIKE 'inclinometre'
-            AND Date(r.date_time) >= Date(s.installation_date)
+            AND Date(r.date_time) > Date(s.installation_date)
             AND s.deveui = :deveui ";
 
     if ($time_period != -1) {
@@ -1131,14 +1131,21 @@ class InclinometerManager extends \Core\Model
         LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE
         `msg_type` LIKE 'inclinometre'
-        AND s.deveui = :deveui  
-        AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
-        ORDER BY r.date_time ASC
-        ";
+        AND Date(r.date_time) > Date(s.installation_date)
+        AND s.deveui = :deveui  ";
+
+        if ($time_period != -1) {
+      $sql_data_inclinometer .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+        }
+
+    $sql_data_inclinometer .= " ORDER BY r.date_time ASC";
+
 
     $stmt = $db->prepare($sql_data_inclinometer);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_INT);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
 
     if ($stmt->execute()) {
       $resultsArr = $stmt->fetchAll(PDO::FETCH_ASSOC);

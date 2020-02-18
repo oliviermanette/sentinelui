@@ -98,6 +98,8 @@ class ControllerSensors extends Authenticated
         $inclinometerDataMonthArr = json_encode($inclinometerDataMonthArr);
         $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
         $inclinometerDataWeekArr = json_encode($inclinometerDataWeekArr);
+        $inclinometerDataDayArr = InclinometerManager::getInclinometerDataForLast($deveui, -1);
+        $inclinometerDataDayArr = json_encode($inclinometerDataDayArr);
 
         //
         $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, -1);
@@ -139,6 +141,7 @@ class ControllerSensors extends Authenticated
             'totalVariationArr' => $totalVariationArr,
             'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
             'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
+            'inclinometerDataDayArr' => $inclinometerDataDayArr,
             'nbChocDataMonthArr' => $nbChocDataMonthArr,
             'nbChocDataWeekArr' => $nbChocDataWeekArr,
             'nbChocDataDay' => $nbChocDataDay,
