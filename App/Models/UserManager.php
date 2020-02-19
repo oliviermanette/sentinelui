@@ -265,12 +265,28 @@ class UserManager extends \Core\Model
   public static function sendPasswordReset($email)
   {
     $user = static::findByEmail($email);
-
+    //var_dump($user);
     if ($user) {
 
       if ($user->startPasswordReset()) {
         $user->sendPasswordResetEmail();
       }
+    }
+  }
+
+  /**
+   * Send alert instructions to the user specified
+   *
+   * @param string $email The email address
+   *
+   * @return void
+   */
+  public static function sendAlert($email)
+  {
+    $user = static::findByEmail($email);
+    //var_dump($user);
+    if ($user) {
+        $user->sendPasswordResetEmail();
     }
   }
 
@@ -286,6 +302,7 @@ class UserManager extends \Core\Model
     $hashed_token = $token->getHash();
 
     $this->remember_token = $token->getValue();
+    $this->password_reset_token = $token->getValue();
 
     $expiry_timestamp = time() + 60 * 60 * 2;  // 2 hours from now
 
@@ -315,7 +332,7 @@ class UserManager extends \Core\Model
 
     $text = View::getTemplate('Password/reset_email.txt', ['url' => $url]);
     $html = View::getTemplate('Password/reset_email.html', ['url' => $url]);
-
+    //var_dump($url);
     Mail::send($this->email, 'Password reset', $text, $html);
   }
 
@@ -395,6 +412,25 @@ class UserManager extends \Core\Model
     return false;
   }
 
+  public static function findToSendAlerts($group){
+    $db = static::getDB();
+
+    $sql = "SELECT user.email, user.phone_number, user.first_name, user.last_name, user.company FROM `user`  
+    LEFT JOIN group_users ON (user.id = group_users.user_id)
+    LEFT JOIN group_name ON (group_name.group_id = group_users.group_id)
+    WHERE group_name.name = :group_name AND user.send_alert is true";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':group_name', $group, PDO::PARAM_STR);
+
+    $stmt->execute();
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $db = 0;
+    return $users;
+
+    
+  }
   /**
    * Update the profile account in the DB
    * 

@@ -58,10 +58,10 @@ class RecordManager extends \Core\Model
 
       //Get the type of message received from the uplink (choc, inclinometer, global, spectre)
       $type_msg = $payload_decoded_json["type"];
-    
+
       //Insert a record inside the Record table of the DB
       $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["transmission_line_name"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
-      
+      //$success = true;
       if ($success) {
         if ($type_msg == "choc") {
 
@@ -70,26 +70,33 @@ class RecordManager extends \Core\Model
           if (!$chocManager->insertChocData($payload_decoded_json)) {
             return false;
           }
+          //print_r($uplinkDataArr);
           $group_name = $uplinkDataArr["group_name"];
           $shockTreshSTD = SettingManager::getShockThresh($group_name);
           $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
 
           $chocManager->setStdDevRule($shockTreshSTD);
           $hasAlert = $chocManager->check($sensor_id, $timePeriodCheck);
-          $chocValue = $chocManager->getPowerValueChoc();
+          $chocValue = $chocManager->getPowerValueChoc(2, "mg");
 
           //Create new alert if it's the case
           if ($hasAlert) {
 
             $eventDataArr = array(
+              "type" => "choc",
               "label"  => "high_choc",
               "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
+              "dateTime"  => $uplinkDataArr["date_time"],
+              "equipementId"  => $equipement_id,
+              "region"  => $uplinkDataArr["region"],
+              "nameAsset"  => $uplinkDataArr["name_asset"],
               "value"  => $chocValue
             );
 
+            //print_r($eventDataArr);
+
             $alertManager = new AlertManager($eventDataArr);
+            $alertManager->sendAlert($group_name);
             $alertManager->createFromArr($eventDataArr);
           }
         }
@@ -118,42 +125,54 @@ class RecordManager extends \Core\Model
           $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
           $hasAlertArr = $inclinometreManager->check($sensor_id, $timePeriodCheck);
 
-          
+          print_r($hasAlertArr);
           if ($hasAlertArr["alertOnX"]){
             $angleX = $inclinometreManager->getAngleX();
             $eventDataArr = array(
+              "type" => "inclinometer",
               "label"  => "high_inclinometer_variationX",
               "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
-              "value"  => $angleX
+              "dateTime"  => $uplinkDataArr["date_time"],
+              "equipementId"  => $equipement_id,
+              "region"  => $uplinkDataArr["region"],
+              "nameAsset"  => $uplinkDataArr["name_asset"],
+              "value"  => round($angleX,2)
             );
             $alertManager = new AlertManager($eventDataArr);
+            $alertManager->sendAlert($group_name);
             $alertManager->createFromArr($eventDataArr);         
           }
           if ($hasAlertArr["alertOnY"]) {
             $angleY = $inclinometreManager->getAngleY();
             $eventDataArr = array(
+              "type" => "inclinometer",
               "label"  => "high_inclinometer_variationY",
               "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
-              "value"  => $angleY
+              "dateTime"  => $uplinkDataArr["date_time"],
+              "equipementId"  => $equipement_id,
+              "region"  => $uplinkDataArr["region"],
+              "nameAsset"  => $uplinkDataArr["name_asset"],
+              "value"  => round($angleY, 2)
             );
             $alertManager = new AlertManager($eventDataArr);
+            $alertManager->sendAlert($group_name);
             $alertManager->createFromArr($eventDataArr);
           }
           if ($hasAlertArr["alertOnZ"]) {
             $angleZ = $inclinometreManager->getAngleZ();
             $eventDataArr = array(
+              "type" => "inclinometer",
               "label"  => "high_inclinometer_variationY",
               "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
-              "value"  => $angleZ
+              "dateTime"  => $uplinkDataArr["date_time"],
+              "equipementId"  => $equipement_id,
+              "region"  => $uplinkDataArr["region"],
+              "nameAsset"  => $uplinkDataArr["name_asset"],
+              "value"  => round($angleZ, 2)
             );
 
             $alertManager = new AlertManager($eventDataArr);
+            $alertManager->sendAlert($group_name);
             $alertManager->createFromArr($eventDataArr);
           }
           
@@ -356,7 +375,6 @@ class RecordManager extends \Core\Model
    */
   public static function extractUplinkData($data)
   {
-
     $id_uplink = $data['id'];
     $profile = $data['profile'];
     $profile_id = $data['profile_id'];
@@ -386,6 +404,8 @@ class RecordManager extends \Core\Model
     $assetArr = RecordManager::extractExternalId($external_id);
 
     $name_asset = $assetArr["name_asset"];
+    $region = $assetArr["region"];
+
     $transmission_line_name = $assetArr["transmission_line_name"];
     #Provisory solution
     $type_asset = "";
@@ -400,6 +420,8 @@ class RecordManager extends \Core\Model
       "profile"  => $profile,
       "profile_id"  => $profile_id,
       //"nb_message"  => $count,
+      "group_name" => $group,
+      "region"  => $region,
       "type_asset"  => $type_asset,
       "name_asset"  => $name_asset,
       "transmission_line_name" => $transmission_line_name,
@@ -465,7 +487,7 @@ class RecordManager extends \Core\Model
 
     #Build the asset name
     $name_asset = $desc_asset . "_" . $support_asset;
-    $assetArr = array("name_asset"=>$name_asset, "transmission_line_name"=>$transmission_line_name);
+    $assetArr = array("region"=>$region, "name_asset"=>$name_asset, "transmission_line_name"=>$transmission_line_name);
 
 
     return $assetArr;

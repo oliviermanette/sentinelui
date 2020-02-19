@@ -42,6 +42,23 @@ class SettingManager extends \Core\Model
         }
     }
 
+    public static function checkIfAlertActivated($email){
+        $db = static::getDB();
+
+        $sql = "SELECT user.send_alert FROM `user` 
+            WHERE user.email = :email";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+        if ($stmt->execute()) {
+            $isAlertEmailActivated = $stmt->fetch(PDO::FETCH_COLUMN);
+            if ($isAlertEmailActivated == 1){
+                return true;
+            }
+            return false;
+        }
+    }
+
 
     /**
      * Get the value for the shock thresh setting
@@ -199,6 +216,26 @@ class SettingManager extends \Core\Model
         }
         return false;
         
+    }
+
+    public static function updateAlertNotification($email, $receiveNotification)
+    {
+        $db = static::getDB();
+
+        $sql = "UPDATE user
+           
+            SET user.send_alert = :receiveNotification
+             WHERE user.email = :email
+            ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+        $stmt->bindValue(':receiveNotification', $receiveNotification, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
 
     /**

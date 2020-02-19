@@ -13,6 +13,8 @@ use App\Config;
 use App\Utilities;
 use App\Controllers\ControllerDataObjenious;
 use \App\Models\UserManager;
+use \Core\View;
+use \App\Mail;
 use PDO;
 
 class AlertManager extends \Core\Model
@@ -39,8 +41,8 @@ class AlertManager extends \Core\Model
     {
         $label = $dataArr["label"];
         $deveui = $dataArr["deveui"];
-        $date_time =  $dataArr["date_time"];
-        $structure_id = $dataArr["equipement_id"];
+        $date_time =  $dataArr["dateTime"];
+        $structure_id = $dataArr["equipementId"];
         $value = $dataArr["value"];
 
         //Check if type alert does not exist, otherwise, add it
@@ -216,7 +218,7 @@ class AlertManager extends \Core\Model
         return $stmt->execute();
     }
 
-   
+
     /**
      * Get all the active alert from the database
      * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
@@ -275,7 +277,7 @@ class AlertManager extends \Core\Model
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
         FROM alerts 
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -283,8 +285,7 @@ class AlertManager extends \Core\Model
         LEFT JOIN record ON (record.structure_id = structure.id)
         LEFT JOIN sensor ON (sensor.id = record.sensor_id)
         WHERE alerts.status = 1
-        AND sensor.deveui LIKE :deveui
-         ";
+        AND sensor.deveui LIKE :deveui";
 
         if (isset($limit)) {
             $query_alerts_data .= "LIMIT :limit";
@@ -318,7 +319,7 @@ class AlertManager extends \Core\Model
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
         FROM alerts 
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -351,7 +352,7 @@ class AlertManager extends \Core\Model
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
         FROM alerts 
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -502,13 +503,72 @@ class AlertManager extends \Core\Model
      *
      * @return void
      */
-    public static function sendAlert($email, $phone_number)
+    public function sendAlert($group_name)
     {
-        $userManager = new UserManager();
-        $user = $userManager->findByEmail($email);
+        //Find all users that want to receive alerts
+        $users = UserManager::findToSendAlerts($group_name);
+        foreach ($users as $user){
+            
+            $email = $user["email"];
+            $phone_number = $user["phone_number"];
+            $firstName = $user["first_name"];
+            $last_name = $user["last_name"];
+            $company = $user["company"];
+            echo "\n Envoie du mail à " . $firstName . "\n";
+            
+            
+                $deveui = $this->deveui;
+                $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
+                $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' .$sensorName. '/info#alertsStructure' ;
 
-        if ($user) {
+                $dateTime = explode(" ", $this->dateTime);
+                $date = date('d/m/Y', strtotime($dateTime[0]));
+                $time = $dateTime[1];
+                //print_r($this->label);
+                $text = View::getTemplate('Alerts/alert_email_view.txt', [
+                    "firstName" => $firstName,
+                    "dateEventOccured" => $date,
+                    "timeEventOccured" => $time,
+                    "sensorName" => $sensorName,
+                    "region" => $this->region,
+                    "equipement" => $this->nameAsset,
+                    "label" => $this->label,
+                    "value" => $this->value,
+                    "url" => $url,
+
+                ]);
+                $html = View::getTemplate('Alerts/alert_email_view.html', [
+                    "firstName" => $firstName,
+                    "dateEventOccured" => $date,
+                    "timeEventOccured" => $time,
+                    "sensorName" => $sensorName,
+                    "region" => $this->region,
+                    "equipement" => $this->nameAsset,
+                    "label" => $this->label,
+                    "value" => $this->value,
+                    "url" => $url,
+                ]);
+
+                Mail::send($email, '[TEST]Nouvelle alerte !', $text, $html);
+            
+            
         }
+
+        
+        
+    }
+
+    /**
+     * Send password reset instructions in an email to the user
+     *
+     * @return void
+     */
+    protected function sendAlertEmail()
+    {
+        $text = View::getTemplate('Alerts/alert_email_view.txt', []);
+        $html = View::getTemplate('Password/alert_email_view.html', []);
+        //var_dump($url);
+        Mail::send($this->email, 'Nouvelle alerte !', $text, $html);
     }
 
     /**
@@ -526,7 +586,7 @@ class AlertManager extends \Core\Model
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-         alerts.deveui AS deveui, alerts.status AS status
+        alerts.deveui AS deveui, alerts.status AS status
         FROM alerts 
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)

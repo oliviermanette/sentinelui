@@ -112,9 +112,14 @@ class ChocManager extends \Core\Model
     $this->structure_id = $structure_id;
   }
 
-  public function getPowerValueChoc()
+  public function getPowerValueChoc($precision = 2, $unite = "mg")
   {
-    return $this->power;
+    if ($unite == "mg"){
+      return round($this->power*100, $precision);
+    }else {
+      return round($this->power, $precision);
+    }
+    
   }
 
   /**

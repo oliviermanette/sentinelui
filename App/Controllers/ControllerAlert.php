@@ -37,6 +37,7 @@ class ControllerAlert extends \Core\Controller
         ]);
     }
 
+
     /**
      * update alert statut when the user delete or update an alert
      *

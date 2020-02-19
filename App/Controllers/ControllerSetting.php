@@ -36,28 +36,37 @@ class ControllerSetting extends Authenticated
         $settingsInclinometer = $settingsArr[1];
         $settingsTimePeriod = $settingsArr[2];
         $settingsRangeInclinometer= $settingsArr[3];
+        $settingsAlertEmailActivated = $settingsArr[4];
+
 
         View::renderTemplate('Profile/settings.html', [
             'settingsShock' => $settingsShock,
             'settingsInclinometer' => $settingsInclinometer,
             'settingsTimePeriod' => $settingsTimePeriod,
             'settingsRangeInclinometer' => $settingsRangeInclinometer,
+            'settingsAlertEmailActivated' => $settingsAlertEmailActivated,
         ]);
 
     }
 
     public function updateAction(){
-
+        $user = Auth::getUser();
+        $user_email = $user->email;
         $group_name = $_SESSION['group_name'];
         $shockThresh = $_POST["shockThresh"];
         $inclinometerThresh = $_POST["inclinometerThresh"];
         $timePeriod = $_POST["rangeDateCheck"];
         $inclinometerRangeThresh = $_POST["inclinometerRangeThresh"];
-
+        if (isset($_POST["alertSwitchNotification"])){
+            $alertNotification = 1;
+        }else {
+            $alertNotification = 0;
+        }
         if (SettingManager::updateShockThresh($group_name, $shockThresh) &&
         SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh) &&
         SettingManager::updateTimePeriodCheck($group_name, $timePeriod) 
-        && SettingManager::updateInclinometerRangeThresh($group_name, $inclinometerRangeThresh)){
+        && SettingManager::updateInclinometerRangeThresh($group_name, $inclinometerRangeThresh)
+            && SettingManager::updateAlertNotification($user_email, $alertNotification)){
             Flash::addMessage('Mise à jour réussie des paramètres');
         }
         else {
@@ -72,9 +81,13 @@ class ControllerSetting extends Authenticated
         $user_id = $user->id;
         $group_name = $_SESSION['group_name'];
 
-        $settings = SettingManager::findByGroupName($group_name);
-        
-        return $settings;
+        $settingsArr = SettingManager::findByGroupName($group_name);
+
+        $isAlertEmailActivated = SettingManager::checkIfAlertActivated($user->email);
+        $tmpArr = array("isAlertEmailActivated" => $isAlertEmailActivated);
+        array_push($settingsArr, $tmpArr);
+        //$settingsArr["isAlertEmailActivated"] = $isAlertEmailActivated;
+        return $settingsArr;
     }
 
 }

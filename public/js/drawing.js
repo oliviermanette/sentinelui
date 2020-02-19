@@ -311,7 +311,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
       },
       title: {
         display: true,
-        text: 'Puissance des chocs enregistré',
+        text: 'Puissance des chocs enregistrés',
         fontSize: 15
       },
       pan: {

@@ -25,7 +25,7 @@ class Mail
   public static function send($to, $subject, $text, $html)
   {
     $email = new \SendGrid\Mail\Mail();
-    $email->setFrom("contact@flod.ai", "Flod");
+    $email->setFrom("contact@flod.ai", "Sentive AI");
     $email->setSubject($subject);
     $email->addTo($to, "User");
     $email->addContent(
@@ -40,7 +40,7 @@ class Mail
       print $response->statusCode() . "\n";
       print_r($response->headers());
       print $response->body() . "\n";
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
       echo 'Caught exception: ',  $e->getMessage(), "\n";
     }
   }

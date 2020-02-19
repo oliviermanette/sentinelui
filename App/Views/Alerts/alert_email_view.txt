@@ -1,0 +1,21 @@
+Bonjour {{ firstName }},
+
+Une alerte vient d'être relevée de type {{label}}
+{% if label == 'high_choc' %}
+                                                c'est à dire un choc anormalement élevé sur la structure.
+                                                {% elseif label == 'high_inclinometer_variationX' %}
+                                                c'est à dire une viariation en X qui dépasse le seuil défini.
+                                                {% elseif label == 'high_inclinometer_variationY' %}
+                                                c'est à dire une viariation en Y qui dépasse le seuil défini.
+                                                {% elseif label == 'high_inclinometer_variationZ' %}
+                                                c'est à dire une viariation en Z qui dépasse le seuil défini.
+                                                {% else %}
+                                                .
+                                                {% endif %}
+
+Déclenchement de l'alerte le {{dateEventOccured}} à {{timeEventOccured}}
+Région: {{region}}
+Structure concernée: {{equipement}}
+Valeur de déclenchement {{value}} mG
+
+Pour en savoir plus : {{url}}
