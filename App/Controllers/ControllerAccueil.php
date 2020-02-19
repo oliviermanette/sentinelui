@@ -31,11 +31,12 @@ class ControllerAccueil extends Authenticated
   */
   public function indexAction()
   {
-    $group_name = $_SESSION['group_name'];
+    $user = Auth::getUser();
+    $group_name = $user->getGroupName();
 
     $brief_data_record = RecordManager::getBriefInfoFromRecord($group_name);
-    $nb_active_sensors = SensorManager::getNumberActiveSensorFromDB("RTE");
-    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensorFromDB("RTE");
+    $nb_active_sensors = SensorManager::getNumberActiveSensorFromDB($group_name);
+    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensorFromDB($group_name);
     $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($group_name);
     
     //Create object txt that will contain the brief records
@@ -57,7 +58,8 @@ class ControllerAccueil extends Authenticated
    * @return void
    */
   public function loadDataMapAction(){
-    $group_name = $_SESSION['group_name'];
+    $user = Auth::getUser();
+    $group_name = $user->getGroupName();
 
     $data_map = RecordManager::getDataMap($group_name);
 

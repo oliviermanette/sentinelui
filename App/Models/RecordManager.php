@@ -828,7 +828,7 @@ class RecordManager extends \Core\Model
    *  date
    * 
    */
-  public function getDateLastReceivedData($structure_id)
+  public static function getDateLastReceivedData($structure_id)
   {
     $db = static::getDB();
     $sql_last_date = "SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') as dateMaxReceived
@@ -850,7 +850,7 @@ class RecordManager extends \Core\Model
    * @return array results of the query
    * 
    */
-  function getDateMinMaxFromRecord()
+  public static function getDateMinMaxFromRecord()
   {
     $db = static::getDB();
     $query_min_max_date = "SELECT (SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') FROM record) AS fistActivity,

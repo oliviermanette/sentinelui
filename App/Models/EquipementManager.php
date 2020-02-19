@@ -54,7 +54,7 @@ class EquipementManager extends \Core\Model
    * @param string $group_name the name of the group we want to retrieve equipment data
    * @return array  results from the query
    */
-  function getEquipements($group_name)
+  public static function getEquipements($group_name)
   {
 
     $db = static::getDB();
@@ -84,7 +84,7 @@ class EquipementManager extends \Core\Model
    * @return array results of the query
    *  equipement_id | equipement | ligneHT  
    */
-  public function getEquipementFromId($structure_id){
+  public static function getEquipementFromId($structure_id){
     $db = static::getDB();
 
     $sql_query_equipement_by_id = "SELECT 
@@ -144,7 +144,7 @@ class EquipementManager extends \Core\Model
    * @param int $structure_id structure id to get the sensor id
    * @return int  sensor id
    */
-  function getSensorIdOnEquipement($structure_id)
+  public static function getSensorIdOnEquipement($structure_id)
   {
     $db = static::getDB();
 

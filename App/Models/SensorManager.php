@@ -99,7 +99,7 @@ class SensorManager extends \Core\Model
    * @return string device number of the sensor
    * 
    */
-  public function getDeviceNumberFromSensorId($sensor_id)
+  public static function getDeviceNumberFromSensorId($sensor_id)
   {
     $db = static::getDB();
 
@@ -699,7 +699,7 @@ class SensorManager extends \Core\Model
   }
 
 
-  public function getStatusDevice($sensor_id){
+  public static function getStatusDevice($sensor_id){
     $db = static::getDB();
 
     $sql_status_device = "SELECT sensor.status FROM sensor

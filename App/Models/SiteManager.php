@@ -20,7 +20,7 @@ class SiteManager extends \Core\Model
   * @param string $group_name the name of the group we want to retrieve site data
   * @return array  results from the query
   */
-  function getSites($group_name){
+  public static function getSites($group_name){
 
     $db = static::getDB();
 

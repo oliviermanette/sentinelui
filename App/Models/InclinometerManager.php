@@ -415,7 +415,7 @@ class InclinometerManager extends \Core\Model
    * @param int $sensor_id sensor id for which we want to retrieve the last inclinometer
    * @return array  results from the query
    */
-  public function getLatestTemperatureForSensor($sensor_id)
+  public static function getLatestTemperatureForSensor($sensor_id)
   {
 
     $db = static::getDB();

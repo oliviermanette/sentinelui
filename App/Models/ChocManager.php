@@ -125,7 +125,7 @@ class ChocManager extends \Core\Model
    * @param string $group_name the name of the group we want to retrieve choc data
    * @return array  results from the query
    */
-  public function getAllChocDataForGroup($group_name)
+  public static function getAllChocDataForGroup($group_name)
   {
     $db = static::getDB();
 
@@ -549,7 +549,7 @@ class ChocManager extends \Core\Model
    * @param int $sensor_id the sensor we want to retrieve choc data
    * @return array  results from the query
    */
-  public function getLastChocPowerValueForSensor($sensor_id)
+  public static function getLastChocPowerValueForSensor($sensor_id)
   {
     $db = static::getDB();
 

@@ -25,7 +25,8 @@ class ControllerAlert extends \Core\Controller
      */
     public function indexAction()
     {
-        $group_name = $_SESSION['group_name'];
+        $user = Auth::getUser();
+        $group_name = $user->getGroupName();
         
         $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name);
         $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($group_name);
