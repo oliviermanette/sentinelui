@@ -7,8 +7,7 @@ core-ui-admin/**
 stisla/**
 tabler/**
 
-public/data/**
-public/css/**.min.css
+public/data/*
 #Ignore node_module
 node_modules/**
 
