@@ -580,11 +580,12 @@ class InclinometerManager extends \Core\Model
    * newAngleX | oldAngleX | pourcentage_variation_anglex | newAngleY | oldAngleY | pourcentage_variation_angleY |
    * newAngleZ | oldAngleZ | pourcentage_variation_angleZ | newTemp | oldTemp | pourcentage_variation_temp |
    */
-  public static function computePercentageVariationAngleValueForLast($deveui, $time_period = -1, $precision = 2)
+  public static function computePercentageVariationAngleValueForLast($deveui, $percentage = true, $time_period = -1, $precision = 2)
   {
     $db = static::getDB();
 
-    $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui, 
+    if ($percentage){
+      $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui, 
       ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
       IFNULL(ROUND((sum(ABS(newAngleX - oldAngleX))/newAngleX)*100, :precision),0) AS pourcentage_variation_angleX,
       ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY, 
@@ -592,7 +593,21 @@ class InclinometerManager extends \Core\Model
       ROUND(newAngleZ,:precision) AS newAngleZ, ROUND(oldAngleZ,:precision) AS oldAngleZ,
       ROUND((sum(ABS(newAngleZ - oldAngleZ))/newAngleZ)*100,:precision) as pourcentage_variation_angleZ,
       newTemp,oldTemp,
-      ROUND((sum(ABS(newTemp - oldTemp))/newTemp)*100,1) as variation_temperature
+      ROUND((sum(ABS(newTemp - oldTemp))/newTemp)*100,1) as variation_temperature ";
+
+    }else {
+      $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui, 
+      ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
+      ROUND(sum(newAngleX - oldAngleX), :precision) AS pourcentage_variation_angleX,
+      ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY, 
+      ROUND(sum(newAngleY - oldAngleY), :precision) AS pourcentage_variation_angleY,
+      ROUND(newAngleZ,:precision) AS newAngleZ, ROUND(oldAngleZ,:precision) AS oldAngleZ,
+      ROUND(sum(newAngleZ - oldAngleZ), :precision) AS pourcentage_variation_angleZ,
+      newTemp,oldTemp,
+      sum(newTemp - oldTemp)  as variation_temperature ";
+    }
+
+    $sql_variation_angle .= "
         FROM
         (SELECT
             `sensor_id`, deveui,
