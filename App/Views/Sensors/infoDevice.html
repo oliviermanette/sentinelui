@@ -167,6 +167,7 @@
     {% block script %}
 
     <script>
+        var inclinometerRangeThresh = "{{ inclinometerRangeThresh|raw}}";
         $(document).ready(function () {
             init_daterangepickerNbChoc();
             init_daterangepickerPowerChoc();
@@ -215,7 +216,7 @@
                 "iDisplayLength": 10
             });
 
-            let inclinometerRangeThresh = "{{ inclinometerRangeThresh|raw}}";
+            
 
             //Draw chart inclinometer monthly
             let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';

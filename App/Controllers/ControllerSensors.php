@@ -85,11 +85,11 @@ class ControllerSensors extends Authenticated
         //var_dump($inclinaisonRefArr);
         
         //1.Variation 1 month (30 days)
-        $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 30);
+        $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 30, $precision = 3);
         //2.Variation 1 week (7 days)
-        $variationWeekArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 7);
+        $variationWeekArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 7, $precision = 3);
         //3.Variation 1 day 
-        $variationDayArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, 1);
+        $variationDayArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 1, $precision = 3);
 
         $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
         
