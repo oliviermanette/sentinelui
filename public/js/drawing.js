@@ -634,13 +634,18 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
       angle_z.push(inclinometerData[i].angle_z);
       date.push(inclinometerData[i].date_d);
     }
+    var ratio = 50;
     const avgX = computeAverage(angle_x);
+    console.log("TCL: drawChartAngleXYZFromData -> avgX", avgX);
     const avgY = computeAverage(angle_y);
+    console.log("TCL: drawChartAngleXYZFromData -> avgY", avgY);
     const avgZ = computeAverage(angle_z);
-    var rangeHighAxisX = parseInt((avgX+avgY)/2 + 10);
-    var rangeLowAxisX = parseInt((avgX + avgY) / 2 - 10);
-    var rangeHighAxisZ = parseInt(avgZ + 10);
-    var rangeLowAxisZ = parseInt(avgZ - 10);
+    var rangeHighAxisX = (Math.max(parseInt(avgX), parseInt(avgY)) + ratio);
+    console.log("TCL: drawChartAngleXYZFromData -> rangeHighAxisX", rangeHighAxisX);
+    var rangeLowAxisX = (Math.min(parseInt(avgX), parseInt(avgY)) - ratio);
+    console.log("TCL: drawChartAngleXYZFromData -> rangeLowAxisX", rangeLowAxisX);
+    var rangeHighAxisZ = parseInt(avgZ + ratio);
+    var rangeLowAxisZ = parseInt(avgZ - ratio);
 
     var dragOptions = {
       animationDuration: 1000,
