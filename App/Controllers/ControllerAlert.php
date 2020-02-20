@@ -86,7 +86,7 @@ class ControllerAlert extends \Core\Controller
      */
     public function showDeleteSuccessMessageAction()
     {
-        Flash::addMessage('Alert has been deleted successfully');
+        Flash::addMessage('Alerte bien supprimée !');
 
         $this->redirect('/alerts');
     }
@@ -97,7 +97,7 @@ class ControllerAlert extends \Core\Controller
      */
     public function showUpdateSuccessMessageAction()
     {
-        Flash::addMessage('Status has been changed');
+        Flash::addMessage('Le status de l\'alerte a été changé !');
 
         $this->redirect('/alerts');
     }
