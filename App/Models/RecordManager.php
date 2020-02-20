@@ -34,25 +34,25 @@ class RecordManager extends \Core\Model
    * @param json $jsondata json data received from Objenious. This file contain the uplink message
    * @return boolean  True if data has been correctly inserted, true otherwise
    */
-  function parseJsonDataAndInsert($data)
+  public static function parseJsonDataAndInsert($data)
   {
 
     $message = new Message($data);
 
     if ($message->getFormatMessage() == "uplink") {
 
-      $this->handleUplinkMessage($message);
+      RecordManager::handleUplinkMessage($message);
       
     } else if ($message->getFormatMessage() == "event") {
 
-      $this->handleEventMessage($message);
+      RecordManager::handleEventMessage($message);
 
     } else if ($message->getFormatMessage() == "downlink") {
     } else if ($message->getFormatMessage() == "join") {
     }
   }
 
-  private function handleUplinkMessage($message)
+  private static function handleUplinkMessage($message)
   {
     EquipementManager::insertStructureType($message->typeStructure);
 
@@ -131,7 +131,7 @@ class RecordManager extends \Core\Model
     }
   }
 
-  private function handleEventMessage($message)
+  private static function handleEventMessage($message)
   {
     $label = $message->type;
 
