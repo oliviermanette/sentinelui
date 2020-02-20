@@ -36,111 +36,108 @@ class RecordManager extends \Core\Model
    */
   function parseJsonDataAndInsert($data)
   {
-    $sensorManager = new SensorManager();
-    $equipementManager = new EquipementManager();
-    $geocoder = new \OpenCage\Geocoder\Geocoder(\App\Config::GEOCODER_API_KEY);
-    
+
     $message = new Message($data);
-    //var_dump($message);
-    if ($message->getFormatMessage() == "uplink"){
-      
-      EquipementManager::insertStructureType($message->typeStructure);
 
-      //$success = RecordManager::insertRecordData($message);
+    if ($message->getFormatMessage() == "uplink") {
 
-      $success = true;
-      if ($success) {
-        if ($message->typeMsg == "choc"){
-          
-          $choc = new Choc($message->msgDecoded);
-
-          if (!ChocManager::insertChoc($choc)) {
-            return false;
-          }
-          
-          $chocManager = new ChocManager();
-
-          $shockTreshSTD = SettingManager::getShockThresh($message->group);
-          $timePeriodCheck = SettingManager::getTimePeriodCheck($message->group);
-
-          $chocManager->setStdDevRule($shockTreshSTD);
-          $hasAlert = $chocManager->check($choc, $timePeriodCheck);
-          
-          //Create new alert if it's the case
-          if ($hasAlert) {
-            $label = "high_choc";
-            $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValue());
-            
-            AlertManager::insertTypeEvent($label);
-            AlertManager::insert($alert);
-
-          }
-        }
-        //battery data
-        else if ($message->typeMsg == "global") {
-          $battery = new Battery($message->msgDecoded);
-
-          if (!BatteryManager::insertBattery($battery)) {
-            return false;
-          }
-        }
-        //Inclinometer data
-        else if ($message->typeMsg == "inclinometre") {
-          $inclinometer = new Inclinometer($message->msgDecoded);
-
-          if (!InclinometerManager::insertInclinometer($inclinometer)) {
-            return false;
-          }
-
-          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($message->group);
-          $timePeriodCheck = SettingManager::getTimePeriodCheck($message->group);
-          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($message->group);
-
-          $inclinometreManager = new InclinometerManager();
-          
-          $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
-          $hasAlertArr = $inclinometreManager->check($inclinometer, $timePeriodCheck);
-          
-          if ($hasAlertArr["alertOnX"]){
-            $label = "high_inclinometer_variationX";
-            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
-            
-
-          }
-          if ($hasAlertArr["alertOnY"]) {
-            $label = "high_inclinometer_variationY";
-            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
-            AlertManager::insertTypeEvent($label);
-            AlertManager::insert($alert);
-          }
-          if ($hasAlertArr["alertOnZ"]) {
-            $label = "high_inclinometer_variationZ";
-            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
-            AlertManager::insertTypeEvent($label);
-            AlertManager::insert($alert);
-          }
-        }
-        //Subspectre data
-        else if ($message->typeMsg == "spectre") {
-          $spectre = new Spectre($message->msgDecoded);
-          if (!SpectreManager::insertSpectre($spectre)) {
-            return false;
-          }
-        }
-
-        return true;
-      }
+      $this->handleUplinkMessage($message);
       
     } else if ($message->getFormatMessage() == "event") {
-      $label = $message->type;
 
-      $alert = new Alert($label, $message->deveui, $message->dateTime);
-      AlertManager::insertTypeEvent($label);
-      AlertManager::insert($alert);
+      $this->handleEventMessage($message);
 
     } else if ($message->getFormatMessage() == "downlink") {
     } else if ($message->getFormatMessage() == "join") {
     }
+  }
+
+  private function handleUplinkMessage($message)
+  {
+    EquipementManager::insertStructureType($message->typeStructure);
+
+    $success = RecordManager::insertRecordData($message);
+
+    $success = true;
+    if ($success) {
+      if ($message->typeMsg == "choc") {
+
+        $choc = new Choc($message->msgDecoded);
+
+        if (!ChocManager::insertChoc($choc)) {
+          return false;
+        }
+
+        $chocManager = new ChocManager();
+
+        $hasAlert = $chocManager->check($choc, $message->group);
+
+        //Create new alert if it's the case
+        if ($hasAlert) {
+          $label = "high_choc";
+          $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValue());
+
+          AlertManager::insertTypeEvent($label);
+          AlertManager::insert($alert);
+        }
+      }
+      //battery data
+      else if ($message->typeMsg == "global") {
+        $battery = new Battery($message->msgDecoded);
+
+        if (!BatteryManager::insertBattery($battery)) {
+          return false;
+        }
+      }
+      //Inclinometer data
+      else if ($message->typeMsg == "inclinometre") {
+        $inclinometer = new Inclinometer($message->msgDecoded);
+
+        if (!InclinometerManager::insertInclinometer($inclinometer)) {
+          return false;
+        }
+
+        $inclinometreManager = new InclinometerManager();
+        $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
+
+        if ($hasAlertArr["alertOnX"]) {
+          $label = "high_inclinometer_variationX";
+          $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
+          AlertManager::insertTypeEvent($label);
+          AlertManager::insert($alert);
+        }
+        if ($hasAlertArr["alertOnY"]) {
+          $label = "high_inclinometer_variationY";
+          $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
+          AlertManager::insertTypeEvent($label);
+          AlertManager::insert($alert);
+        }
+        if ($hasAlertArr["alertOnZ"]) {
+          $label = "high_inclinometer_variationZ";
+          $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
+          AlertManager::insertTypeEvent($label);
+          AlertManager::insert($alert);
+        }
+      }
+      //Subspectre data
+      else if ($message->typeMsg == "spectre") {
+        $spectre = new Spectre($message->msgDecoded);
+        if (!SpectreManager::insertSpectre($spectre)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  private function handleEventMessage($message)
+  {
+    $label = $message->type;
+
+    $alert = new Alert($label, $message->deveui, $message->dateTime);
+    AlertManager::insertTypeEvent($label);
+    AlertManager::insert($alert);
   }
 
   /**
@@ -309,7 +306,7 @@ class RecordManager extends \Core\Model
     $stmt = $db->prepare($data_record);
 
     $stmt->bindValue(':deveui_sensor', $message->deveui, PDO::PARAM_STR);
-    $stmt->bindValue(':name_asset', $message->structureName , PDO::PARAM_STR);
+    $stmt->bindValue(':name_asset', $message->structureName, PDO::PARAM_STR);
     $stmt->bindValue(':transmission_line_name', $message->transmissionLineName, PDO::PARAM_STR);
     $stmt->bindValue(':payload_raw', $message->payload_cleartext, PDO::PARAM_STR);
     $stmt->bindValue(':date_time', $message->dateTime, PDO::PARAM_STR);
@@ -485,15 +482,15 @@ class RecordManager extends \Core\Model
       $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
       //Get variation inclinometer 
       $newDataArr = array();
-      foreach ($res as $data){
-        $deveui=$data["deveui"];
+      foreach ($res as $data) {
+        $deveui = $data["deveui"];
         //$sensor_deveui = SensorManager::getDeveuiFromLabel($sensor_label);
         $variationArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, -1, 3);
         $variationX = $variationArr["pourcentage_variation_angleX"];
         $variationY = $variationArr["pourcentage_variation_angleY"];
         $variationZ = $variationArr["pourcentage_variation_angleZ"];
         //echo $variationX . "</br>\n";
-        if (empty($variationX) ){
+        if (empty($variationX)) {
           $variationX = 0;
         }
         if (empty($variationY)) {
@@ -504,10 +501,10 @@ class RecordManager extends \Core\Model
         }
         $data["variationX"] = $variationX;
         $data["variationY"] = $variationY;
-        $data["variationZ"] = $variationZ; 
+        $data["variationZ"] = $variationZ;
         array_push($newDataArr, $data);
       }
-      
+
       $tmpArr = array();
       $obj = new \stdClass();
       $obj->data = $newDataArr;
@@ -659,7 +656,7 @@ class RecordManager extends \Core\Model
     $data["equipment_id"] = $equipment_id;
     //Find ID sensor from site ID and equipement ID
     $sensor_id = SensorManager::getSensorIdUsingSiteAndEquipementID($site_id, $equipment_id);
-    
+
     $query_all_dates = "SELECT r.date_time as date_d FROM
     `spectre` AS sp
     JOIN record AS r ON (r.id=sp.record_id)
@@ -679,7 +676,7 @@ class RecordManager extends \Core\Model
     $spectrenumber = 0;
     if ($stmt->execute()) {
       $row_date_ = $stmt->fetchAll();
-      
+
       foreach ($row_date_ as $row_date) {
         $spectre_name = 'spectre_' . $spectrenumber;
         $current_date = $row_date['date_d'];

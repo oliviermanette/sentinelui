@@ -1,1 +1,5 @@
 [13-Feb-2020 17:18:39 Europe/Berlin] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 536870920 bytes) in C:\xampp\htdocs\App\Models\RecordManager.php on line 1114
+[20-Feb-2020 17:24:55 Europe/Berlin] PHP Fatal error:  Maximum execution time of 120 seconds exceeded in C:\xampp\htdocs\index.php on line 28
+[20-Feb-2020 17:24:55 Europe/Berlin] PHP Fatal error:  Maximum execution time of 120 seconds exceeded in C:\xampp\htdocs\index.php on line 28
+[20-Feb-2020 17:24:55 Europe/Berlin] PHP Fatal error:  Maximum execution time of 120 seconds exceeded in C:\xampp\htdocs\index.php on line 28
+[20-Feb-2020 17:24:55 Europe/Berlin] PHP Fatal error:  Maximum execution time of 120 seconds exceeded in C:\xampp\htdocs\index.php on line 28

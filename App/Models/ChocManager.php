@@ -23,15 +23,18 @@ class ChocManager extends \Core\Model
    * @param int $time_period check for the last X days
    * @return true if an alert is triggered 
    */
-  public function check($choc, $time_period)
+  public function check($choc, $group)
   {
-    
+
+    $shockTreshSTD = SettingManager::getShockThresh($group);
+    $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
+
     if (isset($choc->power)) {
       
-      $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($choc->deveui, $time_period);
-      $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($choc->deveui, $time_period);
+      $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($choc->deveui, $timePeriodCheck);
+      $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($choc->deveui, $timePeriodCheck);
 
-      switch ($this->rule) {
+      switch ($shockTreshSTD) {
         case 1:
           $highTresh = $avgPowerChoc + $stdDevPowerChoc;
           $lowThresh = $avgPowerChoc - $stdDevPowerChoc;

@@ -23,23 +23,26 @@ class InclinometerManager extends \Core\Model
    * @param int $time_period check for the last X days
    * @return true if an alert is triggered 
    */
-  public function check($inclinometer, $time_period)
+  public function check($inclinometer, $group)
   {
+
+    $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group);
+    $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
 
     if (isset($inclinometer->angleX) && isset($inclinometer->angleY) && isset($inclinometer->angleZ)) {
       echo "let's check for ". $inclinometer->deveui;
 
       //Etape 1 : calculer la moyenne et l'ecart type depuis la date choisie
-      $avgInclinaisonArr = InclinometerManager::computeAvgInclinaisonForLast($inclinometer->deveui, $time_period);
+      $avgInclinaisonArr = InclinometerManager::computeAvgInclinaisonForLast($inclinometer->deveui, $timePeriodCheck);
       $avgAngleX = $avgInclinaisonArr["averageAngleX"];
       $avgAngleY = $avgInclinaisonArr["averageAngleY"];
       $avgAngleZ = $avgInclinaisonArr["averageAngleZ"];
-      $stdDevInclinaisonArr = InclinometerManager::computeStdDevInclinaisonForLast($inclinometer->deveui, $time_period);
+      $stdDevInclinaisonArr = InclinometerManager::computeStdDevInclinaisonForLast($inclinometer->deveui, $timePeriodCheck);
       $stdDevAngleX = $stdDevInclinaisonArr["stdDevAngleX"];
       $stdDevAngleY = $stdDevInclinaisonArr["stdDevAngleY"];
       $stdDevAngleZ = $stdDevInclinaisonArr["stdDevAngleZ"];
 
-      switch ($this->rule) {
+      switch ($inclinometerTreshSTD) {
         case 1:
           $highTreshX = $avgAngleX + $stdDevAngleX;
           $lowThreshX = $avgAngleX - $stdDevAngleX;

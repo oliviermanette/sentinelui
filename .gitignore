@@ -7,6 +7,7 @@ core-ui-admin/**
 stisla/**
 tabler/**
 
+public/logs/*
 public/data/*
 #Ignore node_module
 node_modules/**
