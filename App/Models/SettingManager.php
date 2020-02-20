@@ -223,10 +223,8 @@ class SettingManager extends \Core\Model
         $db = static::getDB();
 
         $sql = "UPDATE user
-           
-            SET user.send_alert = :receiveNotification
-             WHERE user.email = :email
-            ";
+        SET user.send_alert = :receiveNotification
+        WHERE user.email = :email";
 
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
