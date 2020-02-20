@@ -13,6 +13,7 @@ Basically inclinometer data, choc, spectre, battery...
 namespace App\Models;
 
 use App\Config;
+use App\Message;
 use App\Utilities;
 use App\Controllers\ControllerDataObjenious;
 use PDO;
@@ -33,6 +34,11 @@ class RecordManager extends \Core\Model
     $sensorManager = new SensorManager();
     $equipementManager = new EquipementManager();
     $geocoder = new \OpenCage\Geocoder\Geocoder(\App\Config::GEOCODER_API_KEY);
+
+    $message = new Message($data);
+    //var_dump($message);
+
+    exit();
 
     $type_msg =  $data['type'];
 
@@ -60,16 +66,17 @@ class RecordManager extends \Core\Model
       $type_msg = $payload_decoded_json["type"];
     
       //Insert a record inside the Record table of the DB
-      $success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["transmission_line_name"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
+      //$success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["transmission_line_name"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
       
+      $success = true;
       if ($success) {
         if ($type_msg == "choc") {
 
           $chocManager = new ChocManager($payload_decoded_json);
           
-          if (!$chocManager->insertChocData($payload_decoded_json)) {
+          /*if (!$chocManager->insertChocData($payload_decoded_json)) {
             return false;
-          }
+          }*/
           $group_name = $uplinkDataArr["group_name"];
           $shockTreshSTD = SettingManager::getShockThresh($group_name);
           $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
@@ -78,7 +85,7 @@ class RecordManager extends \Core\Model
           $hasAlert = $chocManager->check($sensor_id, $timePeriodCheck);
           $chocValue = $chocManager->getPowerValueChoc();
 
-          //Create new alert if it's the case
+          /*//Create new alert if it's the case
           if ($hasAlert) {
 
             $eventDataArr = array(
@@ -91,7 +98,7 @@ class RecordManager extends \Core\Model
 
             $alertManager = new AlertManager($eventDataArr);
             $alertManager->createFromArr($eventDataArr);
-          }
+          }*/
         }
         //battery data
         else if ($type_msg == "global") {
@@ -106,9 +113,9 @@ class RecordManager extends \Core\Model
           
           $inclinometreManager = new InclinometerManager($payload_decoded_json);
 
-          if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
+          /*if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
             return false;
-          }
+          }*/
 
           $group_name = $uplinkDataArr["group_name"];
           $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
@@ -119,7 +126,7 @@ class RecordManager extends \Core\Model
           $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
           $hasAlertArr = $inclinometreManager->check($sensor_id, $timePeriodCheck);
 
-          
+          /*
           if ($hasAlertArr["alertOnX"]){
             $angleX = $inclinometreManager->getAngleX();
             $eventDataArr = array(
@@ -156,7 +163,7 @@ class RecordManager extends \Core\Model
 
             $alertManager = new AlertManager($eventDataArr);
             $alertManager->createFromArr($eventDataArr);
-          }
+          }*/
           
           
         
