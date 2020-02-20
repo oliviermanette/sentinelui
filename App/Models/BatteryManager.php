@@ -60,7 +60,7 @@ class BatteryManager extends \Core\Model
   public function insertBatteryData($battery_data_json)
   {
     $battery_level = floatval($battery_data_json['batteryLevel']);
-    $date_time = $battery_data_json['date_time'];
+    $date_time = $battery_data_json['dateTime'];
     $deveui_sensor = $battery_data_json['deveui'];
 
     $sql_data_record_battery = 'INSERT INTO  global (`record_id`, `battery_level`)

@@ -24,18 +24,22 @@ class Message
         //Check what kind of message we received from the sensor
         $this->typeMsgFormat = $this->checkTypeMessage($this->type);
         $this->group = explode("-", $this->group)[0];
+        $this->latitude = $this->lat;
+        $this->longitude = $this->lng;
         $this->extractDeviceProperties();
         $this->convertTimestampToDateTime();
-        $this->decodePayload();
-        echo "Type message : ". $this->typeMsgFormat ."\n";
-        echo "Group : " . $this->group . "\n";
-        echo "deveui_sensor : " . $this->deveuiSensor . "\n";
-        echo "dateTime : " . $this->dateTime . "\n";
+        $this->msgDecoded = $this->decodePayload();
+        $this->extractExternalId();
+
+        //print_r($this);
         //echo "Type asset : " . $this->type_asset;
     }
 
 
 
+    public function getFormatMessage(){
+        return $this->typeMsgFormat;
+    }
 
     private function checkTypeMessage($type_msg)
     {
@@ -60,7 +64,40 @@ class Message
     private function extractDeviceProperties(){
         $this->externalId = $this->device_properties['external_id'];
         $this->appeui =  $this->device_properties['appeui'];
-        $this->deveuiSensor =  $this->device_properties['deveui'];
+        $this->deveui =  $this->device_properties['deveui'];
+    }
+
+    /**
+     * extract external_id data from Objenious (which correspond to the label of a sensor in Objenious)
+     *
+     * @param string $external_id 
+     * @return array 
+     */
+    private function extractExternalId()
+    {
+        #Remove bracket
+        $asset_name_no_bracket = str_replace(array('[', ']'), '', $this->externalId);
+        $asset_name_array = explode("-", $asset_name_no_bracket);
+        $region = $asset_name_array[0];
+        $transmission_line_name = $asset_name_array[1];
+
+        $desc_asset = $asset_name_array[2];
+        $support_asset = $asset_name_array[3];
+        $corniere = $asset_name_array[4];
+
+        #Build the asset name
+        $name_asset = $desc_asset . "_" . $support_asset;
+
+        $this->structureName = $name_asset;
+        $this->transmissionLineName = $transmission_line_name;
+        $this->site = $region;
+
+        if (strpos($this->structureName, 'tower') !== false) {
+            $this->typeStructure = "transmission line";
+        } else {
+            $this->typeStructure = "undefined";
+        }
+        
     }
 
     private function convertTimestampToDateTime($datetimeFormat = 'Y-m-d H:i:s', $fromTimeZone = 'UTC', $toTimeZone = 'CET')
@@ -100,26 +137,33 @@ class Message
             $this->typeMsg = "inclinometre";
             echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <=== \n";
             $msgDecoded = $this->decodeInclinometreMsg($this->payload_cleartext);
-            return $msgDecoded;
+
         } else if ($preambule_bin == "10") {
             $this->typeMsg = "choc";
             echo "\n ==> TYPE MESSAGE RECEIVED : choc_data data <===\n";
             $msgDecoded = $this->decodeChocMsg($this->payload_cleartext);
-            return $msgDecoded;
+
         } else if ($preambule_bin == "11") {
             $this->typeMsg = "global";
             echo "\n ==> TYPE MESSAGE RECEIVED : global data <===\n";
             $msgDecoded = $this->decodeGlobalMsg($this->payload_cleartext);
-            return $msgDecoded;
+
         } else if ($preambule_bin == "01") {
             $this->typeMsg = "spectre";
             echo "\n ==> TYPE MESSAGE RECEIVED : spectre data <===\n";
             $msgDecoded = $this->decodeSpectreMsg($this->payload_cleartext);
-            return $msgDecoded;
+            
         } else {
             $this->typeMsg = "undefined";
-            return "UNDEFINED";
+            $msgDecoded = "UNDEFINED";
         }
+
+        $payload_decoded_json = json_decode($msgDecoded, true);
+
+        $payload_decoded_json['dateTime'] = $this->dateTime;
+        $payload_decoded_json['deveui'] = $this->deveui;
+
+        return $payload_decoded_json;
     }
 
 
@@ -317,6 +361,36 @@ class Message
         return json_encode($spectreMSGDecoded, true);
     }
 
+    /**
+     * extract event data from objenious
+     *
+     * @param json $data json data received from Objenious
+     * @return array 
+     */
+    private function extractEventData($data)
+    {
+        $date_time = $this->convertTimestampToDateTime($data['timestamp']);
+
+        $device_id = $data['device_id'];
+        $type = $data['type'];
+        $device_properties = $data['device_properties'];
+
+        $external_id = $device_properties['external_id'];
+        $deveui = $device_properties['deveui'];
+        $property = $device_properties['property'];
+
+        $name_asset = $this->extractExternalId($external_id);
+
+        $eventDataArr = array(
+            "date_time"  => $date_time,
+            "device_id"  => $device_id,
+            "deveui"  => $deveui,
+            "label"  => $type,
+            "name_asset"  => $name_asset
+        );
+
+        return $eventDataArr;
+    }
     
 
 }

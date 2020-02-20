@@ -38,7 +38,7 @@ class InclinometerManager extends \Core\Model
       $this->angleZ = $angleArr["angleZ"];
 
       $this->deveui_sensor = $inclinometerDataJson["deveui"];
-      $this->date_time = $inclinometerDataJson["date_time"];
+      $this->date_time = $inclinometerDataJson["dateTime"];
       $this->rule = 1;
     }
   }
@@ -523,7 +523,7 @@ class InclinometerManager extends \Core\Model
     $nx = $inclinometer_data_json['X'];
     $ny = $inclinometer_data_json['Y'];
     $nz = $inclinometer_data_json['Z'];
-    $date_time = $inclinometer_data_json['date_time'];
+    $date_time = $inclinometer_data_json['dateTime'];
     $deveui_sensor = $inclinometer_data_json['deveui'];
 
     $angleArr = InclinometerManager::convertInclinometerDataToAngle($nx, $ny, $nz);

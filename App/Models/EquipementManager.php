@@ -195,7 +195,7 @@ class EquipementManager extends \Core\Model
    * @param int $sensor_id sensor id to get the equipement ID
    * @return int  sensor id
    */
-  public function getEquipementIdBySensorId($sensor_id)
+  public static function getEquipementIdBySensorId($sensor_id)
   {
     $db = static::getDB();
 

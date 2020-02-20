@@ -272,7 +272,7 @@ class SpectreManager extends \Core\Model
     $maxFreq = floatval($spectre_data_json['max_freq']);
     $spectre_msg_hex = $spectre_data_json['spectre_msg_hex'];
     $resolution = floatval($spectre_data_json['resolution']);
-    $date_time = $spectre_data_json['date_time'];
+    $date_time = $spectre_data_json['dateTime'];
     $deveui_sensor = $spectre_data_json['deveui'];
 
     $sql_data_record_subspectre = 'INSERT INTO  spectre (`record_id`, `subspectre`, `subspectre_number`, `min_freq`, `max_freq`, `resolution`)

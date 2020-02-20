@@ -121,7 +121,7 @@ class SensorManager extends \Core\Model
    * @return int sensor id
    * 
    */
-  public function getSensorIdFromDeveui($deveui)
+  public static function getSensorIdFromDeveui($deveui)
   {
     $db = static::getDB();
 

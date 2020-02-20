@@ -38,51 +38,32 @@ class RecordManager extends \Core\Model
     $message = new Message($data);
     //var_dump($message);
 
-    exit();
+    if ($message->getFormatMessage() == "uplink"){
 
-    $type_msg =  $data['type'];
+      EquipementManager::insertStructureType($message->typeStructure);
 
-    //Check what kind of message we received from the sensor
-    $type_msg = RecordManager::checkTypeMessage($type_msg);
-    
-    if ($type_msg == "uplink") {
-      //Classic message which has the raw data value (inclinometer...)
-      $uplinkDataArr = RecordManager::extractUplinkData($data);
-      //Add equipement
-      EquipementManager::insertStructureType($uplinkDataArr["type_asset"]);
+      $sensorId = SensorManager::getSensorIdFromDeveui($message->deveui);
+      $equipementId = EquipementManager::getEquipementIdBySensorId($sensorId);
 
-      //As we received a payload message, we need to decode it
-      $payload_msg_json = RecordManager::decodePayload($uplinkDataArr["payload_cleartext"]);
-      $payload_decoded_json = json_decode($payload_msg_json, true);
-
-      #Add date time attribute to the decoded payload
-      $payload_decoded_json['date_time'] = $uplinkDataArr["date_time"];
-      $payload_decoded_json['deveui'] = $uplinkDataArr["deveui"];
-  
-      $sensor_id = $sensorManager->getSensorIdFromDeveui($uplinkDataArr["deveui"]);
-      $equipement_id = $equipementManager->getEquipementIdBySensorId($sensor_id);
-
-      //Get the type of message received from the uplink (choc, inclinometer, global, spectre)
-      $type_msg = $payload_decoded_json["type"];
-    
-      //Insert a record inside the Record table of the DB
-      //$success = RecordManager::insertRecordData($uplinkDataArr["deveui"], $uplinkDataArr["name_asset"], $uplinkDataArr["transmission_line_name"], $uplinkDataArr["payload_cleartext"], $uplinkDataArr["date_time"], $type_msg, $uplinkDataArr["longitude_msg"], $uplinkDataArr["latitude_msg"]);
+      $success = RecordManager::insertRecordData($message->deveui, $message->structureName, 
+        $message->transmissionLineName, $message->payload_cleartext,
+        $message->dateTime, $message->typeMsg, $message->longitude, 
+        $message->latitude);
       
-      $success = true;
+      
       if ($success) {
-        if ($type_msg == "choc") {
-
-          $chocManager = new ChocManager($payload_decoded_json);
+        if ($message->typeMsg == "choc"){
           
-          /*if (!$chocManager->insertChocData($payload_decoded_json)) {
+          $chocManager = new ChocManager($message->msgDecoded);
+
+          if (!$chocManager->insertChocData($message->msgDecoded)) {
             return false;
-          }*/
-          $group_name = $uplinkDataArr["group_name"];
-          $shockTreshSTD = SettingManager::getShockThresh($group_name);
-          $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
+          }
+          $shockTreshSTD = SettingManager::getShockThresh($message->group);
+          $timePeriodCheck = SettingManager::getTimePeriodCheck($message->group);
 
           $chocManager->setStdDevRule($shockTreshSTD);
-          $hasAlert = $chocManager->check($sensor_id, $timePeriodCheck);
+          $hasAlert = $chocManager->check($sensorId, $timePeriodCheck);
           $chocValue = $chocManager->getPowerValueChoc();
 
           /*//Create new alert if it's the case
@@ -101,30 +82,29 @@ class RecordManager extends \Core\Model
           }*/
         }
         //battery data
-        else if ($type_msg == "global") {
+        else if ($message->typeMsg == "global") {
           $batteryManager = new BatteryManager();
 
-          if (!$batteryManager->insertBatteryData($payload_decoded_json)) {
+          if (!$batteryManager->insertBatteryData($message->msgDecoded)) {
             return false;
           }
         }
         //Inclinometer data
-        else if ($type_msg == "inclinometre") {
-          
-          $inclinometreManager = new InclinometerManager($payload_decoded_json);
+        else if ($message->typeMsg == "inclinometre") {
 
-          /*if (!$inclinometreManager->insertInclinometerData($payload_decoded_json)) {
+          $inclinometreManager = new InclinometerManager($message->msgDecoded);
+
+          if (!$inclinometreManager->insertInclinometerData($message->msgDecoded)) {
             return false;
-          }*/
+          }
 
-          $group_name = $uplinkDataArr["group_name"];
-          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
-          $timePeriodCheck = SettingManager::getTimePeriodCheck($group_name);
-          
-          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group_name);
+          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($message->group);
+          $timePeriodCheck = SettingManager::getTimePeriodCheck($message->group);
+
+          $inclinometerTreshSTD = SettingManager::getInclinometerThresh($message->group);
 
           $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
-          $hasAlertArr = $inclinometreManager->check($sensor_id, $timePeriodCheck);
+          $hasAlertArr = $inclinometreManager->check($sensorId, $timePeriodCheck);
 
           /*
           if ($hasAlertArr["alertOnX"]){
@@ -164,27 +144,21 @@ class RecordManager extends \Core\Model
             $alertManager = new AlertManager($eventDataArr);
             $alertManager->createFromArr($eventDataArr);
           }*/
-          
-          
-        
         }
         //Subspectre data
-        else if ($type_msg == "spectre") {
+        else if ($message->typeMsg == "spectre") {
           $spectreManager = new SpectreManager();
 
-          if (!$spectreManager->insertSpectreData($payload_decoded_json)) {
+          if (!$spectreManager->insertSpectreData($message->msgDecoded)) {
             return false;
           }
         }
 
         return true;
       }
-      //exit();
-      //Choc data
-
-      //If event defined in Objenious 
-    } else if ($type_msg == "event") {
       
+    } else if ($message->getFormatMessage() == "event") {
+
       $eventDataArr = RecordManager::extractEventData($data);
 
       $sensor_id = $sensorManager->getSensorIdFromDeveui($eventDataArr["deveui"]);
@@ -194,8 +168,8 @@ class RecordManager extends \Core\Model
 
       $alertManager = new AlertManager($eventDataArr);
       $alertManager->createFromArr($eventDataArr);
-    } else if ($type_msg == "downlink") {
-    } else if ($type_msg == "join") {
+    } else if ($message->getFormatMessage() == "downlink") {
+    } else if ($message->getFormatMessage() == "join") {
     }
   }
 
@@ -335,93 +309,8 @@ class RecordManager extends \Core\Model
     return false;
   }
 
-  public static function checkTypeMessage($type_msg)
-  {
-    switch ($type_msg) {
-      case "ChangeStatusActive":
-        return "event";
-      case "ChangeStatusInactive":
-        return "event";
-      case "ChangeStatusError":
-        return "event";
-      case "ChangeStatusJoined":
-        return "event";
-      case "uplink":
-        return "uplink";
-      case "downlink":
-        return "downlink";
-      case "join":
-        return "join";
-    }
-  }
 
-
-  /**
-   * extract uplink data from objenious
-   *
-   * @param json $data json data received from Objenious
-   * @return array 
-   */
-  public static function extractUplinkData($data)
-  {
-
-    $id_uplink = $data['id'];
-    $profile = $data['profile'];
-    $profile_id = $data['profile_id'];
-    $group = $data['group'];
-    $group = explode("-", $group)[0];
-    $group_id = $data['group_id'];
-    $type = $data['type'];
-    $device_id = $data['device_id'];
-    //$count = $data['count'];
-    $geolocation_precision = $data['geolocation_precision'];
-    $geolocation_type = $data['geolocation_type'];
-    $latitude_msg = $data['lat'];
-    $longitude_msg = $data['lng'];
-    $payload_data = $data['payload'];
-    $payload_cleartext = $data['payload_cleartext'];
-    $device_properties = $data['device_properties'];
-
-    $external_id = $device_properties['external_id'];
-    $appeui = $device_properties['appeui'];
-    $deveui_sensor = $device_properties['deveui'];
-    $timestamp = $data['timestamp'];
-    //print_r($data['timestamp']);
-    //echo gettype($data['timestamp']);
-    //exit();
-    $date_time = RecordManager::convertTimestampToDateTime($timestamp);
-
-    $assetArr = RecordManager::extractExternalId($external_id);
-
-    $name_asset = $assetArr["name_asset"];
-    $transmission_line_name = $assetArr["transmission_line_name"];
-    #Provisory solution
-    $type_asset = "";
-    if (strpos($name_asset, 'tower') !== false) {
-      $type_asset = "transmission line";
-    } else {
-      $type_asset = "undefined";
-    }
-
-    $uplinkDataArr = array(
-      "id_uplink"  => $id_uplink,
-      "profile"  => $profile,
-      "profile_id"  => $profile_id,
-      //"nb_message"  => $count,
-      "type_asset"  => $type_asset,
-      "name_asset"  => $name_asset,
-      "transmission_line_name" => $transmission_line_name,
-      "latitude_msg"  => $latitude_msg,
-      "longitude_msg"  => $longitude_msg,
-      "payload_cleartext"  => $payload_cleartext,
-      "date_time"  => $date_time,
-      "device_id"  => $device_id,
-      "deveui"  => $deveui_sensor,
-      "type"  => $type,
-    );
-
-    return $uplinkDataArr;
-  }
+  
 
   /**
    * extract event data from objenious
@@ -526,9 +415,10 @@ class RecordManager extends \Core\Model
       SELECT date_time FROM record WHERE date_time = :date_time
     ) LIMIT 1';
 
-    echo "\nDeveui : ". $deveui_sensor ."\n";
-    echo "\name_asset : " . $name_asset . "\n";
-    echo "\date_time : " . $date_time . "\n";
+    echo "\n transmission_line_name : " . $transmission_line_name . "\n";
+    echo "\n name_asset : " . $name_asset . "\n";
+    echo "\n Deveui : ". $deveui_sensor ."\n";
+    echo "\n date_time : " . $date_time . "\n";
     $db = static::getDB();
     $stmt = $db->prepare($data_record);
 

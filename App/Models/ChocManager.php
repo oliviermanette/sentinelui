@@ -36,8 +36,8 @@ class ChocManager extends \Core\Model
       $this->frequence_1 = $dataChoc["freq1"];
       $this->frequence_2 = $dataChoc["freq2"];
       $this->power = $dataChoc["power"];
-      $this->deveui_sensor = $dataChoc["deveui_sensor"];
-      $this->date_time = $dataChoc["date_time"];
+      $this->deveui_sensor = $dataChoc["deveui"];
+      $this->date_time = $dataChoc["dateTime"];
       $this->rule = 1;
     }
   }
@@ -1219,7 +1219,7 @@ class ChocManager extends \Core\Model
     $time_s_1 = Utilities::microToSecond($time_1);
     $time_s_2 = Utilities::microToSecond($time_2);
 
-    $date_time = $choc_data_json['date_time'];
+    $date_time = $choc_data_json['dateTime'];
     $deveui_sensor = $choc_data_json['deveui'];
 
     $resData = ChocManager::computeChocData($amplitude_g_1, $amplitude_g_2, $time_s_1, $time_s_2);
@@ -1280,7 +1280,7 @@ class ChocManager extends \Core\Model
     $time_s_1 = Utilities::microToSecond($time_1);
     $time_s_2 = Utilities::microToSecond($time_2);
 
-    $date_time = $choc_data_json['date_time'];
+    $date_time = $choc_data_json['dateTime'];
     $deveui_sensor = $choc_data_json['deveui'];
 
     $resData = ChocManager::computeChocData($amplitude_g_1, $amplitude_g_2, $time_s_1, $time_s_2);
@@ -1288,8 +1288,8 @@ class ChocManager extends \Core\Model
       "power" => $resData[0],
       "freq1" => $resData[1],
       "freq2" => $resData[2],
-      "deveui_sensor" => $deveui_sensor,
-      "date_time" => $date_time
+      "deveui" => $deveui_sensor,
+      "dateTime" => $date_time
     );
 
     return $resultsArr;
