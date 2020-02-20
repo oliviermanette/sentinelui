@@ -92,15 +92,7 @@ class ChocManager extends \Core\Model
     $this->structure_id = $structure_id;
   }
 
-  public function getPowerValueChoc($precision = 2, $unite = "mg")
-  {
-    if ($unite == "mg"){
-      return round($this->power*100, $precision);
-    }else {
-      return round($this->power, $precision);
-    }
-    
-  }
+ 
 
   /**
    * Get all the choc messages received from the sensors, for a specific group (RTE for example)

@@ -56,6 +56,23 @@ class SensorManager extends \Core\Model
     return $statusArr;
   }
 
+  public static function getOwner($deveui){
+    $db = static::getDB();
+
+    $sql = "SELECT group_name.name FROM group_name
+    LEFT JOIN sensor_group ON (sensor_group.groupe_id = group_name.group_id)
+    LEFT JOIN sensor ON (sensor.id = sensor_group.sensor_id)
+    WHERE sensor.deveui = :deveui";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $owner = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $owner;
+    }
+  }
+
   /** 
    * Get the deveui of a device given his id
    *

@@ -484,25 +484,34 @@ class AlertManager extends \Core\Model
      *
      * @return void
      */
-    public function sendAlert($group_name)
+    public static function sendAlert($alert, $group_name)
     {
-        //Find all users that want to receive alerts
-        $users = UserManager::findToSendAlerts($group_name);
-        foreach ($users as $user){
+        if (is_null($alert->triggerValue)){
+            $msg = $alert->getProperMessageFromLabel();
             
-            $email = $user["email"];
-            $phone_number = $user["phone_number"];
-            $firstName = $user["first_name"];
-            $last_name = $user["last_name"];
-            $company = $user["company"];
-            echo "\n Envoie du mail à " . $firstName . "\n";
-            
-            
-                $deveui = $this->deveui;
-                $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
-                $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' .$sensorName. '/info#alertsStructure' ;
+            print_r($msg);
+        }else {
+            $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
+            $equipementName = $equipementInfoArr["equipement"];
+            $ligneHT = $equipementInfoArr["ligneHT"];
+            $region = EquipementManager::getSiteLocation($alert->equipementId);
 
-                $dateTime = explode(" ", $this->dateTime);
+            //Find all users that want to receive alerts
+            $users = UserManager::findToSendAlerts($group_name);
+            foreach ($users as $user) {
+
+                $email = $user["email"];
+                $phone_number = $user["phone_number"];
+                $firstName = $user["first_name"];
+                $last_name = $user["last_name"];
+                $company = $user["company"];
+                echo "\n Envoie du mail à " . $firstName . "\n";
+
+                $deveui = $alert->deveui;
+                $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
+                $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $sensorName . '/info#alertsStructure';
+
+                $dateTime = explode(" ", $alert->dateTime);
                 $date = date('d/m/Y', strtotime($dateTime[0]));
                 $time = $dateTime[1];
                 //print_r($this->label);
@@ -511,10 +520,10 @@ class AlertManager extends \Core\Model
                     "dateEventOccured" => $date,
                     "timeEventOccured" => $time,
                     "sensorName" => $sensorName,
-                    "region" => $this->region,
-                    "equipement" => $this->nameAsset,
-                    "label" => $this->label,
-                    "value" => $this->value,
+                    "region" => $region,
+                    "equipement" => $equipementName,
+                    "label" => $alert->label,
+                    "value" => $alert->triggerValue,
                     "url" => $url,
 
                 ]);
@@ -523,20 +532,17 @@ class AlertManager extends \Core\Model
                     "dateEventOccured" => $date,
                     "timeEventOccured" => $time,
                     "sensorName" => $sensorName,
-                    "region" => $this->region,
-                    "equipement" => $this->nameAsset,
-                    "label" => $this->label,
-                    "value" => $this->value,
+                    "region" => $region,
+                    "equipement" => $equipementName,
+                    "label" => $alert->label,
+                    "value" => $alert->triggerValue,
                     "url" => $url,
                 ]);
 
                 Mail::send($email, '[TEST]Nouvelle alerte !', $text, $html);
-            
-            
+            }
         }
-
-        
-        
+                
     }
 
     /**

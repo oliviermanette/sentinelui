@@ -24,4 +24,26 @@ class Alert extends Message
         $this->equipementId = EquipementManager::getEquipementIdBySensorDeveui($deveui);
         
     }
+
+    public function getProperMessageFromLabel(){
+        switch($this->label){
+            case 'ChangeStatusInactive':
+                $msg = "Capteur devenu inactif";
+                break;
+            case 'ChangeStatusActive':
+                $msg = "Capteur devenu actif";
+                break;
+            case 'ChangeStatusError':
+                $msg = "Erreur avec le capteur";
+                break;
+            case 'high_choc':
+                $msg = "Choc important";
+                break;
+            default:
+                break;
+        }
+
+        return $msg;
+    }
+    
 }

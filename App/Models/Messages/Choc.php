@@ -81,4 +81,14 @@ class Choc extends Message
         return $this->power;
     }
 
+
+    public function getPowerValueChoc($precision = 2, $unite = "mg")
+    {
+        if ($unite == "mg") {
+            return round($this->power * 100, $precision);
+        } else {
+            return round($this->power, $precision);
+        }
+    }
+
 }

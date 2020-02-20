@@ -107,6 +107,24 @@ class EquipementManager extends \Core\Model
     }
   }
 
+  public static function getSiteLocation($structure_id){
+    $db = static::getDB();
+
+    $sql = "SELECT site.nom FROM site
+        LEFT JOIN structure ON (structure.site_id = site.id)
+        WHERE structure.id = :structure_id
+      ";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $site = $stmt->fetch(PDO::FETCH_COLUMN);
+
+      return $site;
+    }
+  }
+
   /**
    * Get all the equipement which belong to a specific group (RTE for example) given a particular site ID
    *

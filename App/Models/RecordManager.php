@@ -34,25 +34,25 @@ class RecordManager extends \Core\Model
    * @param json $jsondata json data received from Objenious. This file contain the uplink message
    * @return boolean  True if data has been correctly inserted, true otherwise
    */
-  function parseJsonDataAndInsert($data)
+  public static function parseJsonDataAndInsert($data)
   {
 
     $message = new Message($data);
 
     if ($message->getFormatMessage() == "uplink") {
 
-      $this->handleUplinkMessage($message);
+      RecordManager::handleUplinkMessage($message);
       
     } else if ($message->getFormatMessage() == "event") {
 
-      $this->handleEventMessage($message);
+      RecordManager::handleEventMessage($message);
 
     } else if ($message->getFormatMessage() == "downlink") {
     } else if ($message->getFormatMessage() == "join") {
     }
   }
 
-  private function handleUplinkMessage($message)
+  private static function handleUplinkMessage($message)
   {
     EquipementManager::insertStructureType($message->typeStructure);
 
@@ -75,10 +75,14 @@ class RecordManager extends \Core\Model
         //Create new alert if it's the case
         if ($hasAlert) {
           $label = "high_choc";
-          $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValue());
+          $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc());
 
           AlertManager::insertTypeEvent($label);
           AlertManager::insert($alert);
+          //Send alert
+          AlertManager::sendAlert($alert, $message->group);
+
+          
         }
       }
       //battery data
@@ -105,18 +109,21 @@ class RecordManager extends \Core\Model
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
           AlertManager::insertTypeEvent($label);
           AlertManager::insert($alert);
+          AlertManager::sendAlert($alert, $message->group);
         }
         if ($hasAlertArr["alertOnY"]) {
           $label = "high_inclinometer_variationY";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
           AlertManager::insertTypeEvent($label);
           AlertManager::insert($alert);
+          AlertManager::sendAlert($alert, $message->group);
         }
         if ($hasAlertArr["alertOnZ"]) {
           $label = "high_inclinometer_variationZ";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
           AlertManager::insertTypeEvent($label);
           AlertManager::insert($alert);
+          AlertManager::sendAlert($alert, $message->group);
         }
       }
       //Subspectre data
@@ -131,13 +138,18 @@ class RecordManager extends \Core\Model
     }
   }
 
-  private function handleEventMessage($message)
+  private static function handleEventMessage($message)
   {
     $label = $message->type;
+    
 
     $alert = new Alert($label, $message->deveui, $message->dateTime);
+    $group = SensorManager::getOwner($alert->deveui);
     AlertManager::insertTypeEvent($label);
     AlertManager::insert($alert);
+    var_dump($alert);
+    
+    //AlertManager::sendAlert($alert, $group);
   }
 
   /**
