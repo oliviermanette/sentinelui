@@ -266,35 +266,29 @@ class SpectreManager extends \Core\Model
   * resolution, date_time, deveui)
   * @return boolean  return True if insert query successfully executed
   */
-  public function insertSpectreData($spectre_data_json){
-    $spectre_number = $spectre_data_json['spectre_number'];
-    $minFreq = floatval($spectre_data_json['min_freq']);
-    $maxFreq = floatval($spectre_data_json['max_freq']);
-    $spectre_msg_hex = $spectre_data_json['spectre_msg_hex'];
-    $resolution = floatval($spectre_data_json['resolution']);
-    $date_time = $spectre_data_json['dateTime'];
-    $deveui_sensor = $spectre_data_json['deveui'];
+  public static function insertSpectre($spectre){
 
     $sql_data_record_subspectre = 'INSERT INTO  spectre (`record_id`, `subspectre`, `subspectre_number`, `min_freq`, `max_freq`, `resolution`)
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "spectre"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :subspectre, :subspectre_number, :min_freq, :max_freq, :resolution) AS id_record
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)) AS record_id,
+      :subspectre AS subspectre, :subspectre_number AS subspectre_number, :min_freq AS min_freq,
+      :max_freq AS max_freq, :resolution AS resolution) AS id_record
       WHERE NOT EXISTS (
-      SELECT record_id FROM spectre WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
+      SELECT record_id FROM spectre WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "spectre"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
       ) LIMIT 1';
 
       $db = static::getDB();
       $stmt = $db->prepare($sql_data_record_subspectre);
 
-      $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
-      $stmt->bindValue(':deveui', $deveui_sensor, PDO::PARAM_STR);
-      $stmt->bindValue(':subspectre', $spectre_msg_hex, PDO::PARAM_STR);
-      $stmt->bindValue(':subspectre_number', $spectre_number, PDO::PARAM_STR);
-      $stmt->bindValue(':min_freq', $minFreq, PDO::PARAM_STR);
-      $stmt->bindValue(':max_freq', $maxFreq, PDO::PARAM_STR);
-      $stmt->bindValue(':resolution', $resolution, PDO::PARAM_STR);
+      $stmt->bindValue(':date_time', $spectre->dateTime, PDO::PARAM_STR);
+      $stmt->bindValue(':deveui', $spectre->deveui, PDO::PARAM_STR);
+      $stmt->bindValue(':subspectre', $spectre->spectre_msg_hex, PDO::PARAM_STR);
+      $stmt->bindValue(':subspectre_number', $spectre->spectre_number, PDO::PARAM_STR);
+      $stmt->bindValue(':min_freq', floatval($spectre->min_freq), PDO::PARAM_STR);
+      $stmt->bindValue(':max_freq', floatval($spectre->max_freq), PDO::PARAM_STR);
+      $stmt->bindValue(':resolution', floatval($spectre->resolution), PDO::PARAM_STR);
 
       $stmt->execute();
 

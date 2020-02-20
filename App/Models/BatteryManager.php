@@ -57,28 +57,25 @@ class BatteryManager extends \Core\Model
    * @param json $battery_data_json json array which contain the data to insert
    * @return array 
    */
-  public function insertBatteryData($battery_data_json)
+  public static function insertBattery($battery)
   {
-    $battery_level = floatval($battery_data_json['batteryLevel']);
-    $date_time = $battery_data_json['dateTime'];
-    $deveui_sensor = $battery_data_json['deveui'];
 
     $sql_data_record_battery = 'INSERT INTO  global (`record_id`, `battery_level`)
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "global"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :battery) AS id_record
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)) AS record_id,
+      :battery AS battery) AS id_record
       WHERE NOT EXISTS (
-      SELECT record_id FROM global WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
+      SELECT record_id FROM global WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "global"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
       ) LIMIT 1';
 
     $db = static::getDB();
     $stmt = $db->prepare($sql_data_record_battery);
 
-    $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
-    $stmt->bindValue(':deveui', $deveui_sensor, PDO::PARAM_STR);
-    $stmt->bindValue(':battery', $battery_level, PDO::PARAM_INT);
+    $stmt->bindValue(':date_time', $battery->dateTime, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $battery->deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':battery', floatval($battery->batteryLevel), PDO::PARAM_STR);
 
     $stmt->execute();
 

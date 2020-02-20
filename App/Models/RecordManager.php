@@ -13,9 +13,13 @@ Basically inclinometer data, choc, spectre, battery...
 namespace App\Models;
 
 use App\Config;
-use App\Message;
+use App\Models\Messages\Message;
 use App\Utilities;
 use App\Controllers\ControllerDataObjenious;
+use App\Models\Messages\Choc;
+use App\Models\Messages\Inclinometer;
+use App\Models\Messages\Battery;
+use App\Models\Messages\Spectre;
 use PDO;
 
 
@@ -39,33 +43,33 @@ class RecordManager extends \Core\Model
     //var_dump($message);
 
     if ($message->getFormatMessage() == "uplink"){
-
+      
       EquipementManager::insertStructureType($message->typeStructure);
 
       $sensorId = SensorManager::getSensorIdFromDeveui($message->deveui);
       $equipementId = EquipementManager::getEquipementIdBySensorId($sensorId);
 
-      $success = RecordManager::insertRecordData($message->deveui, $message->structureName, 
-        $message->transmissionLineName, $message->payload_cleartext,
-        $message->dateTime, $message->typeMsg, $message->longitude, 
-        $message->latitude);
-      
-      
+      $success = RecordManager::insertRecordData($message);
+
+      $success = true;
       if ($success) {
         if ($message->typeMsg == "choc"){
           
-          $chocManager = new ChocManager($message->msgDecoded);
+          $choc = new Choc($message->msgDecoded);
 
-          if (!$chocManager->insertChocData($message->msgDecoded)) {
+          if (!ChocManager::insertChoc($choc)) {
             return false;
           }
+          
+          $chocManager = new ChocManager();
+
           $shockTreshSTD = SettingManager::getShockThresh($message->group);
           $timePeriodCheck = SettingManager::getTimePeriodCheck($message->group);
 
           $chocManager->setStdDevRule($shockTreshSTD);
-          $hasAlert = $chocManager->check($sensorId, $timePeriodCheck);
-          $chocValue = $chocManager->getPowerValueChoc();
-
+          $hasAlert = $chocManager->check($choc, $timePeriodCheck);
+          $chocValue = $choc->getPowerValue();
+          
           /*//Create new alert if it's the case
           if ($hasAlert) {
 
@@ -83,18 +87,18 @@ class RecordManager extends \Core\Model
         }
         //battery data
         else if ($message->typeMsg == "global") {
-          $batteryManager = new BatteryManager();
+          $battery = new Battery($message->msgDecoded);
 
-          if (!$batteryManager->insertBatteryData($message->msgDecoded)) {
+          if (!BatteryManager::insertBattery($battery)) {
             return false;
           }
         }
         //Inclinometer data
         else if ($message->typeMsg == "inclinometre") {
+          $inclinometer = new Inclinometer($message->msgDecoded);
+          var_dump($inclinometer);
 
-          $inclinometreManager = new InclinometerManager($message->msgDecoded);
-
-          if (!$inclinometreManager->insertInclinometerData($message->msgDecoded)) {
+          if (!InclinometerManager::insertInclinometer($inclinometer)) {
             return false;
           }
 
@@ -102,10 +106,11 @@ class RecordManager extends \Core\Model
           $timePeriodCheck = SettingManager::getTimePeriodCheck($message->group);
 
           $inclinometerTreshSTD = SettingManager::getInclinometerThresh($message->group);
-
+          $inclinometreManager = new InclinometerManager();
+          
           $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
-          $hasAlertArr = $inclinometreManager->check($sensorId, $timePeriodCheck);
-
+          $hasAlertArr = $inclinometreManager->check($inclinometer, $sensorId, $timePeriodCheck);
+          
           /*
           if ($hasAlertArr["alertOnX"]){
             $angleX = $inclinometreManager->getAngleX();
@@ -147,9 +152,8 @@ class RecordManager extends \Core\Model
         }
         //Subspectre data
         else if ($message->typeMsg == "spectre") {
-          $spectreManager = new SpectreManager();
-
-          if (!$spectreManager->insertSpectreData($message->msgDecoded)) {
+          $spectre = new Spectre($message->msgDecoded);
+          if (!SpectreManager::insertSpectre($spectre)) {
             return false;
           }
         }
@@ -404,8 +408,9 @@ class RecordManager extends \Core\Model
    *
    * @return boolean  True if the data has been correctly inserted, False otherwise
    */
-  public static function insertRecordData($deveui_sensor, $name_asset, $transmission_line_name, $payload_cleartext, $date_time, $type_msg, $longitude, $latitude)
+  public static function insertRecordData($message)
   {
+
     $data_record = 'INSERT INTO  record (`sensor_id`,  `structure_id`, `payload`, `date_time`,  `msg_type`,`longitude`, `latitude`)
     SELECT * FROM
     (SELECT (SELECT id FROM sensor WHERE deveui LIKE :deveui_sensor),
@@ -415,21 +420,17 @@ class RecordManager extends \Core\Model
       SELECT date_time FROM record WHERE date_time = :date_time
     ) LIMIT 1';
 
-    echo "\n transmission_line_name : " . $transmission_line_name . "\n";
-    echo "\n name_asset : " . $name_asset . "\n";
-    echo "\n Deveui : ". $deveui_sensor ."\n";
-    echo "\n date_time : " . $date_time . "\n";
     $db = static::getDB();
     $stmt = $db->prepare($data_record);
 
-    $stmt->bindValue(':deveui_sensor', $deveui_sensor, PDO::PARAM_STR);
-    $stmt->bindValue(':name_asset', $name_asset, PDO::PARAM_STR);
-    $stmt->bindValue(':transmission_line_name', $transmission_line_name, PDO::PARAM_STR);
-    $stmt->bindValue(':payload_raw', $payload_cleartext, PDO::PARAM_STR);
-    $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
-    $stmt->bindValue(':type_msg', $type_msg, PDO::PARAM_STR);
-    $stmt->bindValue(':longitude', $longitude, PDO::PARAM_STR);
-    $stmt->bindValue(':latitude', $latitude, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui_sensor', $message->deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':name_asset', $message->structureName , PDO::PARAM_STR);
+    $stmt->bindValue(':transmission_line_name', $message->transmissionLineName, PDO::PARAM_STR);
+    $stmt->bindValue(':payload_raw', $message->payload_cleartext, PDO::PARAM_STR);
+    $stmt->bindValue(':date_time', $message->dateTime, PDO::PARAM_STR);
+    $stmt->bindValue(':type_msg', $message->typeMsg, PDO::PARAM_STR);
+    $stmt->bindValue(':longitude', $message->longitude, PDO::PARAM_STR);
+    $stmt->bindValue(':latitude', $message->latitude, PDO::PARAM_STR);
 
     $stmt->execute();
     $count = $stmt->rowCount();

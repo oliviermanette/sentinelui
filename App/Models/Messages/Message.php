@@ -1,6 +1,9 @@
 <?php
 
-namespace App;
+
+namespace App\Models\Messages;
+
+use App\Utilities;
 
 /**
  * Message class : messages are sent from the sensor
