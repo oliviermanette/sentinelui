@@ -331,7 +331,7 @@
 
         </nav>
         <!-- End of Topbar -->
-
+        <a href="#" id="scroll" style="display: none;"><span></span></a>
         {% for message in flash_messages %}
         <div class="alert alert-{{ message.type }}">
           {{ message.body }}
@@ -342,6 +342,7 @@
         {% endblock %}
 
         {% block script %}
+        
         {% endblock %}
       </div>
 
@@ -386,5 +387,21 @@
     <script src="public/js/utils.js"></script>
 </body>
 
+<script>
+$(document).ready(function(){ 
+    $(window).scroll(function(){ 
+        if ($(this).scrollTop() > 100) { 
+            $('#scroll').fadeIn(); 
+        } else { 
+            $('#scroll').fadeOut(); 
+        } 
+    }); 
+    $('#scroll').click(function(){ 
+        $("html, body").animate({ scrollTop: 0 }, 600); 
+        return false; 
+    }); 
+});
+
+</script>
 
 </html>
