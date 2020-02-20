@@ -10,7 +10,7 @@ use App\Utilities;
  *
  * PHP version 7.0
  */
-class Choc
+class Choc extends Message
 {
 
     public function __construct($data = [])

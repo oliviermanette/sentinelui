@@ -20,6 +20,7 @@ use App\Models\Messages\Choc;
 use App\Models\Messages\Inclinometer;
 use App\Models\Messages\Battery;
 use App\Models\Messages\Spectre;
+use App\Models\Messages\Alert;
 use PDO;
 
 
@@ -38,18 +39,14 @@ class RecordManager extends \Core\Model
     $sensorManager = new SensorManager();
     $equipementManager = new EquipementManager();
     $geocoder = new \OpenCage\Geocoder\Geocoder(\App\Config::GEOCODER_API_KEY);
-
+    
     $message = new Message($data);
     //var_dump($message);
-
     if ($message->getFormatMessage() == "uplink"){
       
       EquipementManager::insertStructureType($message->typeStructure);
 
-      $sensorId = SensorManager::getSensorIdFromDeveui($message->deveui);
-      $equipementId = EquipementManager::getEquipementIdBySensorId($sensorId);
-
-      $success = RecordManager::insertRecordData($message);
+      //$success = RecordManager::insertRecordData($message);
 
       $success = true;
       if ($success) {
@@ -68,22 +65,16 @@ class RecordManager extends \Core\Model
 
           $chocManager->setStdDevRule($shockTreshSTD);
           $hasAlert = $chocManager->check($choc, $timePeriodCheck);
-          $chocValue = $choc->getPowerValue();
           
-          /*//Create new alert if it's the case
+          //Create new alert if it's the case
           if ($hasAlert) {
+            $label = "high_choc";
+            $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValue());
+            
+            AlertManager::insertTypeEvent($label);
+            AlertManager::insert($alert);
 
-            $eventDataArr = array(
-              "label"  => "high_choc",
-              "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
-              "value"  => $chocValue
-            );
-
-            $alertManager = new AlertManager($eventDataArr);
-            $alertManager->createFromArr($eventDataArr);
-          }*/
+          }
         }
         //battery data
         else if ($message->typeMsg == "global") {
@@ -96,7 +87,6 @@ class RecordManager extends \Core\Model
         //Inclinometer data
         else if ($message->typeMsg == "inclinometre") {
           $inclinometer = new Inclinometer($message->msgDecoded);
-          var_dump($inclinometer);
 
           if (!InclinometerManager::insertInclinometer($inclinometer)) {
             return false;
@@ -104,51 +94,31 @@ class RecordManager extends \Core\Model
 
           $inclinometerTreshSTD = SettingManager::getInclinometerThresh($message->group);
           $timePeriodCheck = SettingManager::getTimePeriodCheck($message->group);
-
           $inclinometerTreshSTD = SettingManager::getInclinometerThresh($message->group);
+
           $inclinometreManager = new InclinometerManager();
           
           $inclinometreManager->setStdDevRule($inclinometerTreshSTD);
-          $hasAlertArr = $inclinometreManager->check($inclinometer, $sensorId, $timePeriodCheck);
+          $hasAlertArr = $inclinometreManager->check($inclinometer, $timePeriodCheck);
           
-          /*
           if ($hasAlertArr["alertOnX"]){
-            $angleX = $inclinometreManager->getAngleX();
-            $eventDataArr = array(
-              "label"  => "high_inclinometer_variationX",
-              "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
-              "value"  => $angleX
-            );
-            $alertManager = new AlertManager($eventDataArr);
-            $alertManager->createFromArr($eventDataArr);         
+            $label = "high_inclinometer_variationX";
+            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
+            
+
           }
           if ($hasAlertArr["alertOnY"]) {
-            $angleY = $inclinometreManager->getAngleY();
-            $eventDataArr = array(
-              "label"  => "high_inclinometer_variationY",
-              "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
-              "value"  => $angleY
-            );
-            $alertManager = new AlertManager($eventDataArr);
-            $alertManager->createFromArr($eventDataArr);
+            $label = "high_inclinometer_variationY";
+            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
+            AlertManager::insertTypeEvent($label);
+            AlertManager::insert($alert);
           }
           if ($hasAlertArr["alertOnZ"]) {
-            $angleZ = $inclinometreManager->getAngleZ();
-            $eventDataArr = array(
-              "label"  => "high_inclinometer_variationY",
-              "deveui"  => $uplinkDataArr["deveui"],
-              "date_time"  => $uplinkDataArr["date_time"],
-              "equipement_id"  => $equipement_id,
-              "value"  => $angleZ
-            );
-
-            $alertManager = new AlertManager($eventDataArr);
-            $alertManager->createFromArr($eventDataArr);
-          }*/
+            $label = "high_inclinometer_variationZ";
+            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
+            AlertManager::insertTypeEvent($label);
+            AlertManager::insert($alert);
+          }
         }
         //Subspectre data
         else if ($message->typeMsg == "spectre") {
@@ -162,16 +132,12 @@ class RecordManager extends \Core\Model
       }
       
     } else if ($message->getFormatMessage() == "event") {
+      $label = $message->type;
 
-      $eventDataArr = RecordManager::extractEventData($data);
+      $alert = new Alert($label, $message->deveui, $message->dateTime);
+      AlertManager::insertTypeEvent($label);
+      AlertManager::insert($alert);
 
-      $sensor_id = $sensorManager->getSensorIdFromDeveui($eventDataArr["deveui"]);
-      $equipement_id = $equipementManager->getEquipementIdBySensorId($sensor_id);
-      $eventDataArr['equipement_id'] = $equipement_id;
-      $eventDataArr['value'] = 0;
-
-      $alertManager = new AlertManager($eventDataArr);
-      $alertManager->createFromArr($eventDataArr);
     } else if ($message->getFormatMessage() == "downlink") {
     } else if ($message->getFormatMessage() == "join") {
     }
@@ -314,87 +280,6 @@ class RecordManager extends \Core\Model
   }
 
 
-  
-
-  /**
-   * extract event data from objenious
-   *
-   * @param json $data json data received from Objenious
-   * @return array 
-   */
-  public static function extractEventData($data)
-  {
-    $date_time = RecordManager::convertTimestampToDateTime($data['timestamp']);
-
-    $device_id = $data['device_id'];
-    $type = $data['type'];
-    $device_properties = $data['device_properties'];
-
-    $external_id = $device_properties['external_id'];
-    $deveui = $device_properties['deveui'];
-    $property = $device_properties['property'];
-
-    $name_asset = RecordManager::extractExternalId($external_id);
-
-    $eventDataArr = array(
-      "date_time"  => $date_time,
-      "device_id"  => $device_id,
-      "deveui"  => $deveui,
-      "label"  => $type,
-      "name_asset"  => $name_asset
-    );
-
-    return $eventDataArr;
-  }
-
-  /**
-   * extract external_id data from Objenious (which correspond to the label of a sensor in Objenious)
-   *
-   * @param string $external_id 
-   * @return array 
-   */
-  public static function extractExternalId($external_id)
-  {
-    #Remove bracket
-    $asset_name_no_bracket = str_replace(array('[', ']'), '', $external_id);
-    $asset_name_array = explode("-", $asset_name_no_bracket);
-    $region = $asset_name_array[0];
-    $transmission_line_name = $asset_name_array[1];
-    $desc_asset = $asset_name_array[2];
-    $support_asset = $asset_name_array[3];
-    $corniere = $asset_name_array[4];
-
-    #Build the asset name
-    $name_asset = $desc_asset . "_" . $support_asset;
-    $assetArr = array("name_asset"=>$name_asset, "transmission_line_name"=>$transmission_line_name);
-
-
-    return $assetArr;
-  }
-
-  public static function convertTimestampToDateTime($timestamp, $datetimeFormat = 'Y-m-d H:i:s')
-  {
-  
-    //Split 2019-11-29T16:01:26.572226000Z to keep only the last part 572226000Z
-    $part = explode(".", $timestamp);
-    $second = substr($part[1], 0, 3);
-    //Finnaly we get 2019-11-29T16:01:26.572Z
-    $secondTimeZone = $second; //. "Z";
-    $timestamp = $part[0] . "." . $secondTimeZone;
-    
-    //Objenious work with UTC Timezone
-    $timezoneUTC = new \DateTimeZone('UTC');
-    //Create object DateTime
-    $datetime = new \DateTime($timestamp, $timezoneUTC);
-    //Convert to TimeZone France
-    $france_time = new \DateTimeZone('CET');
-    $datetime->setTimezone($france_time);
-    
-    $date_time = $datetime->format($datetimeFormat);
-
-    return $date_time;
-  }
-
   /**
    * Insert new record message into record table.
    *
@@ -443,249 +328,6 @@ class RecordManager extends \Core\Model
     }
   }
 
-
-  /**
-   * Decode Payload message in order to extract information. (Inclinometer, battery, choc...)
-   *
-   * @param string $payload_cleartext uplink payload message
-   * @return json  data decoded in json format
-   */
-  public static function decodePayload($payload_cleartext)
-  {
-    $preambule_hex = substr($payload_cleartext, 0, 2);
-    $preambule_bin = substr(Utilities::hexStr2bin($preambule_hex), 0, 2);
-    /*echo "\n Preambule HEX : " . $preambule_hex;
-    echo "\n Hex2bin : " . Utilities::hexStr2bin($preambule_hex);
-    echo "\n Preambule Bin : " . $preambule_bin;*/
-
-    if ($preambule_bin == "00") {
-      echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <===";
-      $msgDecoded = RecordManager::decodeInclinometreMsg($payload_cleartext);
-      return $msgDecoded;
-    } else if ($preambule_bin == "10") {
-      echo "\n ==> TYPE MESSAGE RECEIVED : choc_data data <===";
-      $msgDecoded = RecordManager::decodeShockMsg($payload_cleartext);
-      return $msgDecoded;
-    } else if ($preambule_bin == "11") {
-      echo "\n ==> TYPE MESSAGE RECEIVED : global data <===";
-      $msgDecoded = RecordManager::decodeGlobalMsg($payload_cleartext);
-      return $msgDecoded;
-    } else if ($preambule_bin == "01") {
-      echo "\n ==> TYPE MESSAGE RECEIVED : spectre data <===";
-      $msgDecoded = RecordManager::decodeSpectreMsg($payload_cleartext);
-      return $msgDecoded;
-    } else {
-      return "UNDEFINED";
-    }
-  }
-
-  /**
-   * Decode a spectre message
-   *
-   * @param string $payload_cleartext payload data
-   * @return json  data decoded in json format which contain the spectre raw data
-   */
-  public static function decodeSpectreMsg($payload_cleartext)
-  {
-    #Take the preambule
-    //echo "Payload HEX : " . $payload_hex;
-    $spectre_msg_hex = $payload_cleartext;
-    $preambule_hex = substr($payload_cleartext, 0, 2);
-    $preambule_bin = Utilities::hexStr2bin($preambule_hex);
-    $spectre_msg_dec = "";
-
-    for ($i = 2; $i < intval(strlen(strval($spectre_msg_hex))); $i += 2) {
-      $data_i_hex = substr($spectre_msg_hex, $i, 2);
-      $data_i_dec = Utilities::hex2dec($data_i_hex);
-      $spectre_msg_dec .= strval($data_i_dec);
-    }
-
-    #Extract data from prembule
-    $idspectre = substr($preambule_bin, 0, 2);
-    $occurence = substr($preambule_bin, 2, 2);
-    $nc = substr($preambule_bin, 4, 1);
-    $spectre_number = substr($preambule_bin, 5, 3);
-
-    //echo "spectre_number : " . $spectre_number;
-
-    $resolution = 0;
-    $min_freq = 0;
-    $max_freq = 0;
-
-    if (strval($spectre_number) == "000") {
-      $resolution = 0;
-      $min_freq = 0;
-      $max_freq = 0;
-    } else if (strval($spectre_number) == "001") {
-      $resolution = 1;
-      $min_freq = 20;
-      $max_freq = 69;
-    } else if (strval($spectre_number) == "010") {
-      $resolution = 2;
-      $min_freq = 70;
-      $max_freq = 169;
-    } else if (strval($spectre_number) == "011") {
-      $resolution = 4;
-      $min_freq = 170;
-      $max_freq = 369;
-    } else if (strval($spectre_number) == "100") {
-      $resolution = 8;
-      $min_freq = 370;
-      $max_freq = 769;
-    } else if (strval($spectre_number) == "101") {
-      $resolution = 16;
-      $min_freq = 770;
-      $max_freq = 1569;
-    }
-
-
-    $spectreMSGDecoded = (object) [
-      'type' => 'spectre',
-      'spectre_number' => $spectre_number,
-      'resolution' => $resolution,
-      'min_freq' => $min_freq,
-      'max_freq' => $max_freq,
-      'spectre_msg_hex' => $spectre_msg_hex,
-      'spectre_msg_dec' => $spectre_msg_dec
-    ];
-
-    //echo json_encode($spectreMSGDecoded);
-
-    return json_encode($spectreMSGDecoded, true);
-  }
-
-  /**
-   * Decode a global message (battery data)
-   *
-   * @param string $payload_cleartext payload data
-   * @return json  data decoded in json format which contain the battery raw data
-   */
-  public static function decodeGlobalMsg($payload_hex)
-  {
-    #Take the preambule
-    $preambule_hex = substr($payload_hex, 0, 2);
-    $preambule_bin = Utilities::hexStr2bin($preambule_hex);
-    /*echo "\n Preambule hex " . $preambule_hex;
-    echo "\n Preambule bin " . $preambule_bin;*/
-    #Extract data from prembule
-    $idglobal = substr($preambule_bin, 0, 2);
-    $batteryState = substr($preambule_bin, 2, 1);
-    $error = substr($preambule_bin, 3, 1);
-    $state = substr($preambule_bin, 4, 1);
-    $spectre = substr($preambule_bin, 5, 1);
-    $inclinometre = substr($preambule_bin, 6, 1);
-    $shock = substr($preambule_bin, 7, 1);
-
-    #Extract data from the second part
-    $batteryLevel = Utilities::hex2dec(substr($payload_hex, 2, 2));
-
-    $globalMSGDecoded = (object) [
-      'type' => 'global',
-      'batteryLevel' => $batteryLevel,
-      'idglobal' => $idglobal,
-      'batteryState' => $batteryState,
-      'error' => $error,
-      'state' => $state,
-      'spectre' => $spectre,
-      'inclinometre' => $inclinometre,
-      'shock' => $shock
-    ];
-    //echo json_encode($globalMSGDecoded);
-    return json_encode($globalMSGDecoded);
-  }
-
-  /**
-   * Decode a choc message
-   *
-   * @param string $payload_cleartext payload data
-   * @return json  data decoded in json format which contain the choc raw data
-   */
-  public static function decodeShockMsg($payload_hex)
-  {
-    #Take the preambule
-    $preambule_hex = substr($payload_hex, 0, 2);
-    $preambule_bin = Utilities::hexStr2bin($preambule_hex);
-
-    #Extract data from prembule
-    $idShock = substr($preambule_bin, 0, 2);
-    $limiteFrequence = substr($preambule_bin, 2, 2);
-    $redondanceMsg = substr($preambule_bin, 4, 1);
-    $seuil = substr($preambule_bin, 5, 3);
-
-    #Extract data from the second part
-    $msgSecondPart = substr($payload_hex, 2, strlen($payload_hex) - 2);
-    $amplitude1 = Utilities::accumulatedTable16(Utilities::hex2dec(substr($msgSecondPart, 0, 2)));
-    $time1 = Utilities::hex2dec(substr($msgSecondPart, 2, 2));
-    $time1 = ($time1 + 1) * 200; //# 200 is micro second format
-
-    $amplitude2 = Utilities::accumulatedTable16(Utilities::hex2dec(substr($msgSecondPart, 4, 2)));
-    $time2 = Utilities::hex2dec(substr($msgSecondPart, 6, 2));
-    $time2 = ($time2 + 1) * 200; //# 200 is micro second format
-
-    $chocMsgDecoded = (object) [
-      'type' => 'choc',
-      'idShock' => $idShock,
-      'limiteFrequence' => $limiteFrequence,
-      'redondanceMsg' => $redondanceMsg,
-      'seuil' => $seuil,
-      'amplitude1' => $amplitude1,
-      'time1' => $time1,
-      'amplitude2' => $amplitude2,
-      'time2' => $time2
-    ];
-
-    return json_encode($chocMsgDecoded, true);
-  }
-
-  /**
-   * Decode an inclinometer message
-   *
-   * @param string $payload_cleartext payload data
-   * @return json  data decoded in json format which contain the inclinometer raw data
-   */
-  public static function decodeInclinometreMsg($payload_hex)
-  {
-    #Take the preambule
-    $preambule_hex = substr($payload_hex, 0, 2);
-    $preambule_bin = Utilities::hexStr2bin($preambule_hex);
-    /*echo "\n Preambule hex " . $preambule_hex;
-    echo "\n Preambule bin " . $preambule_bin;*/
-    #Extract data from prembule
-    $idInclinometre = substr($preambule_bin, 0, 2);
-    $occurence = substr($preambule_bin, 2, 2);
-    $zeroing = substr($preambule_bin, 4, 2);
-
-    if ($preambule_bin == 0) {
-      $idInclinometre = "00";
-      $occurence = "00";
-      $zeroing = "00";
-    }
-
-
-    #Extract data from the second part
-    $msgSecondPart = substr($payload_hex, 2, strlen($payload_hex) - 2);
-    /*echo "\n MSG second part " . $msgSecondPart;
-    echo "\n idInclinometre " . $idInclinometre;
-    echo "\n" .hexdec("E2");*/
-    $val = Utilities::hex2dec("F2");
-    $X = Utilities::hex2dec(substr($msgSecondPart, 0, 4)) * 0.0625;
-    $Y = Utilities::hex2dec(substr($msgSecondPart, 4, 4)) * 0.0625;
-    $Z = Utilities::hex2dec(substr($msgSecondPart, 8, 4)) * 0.0625;
-    $temperature =  Utilities::hex2dec(substr($msgSecondPart, 12, 4)) / 10;
-
-    $inclinometreMsgDecoded = (object) [
-      'type' => 'inclinometre',
-      'idInclinometre' => $idInclinometre,
-      'occurence' => $occurence,
-      'zeroing' => $zeroing,
-      'X' => $X,
-      'Y' => $Y,
-      'Z' => $Z,
-      'temperature' => $temperature
-    ];
-
-    return json_encode($inclinometreMsgDecoded, true);
-  }
 
   /** 
    * Get the last date of the last message received by a specific sensor
@@ -798,7 +440,7 @@ class RecordManager extends \Core\Model
     ) AS `last_message_received` ,
     DATE_FORMAT(date_installation, '%d/%m/%Y') AS 'date_installation',
     status
-  FROM 
+   FROM 
     (
       SELECT 
         sensor.device_number AS 'sensor_id', 

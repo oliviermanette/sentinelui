@@ -10,7 +10,7 @@ use App\Utilities;
  *
  * PHP version 7.0
  */
-class Inclinometer
+class Inclinometer extends Message
 {
 
     public function __construct($data = [])

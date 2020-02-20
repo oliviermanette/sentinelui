@@ -26,16 +26,19 @@ class Message
 
         //Check what kind of message we received from the sensor
         $this->typeMsgFormat = $this->checkTypeMessage($this->type);
-        $this->group = explode("-", $this->group)[0];
-        $this->latitude = $this->lat;
-        $this->longitude = $this->lng;
+
         $this->extractDeviceProperties();
         $this->convertTimestampToDateTime();
-        $this->msgDecoded = $this->decodePayload();
-        $this->extractExternalId();
+        
+        if ($this->typeMsgFormat == "uplink"){
+            $this->group = explode("-", $this->group)[0];
+            $this->latitude = $this->lat;
+            $this->longitude = $this->lng;
+            $this->msgDecoded = $this->decodePayload();
+            $this->extractExternalId();
 
-        //print_r($this);
-        //echo "Type asset : " . $this->type_asset;
+        }
+    
     }
 
 

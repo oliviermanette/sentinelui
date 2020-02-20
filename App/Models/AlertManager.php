@@ -18,33 +18,14 @@ use PDO;
 class AlertManager extends \Core\Model
 {
 
-    /**
-     * constructor
-     *
-     * @return void
-     */
-    public function __construct($data = [])
-    {
-        foreach ($data as $key => $value) {
-            $this->$key = $value;
-        }
-    }
 
     /** Create a new alert on the database from an array data received
      *
      * @param array $dataArr array which contain the data that will serve to add a new alert on the DB
      * @return void  
      */
-    public function createFromArr($dataArr)
+    public static function insert($alert)
     {
-        $label = $dataArr["label"];
-        $deveui = $dataArr["deveui"];
-        $date_time =  $dataArr["date_time"];
-        $structure_id = $dataArr["equipement_id"];
-        $value = $dataArr["value"];
-
-        //Check if type alert does not exist, otherwise, add it
-        AlertManager::insertTypeEvent($label);
 
         $db = static::getDB();
 
@@ -53,15 +34,15 @@ class AlertManager extends \Core\Model
         (SELECT (SELECT id FROM type_alert WHERE type_alert.label LIKE :label),
         :deveui, :structure_id, 1, :date_time, :data_value) AS alert_record
         ";
-        //echo "\n QUERY : $sql";
+
 
         $stmt = $db->prepare($sql);
 
-        $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
-        $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-        $stmt->bindValue(':data_value', $value, PDO::PARAM_STR);
-        $stmt->bindValue(':label', $label, PDO::PARAM_STR);
-        $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
+        $stmt->bindValue(':structure_id', $alert->equipementId, PDO::PARAM_INT);
+        $stmt->bindValue(':deveui', $alert->deveui, PDO::PARAM_STR);
+        $stmt->bindValue(':data_value', $alert->triggerValue, PDO::PARAM_STR);
+        $stmt->bindValue(':label', $alert->label, PDO::PARAM_STR);
+        $stmt->bindValue(':date_time', $alert->dateTime, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             echo "\n NEW ALERT CREATED";

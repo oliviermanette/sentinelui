@@ -10,7 +10,7 @@ use App\Utilities;
  *
  * PHP version 7.0
  */
-class Spectre
+class Spectre extends Message
 {
 
     public function __construct($data = [])
