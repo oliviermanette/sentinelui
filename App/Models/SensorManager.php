@@ -99,7 +99,7 @@ class SensorManager extends \Core\Model
    * @return string device number of the sensor
    * 
    */
-  public function getDeviceNumberFromSensorId($sensor_id)
+  public static function getDeviceNumberFromSensorId($sensor_id)
   {
     $db = static::getDB();
 
@@ -121,7 +121,7 @@ class SensorManager extends \Core\Model
    * @return int sensor id
    * 
    */
-  public function getSensorIdFromDeveui($deveui)
+  public static function getSensorIdFromDeveui($deveui)
   {
     $db = static::getDB();
 
@@ -699,7 +699,7 @@ class SensorManager extends \Core\Model
   }
 
 
-  public function getStatusDevice($sensor_id){
+  public static function getStatusDevice($sensor_id){
     $db = static::getDB();
 
     $sql_status_device = "SELECT sensor.status FROM sensor
@@ -721,7 +721,7 @@ class SensorManager extends \Core\Model
    * @param string $group_name the group we want to check the number of actif sensor
    * @return array  array results
    */
-  public function getNumberActiveSensorFromDB($group_name)
+  public static function getNumberActiveSensorFromDB($group_name)
   {
     $db = static::getDB();
 
@@ -750,7 +750,7 @@ class SensorManager extends \Core\Model
    * @param string $group_name the group we want to check the number of actif sensor
    * @return array  array results
    */
-  public function getNumberInactiveSensorFromDB($group_name)
+  public static function getNumberInactiveSensorFromDB($group_name)
   {
     $db = static::getDB();
 

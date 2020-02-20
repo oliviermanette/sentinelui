@@ -25,11 +25,11 @@ class ControllerAlert extends \Core\Controller
      */
     public function indexAction()
     {
-        $group_name = $_SESSION['group_name'];
+        $user = Auth::getUser();
+        $group_name = $user->getGroupName();
         
-        $alertManager = new AlertManager();
-        $alertsActiveDataArr = $alertManager->getActiveAlertsInfoTable($group_name);
-        $alertsProcessedDataArr = $alertManager->getProcessedAlertsInfoTable($group_name);
+        $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name);
+        $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($group_name);
 
         View::renderTemplate('Alerts/index.html', [
             'alerts_active_info_arr' => $alertsActiveDataArr,
@@ -46,8 +46,8 @@ class ControllerAlert extends \Core\Controller
     public function updateAlertAction(){
         $id_alert = $_GET['id_alert'];
         $status_alert = $_GET['status_alert'];
-        $alertManager = new AlertManager();
-        $isUpdated = $alertManager->updateStatus($id_alert, $status_alert);
+
+        $isUpdated = AlertManager::updateStatus($id_alert, $status_alert);
         # Get the information from the URL
 
         if ($isUpdated) {
@@ -68,7 +68,7 @@ class ControllerAlert extends \Core\Controller
     public function deleteAlertAction(){
         $id_alert = $_GET['id_alert'];
         $alertManager = new AlertManager();
-        $isDeleted = $alertManager->delete($id_alert);
+        $isDeleted = AlertManager::delete($id_alert);
 
         if ($isDeleted){
             $this->redirect('/ControllerAlert/showDeleteSuccessMessage');

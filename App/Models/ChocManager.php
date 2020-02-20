@@ -15,32 +15,7 @@ author : Lirone Samoun
 class ChocManager extends \Core\Model
 {
 
-  protected $frequence_1 = '';
-  protected $frequence_2 = '';
-  protected $deveui_sensor = '';
-  protected $date_time = '';
-  protected $power = '';
-  protected $rule = '';
-  protected $structure_id = '';
 
-  /** Constructor
-   *
-   * @param json $chocDataJason optional
-   * @return void  
-   */
-  public function __construct($chocDataJson = null)
-  {
-
-    if (isset($chocDataJson)) {
-      $dataChoc = $this->parseChocData($chocDataJson);
-      $this->frequence_1 = $dataChoc["freq1"];
-      $this->frequence_2 = $dataChoc["freq2"];
-      $this->power = $dataChoc["power"];
-      $this->deveui_sensor = $dataChoc["deveui_sensor"];
-      $this->date_time = $dataChoc["date_time"];
-      $this->rule = 1;
-    }
-  }
 
   /**
    * Check if a choc value is inside a specific range ( 1SD, 2SD , 3SD) to trigger an alert
@@ -48,13 +23,18 @@ class ChocManager extends \Core\Model
    * @param int $time_period check for the last X days
    * @return true if an alert is triggered 
    */
-  public function check($sensor_id, $time_period)
+  public function check($choc, $group)
   {
-    if (isset($this->power)) {
-      $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($sensor_id, $time_period);
-      $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($sensor_id, $time_period);
 
-      switch ($this->rule) {
+    $shockTreshSTD = SettingManager::getShockThresh($group);
+    $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
+
+    if (isset($choc->power)) {
+      
+      $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($choc->deveui, $timePeriodCheck);
+      $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($choc->deveui, $timePeriodCheck);
+
+      switch ($shockTreshSTD) {
         case 1:
           $highTresh = $avgPowerChoc + $stdDevPowerChoc;
           $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
@@ -73,12 +53,12 @@ class ChocManager extends \Core\Model
       }
 
       echo "\n</br>";
-      echo "\n Value power current choc : $this->power ";
+      echo "\n Value power current choc : $choc->power ";
       echo "\n Average choc last days : $avgPowerChoc \n";
       echo "\n High Tresh last days : $highTresh \n";
       echo "\n Low Tresh last days : $lowThresh \n";
 
-      if ($this->power > $highTresh || $this->power < $lowThresh) {
+      if ($choc->power > $highTresh || $choc->power < $lowThresh) {
         echo "ALERT ! \n";
         return true;
       } else {
@@ -130,7 +110,7 @@ class ChocManager extends \Core\Model
    * @param string $group_name the name of the group we want to retrieve choc data
    * @return array  results from the query
    */
-  public function getAllChocDataForGroup($group_name)
+  public static function getAllChocDataForGroup($group_name)
   {
     $db = static::getDB();
 
@@ -183,7 +163,7 @@ class ChocManager extends \Core\Model
    * @return array  results from the query
  
    */
-  public static function computeAvgPowerChocForLast($sensor_id, $time_period = -1)
+  public static function computeAvgPowerChocForLast($deveui, $time_period = -1)
   {
     $db = static::getDB();
     $sql_avg = "SELECT 
@@ -201,7 +181,7 @@ class ChocManager extends \Core\Model
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE 
           `msg_type` LIKE 'choc' 
-          AND `sensor_id` LIKE :sensor_id ";
+          AND s.deveui LIKE :deveui ";
 
     if ($time_period != -1) {
       $sql_avg .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
@@ -217,7 +197,7 @@ class ChocManager extends \Core\Model
     ";
 
     $stmt = $db->prepare($sql_avg);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
@@ -297,7 +277,7 @@ class ChocManager extends \Core\Model
    * compute variation between today and the last value 30 days ago
    * @return array  results from the query
    */
-  public function computeStdDevChocForLast($sensor_id, $time_period = -1)
+  public function computeStdDevChocForLast($deveui, $time_period = -1)
   {
     $db = static::getDB();
 
@@ -316,7 +296,7 @@ class ChocManager extends \Core\Model
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE 
           `msg_type` LIKE 'choc' 
-          AND `sensor_id` LIKE :sensor_id ";
+          AND s.deveui LIKE :deveui ";
 
     if ($time_period != -1) {
       $sql_stdDev .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
@@ -332,7 +312,7 @@ class ChocManager extends \Core\Model
           ";
 
     $stmt = $db->prepare($sql_stdDev);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
@@ -554,7 +534,7 @@ class ChocManager extends \Core\Model
    * @param int $sensor_id the sensor we want to retrieve choc data
    * @return array  results from the query
    */
-  public function getLastChocPowerValueForSensor($sensor_id)
+  public static function getLastChocPowerValueForSensor($sensor_id)
   {
     $db = static::getDB();
 
@@ -1206,38 +1186,13 @@ class ChocManager extends \Core\Model
     }
   }
 
-  /**
-   * Insert choc data to the DB given a json file
-   *
-   * @param json $choc_data_json contain the choc data (amplitude1, amplitude2, time1, time2, date_time, deveui)
-   * @return boolean  return True if insert query successfully executed
-   */
-  public function insertChocData($choc_data_json)
-  {
-    $amplitude_1 = floatval($choc_data_json['amplitude1']);
-    $amplitude_2 = floatval($choc_data_json['amplitude2']);
-    $time_1 = floatval($choc_data_json['time1']);
-    $time_2 = floatval($choc_data_json['time2']);
-
-    $amplitude_g_1 = Utilities::mgToG($amplitude_1);
-    $amplitude_g_2 = Utilities::mgToG($amplitude_2);
-    $time_s_1 = Utilities::microToSecond($time_1);
-    $time_s_2 = Utilities::microToSecond($time_2);
-
-    $date_time = $choc_data_json['date_time'];
-    $deveui_sensor = $choc_data_json['deveui'];
-
-    $resData = ChocManager::computeChocData($amplitude_g_1, $amplitude_g_2, $time_s_1, $time_s_2);
-
-    $totalAreaPower = $resData[0];
-    $freq1 = $resData[1];
-    $freq2 = $resData[2];
-
+  public static function insertChoc($choc){
     $sql_data_record_choc = 'INSERT INTO  choc (`record_id`, `amplitude_1`,  `amplitude_2`, `time_1`, `time_2`,  `freq_1`,`freq_2`, `power`)
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :amplitude1, :amplitude2, :time1, :time2, :frequence1, :frequence2, :power) AS id_record
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)) AS record_id,
+      :amplitude1 AS amplitude1, :amplitude2 AS amplitude2, :time1 AS time1, :time2 AS time2,
+      :frequence1 AS frequence1, :frequence2 AS frequence2, :power AS power) AS id_record
       WHERE NOT EXISTS (
       SELECT record_id FROM choc WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
@@ -1246,15 +1201,15 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
     $stmt = $db->prepare($sql_data_record_choc);
 
-    $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
-    $stmt->bindValue(':deveui', $deveui_sensor, PDO::PARAM_STR);
-    $stmt->bindValue(':amplitude1', $amplitude_g_1, PDO::PARAM_STR);
-    $stmt->bindValue(':amplitude2', $amplitude_g_2, PDO::PARAM_STR);
-    $stmt->bindValue(':time1', $time_s_1, PDO::PARAM_STR);
-    $stmt->bindValue(':time2', $time_s_2, PDO::PARAM_STR);
-    $stmt->bindValue(':frequence1', $freq1, PDO::PARAM_STR);
-    $stmt->bindValue(':frequence2', $freq2, PDO::PARAM_STR);
-    $stmt->bindValue(':power', $totalAreaPower, PDO::PARAM_STR);
+    $stmt->bindValue(':date_time', $choc->dateTime, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $choc->deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':amplitude1', $choc->amplitude1, PDO::PARAM_STR);
+    $stmt->bindValue(':amplitude2', $choc->amplitude2, PDO::PARAM_STR);
+    $stmt->bindValue(':time1', $choc->time1, PDO::PARAM_STR);
+    $stmt->bindValue(':time2', $choc->time2, PDO::PARAM_STR);
+    $stmt->bindValue(':frequence1', $choc->frequence1, PDO::PARAM_STR);
+    $stmt->bindValue(':frequence2', $choc->frequence2, PDO::PARAM_STR);
+    $stmt->bindValue(':power', $choc->power, PDO::PARAM_STR);
 
     $stmt->execute();
 
@@ -1267,82 +1222,5 @@ class ChocManager extends \Core\Model
       return true;
     }
   }
-  /**
-   * compute choc data to the DB given a json file
-   *
-   * @param json $choc_data_json contain the choc data (amplitude1, amplitude2, time1, time2, date_time, deveui)
-   * @return boolean  return True if insert query successfully executed
-   */
-  public function parseChocData($choc_data_json)
-  {
-    $amplitude_1 = floatval($choc_data_json['amplitude1']);
-    $amplitude_2 = floatval($choc_data_json['amplitude2']);
-    $time_1 = floatval($choc_data_json['time1']);
-    $time_2 = floatval($choc_data_json['time2']);
 
-    $amplitude_g_1 = Utilities::mgToG($amplitude_1);
-    $amplitude_g_2 = Utilities::mgToG($amplitude_2);
-    $time_s_1 = Utilities::microToSecond($time_1);
-    $time_s_2 = Utilities::microToSecond($time_2);
-
-    $date_time = $choc_data_json['date_time'];
-    $deveui_sensor = $choc_data_json['deveui'];
-
-    $resData = ChocManager::computeChocData($amplitude_g_1, $amplitude_g_2, $time_s_1, $time_s_2);
-    $resultsArr = array(
-      "power" => $resData[0],
-      "freq1" => $resData[1],
-      "freq2" => $resData[2],
-      "deveui_sensor" => $deveui_sensor,
-      "date_time" => $date_time
-    );
-
-    return $resultsArr;
-  }
-
-  /**
-   * Computer Power of the choc
-   *
-   * @param float $amplitude_1 first amplitude (in mg or g)
-   * @param float $amplitude_2 second amplitude (in mg or g)
-   * @param int $time_1 first time (or period) to provok the first amplitude (in micro seconde or second)
-   * @param int $time_2 second time to provok the second amplitude (in micro seconde or second)
-   * @return array  $totalAreaPower, $freq1, $freq2
-   */
-  public static function computeChocData($amplitude_1, $amplitude_2, $time_1, $time_2)
-  {
-    $pt0 = array(0, 0);
-    $pt1 = array($time_1, $amplitude_1);
-    $pt2 = array($time_2, $amplitude_2);
-    $pt3 = array($time_2 + ($time_2 - $time_1), 0);
-
-    #1. Compute line equation (pt1, pt2)
-    $res = Utilities::computeLineEquation($pt1, $pt2);
-    $slope = $res[0];
-    $b = $res[1];
-
-    #2. compute (pt1) : ax + b = 0 to find the new point on the abscille (Xc, Yc)
-    $Xc = Utilities::findXItersection($slope, $b, 0);
-    $ptC = array($Xc, 0);
-
-    $distanceP1P2 = Utilities::computeDistance($pt1, $pt2);
-
-    #3 Compute distance (pt1,ptc)
-    $distanceP1PC = Utilities::computeDistance($pt1, $ptC);
-
-    #4 compute the first area of the first triangle
-    $areaTriangle1 = Utilities::computeAreaTrianglePt($pt0, $pt1, $ptC);
-    $areaTriangle2 = Utilities::computeAreaTrianglePt($ptC, $pt2, $pt3);
-
-    #5 Compute power choc by combining the two triangle
-    $totalAreaPower = Utilities::computePowerArea($areaTriangle1, $areaTriangle2);
-
-    #Compute frequence of each phase of the choc
-    $freq1 = 1 / $pt1[0];
-    $freq2 = 1 / $pt2[0];
-
-    $data_res = array($totalAreaPower, $freq1, $freq2);
-
-    return $data_res;
-  }
 }

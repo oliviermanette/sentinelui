@@ -145,17 +145,20 @@ class UserManager extends \Core\Model
 
     $stmt->execute();
 
-    return $stmt->fetch();
+    $user = $stmt->fetch();
+    $groupe_name = UserManager::findGroupById($id);
+    $user->setGroupName($groupe_name);
+    return $user;
   }
 
   /**
-   * Find all groups that belong to a specific user by ID
+   * Find group that belong to a specific user by ID
    *
    * @param string $id The user ID
    *
    * @return array array which contains all the groups
    */
-  public static function findGroupsById($user_id)
+  public static function findGroupById($user_id)
   {
 
     $sql = "SELECT gn.name
@@ -168,11 +171,10 @@ class UserManager extends \Core\Model
     $stmt = $db->prepare($sql);
     $stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
 
-    $group_array = array();
     if ($stmt->execute()) {
-      $group_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $group= $stmt->fetch(PDO::FETCH_COLUMN);
 
-      return $group_array;
+      return $group;
     }
   }
 
@@ -339,6 +341,10 @@ class UserManager extends \Core\Model
   public function setGroupName($groupName)
   {
     $this->groupe_name = $groupName;
+  }
+
+  public function getGroupName(){
+    return $this->groupe_name;
   }
 
   /**

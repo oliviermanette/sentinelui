@@ -54,7 +54,7 @@ class EquipementManager extends \Core\Model
    * @param string $group_name the name of the group we want to retrieve equipment data
    * @return array  results from the query
    */
-  function getEquipements($group_name)
+  public static function getEquipements($group_name)
   {
 
     $db = static::getDB();
@@ -84,7 +84,7 @@ class EquipementManager extends \Core\Model
    * @return array results of the query
    *  equipement_id | equipement | ligneHT  
    */
-  public function getEquipementFromId($structure_id){
+  public static function getEquipementFromId($structure_id){
     $db = static::getDB();
 
     $sql_query_equipement_by_id = "SELECT 
@@ -144,7 +144,7 @@ class EquipementManager extends \Core\Model
    * @param int $structure_id structure id to get the sensor id
    * @return int  sensor id
    */
-  function getSensorIdOnEquipement($structure_id)
+  public static function getSensorIdOnEquipement($structure_id)
   {
     $db = static::getDB();
 
@@ -190,12 +190,12 @@ class EquipementManager extends \Core\Model
   }
 
   /**
-   * Get an equipement from a sensor ID
+   * Get an equipement from a sensor deveui
    * 
    * @param int $sensor_id sensor id to get the equipement ID
    * @return int  sensor id
    */
-  public function getEquipementIdBySensorId($sensor_id)
+  public static function getEquipementIdBySensorDeveui($deveui)
   {
     $db = static::getDB();
 
@@ -203,10 +203,10 @@ class EquipementManager extends \Core\Model
     FROM structure
     LEFT JOIN record as r ON (r.structure_id = structure.id)
     LEFT JOIN sensor ON (sensor.id = r.sensor_id)
-    WHERE sensor.id = :sensor_id";
+    WHERE sensor.deveui = :deveui";
 
     $stmt = $db->prepare($sql_equipement_id);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
       $sensor_id_res = $stmt->fetchAll(PDO::FETCH_ASSOC);

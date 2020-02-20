@@ -38,17 +38,12 @@ class ControllerData extends Authenticated
   public function searchSpectreAction()
   {
 
-    $group_name = $_SESSION['group_name'];
+    $user = Auth::getUser();
+    $group_name = $user->getGroupName();
 
-    $siteManager = new SiteManager();
-    $all_site = $siteManager->getSites($group_name);
-
-    $equipementManager = new EquipementManager();
-    $all_equipment = $equipementManager->getEquipements($group_name);
-
-    $recordManager = new RecordManager();
-
-    $date_min_max = $recordManager->getDateMinMaxFromRecord();
+    $all_site = SiteManager::getSites($group_name);
+    $all_equipment = EquipementManager::getEquipements($group_name);
+    $date_min_max = RecordManager::getDateMinMaxFromRecord();
 
     $min_date = $date_min_max[0];
     $max_date = $date_min_max[1];
@@ -71,26 +66,16 @@ class ControllerData extends Authenticated
    */
   public function searchChocAction()
   {
-    $siteManager = new SiteManager();
-    $recordManager = new RecordManager();
-    $equipementManager = new EquipementManager();
-    $inclinometerManager = new InclinometerManager();
-    $chocManager = new ChocManager();
+    $user = Auth::getUser();
+    $group_name = $user->getGroupName();
 
-    $group_name = $_SESSION['group_name'];
-
-    $choc_data_arr = $chocManager->getAllChocDataForGroup($group_name);
-
-    $equipementManager = new EquipementManager();
-    $all_equipment = $equipementManager->getEquipements($group_name);
-
-    $all_site = $siteManager->getSites($group_name);
-
-    $date_min_max = $recordManager->getDateMinMaxFromRecord();
+    $choc_data_arr = ChocManager::getAllChocDataForGroup($group_name);
+    $all_equipment = EquipementManager::getEquipements($group_name);
+    $all_site = SiteManager::getSites($group_name);
+    $date_min_max = RecordManager::getDateMinMaxFromRecord();
 
     $min_date = $date_min_max[0];
     $max_date = $date_min_max[1];
-
 
     View::renderTemplate('Chocs/index.html', [
       'all_site'    => $all_site,
@@ -113,9 +98,9 @@ class ControllerData extends Authenticated
    */
   public function getResultsFromChocFormAction()
   {
-    $group_name = $_SESSION['group_name'];
+    $user = Auth::getUser();
+    $group_name = $user->getGroupName();
 
-    $equipementManager = new EquipementManager();
     $recordManager = new RecordManager();
     $scoreManager = new ScoreManager();
     $chocManager = new ChocManager();
@@ -140,22 +125,22 @@ class ControllerData extends Authenticated
     }
 
     if ($searchSpecificEquipement) {
-      $equipementInfo = $equipementManager->getEquipementFromId($equipement_id);
+      $equipementInfo = EquipementManager::getEquipementFromId($equipement_id);
 
       $equipement_pylone = $equipementInfo['equipement'];
       $equipement_name = $equipementInfo['ligneHT'];
       //Get the sensor ID on the associated structure
-      $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
+      $sensor_id = EquipementManager::getSensorIdOnEquipement($equipement_id);
       //Get the device number
-      $device_number = $sensorManager->getDeviceNumberFromSensorId($sensor_id);
+      $device_number = SensorManager::getDeviceNumberFromSensorId($sensor_id);
       //Get the latest temperature received
-      $temperature = $inclinometerManager->getLatestTemperatureForSensor($sensor_id);
+      $temperature = InclinometerManager::getLatestTemperatureForSensor($sensor_id);
       //Get the last date where the sensor received
-      $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
+      $lastdate = RecordManager::getDateLastReceivedData($equipement_id);
       //Get the status of the device
-      $status = $sensorManager->getStatusDevice($sensor_id);
+      $status = SensorManager::getStatusDevice($sensor_id);
       //Get the choc data
-      $choc_power_data = $chocManager->getLastChocPowerValueForSensor($sensor_id);
+      $choc_power_data = ChocManager::getLastChocPowerValueForSensor($sensor_id);
       if (!empty($choc_power_data)) {
         $last_choc_power = $choc_power_data[0]['power'];
         $last_choc_date = $choc_power_data[0]['date'];
@@ -179,7 +164,7 @@ class ControllerData extends Authenticated
         'startDate' => $startDate, 'endDate' => $endDate
       );
     } else {
-      $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
+      $equipements_site = EquipementManager::getEquipementsBySiteId($siteID, $group_name);
       $allStructureData = array();
       $count = 0;
 
@@ -191,7 +176,7 @@ class ControllerData extends Authenticated
         $equipement_name = $equipement['ligneHT'];
         
         //Get the sensor ID on the associated structure
-        $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
+        $sensor_id = EquipementManager::getSensorIdOnEquipement($equipement_id);
         //Get the device number
         $device_number = $sensorManager->getDeviceNumberFromSensorId($sensor_id);
 
@@ -439,6 +424,97 @@ class ControllerData extends Authenticated
 
   }
 
+  /**
+   * Change structure when the user select the site in order to show only the structure
+   * associated to a specific site
+   *
+   * @return void
+   */
+  public function changeEquipementAction()
+  {
+
+    $siteID = $_POST['site_id'];
+    $group_name = $_SESSION['group_name'];
+
+    $equipementManager = new EquipementManager();
+    $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
+    View::renderTemplate('Others/changeEquipementForm.html', [
+      'all_equipment' => $all_equipment,
+    ]);
+  }
+
+  /**
+   * allow the user to download raw data from the homepage
+   *
+   * @return void
+   */
+  public function downloadRawDataAction()
+  {
+    $recordManager = new RecordManager();
+    $data = $recordManager->getAllRawRecord();
+    //var_dump($raw_data);
+
+    if ($_GET['exportData'] == "csv") {
+      $timestamp = time();
+      $filename = 'Export_data_sensors_' . $timestamp . '.csv';
+
+      header('Content-Type: text/csv; charset=utf-8');
+      header("Content-Disposition: attachment; filename=\"$filename\"");
+
+      $columnNames = array();
+      if (!empty($data)) {
+        //We only need to loop through the first row of our result
+        //in order to collate the column names.
+        $firstRow = $data[0];
+        foreach ($firstRow as $colName => $val) {
+          $columnNames[] = $colName;
+        }
+      }
+
+      $output = fopen("php://output", "w");
+      //Start off by writing the column names to the file.
+      fputcsv($output, $columnNames);
+      //If we want to personalize the names
+      /*fputcsv($output, array('Deveui', 'Site', 'Equipement', 'Date Time',
+      'payload', 'Type message', 'payload', 'Amplitude 1', 'Amplitude 2',
+      'Time 1', 'Time 2', 'X', 'Y', 'Z', 'Temperature', 'Batterie'));*/
+      //Then, loop through the rows and write them to the CSV file.
+      foreach ($data as $row) {
+        fputcsv($output, $row);
+      }
+
+      //Close the file pointer.
+      fclose($output);
+      exit();
+    } else if ($_GET['exportData'] == "excel") {
+      $timestamp = time();
+      $filename = 'Export_data_sensors_' . $timestamp . '.xls';
+
+      header("Content-Type: application/vnd.ms-excel");
+      header("Content-Disposition: attachment; filename=\"$filename\"");
+
+      $isPrintHeader = false;
+
+      $columnNames = array();
+      if (!empty($data)) {
+        //We only need to loop through the first row of our result
+        //in order to collate the column names.
+        $firstRow = $data[0];
+        if (!$isPrintHeader) {
+          foreach ($firstRow as $colName => $val) {
+            echo $colName . "\t";
+            //echo implode("\t", array_keys($colName)) . "\n";
+            $isPrintHeader = true;
+          }
+          echo "\n";
+        }
+        foreach ($data as $row) {
+          echo implode("\t", array_values($row)) . "\n";
+        }
+        echo "\n";
+      }
+    }
+  }
 
   /**
    * After filter

@@ -71,11 +71,11 @@
                     <div class="row-md-2 col-md-offset-4 text-center">
                         <button id="exportData" type="button"
                             class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                            onclick="window.open('/ControllerAccueil/downloadRawData?exportData=excel')"><i
+                            onclick="window.open('/ControllerData/downloadRawData?exportData=excel')"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Exporter données (Excel)</button>
                         <button id="exportData" type="button"
                             class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                            onclick="window.open('/ControllerAccueil/downloadRawData?exportData=csv')"><i
+                            onclick="window.open('/ControllerData/downloadRawData?exportData=csv')"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Exporter données (CSV)</button>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                     $('#equipmentField').html(response);
                 }
             };
-            xhttp.open("POST", "/ControllerAccueil/changeEquipement");
+            xhttp.open("POST", "/ControllerData/changeEquipement");
             //Send the proper header information along with the request
             xhttp.send(formData);
         });

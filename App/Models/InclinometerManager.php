@@ -15,34 +15,6 @@ author : Lirone Samoun
 class InclinometerManager extends \Core\Model
 {
 
-  protected $angleX = '';
-  protected $angleY = '';
-  protected $angleZ = '';
-  protected $deveui_sensor = '';
-  protected $date_time = '';
-  protected $rule = '';
-
-  public function __construct($inclinometerDataJson = null)
-  {
-
-    if (isset($inclinometerDataJson)) {
-
-      $nx = $inclinometerDataJson["X"];
-      $ny = $inclinometerDataJson["Y"];
-      $nz = $inclinometerDataJson["Z"];
-
-      $angleArr = InclinometerManager::convertInclinometerDataToAngle($nx, $ny, $nz);
-
-      $this->angleX = $angleArr["angleX"];
-      $this->angleY = $angleArr["angleY"];
-      $this->angleZ = $angleArr["angleZ"];
-
-      $this->deveui_sensor = $inclinometerDataJson["deveui"];
-      $this->date_time = $inclinometerDataJson["date_time"];
-      $this->rule = 1;
-    }
-  }
-
 
   /**
    * Check if the inclinaison received by the sensor
@@ -51,23 +23,26 @@ class InclinometerManager extends \Core\Model
    * @param int $time_period check for the last X days
    * @return true if an alert is triggered 
    */
-  public function check($sensor_id, $time_period)
+  public function check($inclinometer, $group)
   {
 
-    if (isset($this->angleX) && isset($this->angleY) && isset($this->angleZ)) {
-      echo "let's check for ".$sensor_id;
+    $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group);
+    $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
+
+    if (isset($inclinometer->angleX) && isset($inclinometer->angleY) && isset($inclinometer->angleZ)) {
+      echo "let's check for ". $inclinometer->deveui;
 
       //Etape 1 : calculer la moyenne et l'ecart type depuis la date choisie
-      $avgInclinaisonArr = InclinometerManager::computeAvgInclinaisonForLast($sensor_id, $time_period);
+      $avgInclinaisonArr = InclinometerManager::computeAvgInclinaisonForLast($inclinometer->deveui, $timePeriodCheck);
       $avgAngleX = $avgInclinaisonArr["averageAngleX"];
       $avgAngleY = $avgInclinaisonArr["averageAngleY"];
       $avgAngleZ = $avgInclinaisonArr["averageAngleZ"];
-      $stdDevInclinaisonArr = InclinometerManager::computeStdDevInclinaisonForLast($sensor_id, $time_period);
+      $stdDevInclinaisonArr = InclinometerManager::computeStdDevInclinaisonForLast($inclinometer->deveui, $timePeriodCheck);
       $stdDevAngleX = $stdDevInclinaisonArr["stdDevAngleX"];
       $stdDevAngleY = $stdDevInclinaisonArr["stdDevAngleY"];
       $stdDevAngleZ = $stdDevInclinaisonArr["stdDevAngleZ"];
 
-      switch ($this->rule) {
+      switch ($inclinometerTreshSTD) {
         case 1:
           $highTreshX = $avgAngleX + $stdDevAngleX;
           $lowThreshX = $avgAngleX - $stdDevAngleX;
@@ -102,17 +77,17 @@ class InclinometerManager extends \Core\Model
       }
       $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false );
       //Etape 3 : verifier si la variation est supérieur à la moyenne + ecart type
-      if ($this->angleX > $highTreshX || $this->angleX < $lowThreshX) {
+      if ($inclinometer->angleX > $highTreshX || $inclinometer->angleX < $lowThreshX) {
         echo "ALERT ON INCLINAISON X ! \n";
-        echo "Current Inclinaison X " . $this->angleX ." is outside " . $lowThreshX . " and " . $highTreshX ." ! ";
+        echo "Current Inclinaison X " . $inclinometer->angleX ." is outside " . $lowThreshX . " and " . $highTreshX ." ! ";
         $alertBoolArr["alertOnX"] = true;
-      } if ($this->angleY > $highTreshY || $this->angleY < $lowThreshY) {
+      } if ($inclinometer->angleY > $highTreshY || $inclinometer->angleY < $lowThreshY) {
         echo "ALERT ON INCLINAISON Y ! \n";
-        echo "Current Inclinaison Y " . $this->angleY . " is outside " . $lowThreshY . " and " . $highTreshY . " ! ";
+        echo "Current Inclinaison Y " . $inclinometer->angleY . " is outside " . $lowThreshY . " and " . $highTreshY . " ! ";
         $alertBoolArr["alertOnY"] = true;
-      } if ($this->angleZ > $highTreshZ || $this->angleZ < $lowThreshZ) {
+      } if ($inclinometer->angleZ > $highTreshZ || $inclinometer->angleZ < $lowThreshZ) {
         echo "ALERT ON INCLINAISON Z ! \n";
-        echo "Current Inclinaison Z " . $this->angleZ . " is outside " . $lowThreshZ . " and " . $highTreshZ . " ! ";
+        echo "Current Inclinaison Z " . $inclinometer->angleZ . " is outside " . $lowThreshZ . " and " . $highTreshZ . " ! ";
         $alertBoolArr["alertOnZ"] = true;
       }
       
@@ -129,7 +104,7 @@ class InclinometerManager extends \Core\Model
    * @return array  results from the query (avgInclinaisonArr with contain the average value for
    * angleX, angleY and angleZ)
    */
-  public static function computeAvgInclinaisonForLast($sensor_id, $time_period = -1)
+  public static function computeAvgInclinaisonForLast($deveui, $time_period = -1)
   {
     $db = static::getDB();
     $sql_avg = "SELECT 
@@ -149,7 +124,7 @@ class InclinometerManager extends \Core\Model
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE 
           `msg_type` LIKE 'inclinometre' 
-          AND `sensor_id` LIKE :sensor_id ";
+          AND s.deveui LIKE :deveui ";
 
         if ($time_period != -1) {
           $sql_avg .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
@@ -164,7 +139,7 @@ class InclinometerManager extends \Core\Model
           ";
 
     $stmt = $db->prepare($sql_avg);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
@@ -198,7 +173,7 @@ class InclinometerManager extends \Core\Model
    * @return array  results from the query (stdDevInclinaisonArr with contain the std dev value for
    * angleX, angleY and angleZ)
    */
-  public static function computeStdDevInclinaisonForLast($sensor_id, $time_period = -1)
+  public static function computeStdDevInclinaisonForLast($deveui, $time_period = -1)
   {
     $db = static::getDB();
 
@@ -219,7 +194,7 @@ class InclinometerManager extends \Core\Model
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
         WHERE 
           `msg_type` LIKE 'inclinometre' 
-          AND `sensor_id` LIKE :sensor_id ";
+          AND s.deveui LIKE :deveui ";
 
         if ($time_period != -1) {
           $sql_stdDev .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
@@ -235,7 +210,7 @@ class InclinometerManager extends \Core\Model
       ";
 
     $stmt = $db->prepare( $sql_stdDev);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
@@ -415,7 +390,7 @@ class InclinometerManager extends \Core\Model
    * @param int $sensor_id sensor id for which we want to retrieve the last inclinometer
    * @return array  results from the query
    */
-  public function getLatestTemperatureForSensor($sensor_id)
+  public static function getLatestTemperatureForSensor($sensor_id)
   {
 
     $db = static::getDB();
@@ -517,43 +492,31 @@ class InclinometerManager extends \Core\Model
    * @param json $inclinometer_data_json contain the inclinometer data (temperature, x, y, z, date_time, deveui)
    * @return boolean  return True if insert query successfully executed
    */
-  public function insertInclinometerData($inclinometer_data_json)
+  public static function insertInclinometer($inclinometer)
   {
-    $temperature = $inclinometer_data_json['temperature'];
-    $nx = $inclinometer_data_json['X'];
-    $ny = $inclinometer_data_json['Y'];
-    $nz = $inclinometer_data_json['Z'];
-    $date_time = $inclinometer_data_json['date_time'];
-    $deveui_sensor = $inclinometer_data_json['deveui'];
-
-    $angleArr = InclinometerManager::convertInclinometerDataToAngle($nx, $ny, $nz);
-
-    $angleX = $angleArr["angleX"];
-    $angleY = $angleArr["angleY"];
-    $angleZ = $angleArr["angleZ"];
 
     $sql_data_record_inclinometer = 'INSERT INTO  inclinometer (`record_id`, `nx`, `ny`, `nz`, `angle_x`, `angle_y`, `angle_z`, `temperature`)
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)),
-      :nx, :ny, :nz, :angle_x, :angle_y, :angle_z, :temperature) AS id_record
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)) as record_id,
+      :nx AS nx, :ny AS ny, :nz AS nz, :angle_x AS angleX, :angle_y AS angleY, :angle_z AS angleZ, :temperature AS temperature) AS id_record
       WHERE NOT EXISTS (
-      SELECT record_id FROM inclinometer WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
+      SELECT record_id FROM inclinometer WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
     ) LIMIT 1';
 
     $db = static::getDB();
     $stmt = $db->prepare($sql_data_record_inclinometer);
 
-    $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
-    $stmt->bindValue(':deveui', $deveui_sensor, PDO::PARAM_STR);
-    $stmt->bindValue(':nx', $nx, PDO::PARAM_STR);
-    $stmt->bindValue(':ny', $ny, PDO::PARAM_STR);
-    $stmt->bindValue(':nz', $nz, PDO::PARAM_STR);
-    $stmt->bindValue(':angle_x', $angleX, PDO::PARAM_STR);
-    $stmt->bindValue(':angle_y', $angleY, PDO::PARAM_STR);
-    $stmt->bindValue(':angle_z', $angleZ, PDO::PARAM_STR);
-    $stmt->bindValue(':temperature', $temperature, PDO::PARAM_STR);
+    $stmt->bindValue(':date_time', $inclinometer->dateTime, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $inclinometer->deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':nx', $inclinometer->X, PDO::PARAM_STR);
+    $stmt->bindValue(':ny', $inclinometer->Y, PDO::PARAM_STR);
+    $stmt->bindValue(':nz', $inclinometer->Z, PDO::PARAM_STR);
+    $stmt->bindValue(':angle_x', $inclinometer->angleX, PDO::PARAM_STR);
+    $stmt->bindValue(':angle_y', $inclinometer->angleY, PDO::PARAM_STR);
+    $stmt->bindValue(':angle_z', $inclinometer->angleZ, PDO::PARAM_STR);
+    $stmt->bindValue(':temperature', $inclinometer->temperature, PDO::PARAM_STR);
 
     $stmt->execute();
 
@@ -1223,15 +1186,5 @@ class InclinometerManager extends \Core\Model
     }
   }
 
-  public function getAngleX(){
-    return $this->angleX;
-  }
-  public function getAngleY()
-  {
-    return $this->angleY;
-  }
-  public function getAngleZ()
-  {
-    return $this->angleZ;
-  }
+
 }
