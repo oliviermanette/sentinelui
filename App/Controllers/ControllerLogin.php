@@ -42,13 +42,13 @@ class ControllerLogin extends \Core\Controller
 
       Auth::login($user, $remember_me);
 
-      Flash::addMessage('Login successful');
+      Flash::addMessage('Vous êtes bien connecté !');
 
       $this->redirect(Auth::getReturnToPage());
     }
     else {
 
-      Flash::addMessage('Login unsuccessful, please try again', Flash::WARNING);
+      Flash::addMessage('Problème de connexion, veuillez essayer !', Flash::WARNING);
 
       View::renderTemplate('Login/login.html', [
         'email' => $_POST['email'],
@@ -79,7 +79,7 @@ class ControllerLogin extends \Core\Controller
   */
   public function showLogoutMessageAction()
   {
-    Flash::addMessage('Logout successful');
+    Flash::addMessage('Vous êtes bien déconnecté ! ');
 
     $this->redirect('/');
   }
