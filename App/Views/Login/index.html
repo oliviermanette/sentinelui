@@ -1,0 +1,73 @@
+{% extends 'baseLogin2.html' %}
+
+{% block title %}Page de connexion{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block body %}
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('../../public/ressources/bg-login2.jpg');">
+            <div class="wrap-login100">
+                <form class="login100-form validate-form" role="form" action="/ControllerLogin/create" method="post"
+                    name="loginform">
+                    {% for message in flash_messages %}
+                    <div class="alert alert-{{ message.type }}">
+                        {{ message.body }}
+                    </div>
+                    {% endfor %}
+                    <fieldset>
+                    <div class="logo-row">
+                        <img class="logo"  src="
+                            ../../public/ressources/sentive-logo.png">
+                    </div>
+                    <span class="login100-form-title p-b-30 p-t-27">
+                        Sentive AI - Login
+                    </span>
+
+                    <div class="wrap-input100 validate-input" data-validate="Ecrivez votre identifiant">
+                        <input class="input100" type="email" name="email" id="inputEmail"
+                            placeholder="Email"
+                            required autofocus value="{{email}}">
+                        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                    </div>
+
+                    <div class="wrap-input100 validate-input" data-validate="Ecrivez votre mot de passe">
+                        <input class="input100" type="password" name="password" id="inputPassword"
+                            placeholder="Mot de passe" required >
+                        <span class="focus-input100" data-placeholder="&#xf191;"></span>
+                    </div>
+
+                    <div class="contact100-form-checkbox">
+                        <input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me"
+                            {% if remember_me %} checked="checked" {% endif %} />
+                        <label class="label-checkbox100" for="ckb1">
+                            Se souvenir de moi
+                        </label>
+                        
+                    </div>
+
+                    <div class="container-login100-form-btn">
+                        <button class="login100-form-btn">
+                            Se connecter
+                        </button>
+                    </div>
+                    </fieldset>
+
+                    <div class="text-center p-t-90">
+                        <a class="txt1" href="/password/forgot">
+                            Mot de passe oublié?
+                        </a>
+                    </div>
+                </form>
+                <span class="text-danger">{{error_message}}</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="dropDownSelect1"></div>
+
+
+
+{% endblock %}

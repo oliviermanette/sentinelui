@@ -22,7 +22,7 @@ class ControllerLogin extends \Core\Controller
   */
   public function newAction()
   {
-    View::renderTemplate('Login/login.html');
+    View::renderTemplate('Login/index.html');
   }
 
   /**
