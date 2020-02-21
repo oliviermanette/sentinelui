@@ -140,8 +140,7 @@ class RecordManager extends \Core\Model
   private static function handleEventMessage($message)
   {
     $label = $message->type;
-    
-
+  
     $alert = new Alert($label, $message->deveui, $message->dateTime);
     $group = SensorManager::getOwner($alert->deveui);
     AlertManager::insertTypeEvent($label);
@@ -495,7 +494,7 @@ class RecordManager extends \Core\Model
       $newDataArr = array();
       foreach ($res as $data) {
         $deveui = $data["deveui"];
-        //$sensor_deveui = SensorManager::getDeveuiFromLabel($sensor_label);
+
         $variationArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, -1, 3);
         $variationX = $variationArr["pourcentage_variation_angleX"];
         $variationY = $variationArr["pourcentage_variation_angleY"];
@@ -817,34 +816,6 @@ class RecordManager extends \Core\Model
 
     return $data;
   }
-
-  public function getMessagesExchangedDeviceUsingIdFromAPI($device_id, $since = null, $until = null)
-  {
-
-    $url = "https://api.objenious.com/v1/devices/" . $device_id . "/messages";
-    if (isset($since) && isset($until)) {
-      $url .= "?since=" . $since . "&until=" . $until;
-    }
-    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
-    $messages_device = $results_api["messages"];
-
-    return $messages_device;
-  }
-
-
-  public function getMessagesExchangedDeviceUsingDeveuiFromAPI($deveui, $since = null, $until = null)
-  {
-
-    $url = "https://api.objenious.com/v1/devices/lora:" . $deveui . "/messages";
-    if (isset($since) && isset($until)) {
-      $url .= "?since=" . $since . "&until=" . $until;
-    }
-    $results_api = ControllerDataObjenious::CallAPI("GET", $url);
-    $messages_device = $results_api["messages"];
-
-    return $messages_device;
-  }
-
 
 
   /** 

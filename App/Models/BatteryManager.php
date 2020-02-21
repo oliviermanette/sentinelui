@@ -8,9 +8,6 @@ use PDO;
 class BatteryManager extends \Core\Model
 {
 
-  public function __construst()
-  {
-  }
   /**
    * Get all the battery data messages received from the sensors, for a specific group (RTE for example)
    *

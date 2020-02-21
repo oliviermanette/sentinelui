@@ -5,6 +5,7 @@ namespace App\Controllers;
 use \Core\View;
 use \App\Auth;
 use \App\Models\SensorManager;
+use \App\Models\APIObjenious\SensorAPI;
 use \App\Models\RecordManager;
 use \App\Models\SpectreManager;
 use \App\Models\TimeSeriesManager;
@@ -24,9 +25,8 @@ class ControllerInit extends \Core\Controller
 {
 
     public function testApiAction(){
-        //SensorManager::getDeviceIdObjeniousFromDeveui("0004A30B00E80AC9");
-        //SensorManager::getDeviceIdObjeniousFromLabel("19001012");
-        SensorManager::getNbStatutsSensorsFromApi("RTE");
+
+        SensorAPI::getNbStatutsSensorsFromApi("RTE");
     }
 
     /**

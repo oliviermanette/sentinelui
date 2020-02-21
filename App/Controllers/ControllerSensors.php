@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Models\SensorManager;
+use \App\Models\APIObjenious\SensorAPI;
 use \App\Models\InclinometerManager;
 use \App\Auth;
 use \App\Flash;
@@ -46,8 +47,8 @@ class ControllerSensors extends Authenticated
         $group_name = $user->getGroupName();
 
         $label_device = $this->route_params["deviceid"];
-        $deveui = SensorManager::getDeveuiFromLabel($label_device);
-        $id_objenious = SensorManager::getDeviceIdObjeniousFromLabel($label_device);
+        $deveui = SensorAPI::getDeveuiFromLabel($label_device);
+        $id_objenious = SensorAPI::getDeviceIdObjeniousFromLabel($label_device);
         //Get brief info from sensors
         $infoArr = SensorManager::getBriefInfoForSensor($deveui);
         $lastMsgReceived = SensorManager::getLastMessageReceivedFromDeveui($deveui);

@@ -35,8 +35,8 @@ class ControllerAccueil extends Authenticated
     $group_name = $user->getGroupName();
 
     $brief_data_record = RecordManager::getBriefInfoFromRecord($group_name);
-    $nb_active_sensors = SensorManager::getNumberActiveSensorFromDB($group_name);
-    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensorFromDB($group_name);
+    $nb_active_sensors = SensorManager::getNumberActiveSensor($group_name);
+    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensor($group_name);
     $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($group_name);
     
     //Create object txt that will contain the brief records
