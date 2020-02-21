@@ -149,7 +149,7 @@ class RecordManager extends \Core\Model
     AlertManager::insert($alert);
     var_dump($alert);
     
-    //AlertManager::sendAlert($alert, $group);
+    AlertManager::sendAlert($alert, $group);
   }
 
   /**

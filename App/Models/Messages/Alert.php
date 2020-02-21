@@ -28,13 +28,13 @@ class Alert extends Message
     public function getProperMessageFromLabel(){
         switch($this->label){
             case 'ChangeStatusInactive':
-                $msg = "Capteur devenu inactif";
+                $msg = "Le capteur est devenu inactif.";
                 break;
             case 'ChangeStatusActive':
-                $msg = "Capteur devenu actif";
+                $msg = "Le capteur est devenu actif.";
                 break;
             case 'ChangeStatusError':
-                $msg = "Erreur avec le capteur";
+                $msg = "Une erreur est survenu avec le capteur.";
                 break;
             case 'high_choc':
                 $msg = "Choc important";

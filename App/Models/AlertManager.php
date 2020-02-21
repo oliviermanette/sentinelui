@@ -487,77 +487,123 @@ class AlertManager extends \Core\Model
     public static function sendAlert($alert, $group_name)
     {
         if (is_null($alert->triggerValue)){
-            $msg = $alert->getProperMessageFromLabel();
-            
-            print_r($msg);
+            AlertManager::sensorAlert($alert, $group_name);
         }else {
-            $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
-            $equipementName = $equipementInfoArr["equipement"];
-            $ligneHT = $equipementInfoArr["ligneHT"];
-            $region = EquipementManager::getSiteLocation($alert->equipementId);
-
-            //Find all users that want to receive alerts
-            $users = UserManager::findToSendAlerts($group_name);
-            foreach ($users as $user) {
-
-                $email = $user["email"];
-                $phone_number = $user["phone_number"];
-                $firstName = $user["first_name"];
-                $last_name = $user["last_name"];
-                $company = $user["company"];
-                echo "\n Envoie du mail à " . $firstName . "\n";
-
-                $deveui = $alert->deveui;
-                $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
-                $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $sensorName . '/info#alertsStructure';
-
-                $dateTime = explode(" ", $alert->dateTime);
-                $date = date('d/m/Y', strtotime($dateTime[0]));
-                $time = $dateTime[1];
-                //print_r($this->label);
-                $text = View::getTemplate('Alerts/alert_email_view.txt', [
-                    "firstName" => $firstName,
-                    "dateEventOccured" => $date,
-                    "timeEventOccured" => $time,
-                    "sensorName" => $sensorName,
-                    "region" => $region,
-                    "equipement" => $equipementName,
-                    "label" => $alert->label,
-                    "value" => $alert->triggerValue,
-                    "url" => $url,
-
-                ]);
-                $html = View::getTemplate('Alerts/alert_email_view.html', [
-                    "firstName" => $firstName,
-                    "dateEventOccured" => $date,
-                    "timeEventOccured" => $time,
-                    "sensorName" => $sensorName,
-                    "region" => $region,
-                    "equipement" => $equipementName,
-                    "label" => $alert->label,
-                    "value" => $alert->triggerValue,
-                    "url" => $url,
-                ]);
-
-                Mail::send($email, '[TEST]Nouvelle alerte !', $text, $html);
-            }
+            AlertManager::structureAlert($alert, $group_name);
+        
         }
                 
     }
 
-    /**
-     * Send password reset instructions in an email to the user
-     *
-     * @return void
-     */
-    protected function sendAlertEmail()
-    {
-        $text = View::getTemplate('Alerts/alert_email_view.txt', []);
-        $html = View::getTemplate('Password/alert_email_view.html', []);
-        //var_dump($url);
-        Mail::send($this->email, 'Nouvelle alerte !', $text, $html);
+    private static function sensorAlert($alert, $group_name){
+        $msg = $alert->getProperMessageFromLabel();
+        $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
+        $equipementName = $equipementInfoArr["equipement"];
+        $ligneHT = $equipementInfoArr["ligneHT"];
+        $region = EquipementManager::getSiteLocation($alert->equipementId);
+        //Find all users that want to receive alerts
+        $users = UserManager::findToSendAlerts($group_name);
+        foreach ($users as $user) {
+            $email = $user["email"];
+            $phone_number = $user["phone_number"];
+            $firstName = $user["first_name"];
+            $last_name = $user["last_name"];
+            $company = $user["company"];
+            echo "\n Envoie du mail à " . $firstName . "\n";
+
+            $deveui = $alert->deveui;
+            $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
+            $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $sensorName . '/info#alertsStructure';
+
+            $dateTime = explode(" ", $alert->dateTime);
+            $date = date('d/m/Y', strtotime($dateTime[0]));
+            $time = $dateTime[1];
+            //print_r($this->label);
+            $text = View::getTemplate('Alerts/alertSensor_email_view.txt', [
+                "firstName" => $firstName,
+                "dateEventOccured" => $date,
+                "timeEventOccured" => $time,
+                "sensorName" => $sensorName,
+                "region" => $region,
+                "equipement" => $equipementName,
+                "label" => $alert->label,
+                "value" => $alert->triggerValue,
+                "msg" => $msg,
+                "url" => $url,
+
+            ]);
+            $html = View::getTemplate('Alerts/alertSensor_email_view.html', [
+                "firstName" => $firstName,
+                "dateEventOccured" => $date,
+                "timeEventOccured" => $time,
+                "sensorName" => $sensorName,
+                "region" => $region,
+                "equipement" => $equipementName,
+                "label" => $alert->label,
+                "value" => $alert->triggerValue,
+                "msg" => $msg,
+                "url" => $url,
+            ]);
+
+            $title =  'Nouvelle alerte sur le capteur ' . $sensorName . ' !';
+            Mail::send($email, $title, $text, $html);
+        }
     }
 
+    private static function structureAlert($alert, $group_name){
+    $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
+    $equipementName = $equipementInfoArr["equipement"];
+    $ligneHT = $equipementInfoArr["ligneHT"];
+    $region = EquipementManager::getSiteLocation($alert->equipementId);
+
+    //Find all users that want to receive alerts
+    $users = UserManager::findToSendAlerts($group_name);
+    foreach ($users as $user) {
+
+        $email = $user["email"];
+        $phone_number = $user["phone_number"];
+        $firstName = $user["first_name"];
+        $last_name = $user["last_name"];
+        $company = $user["company"];
+        echo "\n Envoie du mail à " . $firstName . "\n";
+
+        $deveui = $alert->deveui;
+        $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
+        $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $sensorName . '/info#alertsStructure';
+
+        $dateTime = explode(" ", $alert->dateTime);
+        $date = date('d/m/Y', strtotime($dateTime[0]));
+        $time = $dateTime[1];
+        //print_r($this->label);
+        $text = View::getTemplate('Alerts/alertStructure_email_view.txt', [
+            "firstName" => $firstName,
+            "dateEventOccured" => $date,
+            "timeEventOccured" => $time,
+            "sensorName" => $sensorName,
+            "region" => $region,
+            "equipement" => $equipementName,
+            "label" => $alert->label,
+            "value" => $alert->triggerValue,
+            "url" => $url,
+
+        ]);
+        $html = View::getTemplate('Alerts/alertStructure_email_view.html', [
+            "firstName" => $firstName,
+            "dateEventOccured" => $date,
+            "timeEventOccured" => $time,
+            "sensorName" => $sensorName,
+            "region" => $region,
+            "equipement" => $equipementName,
+            "label" => $alert->label,
+            "value" => $alert->triggerValue,
+            "url" => $url,
+        ]);
+
+        $title =  'Nouvelle alerte sur la structure ' . $equipementName . ' !';
+        Mail::send($email, $title, $text, $html);
+
+    }
+    }
     /**
      * Find a alert by ID
      *
