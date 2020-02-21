@@ -68,20 +68,6 @@ class ChocManager extends \Core\Model
     }
   }
 
-  /**
-   * Set the rule to check if the power value of a choc in inside the range or not.
-   * the rule corresponds to 1 SD, 2SD or three SD (SD = standard Deviation)
-   * So mean + SD * highThresh and mean - SD * lowThresh
-   *
-   * @param int $rule : number between 1 and 3, uncluded
-   * @return void 
-   */
-  public function setStdDevRule($rule)
-  {
-    if ($rule > 0 && $rule < 6) {
-      $this->rule = $rule;
-    }
-  }
   /** set the structure Id
    *
    * @param int $structure_id id of the structure
