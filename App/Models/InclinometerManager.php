@@ -23,11 +23,14 @@ class InclinometerManager extends \Core\Model
    * @param int $time_period check for the last X days
    * @return true if an alert is triggered 
    */
-  public function check($inclinometer, $group)
+  public function check($inclinometer, $group, $method = "RANGE")
   {
 
     $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group);
     $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
+    $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group);
+
+    $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false);
 
     if (isset($inclinometer->angleX) && isset($inclinometer->angleY) && isset($inclinometer->angleZ)) {
       echo "let's check for ". $inclinometer->deveui;
@@ -42,54 +45,69 @@ class InclinometerManager extends \Core\Model
       $stdDevAngleY = $stdDevInclinaisonArr["stdDevAngleY"];
       $stdDevAngleZ = $stdDevInclinaisonArr["stdDevAngleZ"];
 
-      switch ($inclinometerTreshSTD) {
-        case 1:
-          $highTreshX = $avgAngleX + $stdDevAngleX;
-          $lowThreshX = $avgAngleX - $stdDevAngleX;
-          $highTreshY = $avgAngleY + $stdDevAngleY;
-          $lowThreshY = $avgAngleY - $stdDevAngleY;
-          $highTreshZ = $avgAngleZ + $stdDevAngleZ;
-          $lowThreshZ = $avgAngleZ - $stdDevAngleZ;
-          break;
-        case 2:
-          $highTreshX = $avgAngleX + 2 * $stdDevAngleX;
-          $lowThreshX = $avgAngleX - 2 * $stdDevAngleX;
-          $highTreshY = $avgAngleY + 2 * $stdDevAngleY;
-          $lowThreshY = $avgAngleY - 2 * $stdDevAngleY;
-          $highTreshZ = $avgAngleZ + 2 * $stdDevAngleZ;
-          $lowThreshZ = $avgAngleZ - 2 * $stdDevAngleZ;
-          break;
-        case 3:
-          $highTreshX = $avgAngleX + 3 * $stdDevAngleX;
-          $lowThreshX = $avgAngleX - 3 * $stdDevAngleX;
-          $highTreshY = $avgAngleY + 3 * $stdDevAngleY;
-          $lowThreshY = $avgAngleY - 3 * $stdDevAngleY;
-          $highTreshZ = $avgAngleZ + 3 * $stdDevAngleZ;
-          $lowThreshZ = $avgAngleZ - 3 * $stdDevAngleZ;
-          break;
-        default:
-          $highTreshX = $avgAngleX + $stdDevAngleX;
-          $lowThreshX = $avgAngleX - $stdDevAngleX;
-          $highTreshY = $avgAngleY + $stdDevAngleY;
-          $lowThreshY = $avgAngleY - $stdDevAngleY;
-          $highTreshZ = $avgAngleZ + $stdDevAngleZ;
-          $lowThreshZ = $avgAngleZ - $stdDevAngleZ;
+      if ($method == "RANGE"){
+        if ($inclinometer->angleX > $inclinometerRangeThresh || $inclinometer->angleX < -$inclinometerRangeThresh) {
+          $alertBoolArr["alertOnX"] = true;
+        }
+        if ($inclinometer->angleY > $inclinometerRangeThresh || $inclinometer->angleY < -$inclinometerRangeThresh) {
+          $alertBoolArr["alertOnY"] = true;
+        }
+        if ($inclinometer->angleY > $inclinometerRangeThresh || $inclinometer->angleY < -$inclinometerRangeThresh) {
+          $alertBoolArr["alertOnY"] = true;
+        }
+      }else if ($method == "STD"){
+        switch ($inclinometerTreshSTD) {
+          case 1:
+            $highTreshX = $avgAngleX + $stdDevAngleX;
+            $lowThreshX = $avgAngleX - $stdDevAngleX;
+            $highTreshY = $avgAngleY + $stdDevAngleY;
+            $lowThreshY = $avgAngleY - $stdDevAngleY;
+            $highTreshZ = $avgAngleZ + $stdDevAngleZ;
+            $lowThreshZ = $avgAngleZ - $stdDevAngleZ;
+            break;
+          case 2:
+            $highTreshX = $avgAngleX + 2 * $stdDevAngleX;
+            $lowThreshX = $avgAngleX - 2 * $stdDevAngleX;
+            $highTreshY = $avgAngleY + 2 * $stdDevAngleY;
+            $lowThreshY = $avgAngleY - 2 * $stdDevAngleY;
+            $highTreshZ = $avgAngleZ + 2 * $stdDevAngleZ;
+            $lowThreshZ = $avgAngleZ - 2 * $stdDevAngleZ;
+            break;
+          case 3:
+            $highTreshX = $avgAngleX + 3 * $stdDevAngleX;
+            $lowThreshX = $avgAngleX - 3 * $stdDevAngleX;
+            $highTreshY = $avgAngleY + 3 * $stdDevAngleY;
+            $lowThreshY = $avgAngleY - 3 * $stdDevAngleY;
+            $highTreshZ = $avgAngleZ + 3 * $stdDevAngleZ;
+            $lowThreshZ = $avgAngleZ - 3 * $stdDevAngleZ;
+            break;
+          default:
+            $highTreshX = $avgAngleX + $stdDevAngleX;
+            $lowThreshX = $avgAngleX - $stdDevAngleX;
+            $highTreshY = $avgAngleY + $stdDevAngleY;
+            $lowThreshY = $avgAngleY - $stdDevAngleY;
+            $highTreshZ = $avgAngleZ + $stdDevAngleZ;
+            $lowThreshZ = $avgAngleZ - $stdDevAngleZ;
+        }
+        //Etape 3 : verifier si la variation est supérieur à la moyenne + ecart type
+        if ($inclinometer->angleX > $highTreshX || $inclinometer->angleX < $lowThreshX) {
+          echo "ALERT ON INCLINAISON X ! \n";
+          echo "Current Inclinaison X " . $inclinometer->angleX . " is outside " . $lowThreshX . " and " . $highTreshX . " ! ";
+          $alertBoolArr["alertOnX"] = true;
+        }
+        if ($inclinometer->angleY > $highTreshY || $inclinometer->angleY < $lowThreshY) {
+          echo "ALERT ON INCLINAISON Y ! \n";
+          echo "Current Inclinaison Y " . $inclinometer->angleY . " is outside " . $lowThreshY . " and " . $highTreshY . " ! ";
+          $alertBoolArr["alertOnY"] = true;
+        }
+        if ($inclinometer->angleZ > $highTreshZ || $inclinometer->angleZ < $lowThreshZ) {
+          echo "ALERT ON INCLINAISON Z ! \n";
+          echo "Current Inclinaison Z " . $inclinometer->angleZ . " is outside " . $lowThreshZ . " and " . $highTreshZ . " ! ";
+          $alertBoolArr["alertOnZ"] = true;
+        }
       }
-      $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false );
-      //Etape 3 : verifier si la variation est supérieur à la moyenne + ecart type
-      if ($inclinometer->angleX > $highTreshX || $inclinometer->angleX < $lowThreshX) {
-        echo "ALERT ON INCLINAISON X ! \n";
-        echo "Current Inclinaison X " . $inclinometer->angleX ." is outside " . $lowThreshX . " and " . $highTreshX ." ! ";
-        $alertBoolArr["alertOnX"] = true;
-      } if ($inclinometer->angleY > $highTreshY || $inclinometer->angleY < $lowThreshY) {
-        echo "ALERT ON INCLINAISON Y ! \n";
-        echo "Current Inclinaison Y " . $inclinometer->angleY . " is outside " . $lowThreshY . " and " . $highTreshY . " ! ";
-        $alertBoolArr["alertOnY"] = true;
-      } if ($inclinometer->angleZ > $highTreshZ || $inclinometer->angleZ < $lowThreshZ) {
-        echo "ALERT ON INCLINAISON Z ! \n";
-        echo "Current Inclinaison Z " . $inclinometer->angleZ . " is outside " . $lowThreshZ . " and " . $highTreshZ . " ! ";
-        $alertBoolArr["alertOnZ"] = true;
-      }
+
+      
       
       return $alertBoolArr;
     }
