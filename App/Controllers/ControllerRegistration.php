@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Models\UserManager;
+use \App\Flash;
+
 
 /**
 * ControllerRegistration
@@ -29,7 +31,7 @@ class ControllerRegistration extends \Core\Controller
 
     $view = new View();
     if ($user->save()){
-
+      Flash::addMessage('Inscription réussie ! Vous pouvez vous connecter !');
       $this->redirect("/ControllerLogin/new");
 
 

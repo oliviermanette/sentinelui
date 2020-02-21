@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Models\UserManager;
+use \App\Flash;
 
 /**
 * Password controller
@@ -32,7 +33,11 @@ class Password extends \Core\Controller
     
     UserManager::sendPasswordReset($_POST['email']);
 
-    View::renderTemplate('Password/reset_requested.html');
+    Flash::addMessage('Vérifiez vos mails, un lien vous a été envoyé pour changer votre mot de passe !');
+
+    $this->redirect('/password/forgot');
+
+    //View::renderTemplate('Password/reset_requested.html');
   }
 
   /**

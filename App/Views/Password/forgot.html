@@ -1,4 +1,4 @@
-{% extends 'baseLogin.html' %}
+{% extends 'baseLogin2.html' %}
 
 {% block title %}Forgot password{% endblock %}
 
@@ -7,16 +7,43 @@
 
 {% block body %}
 
-<h1>Request password reset</h1>
+<div class="limiter">
+    <div class="container-login100" style="background-image: url('../../public/ressources/bg-login2.jpg');">
+        <div class="wrap-login100">
+            <form class="login100-form validate-form" role="form" action="/password/request-reset" method="post"
+                name="forgotform">
+                {% for message in flash_messages %}
+                <div class="alert alert-{{ message.type }}">
+                    {{ message.body }}
+                </div>
+                {% endfor %}
+                <fieldset>
+                    <div class="logo-row">
+                        <img class="logo" src="
+                            ../../public/ressources/sentive-logo.png">
+                    </div>
+                    <span class="login100-form-title p-b-30 p-t-27">
+                        Demande de nouveau mot de passe
+                    </span>
 
-<form method="post" action ="/password/request-reset">
+                    <div class="wrap-input100 validate-input" data-validate="Ecrivez votre mail">
+                        <input class="input100" type="email" name="email" id="inputEmail" placeholder="Email" required
+                            autofocus value="{{email}}">
+                        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                    </div>
 
-    <div>
-        <label for="inputEmail">Email address</label>
-        <input type="email" id="inputEmail" name="email" placeholder="Email address" autofocus required />
+                    <div class="container-login100-form-btn">
+                        <button class="login100-form-btn">
+                            Demander un nouveau mot de passe
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
+            <span class="text-danger">{{error_message}}</span>
+        </div>
     </div>
+</div>
 
-    <button type="submit">Send password reset</button>
-</form>
+<div id="dropDownSelect1"></div>
 
 {% endblock %}

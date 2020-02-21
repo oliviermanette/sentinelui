@@ -335,7 +335,7 @@ class UserManager extends \Core\Model
     $text = View::getTemplate('Password/reset_email.txt', ['url' => $url]);
     $html = View::getTemplate('Password/reset_email.html', ['url' => $url]);
     //var_dump($url);
-    Mail::send($this->email, 'Password reset', $text, $html);
+    Mail::send($this->email, 'Changement de mot de passe', $text, $html);
   }
 
   public function setGroupName($groupName)
