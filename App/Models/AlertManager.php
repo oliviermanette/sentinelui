@@ -206,7 +206,7 @@ class AlertManager extends \Core\Model
      * @param string $group_name check alert for a specific group 
      * @return void
      */
-    public static function getActiveAlertsInfoTable($group_name, $limit = null)
+    public static function getActiveAlertsInfoTable($group_name, $deveui = null, $limit = null)
     {
         $db = static::getDB();
 
@@ -216,15 +216,23 @@ class AlertManager extends \Core\Model
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.cause AS cause, 
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
         FROM alerts 
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
         LEFT JOIN group_site ON (group_site.site_id = site.id)
-        LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
-        WHERE group_name.name = :group_name
-        AND alerts.status = 1 ";
+        LEFT JOIN group_name ON (group_name.group_id = group_site.group_id) ";
+
+        if (isset($deveui)){
+            $query_alerts_data .= "LEFT JOIN sensor_group ON (sensor_group.groupe_id = group_name.group_id)
+            LEFT JOIN sensor ON (sensor.id = sensor_group.sensor_id)
+            WHERE sensor.deveui = :deveui AND group_name.name = :group_name
+            AND alerts.status = 1";
+        }else {
+            $query_alerts_data .= "WHERE group_name.name = :group_name
+            AND alerts.status = 1 ";
+        }
 
         if (isset($limit)) {
             $query_alerts_data .= "LIMIT :limit";
@@ -235,9 +243,12 @@ class AlertManager extends \Core\Model
         if (isset($limit)) {
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         }
+        if (isset($deveui)) {
+            $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+        }
 
         if ($stmt->execute()) {
-            $resArr = $stmt->fetchAll();
+            $resArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $resArr;
         }
     }

@@ -42,11 +42,9 @@ class ControllerSensors extends Authenticated
      */
     public function infoAction(){
 
-        //TEST
-        //$data = InclinometerManager::computeDailyVariationPercentageAngleForLast("0004A30B00E84D17",-1);
-        //$data = InclinometerManager::computeMonthlyVariationPercentageAngleForLast("0004A30B00E7D50F", -1);
-        //END TEST
-        //exit();
+        $user = Auth::getUser();
+        $group_name = $user->getGroupName();
+
         $label_device = $this->route_params["deviceid"];
         $deveui = SensorManager::getDeveuiFromLabel($label_device);
         $id_objenious = SensorManager::getDeviceIdObjeniousFromLabel($label_device);
@@ -131,7 +129,12 @@ class ControllerSensors extends Authenticated
         $tempArr = json_encode($tempArr);
 
         //Get settings
-        $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($_SESSION['group_name']);
+        $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
+
+        //Alerts
+        $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name, $deveui);
+        $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($group_name, $deveui);
+        
 
         View::renderTemplate('Sensors/infoDevice.html', [
             'deveui' => $deveui,
@@ -158,6 +161,8 @@ class ControllerSensors extends Authenticated
             'percentageVariationMonthArr' => $percentageVariationMonthArr,
             'inclinaisonRefArr' => $inclinaisonRefArr,
             'temperatureArr' => $tempArr,
+            'alerts_active_info_arr' => $alertsActiveDataArr,
+            'alerts_processed_info_arr' => $alertsProcessedDataArr,
         ]);
 
     }
