@@ -25,13 +25,14 @@ class InclinometerManager extends \Core\Model
    */
   public function check($inclinometer, $group, $method = "RANGE")
   {
-
+    //TODO FIX : calculer pourcentage vairaiton absolue et voir si ça dépasse ! 
+    /*
     $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group);
     $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
     $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group);
 
     $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false);
-
+    
     if (isset($inclinometer->angleX) && isset($inclinometer->angleY) && isset($inclinometer->angleZ)) {
       echo "let's check for ". $inclinometer->deveui;
 
@@ -110,7 +111,8 @@ class InclinometerManager extends \Core\Model
       
       
       return $alertBoolArr;
-    }
+    }*/
+    return false;
   }
 
   /**
