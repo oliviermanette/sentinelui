@@ -16,6 +16,7 @@ use App\Config;
 use App\Models\Messages\Message;
 use App\Utilities;
 use App\Controllers\ControllerDataObjenious;
+use App\Models\API\TemperatureAPI;
 use App\Models\Messages\Choc;
 use App\Models\Messages\Inclinometer;
 use App\Models\Messages\Battery;
@@ -57,7 +58,7 @@ class RecordManager extends \Core\Model
     EquipementManager::insertStructureType($message->typeStructure);
 
     $success = RecordManager::insertRecordData($message);
-
+    
     if ($success) {
       if ($message->typeMsg == "choc") {
 
@@ -100,9 +101,14 @@ class RecordManager extends \Core\Model
           return false;
         }
 
+        //Insert temperature
+        $currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
+        TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
+
         $inclinometreManager = new InclinometerManager();
         $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
-
+       
+        
         if ($hasAlertArr["alertOnX"]) {
           $label = "high_inclinometer_variationX";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());

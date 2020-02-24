@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\APIObjenious;
+namespace App\Models\API;
 
 use App\Utilities;
 
