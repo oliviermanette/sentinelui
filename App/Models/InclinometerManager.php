@@ -33,7 +33,7 @@ class InclinometerManager extends \Core\Model
     $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false);
 
     if (isset($inclinometer->angleX) && isset($inclinometer->angleY) && isset($inclinometer->angleZ)) {
-      echo "let's check for ". $inclinometer->deveui;
+      //echo "let's check for ". $inclinometer->deveui;
 
       //Etape 1 : calculer la moyenne et l'ecart type depuis la date choisie
       $avgInclinaisonArr = InclinometerManager::computeAvgInclinaisonForLast($inclinometer->deveui, $timePeriodCheck);
