@@ -5,7 +5,7 @@ namespace App\Controllers;
 use \Core\View;
 use \App\Auth;
 use \App\Models\SensorManager;
-use \App\Models\APIObjenious\SensorAPI;
+use \App\Models\API\SensorAPI;
 use \App\Models\RecordManager;
 use \App\Models\SpectreManager;
 use \App\Models\TimeSeriesManager;

@@ -13,7 +13,7 @@ namespace App\Models;
 use App\Config;
 use App\Utilities;
 use App\Controllers\ControllerDataObjenious;
-use App\Models\APIObjenious\SensorAPI;
+use App\Models\API\SensorAPI;
 use PDO;
 
 class SensorManager extends \Core\Model

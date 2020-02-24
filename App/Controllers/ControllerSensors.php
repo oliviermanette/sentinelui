@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Models\SensorManager;
-use \App\Models\APIObjenious\SensorAPI;
+use \App\Models\API\SensorAPI;
 use \App\Models\InclinometerManager;
 use \App\Auth;
 use \App\Flash;
