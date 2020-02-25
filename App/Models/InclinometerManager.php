@@ -121,8 +121,6 @@ class InclinometerManager extends \Core\Model
         }
       }
 
-      
-      
       return $alertBoolArr;
     }
   }
