@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Capteurs{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div class="row">
+            <div class="col">
+                <h1 class="h3 mb-0 text-gray-800">Capteurs</h1>
+            </div>
+            <div class="col">
+                <a href="#" class="btn btn-secondary">
+                    <span class="text">Importer des capteurs</span>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+    <form class="card">
+        <div class="card-body">
+            <h3 class="card-title">Gestion des capteurs</h3>
+            {% include "Sensors/viewTableSensors.html" %}
+        </div>
+    </form>
+
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    $(document).ready(function () {
+        $.fn.dataTable.moment( 'DD/MM/YYYY' );
+        /*$('#tableDataSensors thead tr').clone(true).appendTo('#tableDataSensors thead');
+        $('#tableDataSensors thead tr:eq(1) th').each(function (i) {
+            if (i != 0) {
+                var title = $(this).text();
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                $('input', this).on('keyup change', function () {
+                    if (table.column(i).search() !== this.value) {
+                        table
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            }
+        });*/
+
+        $('#tableDataSensors').DataTable({
+            responsive: true,
+            responsive: {
+                details: {
+                type: 'column',
+                target: 'tr'
+                }
+            },
+            orderCellsTop: true,
+            fixedHeader: true,
+            "createdRow": function (row, data, dataIndex) {
+                var status = data[4];
+                if (status == "active") {
+                    $(row).css({
+                        //green
+                        "background-color": "rgba(135, 254, 16, 0.15)"
+                    })
+                } else {
+                    $(row).css({
+                        //Red
+                        "background-color": "rgba(254, 16, 16, 0.15)"
+                    })
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20,
+            "order": [[ 5, "desc" ]]
+        });
+
+        $('#tableDataNewAlerts').DataTable({
+             responsive: true,
+            responsive: {
+                details: {
+                type: 'column',
+                target: 'tr'
+                }
+            },
+            "createdRow": function (row, data, dataIndex, cells) {
+                var type_raw_message = data[1];
+                var statut = data[7];
+                console.log(statut);
+                if (statut == "1") {
+                    cells[7].innerText = "En cours";
+                } else {
+                    cells[7].innerText = "Traité";
+                }
+                switch (type_raw_message) {
+                    case 'ChangeStatusInactive':
+                        cells[1].innerText = "Inactif";
+                        break;
+                    case 'ChangeStatusActive':
+                        cells[1].innerText = "Actif";
+                        break;
+                    case 'ChangeStatusError':
+                        cells[1].innerText = "Erreur";
+                        break;
+                    case 'high_choc':
+                        cells[1].innerText = "Choc important";
+                        break;
+                    default:
+                        break;
+                }
+            },
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20
+        });
+
+        $('#tableDataProcessedAlerts').DataTable({
+            responsive: true,
+            responsive: {
+                details: {
+                type: 'column',
+                target: 'tr'
+                }
+            },
+            "createdRow": function (row, data, dataIndex, cells) {
+                var type_raw_message = data[1];
+                var statut = data[7];
+                console.log(statut);
+                if (statut == "1") {
+                    cells[7].innerText = "En cours";
+                } else {
+                    cells[7].innerText = "Traité";
+                }
+                switch (type_raw_message) {
+                    case 'ChangeStatusInactive':
+                        cells[1].innerText = "Inactif";
+                        break;
+                    case 'ChangeStatusActive':
+                        cells[1].innerText = "Actif";
+                        break;
+                    case 'ChangeStatusError':
+                        cells[1].innerText = "Erreur";
+                        break;
+                    case 'high_choc':
+                        cells[1].innerText = "Choc important";
+                        break;
+                    default:
+                        break;
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20
+        });
+
+    });
+</script>
+
+{% endblock %}

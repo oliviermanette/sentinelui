@@ -1,0 +1,244 @@
+{# viewInclinometerWidgets.html #}
+
+<div class="card">
+
+    <div class="card-body">
+        {% set dataType = ['Inclinaison Journalière (par rapport à hier)',
+        'Inclinaison Hebdomadaire (par rapport aux 7 derniers jours)',
+        'Inclinaison Mensuelle (par rapport aux 30 derniers jours)'] %}
+        <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi de l'inclinaison</h3>
+
+        <div id="accordion" class="py-2 mb-3">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="false" aria-controls="collapseOne">
+                            Valeurs de référence - Jour d'installation
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <h6 class="card-title"><b>Valeurs de références depuis le jour d'installation</b></h6>
+                        <div class="row card-row">
+                            <div class="extend-view-label col-md-4" title="groupe">Inclinaison X
+                            </div>
+                            <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_x}}">
+                                {{inclinaisonRefArr.angle_x}} °
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="extend-view-label col-md-4" title="groupe">Inclinaison Y
+                            </div>
+                            <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_y}}">
+                                {{inclinaisonRefArr.angle_y}} °
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="extend-view-label col-md-4" title="groupe">Inclinaison Z
+                            </div>
+                            <div class="extend-view-value col-md-4" title="{{inclinaisonRefArr.angle_z}}">
+                                {{inclinaisonRefArr.angle_z}} °
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <!-- CHART Inclinometre angle  -->
+            <div class="card-header py-3 d-flex justify-content-center">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                            <div id="{{val.equipementId}}">
+                                <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-2"
+                                    data-toggle="buttons">
+                                    <label class="btn btn-outline-secondary">
+                                        <input id="option1" type="radio" name="options" autocomplete="off" value="-1"
+                                            checked=""> Depuis l'installation
+                                    </label>
+                                    <label class="btn btn-outline-secondary">
+                                        <input id="option2" type="radio" name="options" autocomplete="off" value="7">
+                                        Dernier 7 jours
+                                    </label>
+                                    <label class="btn btn-outline-secondary active">
+                                        <input id="option3" type="radio" name="options" autocomplete="off" value="30">
+                                        Dernier 30 jours
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div class="canvasInclinometer">
+                        <canvas id="chartAngleInclinometer"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHART percentage variation Inclinometre  -->
+            <div class="card-header py-3 d-flex justify-content-center">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                            <div id="{{val.equipementId}}">
+                                <div id="radioButtonPercentageVariationInclinometer"
+                                    class="btn-group btn-group-toggle mx-2" data-toggle="buttons">
+                                    <label class="btn btn-outline-secondary active">
+                                        <input type="radio" name="options" autocomplete="off" value="1" checked="">
+                                        Journalier
+                                    </label>
+                                    <label class="btn btn-outline-secondary">
+                                        <input type="radio" name="options" autocomplete="off" value="7">
+                                        Hebdomadaire
+                                    </label>
+                                    <label class="btn btn-outline-secondary">
+                                        <input type="radio" name="options" autocomplete="off" value="30">
+                                        Mensuelle
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-12">
+                    <div id="canvasVariationInclinometer">
+                        <canvas id="chartVariationAngleInclinometer"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        {% for row in totalVariationArr %}
+
+        <h4 class="card-title">{{dataType[loop.index0]}}</h4>
+        <div class="row justify-content-center">
+            <!-- Variation X Card  -->
+            <div class="col">
+                <div class="card shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Ancien X
+                                </div>
+                                <div class="mb-0 text-gray-800">
+                                    <small>{{row.oldAngleX}} °</small>
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Nouveau X
+                                </div>
+                                <div class="mb-0 text-gray-800">
+                                    <small>{{row.newAngleX}} °</small>
+                                </div>
+                            </div>
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Variation X
+                                </div>
+                                {% if row.pourcentage_variation_angleX != 0 %}
+                                <div class="h5 mb-0 font-weight-bold text-danger">
+                                    {% else %}
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% endif %}
+                                        {{row.pourcentage_variation_angleX}} °
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Variation Y  Card -->
+                <div class="col">
+                    <div class="card shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Ancien Y
+                                    </div>
+                                    <div class="mb-0 text-gray-800">
+                                        <small>{{row.oldAngleY}} °</small>
+                                    </div>
+                                </div>
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Nouveau Y
+                                    </div>
+                                    <div class="mb-0 text-gray-800">
+                                        <small>{{row.newAngleY}} °</small>
+                                    </div>
+                                </div>
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Variation Y
+                                    </div>
+                                    {% if row.pourcentage_variation_angleY != 0 %}
+                                    <div class="h5 mb-0 font-weight-bold text-danger">
+                                        {% else %}
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {% endif %}
+                                            {{row.pourcentage_variation_angleY}} °
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Variation Z Day Card  -->
+                    <div class="col">
+                        <div class="card shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Ancien Z
+                                        </div>
+                                        <div class="mb-0 text-gray-800">
+                                            <small>{{row.oldAngleZ}} °</small>
+                                        </div>
+                                    </div>
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Nouveau Z
+                                        </div>
+                                        <div class="mb-0 text-gray-800">
+                                            <small>{{row.newAngleZ}} °</small>
+                                        </div>
+                                    </div>
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Variation Z
+                                        </div>
+
+                                        {% if row.pourcentage_variation_angleZ != 0 %}
+                                        <div class="h5 mb-0 font-weight-bold text-danger">
+                                            {% else %}
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {% endif %}
+                                                {{row.pourcentage_variation_angleZ}} °
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+
+
+                
+
+                </div>
+
+            </div>

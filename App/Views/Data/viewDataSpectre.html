@@ -1,0 +1,105 @@
+<div class="list-group">
+
+    <ul>
+
+        <!-- <pre>{{ dump(key) }}</pre> -->
+        {% set canvas_id_nbchoc = 'canvas_equipement_nbchoc_'~val.equipementId %}
+        {% set canvas_id_powerchoc = 'canvas_equipement_powerchoc_'~val.equipementId %}
+        {% set canvas_id_angle= 'canvas_equipement_angle_'~val.equipementId %}
+        {% set chart_area_id_nbchoc = 'chart_area_nbchoc_id_'~val.equipementId %}
+        {% set chart_area_id_powerchoc = 'chart_area_powerchoc_id_'~val.equipementId %}
+        {% set chart_area_id_angle = 'chart_area_angle_id_'~val.equipementId %}
+
+        <!-- /.row-->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title mb-0">{{ allStructureData.equipement }} | {{ allStructureData.ligneHT }} |
+                            Capteur n°
+                            {{allStructureData.device_number}} | ID : {{allStructureData.sensor_id}}</h4>
+                        <div class="small text-muted">{{allStructureData.lastDate}}</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8">
+                        {% if all_structure_data is not empty %}
+                        {% for key, val in all_structure_data  %}
+                        <!-- Nombre de choc par jour Chart -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Nombre de choc par jour</h6>
+                                <div class="btn-toolbar d-none d-md-block" role="toolbar"
+                                    aria-label="Toolbar with buttons">
+                                    <div id="{{val.equipementId}}">
+                                        <div id="radioButtonNbChoc" class="btn-group btn-group-toggle mx-3"
+                                            data-toggle="buttons">
+                                            <label class="btn btn-outline-secondary active">
+                                                <input id="option1" type="radio" name="options" value="day"
+                                                    autocomplete="off" checked=""> Jour
+                                            </label>
+                                            <label class="btn btn-outline-secondary ">
+                                                <input id="option2" type="radio" name="options" autocomplete="off"
+                                                    value="week">
+                                                Semaine
+                                            </label>
+                                            <label class="btn btn-outline-secondary">
+                                                <input id="option3" type="radio" name="options" autocomplete="off"
+                                                    value="month"> Mois
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <div id="{{ chart_area_id_nbchoc }}" class="chart-area">
+                                    <canvas id="{{ canvas_id_nbchoc }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <!-- Puissance de choc par jour Chart -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Puissance de choc
+                                    par jour</h6>
+                                <div class="btn-toolbar d-none d-md-block" role="toolbar"
+                                    aria-label="Toolbar with buttons">
+                                    <div id="{{val.equipementId}}">
+                                        <div id="radioButtonPowerChoc" class="btn-group btn-group-toggle mx-3"
+                                            data-toggle="buttons">
+                                            <label class="btn btn-outline-secondary active">
+                                                <input id="option1" type="radio" name="options" value="day"
+                                                    autocomplete="off"> Jour
+                                            </label>
+                                            <label class="btn btn-outline-secondary">
+                                                <input id="option2" type="radio" name="options" autocomplete="off"
+                                                    value="week" checked="">
+                                                Semaine
+                                            </label>
+                                            <label class="btn btn-outline-secondary">
+                                                <input id="option3" type="radio" name="options" autocomplete="off"
+                                                    value="month"> Mois
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="{{chart_area_id_powerchoc}}" class="chart-area">
+                                    <canvas id="{{ canvas_id_powerchoc }}"></canvas>
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </ul>
+
+</div>

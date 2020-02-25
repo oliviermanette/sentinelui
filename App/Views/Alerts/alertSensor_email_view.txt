@@ -1,0 +1,12 @@
+Bonjour {{ firstName }},
+
+ Une alerte a été levée concernant le capteur {{sensorName}}
+
+{{ msg }}
+
+Déclenchement de l'alerte le {{dateEventOccured}} à {{timeEventOccured}}
+Région: {{region}}
+Structure concernée: {{equipement}}
+Capteur concerné:{{sensorName}}
+
+Pour en savoir plus : {{url}}

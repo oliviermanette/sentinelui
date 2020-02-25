@@ -1,0 +1,49 @@
+{% extends 'baseLogin.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block body %}
+<div class="sidenav">
+  <div class="login-main-text">
+    <h2>Sentive.ai<br>Page de connexion</h2>
+    <p>Connectez-vous pour accéder à l'interface</p>
+  </div>
+</div>
+<div class="main">
+  <div class="col-md-6 col-sm-12">
+    <div class="login-form">
+      <form role="form" action="/ControllerLogin/create" method="post" name="loginform">
+        <fieldset>
+          {% for message in flash_messages %}
+          <div class="alert alert-{{ message.type }}">
+            {{ message.body }}
+          </div>
+          {% endfor %}
+
+          <div class="form-group">
+            <label for="name">Email</label>
+            <input type="email" name="email" id="inputEmail" placeholder="Email" required class="form-control" autofocus value="{{email}}"/>
+          </div>
+          <div class="form-group">
+            <label for="name">Mot de passe</label>
+            <input type="password" name="password" id="inputPassword" placeholder="Mot de passe" required class="form-control" />
+          </div>
+          <div>
+            <a href="/password/forgot">Mot de passe oublié ?</a>
+            </div>
+          <label>
+            <input type="checkbox" name="remember_me" {% if remember_me %} checked="checked"{% endif %} /> Se souvenir de moi
+          </label>
+          <button type="submit" name="login" value="Login" class="btn btn-black">Se connecter</button>
+        </fieldset>
+      </form>
+      <span class="text-danger">{{error_message}}</span>
+    </div>
+  </div>
+</div>
+<div class="col-md-4 col-md-offset-4 text-center"><a href="changepwd.php">Changer de mot de passe</a>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Setting{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Paramètres</h3>
+            <form role="form" action="/ControllerSetting/update" method="post" name="settingform">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label><strong>Seuil des chocs (SD)</strong></label>
+                        <input type="range" class="custom-range" name="shockThresh" min="1" max="6"
+                            value="{{ settingsShock.value }}" oninput="this.form.amountInputShock.value=this.value" />
+                        <input type="number" name="amountInputShock" min="1" max="6" value="{{ settingsShock.value }}"
+                            oninput="this.form.shockThresh.value=this.value" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label><strong>Seuil de l'inclinomètre (SD)</strong></label>
+                        <input type="range" class="custom-range" name="inclinometerThresh" min="1" max="6"
+                            value="{{ settingsInclinometer.value }}"
+                            oninput="this.form.amountInputInclinometer.value=this.value" />
+                        <input type="number" name="amountInputInclinometer" min="1" max="6"
+                            value="{{ settingsInclinometer.value }}"
+                            oninput="this.form.inclinometerThresh.value=this.value" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label><strong>Seuil de variation maximum de l'inclinomètre</strong></label>
+                        <input type="range" class="custom-range" name="inclinometerRangeThresh" min="1" max="6"
+                            value="{{ settingsRangeInclinometer.value }}"
+                            oninput="this.form.amountInputRangeInclinometer.value=this.value" />
+                        <input type="number" name="amountInputRangeInclinometer" min="1" max="6"
+                            value="{{ settingsRangeInclinometer.value }}"
+                            oninput="this.form.inclinometerRangeThresh.value=this.value" />
+                    </div>
+
+                </div>
+                </br>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label><strong>Vérifier les données depuis</strong></label>
+                        <div class="custom-switches-stacked">
+                            <label class="custom-switch">
+                                <input type="radio" name="rangeDateCheck" value="30" class="custom-switch-input"
+                                    {% if settingsTimePeriod.value == 30 %} checked {% endif %}>
+                                <span class="custom-switch-description">30 jours</span>
+                            </label>
+                            <label class="custom-switch">
+                                <input type="radio" name="rangeDateCheck" value="90" class="custom-switch-input"
+                                    {% if settingsTimePeriod.value == 90 %} checked {% endif %}>
+                                <span class="custom-switch-description">90 jours</span>
+                            </label>
+                            <label class="custom-switch">
+
+                                <input type="radio" name="rangeDateCheck" value="-1" class="custom-switch-input"
+                                    {% if settingsTimePeriod.value == -1 %} checked {% endif %}>
+
+
+                                <span class="custom-switch-description">Depuis l'installation</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label><strong>Fréquence d'acquisition inclinomètre</strong></label>
+                        <div class="custom-switches-stacked">
+                            <label class="custom-switch">
+                                <input type="radio" name="frequencyInclinometer" value="4" class="custom-switch-input"
+                                    checked disabled>
+                                <span class="custom-switch-description">Toutes les 4h</span>
+                            </label>
+                            <label class="custom-switch">
+                                <input type="radio" name="frequencyInclinometer" value="12" class="custom-switch-input"
+                                    disabled>
+                                <span class="custom-switch-description">Tous les 12h</span>
+                            </label>
+                            <label class="custom-switch">
+
+                                <input type="radio" name="frequencyInclinometer" value="24" class="custom-switch-input"
+                                    disabled>
+
+
+                                <span class="custom-switch-description">Toutes les 24h</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label><strong>Nombre de choc max envoyé par jour</strong></label>
+                        <div class="custom-switches-stacked">
+                            <label class="custom-switch">
+                                <input type="radio" name="frequencyChoc" value="6" class="custom-switch-input" checked
+                                    disabled>
+                                <span class="custom-switch-description">6 chocs / jour</span>
+                            </label>
+                            <label class="custom-switch">
+                                <input type="radio" name="frequencyChoc" value="12" class="custom-switch-input"
+                                    disabled>
+                                <span class="custom-switch-description">12 chocs / jour</span>
+                            </label>
+                            <label class="custom-switch">
+                                <input type="radio" name="frequencyChoc" value="24" class="custom-switch-input"
+                                    disabled>
+                                <span class="custom-switch-description">24 chocs / jour</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- Default switch -->
+                        <div class="custom-control custom-switch">
+                            <input name="alertSwitchNotification" type="checkbox" class="custom-control-input"
+                                id="customSwitches" {% if settingsAlertEmailActivated.isAlertEmailActivated == true %}
+                                checked
+                                {% endif %}>
+                            <label class="custom-control-label" for="customSwitches">Recevoir les alertes par mail</label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-primary">Mettre à jour les paramètres</button>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+
+    {% endblock %}
+
+    {% block script %}
+
+    <script>
+
+
+    </script>
+
+    {% endblock %}

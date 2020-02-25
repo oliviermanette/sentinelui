@@ -1,0 +1,48 @@
+{# tableData.html #}
+
+<div class="card shadow mb-4">
+  <div class="card-header py-3">
+    <h6 class="m-0 font-weight-bold text-primary">Equipements disponibles</h6>
+  </div>
+  <div class="card-body">
+    <button id="btn-show-all-children" class="btn btn-sm btn-primary shadow-sm" type="button">Expand All</button>
+    <!--<button id="btn-hide-all-children" type="button">Collapse All</button>-->
+    <hr>
+    <div class="table-responsive">
+      <table id="tableData" class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <!--<table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">-->
+        <thead>
+          <tr>
+            <th></th>
+            <th>Sensor ID</th>
+            <th>Site</th>
+            <th>Equipement</th>
+            <th>Ligne HT</th>
+            <th>Dernier message reçu</th>
+            <th>Status</th>
+            <th>Date d'installation</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <!--<tbody>
+          {% for row in brief_data_record %}
+          <tr>
+            <th></th>
+            <td>{{ row.sensor_id }}</td>
+            <td>{{ row.site }}</td>
+            <td>{{ row.equipement }}</td>
+            <td>{{ row.ligneHT }}</td>
+            <td> {{ row.nb_messages }}</td>
+            <td> {{ row.nb_choc }}</td>
+            <td>{{ row.last_message_received}}</td>
+            <td>{{ row.status}}</td>
+            <td><a href="/device/{{row.sensor_id}}/info" id="viewSensor{{row.sensor_id}}"
+                name="download">Voir</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      -->
+      </table>
+    </div>
+  </div>
+</div>
