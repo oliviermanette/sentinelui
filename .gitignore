@@ -14,3 +14,4 @@ node_modules/**
 package-lock.json
 composer.lock
 node_modules
+sendgrid.env
