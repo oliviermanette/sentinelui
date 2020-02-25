@@ -1,8 +1,0 @@
-<div class="field" id="equipmentField">
-  <label>Choisissez un équipement associé</label>
-  <select class="browser-default custom-select" name="equipment"  id="equipment">
-    <option value="" selected>Choisissez un équipement associé</option>
-    {% for equipment in all_equipment %}
-      <option value={{equipment.equipement_id}}>{{equipment.equipement}}</option>
-      {% endfor %}
-  </select>
