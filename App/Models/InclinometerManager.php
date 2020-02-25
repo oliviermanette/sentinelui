@@ -30,8 +30,7 @@ class InclinometerManager extends \Core\Model
     $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
     $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group);
 
-    $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false);
-
+    $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false);    
     if (isset($inclinometer->angleX) && isset($inclinometer->angleY) && isset($inclinometer->angleZ)) {
       //echo "let's check for ". $inclinometer->deveui;
 
@@ -46,14 +45,29 @@ class InclinometerManager extends \Core\Model
       $stdDevAngleZ = $stdDevInclinaisonArr["stdDevAngleZ"];
 
       if ($method == "RANGE"){
-        if ($inclinometer->angleX > $inclinometerRangeThresh || $inclinometer->angleX < -$inclinometerRangeThresh) {
+        $references_values = InclinometerManager::getValuesReference($inclinometer->deveui, -1);
+
+        $date_ref = $references_values["date"];
+        $angleX_ref = $references_values["angle_x"];
+        $angleY_ref = $references_values["angle_y"];
+        $angleZ_ref = $references_values["angle_z"];
+
+        $angleX = $inclinometer->angleX;
+        $angleY = $inclinometer->angleY;
+        $angleZ = $inclinometer->angleZ;
+
+        $diffAngleX = $angleX - $angleX_ref;
+        $diffAngleY = $angleY - $angleY_ref;
+        $diffAngleZ = $angleZ - $angleZ_ref;
+        
+        if ($diffAngleX > $inclinometerRangeThresh || $diffAngleX < -$inclinometerRangeThresh) {
           $alertBoolArr["alertOnX"] = true;
         }
-        if ($inclinometer->angleY > $inclinometerRangeThresh || $inclinometer->angleY < -$inclinometerRangeThresh) {
+        if ($diffAngleY > $inclinometerRangeThresh || $diffAngleY < -$inclinometerRangeThresh) {
           $alertBoolArr["alertOnY"] = true;
         }
-        if ($inclinometer->angleY > $inclinometerRangeThresh || $inclinometer->angleY < -$inclinometerRangeThresh) {
-          $alertBoolArr["alertOnY"] = true;
+        if ($diffAngleZ > $inclinometerRangeThresh || $diffAngleZ < -$inclinometerRangeThresh) {
+          $alertBoolArr["alertOnZ"] = true;
         }
       }else if ($method == "STD"){
         switch ($inclinometerTreshSTD) {

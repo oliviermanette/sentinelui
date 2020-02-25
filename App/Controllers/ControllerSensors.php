@@ -102,7 +102,7 @@ class ControllerSensors extends Authenticated
         $inclinometerDataDayArr = InclinometerManager::getInclinometerDataForLast($deveui, -1);
         $inclinometerDataDayArr = json_encode($inclinometerDataDayArr);
 
-        //percentage variation
+        //absolute variation
         $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationDayArr = json_encode($percentageVariationDayArr);
         $percentageVariationWeekArr = InclinometerManager::computeWeeklyVariationPercentageAngleForLast($deveui, false, -1);
@@ -132,7 +132,7 @@ class ControllerSensors extends Authenticated
         $site = SensorManager::getSiteWhereIsInstalled($deveui);
         $historicalTemperatureDataArr = TemperatureManager::getHistoricalDataForSite($site);
         $historicalTemperatureDataArr = json_encode($historicalTemperatureDataArr);
-        var_dump($historicalTemperatureDataArr);
+        //var_dump($historicalTemperatureDataArr);
 
         //Get settings
         $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);

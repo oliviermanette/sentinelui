@@ -113,7 +113,7 @@ class RecordManager extends \Core\Model
         
         $inclinometreManager = new InclinometerManager();
         $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
-          
+        
         if ($hasAlertArr["alertOnX"]) {
           $label = "high_inclinometer_variationX";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
