@@ -73,13 +73,13 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
         fontSize: 15
       },
       pan: {
-          enabled: false,
-          mode: 'xy'
-        },
-        zoom: {
-          enabled: false,
-          mode: 'xy',
-        }
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
     };
     //Create the instance
     var chartInstance = new Chart(ctx, {
@@ -196,13 +196,13 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
         }]
       },
       pan: {
-          enabled: false,
-          mode: 'xy'
-        },
-        zoom: {
-          enabled: false,
-          mode: 'xy',
-        }
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
     };
 
     var chartInstance = new Chart(ctx, {
@@ -315,13 +315,13 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         fontSize: 15
       },
       pan: {
-          enabled: false,
-          mode: 'xy'
-        },
-        zoom: {
-          enabled: false,
-          mode: 'xy',
-        }
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
     };
 
     //Create chart Instance
@@ -436,65 +436,72 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
   if (typeof temperatureData != 'object') {
     temperatureData = JSON.parse(temperatureData);
   }
-  var temperature = [];
-  var date = [];
+  if (isEmpty(data)) {
 
-  for (var i in temperatureData) {
-    if (temperatureData[i].temperature < 100) {
-      temperature.push(temperatureData[i].temperature);
-      date.push(temperatureData[i].date_d);
+    drawNoDataAvailable(canvaID);
+
+  } else {
+
+
+    var temperature = [];
+    var date = [];
+
+    for (var i in temperatureData) {
+      if (temperatureData[i].temperature < 100) {
+        temperature.push(temperatureData[i].temperature);
+        date.push(temperatureData[i].date_d);
+      }
     }
-  }
 
-  var chartdata = {
-    labels: date,
-    datasets: [{
+    var chartdata = {
       labels: date,
-      borderColor: "#3e95cd",
-      backgroundColor: "#f6f6f6",
-      pointBackgroundColor: "#3e95cd",
-      hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-      hoverBorderColor: 'rgba(200, 200, 200, 1)',
-      data: temperature
-    }]
-  };
-  var canva_id = "#" + canvaID;
-  var ctx = $(canva_id);
-
-  var options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        scaleLabel: {
-          display: true,
-          labelString: 'Date'
-        },
-        ticks:{
-          autoskip: true,
-          maxTicksLimit: 20
-        }
-      }],
-      yAxes: [{
-        ticks: {
-          beginAtZero: false,
-        },
-        scaleLabel: {
-          display: true,
-          labelString: 'Temeprature (°C)'
-        },
-        //type: 'logarithmic',
+      datasets: [{
+        labels: date,
+        borderColor: "#3e95cd",
+        backgroundColor: "#f6f6f6",
+        pointBackgroundColor: "#3e95cd",
+        hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
+        hoverBorderColor: 'rgba(200, 200, 200, 1)',
+        data: temperature
       }]
-    },
-    legend: {
-      display: false
-    },
-    title: {
-      display: true,
-      text: 'Temperature relevé par le capteur en fonction du temps',
-      fontSize: 18,
-    },
-    pan: {
+    };
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
+
+    var options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          },
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 20
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Temeprature (°C)'
+          },
+          //type: 'logarithmic',
+        }]
+      },
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Temperature relevé par le capteur en fonction du temps',
+        fontSize: 18,
+      },
+      pan: {
         enabled: false,
         mode: 'xy'
       },
@@ -502,78 +509,83 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
         enabled: false,
         mode: 'xy',
       }
-  };
+    };
 
-  var chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: chartdata,
-    options: options
-  });
-
+    var chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: chartdata,
+      options: options
+    });
+  }
 }
 
-function drawChartHistoricalTemperature(temperatureData, canvaID){
-   if (typeof temperatureData != 'object') {
+function drawChartHistoricalTemperature(temperatureData, canvaID) {
+  if (typeof temperatureData != 'object') {
     temperatureData = JSON.parse(temperatureData);
   }
-  var temperature = [];
-  var date = [];
+  if (isEmpty(data)) {
 
-  for (var i in temperatureData) {
-    if (temperatureData[i].temperature < 100) {
-      temperature.push(temperatureData[i].temperature);
-      date.push(temperatureData[i].date_d);
+    drawNoDataAvailable(canvaID);
+
+  } else {
+    var temperature = [];
+    var date = [];
+
+    for (var i in temperatureData) {
+      if (temperatureData[i].temperature < 100) {
+        temperature.push(temperatureData[i].temperature);
+        date.push(temperatureData[i].date_d);
+      }
     }
-  }
 
-  var chartdata = {
-    labels: date,
-    datasets: [{
+    var chartdata = {
       labels: date,
-      backgroundColor: "rgba(79,117,180,0.95)",
-      borderColor: "rgba(49,85,144,1)",
-      borderWidth: 1,
-      lineTension: 0,
-      data: temperature
-    }]
-  };
-  var canva_id = "#" + canvaID;
-  var ctx = $(canva_id);
-
-  var options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        scaleLabel: {
-          display: true,
-          labelString: 'Date'
-        },
-        ticks:{
-          autoskip: true,
-          maxTicksLimit: 20
-        }
-      }],
-      yAxes: [{
-        ticks: {
-          beginAtZero: false,
-        },
-        scaleLabel: {
-          display: true,
-          labelString: 'Temeprature (°C)'
-        },
-        //type: 'logarithmic',
+      datasets: [{
+        labels: date,
+        backgroundColor: "rgba(79,117,180,0.95)",
+        borderColor: "rgba(49,85,144,1)",
+        borderWidth: 1,
+        lineTension: 0,
+        data: temperature
       }]
-    },
-    legend: {
-      display: false
-    },
-    title: {
-      display: true,
-      text: 'Temperature de référence',
-      fontSize: 18,
-    },
-    pan: {
+    };
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
+
+    var options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          },
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 20
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Temeprature (°C)'
+          },
+          //type: 'logarithmic',
+        }]
+      },
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Temperature de référence',
+        fontSize: 18,
+      },
+      pan: {
         enabled: false,
         mode: 'xy'
       },
@@ -581,14 +593,14 @@ function drawChartHistoricalTemperature(temperatureData, canvaID){
         enabled: false,
         mode: 'xy',
       }
-  };
+    };
 
-  var chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: chartdata,
-    options: options
-  });
-
+    var chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: chartdata,
+      options: options
+    });
+  }
 }
 
 /**
@@ -670,13 +682,13 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
         text: 'Inclinometre en fonction du temps'
       },
       pan: {
-          enabled: false,
-          mode: 'xy'
-        },
-        zoom: {
-          enabled: false,
-          mode: 'xy',
-        }
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
     }
   };
 
@@ -733,7 +745,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
       borderWidth: 5,
       backgroundColor: 'rgb(225,225,225)',
     };
-    
+
 
     var chartdata = {
       labels: date,
@@ -775,7 +787,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
       title: {
         display: true,
         text: "Valeurs d'inclinaison en fonction du temps",
-        fontSize:18,
+        fontSize: 18,
       },
       scales: {
         yAxes: [{
@@ -828,25 +840,25 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
       },
       // Container for pan options
       pan: {
-          // Boolean to enable panning
-          enabled: true,
-          drag: dragOptions,
-          // Panning directions. Remove the appropriate direction to disable 
-          // Eg. 'y' would only allow panning in the y direction
-          mode: 'y'
-        },
+        // Boolean to enable panning
+        enabled: true,
+        drag: dragOptions,
+        // Panning directions. Remove the appropriate direction to disable 
+        // Eg. 'y' would only allow panning in the y direction
+        mode: 'y'
+      },
 
-        // Container for zoom options
-        zoom: {
-          // Boolean to enable zooming
-          enabled: true,
-          // Zooming directions. Remove the appropriate direction to disable 
-          // Eg. 'y' would only allow zooming in the y direction
-          mode: 'y',
-          // Speed of zoom via mouse wheel
-          // (percentage of zoom on a wheel event)
-          speed: 0.1,
-        }
+      // Container for zoom options
+      zoom: {
+        // Boolean to enable zooming
+        enabled: true,
+        // Zooming directions. Remove the appropriate direction to disable 
+        // Eg. 'y' would only allow zooming in the y direction
+        mode: 'y',
+        // Speed of zoom via mouse wheel
+        // (percentage of zoom on a wheel event)
+        speed: 0.1,
+      }
     };
 
 
@@ -907,10 +919,10 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
 
   let title = "";
   let label = "";
-  if (percentage){
+  if (percentage) {
     title = "Pourcentage de variation de l\'inclinaison au fil du temps";
     label = "Variation %";
-  }else {
+  } else {
     title = "Variation absolue de l\'inclinaison au fil du temps";
     label = "Variation absolue °";
   }
@@ -993,55 +1005,54 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
 
         },
       }],
-      
+
     },
     pan: {
-        enabled: true,
-        mode: 'y'
-      },
-      zoom: {
-        enabled: true,
-        mode: 'y',
-      },
-      annotation: {
-        events: ['click'],
-        drawTime: 'afterDatasetsDraw',
-        annotations: [{
-          id: 'hline1',
-          type: 'line',
-          mode: 'horizontal',
-          scaleID: 'y-axis-0',
-          value: threshAnnotation,
-          borderColor: 'red',
-          borderDash: [2, 2],
-          label: {
-            enabled: true,
-            content: 'Seuil d\'alerte haut',
-            backgroundColor: "red",
-          },
-          onClick: function (e) {
-            var link = "/settings";
-            window.open(link);
-          },
-        }, {
-          id: 'hline2',
-          type: 'line',
-          mode: 'horizontal',
-          scaleID: 'y-axis-0',
-          value: -threshAnnotation,
-          borderColor: 'red',
-          borderDash: [2, 2],
-          label: {
-            backgroundColor: "red",
-            content: "Seuil d\'alerte bas",
-            enabled: true
-          },
-          onClick: function (e) {
-            var link = "/settings";
-            window.open(link);
-          },
-        }
-      ],
+      enabled: true,
+      mode: 'y'
+    },
+    zoom: {
+      enabled: true,
+      mode: 'y',
+    },
+    annotation: {
+      events: ['click'],
+      drawTime: 'afterDatasetsDraw',
+      annotations: [{
+        id: 'hline1',
+        type: 'line',
+        mode: 'horizontal',
+        scaleID: 'y-axis-0',
+        value: threshAnnotation,
+        borderColor: 'red',
+        borderDash: [2, 2],
+        label: {
+          enabled: true,
+          content: 'Seuil d\'alerte haut',
+          backgroundColor: "red",
+        },
+        onClick: function (e) {
+          var link = "/settings";
+          window.open(link);
+        },
+      }, {
+        id: 'hline2',
+        type: 'line',
+        mode: 'horizontal',
+        scaleID: 'y-axis-0',
+        value: -threshAnnotation,
+        borderColor: 'red',
+        borderDash: [2, 2],
+        label: {
+          backgroundColor: "red",
+          content: "Seuil d\'alerte bas",
+          enabled: true
+        },
+        onClick: function (e) {
+          var link = "/settings";
+          window.open(link);
+        },
+      }],
 
     }
   };
@@ -1163,13 +1174,13 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
       text: title
     },
     pan: {
-        enabled: true,
-        mode: 'y'
-      },
-      zoom: {
-        enabled: true,
-        mode: 'y',
-      }
+      enabled: true,
+      mode: 'y'
+    },
+    zoom: {
+      enabled: true,
+      mode: 'y',
+    }
   };
   var chartInstance = new Chart(ctx, {
     type: 'scatter',
