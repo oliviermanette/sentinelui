@@ -132,7 +132,7 @@ class ControllerSensors extends Authenticated
         $site = SensorManager::getSiteWhereIsInstalled($deveui);
         $historicalTemperatureDataArr = TemperatureManager::getHistoricalDataForSite($site);
         $historicalTemperatureDataArr = json_encode($historicalTemperatureDataArr);
-        var_dump($historicalTemperatureDataArr);
+        //var_dump($historicalTemperatureDataArr);
 
         //Get settings
         $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
