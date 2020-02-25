@@ -25,8 +25,7 @@ class InclinometerManager extends \Core\Model
    */
   public function check($inclinometer, $group, $method = "RANGE")
   {
-    //TODO FIX : calculer pourcentage vairaiton absolue et voir si ça dépasse ! 
-    /*
+
     $inclinometerTreshSTD = SettingManager::getInclinometerThresh($group);
     $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
     $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group);
@@ -123,8 +122,7 @@ class InclinometerManager extends \Core\Model
       }
 
       return $alertBoolArr;
-    }*/
-    return false;
+    }
   }
 
   /**
