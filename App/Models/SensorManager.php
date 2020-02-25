@@ -190,7 +190,8 @@ class SensorManager extends \Core\Model
   public static function getLastMessageReceivedFromDeveui($deveui){
     $db = static::getDB();
     
-    $sql_last_date_received = "SELECT DATE_FORMAT(MAX(DATE(r.date_time)), '%d/%m/%Y') as lastDateReceived FROM sensor AS s 
+    $sql_last_date_received = "SELECT DATE_FORMAT(MAX(r.date_time), '%d/%m/%Y %H:%i:%s') 
+    as lastDateReceived FROM sensor AS s 
     INNER JOIN record AS r ON (s.id = r.sensor_id)
     AND s.deveui LIKE :deveui
     GROUP BY s.device_number
