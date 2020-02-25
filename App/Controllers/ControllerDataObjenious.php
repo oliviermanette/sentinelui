@@ -34,11 +34,10 @@ class ControllerDataObjenious extends \Core\Controller{
     $data = json_decode(file_get_contents('php://input'), true);
     //Parse the JSON content to insert into the DB
     error_log("\nData received\n" . json_encode($data));
-    $historicalTemperatureDataArr = TemperatureAPI::getHistoricalTemperatureData("42.98812", "-0.42624", "2017-01-01", "2017-12-31");
-    print_r($historicalTemperatureDataArr);
-    //$stationId = TemperatureAPI::getStation("42.98812", "-0.42624");
-    //TemperatureAPI::getTemperatureDataFromStation($stationId, "2017-01-01", "2017-12-31");
-    //RecordManager::parseJsonDataAndInsert($data);
+    //TemperatureAPI::getCurrentTemperature("42.98812", "-0.42624");
+    //$historicalTemperatureDataArr = TemperatureAPI::getHistoricalTemperatureData("42.98812", "-0.42624", "2020-02-12", "2020-02-25");
+    //print_r($historicalTemperatureDataArr);
+    RecordManager::parseJsonDataAndInsert($data);
   }
 
 

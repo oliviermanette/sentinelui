@@ -25,6 +25,12 @@ use App\Models\Messages\Alert;
 use PDO;
 
 
+ini_set('error_reporting', E_ALL);
+error_reporting(-1); // reports all errors
+ini_set("display_errors", "1"); // shows all errors
+ini_set("log_errors", 1);
+ini_set("error_log", "./log/error.log");
+
 class RecordManager extends \Core\Model
 {
 
@@ -58,7 +64,7 @@ class RecordManager extends \Core\Model
     EquipementManager::insertStructureType($message->typeStructure);
 
     $success = RecordManager::insertRecordData($message);
-    
+    //$success = true;
     if ($success) {
       if ($message->typeMsg == "choc") {
 
@@ -104,11 +110,10 @@ class RecordManager extends \Core\Model
         //Insert temperature
         $currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
         TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
-
+        
         $inclinometreManager = new InclinometerManager();
         $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
-       
-        
+          
         if ($hasAlertArr["alertOnX"]) {
           $label = "high_inclinometer_variationX";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());

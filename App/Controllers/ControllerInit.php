@@ -7,9 +7,12 @@ use \App\Auth;
 use \App\Models\SensorManager;
 use \App\Models\API\SensorAPI;
 use \App\Models\RecordManager;
+use \App\Models\SiteManager;
 use \App\Models\SpectreManager;
+use \App\Models\TemperatureManager;
 use \App\Models\TimeSeriesManager;
 use \App\Models\TimeSeries;
+use \App\Models\API\TemperatureAPI;
 use \App\Models\NetworkAI\NeuralNetwork;
 use \App\Models\NetworkAI\NeuralNetworkManager;
 use \App\Flash;
@@ -27,6 +30,28 @@ class ControllerInit extends \Core\Controller
     public function testApiAction(){
 
         SensorAPI::getNbStatutsSensorsFromApi("RTE");
+    }
+
+    public function fillTemperatureDataForSiteAction(){
+        //Get all latitude and longitude of all the site in the DB
+        $coordinateDataArr = SiteManager::getGeoCoordinates("RTE");
+        
+        foreach ($coordinateDataArr as $coordinateData){
+            
+            $latitude = $coordinateData["latitude"];
+            $longitude = $coordinateData["longitude"];
+            $site = $coordinateData["nom"];
+            $startDate = "2019-09-01";
+            $endDate = "2020-02-25";
+            $temperatureDataArr = TemperatureAPI::getHistoricalTemperatureData($latitude, $longitude,$startDate, $endDate);
+            //print_r($temperatureDataArr);
+            foreach ($temperatureDataArr as $temperatureData){
+                $date = $temperatureData["date"];
+                $temperature = $temperatureData["temperature"];
+                TemperatureManager::insert($temperature, $site, $date);
+            }
+            
+        }
     }
 
     /**

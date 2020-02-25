@@ -42,6 +42,24 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getSiteWhereIsInstalled($deveui){
+    $db = static::getDB();
+
+    $sql = "SELECT DISTINCT site.nom FROM site
+    LEFT join structure ON (structure.site_id = site.id)
+    LEFT JOIN record ON (record.structure_id = structure.id)
+    LEFT JOIN sensor ON (sensor.id = record.sensor_id)
+    WHERE sensor.deveui = :deveui";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $site = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $site;
+    }
+  }
+
   /** 
    * Get the deveui of a device given his id
    *

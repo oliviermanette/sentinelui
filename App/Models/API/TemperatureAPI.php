@@ -20,15 +20,23 @@ class TemperatureAPI
      *
      * @return void
      */
-    public static function getCurrentTemperature($latitude, $longitude)
+    public static function getCurrentTemperature($latitude, $longitude, $API_NAME = "DARKSKY")
     {
-        
-        $API_KEY = \App\Config::WEATHERSTACK_API_KEY;
-        $url = "http://api.weatherstack.com/current?access_key=".$API_KEY."&query=".$latitude.",".$longitude."&units=m";
-        $resArr = API::CallAPI("GET", $url);
-
-        $currentTemperature = $resArr["current"]["temperature"];
-
+        if ($API_NAME== "WEATHERSTACK"){
+            $API_KEY = \App\Config::WEATHERSTACK_API_KEY;
+            $url = "http://api.weatherstack.com/current?access_key=" . $API_KEY . "&query=" . $latitude . "," . $longitude . "&units=m";
+            $resArr = API::CallAPI("GET", $url);
+            
+            $currentTemperature = $resArr["current"]["temperature"];
+            
+        }
+        else if ($API_NAME == "DARKSKY"){
+            $API_KEY = \App\Config::WEATHERDARK_SKY_API_KEY;
+            $url = "https://api.darksky.net/forecast/" . $API_KEY . "/" . $latitude . "," . $longitude . "?lang=fr&units=si&exclude=minutely,hourly,daily,flags";
+            $resArr = API::CallAPI("GET", $url);
+            $currentTemperature = $resArr["currently"]["temperature"];
+            print_r($currentTemperature);
+        }   
         return $currentTemperature;
     }
 
