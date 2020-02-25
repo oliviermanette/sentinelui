@@ -436,7 +436,7 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
   if (typeof temperatureData != 'object') {
     temperatureData = JSON.parse(temperatureData);
   }
-  if (isEmpty(data)) {
+  if (isEmpty(temperatureData)) {
 
     drawNoDataAvailable(canvaID);
 
@@ -523,7 +523,7 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
   if (typeof temperatureData != 'object') {
     temperatureData = JSON.parse(temperatureData);
   }
-  if (isEmpty(data)) {
+  if (isEmpty(temperatureData)) {
 
     drawNoDataAvailable(canvaID);
 
