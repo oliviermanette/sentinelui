@@ -78,6 +78,7 @@ $router->add('alerts-test', ['controller' => 'ControllerAlert', 'action' => 'get
 $router->add('go', ['controller' => 'ControllerInit', 'action' => 'goTimeSeries']);
 $router->add('go2', ['controller' => 'ControllerInit', 'action' => 'goTestTimeSeries']);
 $router->add('api-test', ['controller' => 'ControllerInit', 'action' => 'testApi']);
+$router->add('fill-weather', ['controller' => 'ControllerInit', 'action' => 'fillTemperatureDataForSite']);
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);

@@ -20,19 +20,34 @@ class TemperatureAPI
      *
      * @return void
      */
-    public static function getCurrentTemperature($latitude, $longitude)
+    public static function getCurrentTemperature($latitude, $longitude, $API_NAME = "DARKSKY")
     {
-        
-        $API_KEY = \App\Config::WEATHERSTACK_API_KEY;
-        $url = "http://api.weatherstack.com/current?access_key=".$API_KEY."&query=".$latitude.",".$longitude."&units=m";
-        $resArr = API::CallAPI("GET", $url);
-
-        $currentTemperature = $resArr["current"]["temperature"];
-
+        if ($API_NAME== "WEATHERSTACK"){
+            $API_KEY = \App\Config::WEATHERSTACK_API_KEY;
+            $url = "http://api.weatherstack.com/current?access_key=" . $API_KEY . "&query=" . $latitude . "," . $longitude . "&units=m";
+            $resArr = API::CallAPI("GET", $url);
+            
+            $currentTemperature = $resArr["current"]["temperature"];
+            
+        }
+        else if ($API_NAME == "DARKSKY"){
+            $API_KEY = \App\Config::WEATHERDARK_SKY_API_KEY;
+            $url = "https://api.darksky.net/forecast/" . $API_KEY . "/" . $latitude . "," . $longitude . "?lang=fr&units=si&exclude=minutely,hourly,daily,flags";
+            $resArr = API::CallAPI("GET", $url);
+            $currentTemperature = $resArr["currently"]["temperature"];
+            print_r($currentTemperature);
+        }   
         return $currentTemperature;
     }
 
-    public static function getStation($latitude, $longitude){
+    public static function getHistoricalTemperatureData($latitude, $longitude, $startDate, $endDate){
+        $stationId = TemperatureAPI::getStation($latitude, $longitude);
+        $historicalTemperatureDataArr = TemperatureAPI::getTemperatureDataFromStation($stationId, $startDate, $endDate);
+
+        return $historicalTemperatureDataArr;
+    }
+
+    private static function getStation($latitude, $longitude){
         $limit = 1;
         $API_KEY = \App\Config::WEATHERMETEO_STAT_API_KEY;
         $url = "https://api.meteostat.net/v1/stations/nearby?lat=".$latitude."&lon=".$longitude."&limit=".$limit."&key=".$API_KEY;
@@ -46,16 +61,24 @@ class TemperatureAPI
         }
         return $stationId;
 
-        //print_r($resArr);
     }
 
-    public static function getTemperatureDataFromStation($stationId, $startDate, $endDate){
+    private static function getTemperatureDataFromStation($stationId, $startDate, $endDate){
         $API_KEY = \App\Config::WEATHERMETEO_STAT_API_KEY;
         $url = "https://api.meteostat.net/v1/history/daily?station=" . $stationId . "&start=" . $startDate . "&end=" . $endDate . "&key=" . $API_KEY;
         
         $temperatureDataArr = API::CallAPI("GET", $url);
-        print_r($temperatureDataArr);
-        return $temperatureDataArr;
+
+        $historicalTemperatureDataArr = array();
+        foreach ($temperatureDataArr["data"] as $temperatureData){
+            $temperature = $temperatureData["temperature"];
+            $date = $temperatureData["date"];
+            $tmpDataArr = array("date" => $date, "temperature"=>$temperature);
+            array_push($historicalTemperatureDataArr, $tmpDataArr);
+            
+        }
+        //print_r($historicalTemperatureDataArr);
+        return $historicalTemperatureDataArr;
     }
 
 

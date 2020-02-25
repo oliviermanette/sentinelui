@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use PDO;
 
 /*
@@ -15,12 +16,13 @@ class SiteManager extends \Core\Model
 
 
   /**
-  * Get all the site which belong to a specific group (RTE for example)
-  *
-  * @param string $group_name the name of the group we want to retrieve site data
-  * @return array  results from the query
-  */
-  public static function getSites($group_name){
+   * Get all the site which belong to a specific group (RTE for example)
+   *
+   * @param string $group_name the name of the group we want to retrieve site data
+   * @return array  results from the query
+   */
+  public static function getSites($group_name)
+  {
 
     $db = static::getDB();
 
@@ -30,15 +32,32 @@ class SiteManager extends \Core\Model
       LEFT JOIN group_name AS gn ON (gn.group_id=gs.group_id)
       WHERE gn.name LIKE :group_name) AS site_RTE";
 
-      $stmt = $db->prepare($sql_query_get_site);
-      $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt = $db->prepare($sql_query_get_site);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
-      if ($stmt->execute()) {
-        $all_site = $stmt->fetchAll();
+    if ($stmt->execute()) {
+      $all_site = $stmt->fetchAll();
 
-        return $all_site;
-      }
-
+      return $all_site;
     }
-
   }
+
+  public static function getGeoCoordinates($group_name)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT site.id, site.nom, site.latitude, site.longitude FROM site
+      LEFT JOIN group_site AS gs ON (gs.site_id=site.id)
+      LEFT JOIN group_name AS gn ON (gn.group_id=gs.group_id)
+      WHERE gn.name LIKE :group_name";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $coordinateDataArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $coordinateDataArr;
+    }
+  }
+}

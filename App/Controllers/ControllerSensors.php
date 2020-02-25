@@ -12,6 +12,7 @@ use App\Models\AlertManager;
 use App\Models\BatteryManager;
 use App\Models\ChocManager;
 use App\Models\SettingManager;
+use App\Models\TemperatureManager;
 
 /**
  * Sensors controller
@@ -128,6 +129,10 @@ class ControllerSensors extends Authenticated
         //Temperature data
         $tempArr = InclinometerManager::getTemperatureRecordsForSensor($deveui,-1);
         $tempArr = json_encode($tempArr);
+        $site = SensorManager::getSiteWhereIsInstalled($deveui);
+        $historicalTemperatureDataArr = TemperatureManager::getHistoricalDataForSite($site);
+        $historicalTemperatureDataArr = json_encode($historicalTemperatureDataArr);
+        var_dump($historicalTemperatureDataArr);
 
         //Get settings
         $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
@@ -162,6 +167,7 @@ class ControllerSensors extends Authenticated
             'percentageVariationMonthArr' => $percentageVariationMonthArr,
             'inclinaisonRefArr' => $inclinaisonRefArr,
             'temperatureArr' => $tempArr,
+            'historicalTemperatureDataArr' => $historicalTemperatureDataArr,
             'alerts_active_info_arr' => $alertsActiveDataArr,
             'alerts_processed_info_arr' => $alertsProcessedDataArr,
         ]);

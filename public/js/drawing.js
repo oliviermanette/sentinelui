@@ -432,7 +432,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
  * @param json temperatureData - data which contain temperature and date
  * @return chart instance
  */
-function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_temperature") {
+function drawChartTemperatureFromData(temperatureData, canvaID) {
   if (typeof temperatureData != 'object') {
     temperatureData = JSON.parse(temperatureData);
   }
@@ -491,7 +491,87 @@ function drawChartTemperatureFromData(temperatureData, canvaID = "canvas_tempera
     },
     title: {
       display: true,
-      text: 'Temperature en fonction du temps'
+      text: 'Temperature relevé par le capteur en fonction du temps',
+      fontSize: 18,
+    },
+    pan: {
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
+  };
+
+  var chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: chartdata,
+    options: options
+  });
+
+}
+
+function drawChartHistoricalTemperature(temperatureData, canvaID){
+   if (typeof temperatureData != 'object') {
+    temperatureData = JSON.parse(temperatureData);
+  }
+  var temperature = [];
+  var date = [];
+
+  for (var i in temperatureData) {
+    if (temperatureData[i].temperature < 100) {
+      temperature.push(temperatureData[i].temperature);
+      date.push(temperatureData[i].date_d);
+    }
+  }
+
+  var chartdata = {
+    labels: date,
+    datasets: [{
+      labels: date,
+      backgroundColor: "rgba(79,117,180,0.95)",
+      borderColor: "rgba(49,85,144,1)",
+      borderWidth: 1,
+      lineTension: 0,
+      data: temperature
+    }]
+  };
+  var canva_id = "#" + canvaID;
+  var ctx = $(canva_id);
+
+  var options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      xAxes: [{
+        scaleLabel: {
+          display: true,
+          labelString: 'Date'
+        },
+        ticks:{
+          autoskip: true,
+          maxTicksLimit: 20
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          beginAtZero: false,
+        },
+        scaleLabel: {
+          display: true,
+          labelString: 'Temeprature (°C)'
+        },
+        //type: 'logarithmic',
+      }]
+    },
+    legend: {
+      display: false
+    },
+    title: {
+      display: true,
+      text: 'Temperature de référence',
+      fontSize: 18,
     },
     pan: {
         enabled: false,
