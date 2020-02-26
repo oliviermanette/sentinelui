@@ -457,11 +457,23 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
       labels: date,
       datasets: [{
         labels: date,
-        borderColor: "#3e95cd",
-        backgroundColor: "#f6f6f6",
-        pointBackgroundColor: "#3e95cd",
-        hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-        hoverBorderColor: 'rgba(200, 200, 200, 1)',
+           lineTension: 0.1,
+          backgroundColor: "rgba(167,105,0,0.4)",
+          borderColor: "rgb(167, 105, 0)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: "white",
+          //pointBackgroundColor: "black",
+          pointBorderWidth: 1,
+          pointHoverRadius: 8,
+          //pointHoverBackgroundColor: "brown",
+          pointHoverBorderColor: "yellow",
+          pointHoverBorderWidth: 2,
+          pointRadius: 4,
+          pointHitRadius: 10,
+          spanGaps: true,
         data: temperature
       }]
     };
@@ -479,7 +491,7 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
           },
           ticks: {
             autoskip: true,
-            maxTicksLimit: 20
+            maxTicksLimit: 15
           }
         }],
         yAxes: [{
@@ -542,7 +554,7 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
       labels: date,
       datasets: [{
         labels: date,
-        backgroundColor: "rgba(79,117,180,0.95)",
+        backgroundColor: "rgba(79,117,180,0.4)",
         borderColor: "rgba(49,85,144,1)",
         borderWidth: 1,
         lineTension: 0,
@@ -579,6 +591,155 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
       },
       legend: {
         display: false
+      },
+      title: {
+        display: true,
+        text: 'Température de référence (méteo locale) en fonction du temps',
+        fontSize: 18,
+      },
+      pan: {
+        enabled: false,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: false,
+        mode: 'xy',
+      }
+    };
+
+    var chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: chartdata,
+      options: options
+    });
+  }
+}
+
+function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
+   if (typeof temperatureSensors != 'object') {
+    temperatureSensors = JSON.parse(temperatureSensors);
+  }
+   if (typeof temperatureWeather != 'object') {
+     temperatureWeather = JSON.parse(temperatureWeather);
+   }
+  if (isEmpty(temperatureSensors)) {
+
+    drawNoDataAvailable(canvaID);
+
+  } else {
+    let temperature = [];
+    let officialTemperature = []
+    let date = [];
+    let officialDateTemperature = [];
+
+    for (let i in temperatureSensors) {
+      if (temperatureSensors[i].temperature < 100) {
+        temperature.push(temperatureSensors[i].temperature);
+        date.push(temperatureSensors[i].date_d);
+      }
+    }
+    for (let i in temperatureWeather) {
+      if (temperatureWeather[i].temperature < 100) {
+        officialTemperature.push(temperatureWeather[i].temperature);
+        officialDateTemperature.push(temperatureWeather[i].date_d);
+        officialTemperature.push(null);
+        officialDateTemperature.push(temperatureWeather[i].date_d);
+      }
+    }
+    console.log("date :", date);
+    console.log("Sensor temperature :", temperatureSensors);
+    console.log("weather temperature :", temperatureWeather);
+    console.log("Official temperature :", officialTemperature);
+    console.log("Sensor temperature :", temperature);
+    var chartdata = {
+      labels: date,
+      datasets: [
+        {
+          fill: true,
+          label: "Température de la station météo",
+          lineTension: 0.1,
+          backgroundColor: "rgba(167,105,0,0.4)",
+          borderColor: "rgb(167, 105, 0)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: "white",
+          pointBackgroundColor: "black",
+          pointBorderWidth: 1,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: "brown",
+          pointHoverBorderColor: "yellow",
+          pointHoverBorderWidth: 2,
+          pointRadius: 4,
+          pointHitRadius: 10,
+          spanGaps: true,
+          xAxisID: 'xAxis1',
+          data: officialTemperature
+        },
+        {
+        fill:false,
+        label: "Température du capteur",
+        borderColor: "red",
+        borderWidth: 1,
+        lineTension: 0,
+        borderCapStyle: 'square',
+        borderDash: [], // try [5, 15] for instance
+        borderDashOffset: 0.0,
+        borderJoinStyle: 'miter',
+        pointBorderColor: "black",
+        pointBackgroundColor: "white",
+        pointBorderWidth: 1,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: "yellow",
+        pointHoverBorderColor: "brown",
+        pointHoverBorderWidth: 2,
+        pointRadius: 4,
+        pointHitRadius: 10,
+        spanGaps: false,
+        xAxisID: 'xAxis2',
+        data: temperature
+      }, 
+    ]
+    };
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
+
+    var options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        xAxes: [
+          {
+          id: 'xAxis1',
+          scaleLabel: {
+            display: true,
+            labelString: 'Date',
+          },
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 20
+          }
+        },{
+          id: 'xAxis2',
+          autoskip: true,
+          maxTicksLimit: 20
+        }
+      
+      ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Temperature (°C)'
+          },
+          //type: 'logarithmic',
+        }]
+      },
+      legend: {
+        display: true
       },
       title: {
         display: true,
