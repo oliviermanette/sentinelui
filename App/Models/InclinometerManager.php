@@ -1146,7 +1146,7 @@ class InclinometerManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql = "SELECT `temperature`, DATE(r.date_time) AS date_d 
+    $sql = "SELECT `temperature`, r.date_time AS date_d 
       FROM `record` AS r
       LEFT JOIN inclinometer AS inc ON (inc.record_id = r.id)
       LEFT JOIN sensor AS s ON (s.id = r.sensor_id)

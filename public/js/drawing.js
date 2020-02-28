@@ -457,23 +457,23 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
       labels: date,
       datasets: [{
         labels: date,
-           lineTension: 0.1,
-          backgroundColor: "rgba(167,105,0,0.4)",
-          borderColor: "rgb(167, 105, 0)",
-          borderCapStyle: 'butt',
-          borderDash: [],
-          borderDashOffset: 0.0,
-          borderJoinStyle: 'miter',
-          pointBorderColor: "white",
-          //pointBackgroundColor: "black",
-          pointBorderWidth: 1,
-          pointHoverRadius: 8,
-          //pointHoverBackgroundColor: "brown",
-          pointHoverBorderColor: "yellow",
-          pointHoverBorderWidth: 2,
-          pointRadius: 4,
-          pointHitRadius: 10,
-          spanGaps: true,
+        lineTension: 0.1,
+        backgroundColor: "rgba(167,105,0,0.4)",
+        borderColor: "rgb(167, 105, 0)",
+        borderCapStyle: 'butt',
+        borderDash: [],
+        borderDashOffset: 0.0,
+        borderJoinStyle: 'miter',
+        pointBorderColor: "white",
+        //pointBackgroundColor: "black",
+        pointBorderWidth: 1,
+        pointHoverRadius: 8,
+        //pointHoverBackgroundColor: "brown",
+        pointHoverBorderColor: "yellow",
+        pointHoverBorderWidth: 2,
+        pointRadius: 4,
+        pointHitRadius: 10,
+        spanGaps: true,
         data: temperature
       }]
     };
@@ -616,12 +616,12 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
 }
 
 function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
-   if (typeof temperatureSensors != 'object') {
+  if (typeof temperatureSensors != 'object') {
     temperatureSensors = JSON.parse(temperatureSensors);
   }
-   if (typeof temperatureWeather != 'object') {
-     temperatureWeather = JSON.parse(temperatureWeather);
-   }
+  if (typeof temperatureWeather != 'object') {
+    temperatureWeather = JSON.parse(temperatureWeather);
+  }
   if (isEmpty(temperatureSensors)) {
 
     drawNoDataAvailable(canvaID);
@@ -653,8 +653,7 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
     console.log("Sensor temperature :", temperature);
     var chartdata = {
       labels: date,
-      datasets: [
-        {
+      datasets: [{
           fill: true,
           label: "Température de la station météo",
           lineTension: 0.1,
@@ -678,29 +677,29 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
           data: officialTemperature
         },
         {
-        fill:false,
-        label: "Température du capteur",
-        borderColor: "red",
-        borderWidth: 1,
-        lineTension: 0,
-        borderCapStyle: 'square',
-        borderDash: [], // try [5, 15] for instance
-        borderDashOffset: 0.0,
-        borderJoinStyle: 'miter',
-        pointBorderColor: "black",
-        pointBackgroundColor: "white",
-        pointBorderWidth: 1,
-        pointHoverRadius: 8,
-        pointHoverBackgroundColor: "yellow",
-        pointHoverBorderColor: "brown",
-        pointHoverBorderWidth: 2,
-        pointRadius: 4,
-        pointHitRadius: 10,
-        spanGaps: false,
-        xAxisID: 'xAxis2',
-        data: temperature
-      }, 
-    ]
+          fill: false,
+          label: "Température du capteur",
+          borderColor: "red",
+          borderWidth: 1,
+          lineTension: 0,
+          borderCapStyle: 'square',
+          borderDash: [], // try [5, 15] for instance
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: "black",
+          pointBackgroundColor: "white",
+          pointBorderWidth: 1,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: "yellow",
+          pointHoverBorderColor: "brown",
+          pointHoverBorderWidth: 2,
+          pointRadius: 4,
+          pointHitRadius: 10,
+          spanGaps: false,
+          xAxisID: 'xAxis2',
+          data: temperature
+        },
+      ]
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -709,24 +708,23 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [
-          {
-          id: 'xAxis1',
-          scaleLabel: {
-            display: true,
-            labelString: 'Date',
-          },
-          ticks: {
+        xAxes: [{
+            id: 'xAxis1',
+            scaleLabel: {
+              display: true,
+              labelString: 'Date',
+            },
+            ticks: {
+              autoskip: true,
+              maxTicksLimit: 20
+            }
+          }, {
+            id: 'xAxis2',
             autoskip: true,
             maxTicksLimit: 20
           }
-        },{
-          id: 'xAxis2',
-          autoskip: true,
-          maxTicksLimit: 20
-        }
-      
-      ],
+
+        ],
         yAxes: [{
           ticks: {
             beginAtZero: false,
@@ -865,10 +863,11 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
  * @param json inclinometereData - data which contain inclinometer data and date
  * @return chart instance
  */
-function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinometre") {
+function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = null) {
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
+  var includeX,  includeY, includeZ = true;
 
   if (isEmpty(inclinometerData)) {
 
@@ -882,21 +881,30 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
     var date = [];
 
     for (var i in inclinometerData) {
+
       angle_x.push(inclinometerData[i].angle_x);
       angle_y.push(inclinometerData[i].angle_y);
       angle_z.push(inclinometerData[i].angle_z);
       date.push(inclinometerData[i].date_d);
     }
-    var ratio = 50;
+
+   switch (excludeAngle) {
+    case 'x':
+       var hiddenX = true;
+       break;
+     case 'y':
+       var hiddenY = true;
+     case 'z':
+       var hiddenZ = true;
+       break;
+     default:
+   }
+    var ratio = 10;
     const avgX = computeAverage(angle_x);
-    console.log("TCL: drawChartAngleXYZFromData -> avgX", avgX);
     const avgY = computeAverage(angle_y);
-    console.log("TCL: drawChartAngleXYZFromData -> avgY", avgY);
     const avgZ = computeAverage(angle_z);
     var rangeHighAxisX = (Math.max(parseInt(avgX), parseInt(avgY)) + ratio);
-    console.log("TCL: drawChartAngleXYZFromData -> rangeHighAxisX", rangeHighAxisX);
     var rangeLowAxisX = (Math.min(parseInt(avgX), parseInt(avgY)) - ratio);
-    console.log("TCL: drawChartAngleXYZFromData -> rangeLowAxisX", rangeLowAxisX);
     var rangeHighAxisZ = parseInt(avgZ + ratio);
     var rangeLowAxisZ = parseInt(avgZ - ratio);
 
@@ -917,6 +925,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           borderColor: '#20324B',
           data: angle_x,
           yAxisID: "y-axis-1",
+          hidden: hiddenX,
         },
         {
           label: 'Y °',
@@ -925,6 +934,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           borderColor: 'orange',
           data: angle_y,
           yAxisID: "y-axis-1",
+          hidden: hiddenY,
         },
         {
           label: 'Z °',
@@ -933,6 +943,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           borderColor: 'royalblue',
           data: angle_z,
           yAxisID: "y-axis-2",
+          hidden: hiddenZ,
         }
       ]
     };
@@ -970,7 +981,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
           },
         }, {
           type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-          display: true,
+          display: false,
           position: "right",
           id: "y-axis-2",
           scaleLabel: {
@@ -998,6 +1009,9 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID = "canvas_inclinome
             maxTicksLimit: 15
           },
         }]
+      },
+      legend: {
+        display: false //This will do the task
       },
       // Container for pan options
       pan: {
@@ -1073,19 +1087,31 @@ function drawNoDataAvailable(canvaID) {
 
 }
 
-function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true, canvaID = "canvas_inclinometre", threshAnnotation = 2) {
+function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentage = true, threshAnnotation = 2, excludeAngle = null) {
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
+  }
+
+  switch (excludeAngle) {
+    case 'x':
+      var hiddenX = true;
+      break;
+    case 'y':
+      var hiddenY = true;
+    case 'z':
+      var hiddenZ = true;
+      break;
+    default:
   }
 
   let title = "";
   let label = "";
   if (percentage) {
-    title = "Pourcentage de variation de l\'inclinaison au fil du temps";
+    title = "Pourcentage de variation de l\'inclinaison au fil du temps depuis le jour d'installation";
     label = "Variation %";
   } else {
-    title = "Variation absolue de l\'inclinaison au fil du temps";
-    label = "Variation absolue °";
+    title = "Variation absolue de l\'inclinaison au fil du temps depuis le jour d'installation";
+    label = "Variation absolue X et Y °";
   }
   //console.log(inclinometerData);
   var variation_angle_x = [];
@@ -1111,6 +1137,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
         borderColor: '#20324B',
         data: variation_angle_x,
         yAxisID: "y-axis-0",
+        hidden:hiddenX,
       },
       {
         label: 'Y °',
@@ -1119,6 +1146,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
         borderColor: 'orange',
         data: variation_angle_y,
         yAxisID: "y-axis-0",
+        hidden: hiddenY,
       },
       {
         label: 'Z °',
@@ -1127,6 +1155,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
         borderColor: 'royalblue',
         data: variation_angle_z,
         yAxisID: "y-axis-0",
+        hidden:hiddenZ,
       }
     ]
   };
@@ -1151,8 +1180,8 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
         },
         ticks: {
           beginAtZero: false,
-          min: -threshAnnotation - 1,
-          max: threshAnnotation + 1,
+          min: -threshAnnotation - 8,
+          max: threshAnnotation + 8,
         },
         scaleLabel: {
           display: true,
@@ -1166,7 +1195,9 @@ function drawVariationChartAngleXYZFromData(inclinometerData, percentage = true,
 
         },
       }],
-
+    },
+    legend: {
+       display: false //This will do the task
     },
     pan: {
       enabled: true,

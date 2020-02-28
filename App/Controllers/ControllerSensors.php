@@ -82,6 +82,8 @@ class ControllerSensors extends Authenticated
         //Get inclinometer data
         //References values
         $inclinaisonRefArr = InclinometerManager::getValuesReference($deveui, -1);
+        $positionInstallation = SensorManager::getPositionInstallation($deveui);
+
         //var_dump($inclinaisonRefArr);
         
         //1.Variation 1 month (30 days)
@@ -170,6 +172,7 @@ class ControllerSensors extends Authenticated
             'historicalTemperatureDataArr' => $historicalTemperatureDataArr,
             'alerts_active_info_arr' => $alertsActiveDataArr,
             'alerts_processed_info_arr' => $alertsProcessedDataArr,
+            'positionInstallation' => $positionInstallation,
         ]);
 
     }

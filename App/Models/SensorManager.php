@@ -19,6 +19,20 @@ use PDO;
 class SensorManager extends \Core\Model
 {
 
+  public static function getPositionInstallation($deveui){
+    $db = static::getDB();
+
+    $sql = "SELECT position FROM `sensor` 
+      WHERE sensor.deveui = :deveui";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $positionInstallation = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $positionInstallation;
+    }
+  }
 
   public static function getOwner($deveui){
     $db = static::getDB();
