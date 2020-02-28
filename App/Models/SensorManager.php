@@ -19,11 +19,6 @@ use PDO;
 class SensorManager extends \Core\Model
 {
 
-  public function __construct()
-  {
-  }
-
-  
 
   public static function getOwner($deveui){
     $db = static::getDB();
