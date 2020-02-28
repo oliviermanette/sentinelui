@@ -230,7 +230,7 @@
             let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
             drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);
 
-            //Draw chart variation inclinometer percentage
+            //Draw chart variation inclinometer absolute variation
             let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
             drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
 

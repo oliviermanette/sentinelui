@@ -774,7 +774,7 @@ class InclinometerManager extends \Core\Model
    * all records in account
    * @return array which contain monthly variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
-  public static function computeMonthlyVariationPercentageAngleForLast($deveui, $time_period = -1)
+  public static function computeMonthlyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
   {
     $db = static::getDB();
 
@@ -836,11 +836,19 @@ class InclinometerManager extends \Core\Model
       $angleX = $values["angle_x"];
       $angleY = $values["angle_y"];
       $angleZ = $values["angle_z"];
-      $temperature = $values["temperature"];
-      $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
-      $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
-      $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
-      $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      if ($percentage) {
+        $temperature = $values["temperature"];
+        $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
+        $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
+        $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
+        $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      } else {
+        $temperature = $values["temperature"];
+        $variationAngleX = $angleX - $angleX_ref;
+        $variationAngleY = $angleY - $angleY_ref;
+        $variationAngleZ = $angleZ - $angleZ_ref;
+        $variationTemperature = $temperature - $temperature_ref;
+      }
       $tmpArr = array(
         "date" => $date,
         "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
@@ -867,7 +875,7 @@ class InclinometerManager extends \Core\Model
    * all records in account
    * @return array which contain weekly variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
-  public static function computeWeeklyVariationPercentageAngleForLast($deveui, $time_period = -1)
+  public static function computeWeeklyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
   {
     $db = static::getDB();
 
@@ -930,11 +938,19 @@ class InclinometerManager extends \Core\Model
       $angleX = $values["angle_x"];
       $angleY = $values["angle_y"];
       $angleZ = $values["angle_z"];
-      $temperature = $values["temperature"];
-      $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
-      $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
-      $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
-      $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      if ($percentage) {
+        $temperature = $values["temperature"];
+        $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
+        $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
+        $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
+        $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      } else {
+        $temperature = $values["temperature"];
+        $variationAngleX = $angleX - $angleX_ref;
+        $variationAngleY = $angleY - $angleY_ref;
+        $variationAngleZ = $angleZ - $angleZ_ref;
+        $variationTemperature = $temperature - $temperature_ref;
+      }
       $tmpArr = array(
         "date" => $date,
         "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
