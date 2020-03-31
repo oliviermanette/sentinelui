@@ -21,7 +21,7 @@ class ChocManager extends \Core\Model
    * Check if a choc value is inside a specific range ( 1SD, 2SD , 3SD) to trigger an alert
    * @param int $sensor_id sensor id to target
    * @param int $time_period check for the last X days
-   * @return true if an alert is triggered 
+   * @return true if an alert is triggered
    */
   public function check($choc, $group)
   {
@@ -30,7 +30,7 @@ class ChocManager extends \Core\Model
     $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
 
     if (isset($choc->power)) {
-      
+
       $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($choc->deveui, $timePeriodCheck);
       $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($choc->deveui, $timePeriodCheck);
 
@@ -71,14 +71,14 @@ class ChocManager extends \Core\Model
   /** set the structure Id
    *
    * @param int $structure_id id of the structure
-   * @return void  
+   * @return void
    */
   public function setStructureID($structure_id)
   {
     $this->structure_id = $structure_id;
   }
 
- 
+
 
   /**
    * Get all the choc messages received from the sensors, for a specific group (RTE for example)
@@ -133,32 +133,32 @@ class ChocManager extends \Core\Model
 
   /**
    * Compute Mean of power choc received from today to a specific date in term of days
-   * sensor_id | average_power 
-   * 
+   * sensor_id | average_power
+   *
    * @param int $sensor_id sensor id for which we want to compute the average power data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
    * compute variation between today and the last value 30 days ago
    * @return array  results from the query
- 
+
    */
   public static function computeAvgPowerChocForLast($deveui, $time_period = -1)
   {
     $db = static::getDB();
-    $sql_avg = "SELECT 
-      sensor_id, 
-      AVG(power) AS average_power 
-    FROM 
+    $sql_avg = "SELECT
+      sensor_id,
+      AVG(power) AS average_power
+    FROM
       (
-        SELECT 
-          `sensor_id`, 
+        SELECT
+          `sensor_id`,
           DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-          power 
-        FROM 
-          choc AS inc 
-          LEFT JOIN record AS r ON (r.id = inc.record_id) 
+          power
+        FROM
+          choc AS inc
+          LEFT JOIN record AS r ON (r.id = inc.record_id)
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
-        WHERE 
-          `msg_type` LIKE 'choc' 
+        WHERE
+          `msg_type` LIKE 'choc'
           AND s.deveui LIKE :deveui ";
 
     if ($time_period != -1) {
@@ -167,10 +167,10 @@ class ChocManager extends \Core\Model
       $sql_avg .= "  AND Date(r.date_time) > s.installation_date ";
     }
 
-    $sql_avg .= " ORDER BY 
+    $sql_avg .= " ORDER BY
           `date_d` DESC
-      ) AS power_data 
-    GROUP BY 
+      ) AS power_data
+    GROUP BY
       sensor_id
     ";
 
@@ -193,7 +193,7 @@ class ChocManager extends \Core\Model
   }
 
   /** Compute average power data for a specific range of date
-   * sensor_id | average_power 
+   * sensor_id | average_power
    *
    * @param int $sensor_id sensor id for which we want to compute the variation data
    * @param str $start_date the first date for the start of the range. Format %YYYY-MM-DD == > 2019-12-10
@@ -204,27 +204,27 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_avg = "SELECT 
-    sensor_id, 
-    AVG(power) AS average_power 
-    FROM 
+    $sql_avg = "SELECT
+    sensor_id,
+    AVG(power) AS average_power
+    FROM
     (
-      SELECT 
-        `sensor_id`, 
+      SELECT
+        `sensor_id`,
         DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-        power 
-      FROM 
-        choc AS inc 
-        LEFT JOIN record AS r ON (r.id = inc.record_id) 
-      WHERE 
-        `msg_type` LIKE 'choc' 
-        AND `sensor_id` LIKE :sensor_id 
+        power
+      FROM
+        choc AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+      WHERE
+        `msg_type` LIKE 'choc'
+        AND `sensor_id` LIKE :sensor_id
         AND Date(r.date_time) BETWEEN :end_date
         AND :start_date
-      ORDER BY 
+      ORDER BY
         `date_d` DESC
-    ) AS period_power_data 
-    GROUP BY 
+    ) AS period_power_data
+    GROUP BY
       sensor_id
     ";
 
@@ -248,7 +248,7 @@ class ChocManager extends \Core\Model
 
   /**
    *  Compute standard deviation from power choc received from today to a specific date in term of days
-   *  date_formatted | stdDev_power 
+   *  date_formatted | stdDev_power
    *
    * @param int $sensor_id from where we want to get the data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
@@ -259,21 +259,21 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_stdDev = "SELECT 
-      sensor_id, 
-      STDDEV(power) AS stdDev_power 
-    FROM 
+    $sql_stdDev = "SELECT
+      sensor_id,
+      STDDEV(power) AS stdDev_power
+    FROM
       (
-        SELECT 
-          `sensor_id`, 
+        SELECT
+          `sensor_id`,
           DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-          power 
-        FROM 
-          choc AS inc 
-          LEFT JOIN record AS r ON (r.id = inc.record_id) 
+          power
+        FROM
+          choc AS inc
+          LEFT JOIN record AS r ON (r.id = inc.record_id)
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
-        WHERE 
-          `msg_type` LIKE 'choc' 
+        WHERE
+          `msg_type` LIKE 'choc'
           AND s.deveui LIKE :deveui ";
 
     if ($time_period != -1) {
@@ -282,10 +282,10 @@ class ChocManager extends \Core\Model
       $sql_stdDev .= "  AND Date(r.date_time) > s.installation_date ";
     }
 
-    $sql_stdDev .= "ORDER BY 
+    $sql_stdDev .= "ORDER BY
             `date_d` DESC
-          ) AS power_data 
-          GROUP BY 
+          ) AS power_data
+          GROUP BY
           sensor_id
           ";
 
@@ -308,7 +308,7 @@ class ChocManager extends \Core\Model
 
 
   /** Compute std deviation  for a specific range of date
-   * sensor_id | stdDevPower 
+   * sensor_id | stdDevPower
    *
    * @param int $sensor_id sensor id for which we want to compute the variation data
    * @param str $start_date the first date for the start of the range. Format %YYYY-MM-DD == > 2019-12-10
@@ -319,27 +319,27 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_avg = "SELECT 
-    sensor_id, 
-    STDDEV(power) AS stdDevPower 
-    FROM 
+    $sql_avg = "SELECT
+    sensor_id,
+    STDDEV(power) AS stdDevPower
+    FROM
     (
-      SELECT 
-        `sensor_id`, 
+      SELECT
+        `sensor_id`,
         DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-        power 
-      FROM 
-        choc AS inc 
-        LEFT JOIN record AS r ON (r.id = inc.record_id) 
-      WHERE 
-        `msg_type` LIKE 'choc' 
-        AND `sensor_id` LIKE :sensor_id 
+        power
+      FROM
+        choc AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+      WHERE
+        `msg_type` LIKE 'choc'
+        AND `sensor_id` LIKE :sensor_id
         AND Date(r.date_time) BETWEEN :start_date
         AND :end_date
-      ORDER BY 
+      ORDER BY
         `date_d` DESC
-    ) AS period_power_data 
-    GROUP BY 
+    ) AS period_power_data
+    GROUP BY
       sensor_id
     ";
 
@@ -362,7 +362,7 @@ class ChocManager extends \Core\Model
   /**
    *  Compute Mean of power choc received from a specific sensor ID. Compute daily, weekly, monthly
    *  and yearly average
-   *  date_formatted | avg_power 
+   *  date_formatted | avg_power
    *
    * @param int $sensor_id from where we want to get the data
    * @param string $time_period DAY, WEEK, MONTH or YEAR
@@ -372,7 +372,7 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
     if ($time_period == "DAY") {
-      $sql_mean = "SELECT 
+      $sql_mean = "SELECT
                   DATE_FORMAT(dateTime, '%d-%m-%Y') AS date_formatted,";
     } else if ($time_period == "WEEK") {
       $sql_mean = "SELECT WEEK(dateTime) AS nb_date,
@@ -386,23 +386,23 @@ class ChocManager extends \Core\Model
     }
 
     $sql_mean .= "AVG(power) AS avg_power
-    FROM 
+    FROM
       (
-        SELECT 
-          sensor.id, 
+        SELECT
+          sensor.id,
           DATE_FORMAT(r.date_time, '%d/%m/%Y') AS dateTime,
-          power 
-        FROM 
-          choc 
-          LEFT JOIN record AS r ON (r.id = choc.record_id) 
-          LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
-          INNER JOIN structure AS st ON st.id = r.structure_id 
-        WHERE 
-          sensor.id = :sensor_id 
-        ORDER BY 
+          power
+        FROM
+          choc
+          LEFT JOIN record AS r ON (r.id = choc.record_id)
+          LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+          INNER JOIN structure AS st ON st.id = r.structure_id
+        WHERE
+          sensor.id = :sensor_id
+        ORDER BY
           r.date_time DESC
-      ) AS All_choc_power 
-    GROUP BY 
+      ) AS All_choc_power
+    GROUP BY
       date_formatted, nb_date ";
 
     if ($time_period == "DAY") {
@@ -442,7 +442,7 @@ class ChocManager extends \Core\Model
   /**
    *  Compute standard deviation from power choc received from a specific sensor ID.
    *  Compute weekly, monthly and yearly average
-   *  date_formatted | stdDevPower 
+   *  date_formatted | stdDevPower
    *
    * @param int $sensor_id from where we want to get the data
    * @param string $time_period DAY, WEEK, MONTH or YEAR
@@ -452,34 +452,34 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
     if ($time_period == "WEEK") {
-      $sql_mean = "SELECT 
+      $sql_mean = "SELECT
                   DATE_FORMAT(dateTime, '%v-%Y') AS date_formatted,";
     } else if ($time_period == "MONTH") {
-      $sql_mean = "SELECT 
+      $sql_mean = "SELECT
                   DATE_FORMAT(dateTime, '%m-%Y') AS date_formatted,";
     } else if ($time_period == "YEAR") {
-      $sql_mean = "SELECT 
+      $sql_mean = "SELECT
                   DATE_FORMAT(dateTime, '%Y') AS date_formatted,";
     }
 
     $sql_mean .= "STDDEV(power) AS stdDev_power
-    FROM 
+    FROM
       (
-        SELECT 
-          sensor.id, 
-          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS dateTime, 
-          power 
-        FROM 
-          choc 
-          LEFT JOIN record AS r ON (r.id = choc.record_id) 
-          LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
-          INNER JOIN structure AS st ON st.id = r.structure_id 
-        WHERE 
-          sensor.id = :sensor_id 
-        ORDER BY 
+        SELECT
+          sensor.id,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS dateTime,
+          power
+        FROM
+          choc
+          LEFT JOIN record AS r ON (r.id = choc.record_id)
+          LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+          INNER JOIN structure AS st ON st.id = r.structure_id
+        WHERE
+          sensor.id = :sensor_id
+        ORDER BY
           r.date_time DESC
-      ) AS All_choc_power 
-    GROUP BY 
+      ) AS All_choc_power
+    GROUP BY
       date_formatted ";
 
     if ($time_period == "WEEK") {
@@ -516,14 +516,14 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_last_choc = "SELECT 
+    $sql_last_choc = "SELECT
     DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
-    power 
-    FROM 
-    choc 
-    LEFT JOIN record AS r ON (r.id = choc.record_id) 
-    LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
-    WHERE 
+    power
+    FROM
+    choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    WHERE
     sensor.id = :sensor_id
     ORDER BY r.date_time DESC LIMIT 1
     ";
@@ -550,15 +550,15 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_last_choc = "SELECT 
-    COUNT(*) AS nb_choc_today 
-    FROM 
-    choc 
-    LEFT JOIN record AS r ON (r.id = choc.record_id) 
-    LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
-    WHERE 
-    sensor.id = :sensor_id 
-    AND r.date_time >= CURDATE() 
+    $sql_last_choc = "SELECT
+    COUNT(*) AS nb_choc_today
+    FROM
+    choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    WHERE
+    sensor.id = :sensor_id
+    AND r.date_time >= CURDATE()
     AND r.date_time < CURDATE() + INTERVAL 1 DAY
     ";
 
@@ -593,7 +593,7 @@ class ChocManager extends \Core\Model
   /**
    * Get all the choc messages received from the sensors given a specific sensor id
    * sensor_id | date | amplitude_1 | amplitude_2 | time_1 | time_2 | freq_1 | freq_2 | power
-   * 
+   *
    * @param int $sensor_id sensor id for which we want to retrieve the choc data
    * @return array  results from the query
    */
@@ -632,7 +632,7 @@ class ChocManager extends \Core\Model
   /**
    * Get the number of choc received from a given sensor today
    *  date | power
-   * 
+   *
    * @param int $sensor_id the sensor we want to retrieve choc data
    * @return array  results from the query
    */
@@ -640,14 +640,14 @@ class ChocManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_nb_choc_date = "SELECT 
+    $sql_nb_choc_date = "SELECT
     COUNT(*) AS nb_choc
-    FROM 
-    choc 
-    LEFT JOIN record AS r ON (r.id = choc.record_id) 
-    LEFT JOIN sensor ON (sensor.id = r.sensor_id) 
-    WHERE 
-    sensor.id = :sensor_id 
+    FROM
+    choc
+    LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    WHERE
+    sensor.id = :sensor_id
     AND DATE(r.date_time) LIKE :date_data
     ";
 
@@ -712,10 +712,10 @@ class ChocManager extends \Core\Model
   }
 
   /**
-   * 
-   * Get number of choc for last X days for a specific 
-   *  
-   
+   *
+   * Get number of choc for last X days for a specific
+   *
+
    * @param int $deveui sensor deveui for which we want to compute the variation data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
    * compute variation between today and the last value 30 days ago
@@ -989,7 +989,7 @@ class ChocManager extends \Core\Model
     LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
     `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id 
+    AND `sensor_id` LIKE :sensor_id
     AND Date(r.date_time) >= Date(s.installation_date)
     ORDER BY `date_d` ASC";
 
@@ -1023,7 +1023,7 @@ class ChocManager extends \Core\Model
     WHERE
     `msg_type` LIKE 'choc'
     AND `sensor_id` LIKE :sensor_id
-    AND DATE(r.date_time) LIKE :date_data 
+    AND DATE(r.date_time) LIKE :date_data
     ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);
@@ -1055,7 +1055,7 @@ class ChocManager extends \Core\Model
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     WHERE
     `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id 
+    AND `sensor_id` LIKE :sensor_id
     ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);
@@ -1086,7 +1086,7 @@ class ChocManager extends \Core\Model
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     WHERE
     `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id 
+    AND `sensor_id` LIKE :sensor_id
     ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);
@@ -1168,12 +1168,12 @@ class ChocManager extends \Core\Model
     $sql_data_record_choc = 'INSERT INTO  choc (`record_id`, `amplitude_1`,  `amplitude_2`, `time_1`, `time_2`,  `freq_1`,`freq_2`, `power`)
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)) AS record_id,
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui)) AS record_id,
       :amplitude1 AS amplitude1, :amplitude2 AS amplitude2, :time1 AS time1, :time2 AS time2,
       :frequence1 AS frequence1, :frequence2 AS frequence2, :power AS power) AS id_record
       WHERE NOT EXISTS (
       SELECT record_id FROM choc WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui))
     ) LIMIT 1';
 
     $db = static::getDB();
@@ -1193,10 +1193,10 @@ class ChocManager extends \Core\Model
 
     $count = $stmt->rowCount();
     if ($count == '0') {
-      echo "\n0 choc were affected\n";
+      echo "\n[Choc] No choc inserted \n";
       return false;
     } else {
-      echo "\n 1 choc data was affected.\n";
+      echo "\n[Choc] New choc inserted.\n";
       return true;
     }
   }

@@ -16,7 +16,7 @@ class SpectreManager extends \Core\Model
   /**
    * Get all the subspectre received by a sensor and reconstitue the whole spectre received every week
    *
-   * @param int $sensor_id 
+   * @param int $sensor_id
    * @return array double array which all spectre recevied from a sensor and each array contain
    * array that contain the decomposed spectre
    */
@@ -53,7 +53,7 @@ class SpectreManager extends \Core\Model
       for ($i = 0; $i < 4; $i++){
         $subspectre_name = 'subspectre_' . $subspectreID;
         $date_time = date('Y-m-d', strtotime($date_time . "+1 days"));
-        
+
         $subspectreArr = SpectreManager::getSpecificSubspectreForSensorID($sensor_id, $date_time);
 
         //There is a result found
@@ -66,11 +66,11 @@ class SpectreManager extends \Core\Model
 
           $subspectreID++;
         }
-        
+
       }
 
       $spectreID++;
-      
+
     }
     return $fullSpectreArr;
   }
@@ -79,7 +79,7 @@ class SpectreManager extends \Core\Model
    * Get all the subspectre received on a specifc equipement from a specific site
    *
    * @param int $site_id
-   * @param int $structure_id 
+   * @param int $structure_id
    * @return array double array which all spectre recevied from a sensor and each array contain
    * array that contain the decomposed spectre
    */
@@ -95,8 +95,8 @@ class SpectreManager extends \Core\Model
     //Find ID sensor from site ID and equipement ID
     $sensor_id = SensorManager::getSensorIdUsingSiteAndEquipementID($site_id, $structure_id);
     $firstSubSpectreArr = SpectreManager::getFirstSubspectreForSensorID($sensor_id, $date_request);
-    
-    $record_id = $firstSubSpectreArr["record_id"]; 
+
+    $record_id = $firstSubSpectreArr["record_id"];
     $startingDate = $firstSubSpectreArr['date_time'];
 
     $allSubSpectresArr = SpectreManager::getAllsubspectreForSensorId($sensor_id, $startingDate);
@@ -122,29 +122,29 @@ class SpectreManager extends \Core\Model
 
     $sql_subspectre_data = "
         SELECT record_id, sensor_id, structure_id, date_time, subspectre FROM
-    (SELECT 
-      s.nom AS site, 
+    (SELECT
+      s.nom AS site,
       st.id AS structure_id,
-      st.nom AS equipement, 
+      st.nom AS equipement,
       r.id as record_id,
-      r.sensor_id, 
-      r.date_time as date_time, 
-      subspectre, 
-      subspectre_number, 
-      min_freq, 
-      max_freq, 
-      resolution 
-    FROM 
-      spectre AS sp 
-      LEFT JOIN record AS r ON (r.id = sp.record_id) 
-      JOIN sensor on sensor.id = r.sensor_id 
-      JOIN structure as st ON (st.id = r.structure_id) 
-      JOIN site as s ON (s.id = st.site_id) 
-    WHERE 
-      sp.subspectre_number LIKE '001' 
+      r.sensor_id,
+      r.date_time as date_time,
+      subspectre,
+      subspectre_number,
+      min_freq,
+      max_freq,
+      resolution
+    FROM
+      spectre AS sp
+      LEFT JOIN record AS r ON (r.id = sp.record_id)
+      JOIN sensor on sensor.id = r.sensor_id
+      JOIN structure as st ON (st.id = r.structure_id)
+      JOIN site as s ON (s.id = st.site_id)
+    WHERE
+      sp.subspectre_number LIKE '001'
       AND r.sensor_id LIKE :sensor_id
-      AND Date(r.date_time) >= Date(sensor.installation_date) 
-    ORDER BY 
+      AND Date(r.date_time) >= Date(sensor.installation_date)
+    ORDER BY
       r.date_time ASC) AS first_subpsectre_sensor";
 
     $stmt = $db->prepare($sql_subspectre_data);
@@ -160,31 +160,31 @@ class SpectreManager extends \Core\Model
     $db = static::getDB();
 
     $sql_subspectre_data = " SELECT record_id, device_number, sensor_id, structure_id, date_time, subspectre FROM
-      (SELECT 
+      (SELECT
       sensor.device_number AS device_number,
-      s.nom AS site, 
+      s.nom AS site,
       st.id AS structure_id,
-      st.nom AS equipement, 
+      st.nom AS equipement,
       r.id as record_id,
-      r.sensor_id, 
-      r.date_time as date_time, 
-      subspectre, 
-      subspectre_number, 
-      min_freq, 
-      max_freq, 
-      resolution 
-    FROM 
-      spectre AS sp 
-      LEFT JOIN record AS r ON (r.id = sp.record_id) 
-      JOIN sensor on sensor.id = r.sensor_id 
-      JOIN structure as st ON (st.id = r.structure_id) 
-      JOIN site as s ON (s.id = st.site_id) 
-    WHERE 
-      sp.subspectre_number = '001' 
+      r.sensor_id,
+      r.date_time as date_time,
+      subspectre,
+      subspectre_number,
+      min_freq,
+      max_freq,
+      resolution
+    FROM
+      spectre AS sp
+      LEFT JOIN record AS r ON (r.id = sp.record_id)
+      JOIN sensor on sensor.id = r.sensor_id
+      JOIN structure as st ON (st.id = r.structure_id)
+      JOIN site as s ON (s.id = st.site_id)
+    WHERE
+      sp.subspectre_number = '001'
       AND r.sensor_id = :sensor_id
-      AND Date(r.date_time) >= Date(sensor.installation_date) 
+      AND Date(r.date_time) >= Date(sensor.installation_date)
       AND r.date_time = :date_time
-    ORDER BY 
+    ORDER BY
       r.date_time ASC) AS first_subpsectre_sensor";
 
     $stmt = $db->prepare($sql_subspectre_data);
@@ -206,7 +206,7 @@ class SpectreManager extends \Core\Model
         JOIN structure as st ON (st.id=r.structure_id)
         JOIN site as s ON (s.id=st.site_id)
         WHERE r.sensor_id = :sensor_id AND r.date_time >= :date_requested
-        ORDER BY r.date_time ASC 
+        ORDER BY r.date_time ASC
         LIMIT 5";
 
     $stmt = $db->prepare($sql_subspectre_data);
@@ -271,12 +271,12 @@ class SpectreManager extends \Core\Model
     $sql_data_record_subspectre = 'INSERT INTO  spectre (`record_id`, `subspectre`, `subspectre_number`, `min_freq`, `max_freq`, `resolution`)
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "spectre"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)) AS record_id,
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui)) AS record_id,
       :subspectre AS subspectre, :subspectre_number AS subspectre_number, :min_freq AS min_freq,
       :max_freq AS max_freq, :resolution AS resolution) AS id_record
       WHERE NOT EXISTS (
       SELECT record_id FROM spectre WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "spectre"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui))
       ) LIMIT 1';
 
       $db = static::getDB();
@@ -294,10 +294,10 @@ class SpectreManager extends \Core\Model
 
     $count = $stmt->rowCount();
     if ($count == '0') {
-      echo "\n0 spectre were affected\n";
+      echo "\n[Spectre] 0 spectre inserted.\n";
       return false;
     } else {
-      echo "\n 1 spectre data was affected.\n";
+      echo "\n[Spectre] 1 spectre inserted.\n";
       return true;
     }
 

@@ -45,13 +45,10 @@ class RecordManager extends \Core\Model
   {
 
     $message = new Message($data);
-    echo "Message port : " . $message->getPortMessage() . "\n";
-
-    echo "Version capteur : " . $message->getSoftwareVersion();
-    exit();
 
     if ($message->getFormatMessage() == "uplink") {
-
+      echo "Message port : " . $message->getPortMessage() . "\n";
+      echo "Version capteur : " . $message->getSoftwareVersion(). "\n";
       RecordManager::handleUplinkMessage($message, $message->getSoftwareVersion());
 
     } else if ($message->getFormatMessage() == "event") {
@@ -72,14 +69,12 @@ class RecordManager extends \Core\Model
 
     $success = RecordManager::insertRecordData($message);
 
-
-
     $success = true;
     if ($success) {
       if ($message->typeMsg == "choc") {
 
         $choc = new Choc($message->msgDecoded);
-        exit();
+
         if (!ChocManager::insertChoc($choc)) {
           return false;
         }
@@ -93,7 +88,7 @@ class RecordManager extends \Core\Model
           $label = "high_choc";
           $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc());
 
-          AlertManager::insertTypeEvent($label);
+          AlertManager::insertTypeEvent($label,  $alert->criticality, $alert->msg);
           AlertManager::insert($alert);
           //Send alert
           AlertManager::sendAlert($alert, $message->group);
@@ -113,11 +108,12 @@ class RecordManager extends \Core\Model
       else if ($message->typeMsg == "inclinometre") {
         $inclinometer = new Inclinometer($message->msgDecoded);
 
+
         if (!InclinometerManager::insertInclinometer($inclinometer)) {
           return false;
         }
 
-        //Insert temperature
+        //Insert current temperature of the site today
         $currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
         TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
 
@@ -126,22 +122,29 @@ class RecordManager extends \Core\Model
 
         if ($hasAlertArr["alertOnX"]) {
           $label = "high_inclinometer_variationX";
+          $criticality = "HIGH";
+          $msg = "Grosse variation au niveau de l'inclinaison X";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
-          AlertManager::insertTypeEvent($label);
+          AlertManager::insertTypeEvent($label, $criticality, $msg);
           AlertManager::insert($alert);
           AlertManager::sendAlert($alert, $message->group);
         }
         if ($hasAlertArr["alertOnY"]) {
           $label = "high_inclinometer_variationY";
+          $criticality = "HIGH";
+          $msg = "Grosse variation au niveau de l'inclinaison Y";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
-          AlertManager::insertTypeEvent($label);
+          AlertManager::insertTypeEvent($label, $criticality, $msg);
           AlertManager::insert($alert);
           AlertManager::sendAlert($alert, $message->group);
         }
         if ($hasAlertArr["alertOnZ"]) {
           $label = "high_inclinometer_variationZ";
+          $criticality = "HIGH";
+          $msg = "Grosse variation au niveau de l'inclinaison Z";
+
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
-          AlertManager::insertTypeEvent($label);
+          AlertManager::insertTypeEvent($label,  $criticality, $msg);
           AlertManager::insert($alert);
           AlertManager::sendAlert($alert, $message->group);
         }
@@ -161,14 +164,15 @@ class RecordManager extends \Core\Model
   private static function handleEventMessage($message)
   {
     $label = $message->type;
+    echo "Label : ".$label;
 
     $alert = new Alert($label, $message->deveui, $message->dateTime);
     $group = SensorManager::getOwner($alert->deveui);
-    AlertManager::insertTypeEvent($label);
+    AlertManager::insertTypeEvent($label, $alert->criticality, $alert->msg);
     AlertManager::insert($alert);
     var_dump($alert);
 
-    AlertManager::sendAlert($alert, $group);
+    //AlertManager::sendAlert($alert, $group);
   }
 
   /**
@@ -327,14 +331,15 @@ class RecordManager extends \Core\Model
     $data_record = "INSERT INTO record
                   (`sensor_id`,
                   `structure_id`,
+                  `id_message_platform`,
                   `payload`,
+                  `count`,
                   `date_time`,
                   `msg_type`,
                   `longitude`,
                   `latitude`)
           SELECT * FROM   (
-          SELECT (
-                  SELECT id
+          SELECT (  SELECT id
                   FROM   sensor
                   WHERE  deveui = :deveui_sensor),
                   (SELECT structure.id
@@ -343,7 +348,9 @@ class RecordManager extends \Core\Model
                                     ON structure.attr_transmission_id = attr_transmission_line.id
                       WHERE  structure.nom = :name_asset
                             AND attr_transmission_line.name LIKE :transmission_line_name),
+                    :message_id,
                     :payload_raw,
+                    :count_msg,
                     :date_time,
                     :type_msg,
                     :longitude,
@@ -369,7 +376,9 @@ class RecordManager extends \Core\Model
     $stmt->bindValue(':deveui_sensor', $message->deveui, PDO::PARAM_STR);
     $stmt->bindValue(':name_asset', $message->structureName, PDO::PARAM_STR);
     $stmt->bindValue(':transmission_line_name', $message->transmissionLineName, PDO::PARAM_STR);
+    $stmt->bindValue(':message_id', $message->id, PDO::PARAM_STR);
     $stmt->bindValue(':payload_raw', $message->payload_cleartext, PDO::PARAM_STR);
+    $stmt->bindValue(':count_msg', $message->count, PDO::PARAM_STR);
     $stmt->bindValue(':date_time', $message->dateTime, PDO::PARAM_STR);
     $stmt->bindValue(':type_msg', $message->typeMsg, PDO::PARAM_STR);
     $stmt->bindValue(':longitude', $message->longitude, PDO::PARAM_STR);

@@ -21,7 +21,7 @@ class InclinometerManager extends \Core\Model
    * is inside a specific range ( 1SD, 2SD , 3SD) to trigger an alert
    * @param int $sensor_id sensor id to target
    * @param int $time_period check for the last X days
-   * @return true if an alert is triggered 
+   * @return true if an alert is triggered
    */
   public function check($inclinometer, $group, $method = "RANGE")
   {
@@ -30,7 +30,7 @@ class InclinometerManager extends \Core\Model
     $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
     $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group);
 
-    $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false);    
+    $alertBoolArr = array("alertOnX" => false, "alertOnY" => false, "alertOnZ" => false);
     if (isset($inclinometer->angleX) && isset($inclinometer->angleY) && isset($inclinometer->angleZ)) {
       //echo "let's check for ". $inclinometer->deveui;
 
@@ -59,7 +59,7 @@ class InclinometerManager extends \Core\Model
         $diffAngleX = $angleX - $angleX_ref;
         $diffAngleY = $angleY - $angleY_ref;
         $diffAngleZ = $angleZ - $angleZ_ref;
-        
+
         if ($diffAngleX > $inclinometerRangeThresh || $diffAngleX < -$inclinometerRangeThresh) {
           $alertBoolArr["alertOnX"] = true;
         }
@@ -127,7 +127,7 @@ class InclinometerManager extends \Core\Model
 
   /**
    * Compute average of inclinaison (X, Y, Z) received from today to a specific date in term of days
-   * 
+   *
    * @param int $sensor_id sensor id for which we want to compute the average inclinaison data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
    * compute variation between today and the last value 30 days ago. Defaut = 1 i.e since the installation date
@@ -137,23 +137,23 @@ class InclinometerManager extends \Core\Model
   public static function computeAvgInclinaisonForLast($deveui, $time_period = -1)
   {
     $db = static::getDB();
-    $sql_avg = "SELECT 
-      sensor_id, 
+    $sql_avg = "SELECT
+      sensor_id,
       AVG(angle_x) AS average_angle_x,
       AVG(angle_y) AS average_angle_y,
       AVG(angle_z) AS average_angle_z
-      FROM 
+      FROM
         (
-        SELECT 
-          `sensor_id`, 
+        SELECT
+          `sensor_id`,
           DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-          angle_x, angle_y, angle_z 
-        FROM 
-          inclinometer AS inc 
-          LEFT JOIN record AS r ON (r.id = inc.record_id) 
+          angle_x, angle_y, angle_z
+        FROM
+          inclinometer AS inc
+          LEFT JOIN record AS r ON (r.id = inc.record_id)
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
-        WHERE 
-          `msg_type` LIKE 'inclinometre' 
+        WHERE
+          `msg_type` LIKE 'inclinometre'
           AND s.deveui LIKE :deveui ";
 
         if ($time_period != -1) {
@@ -161,10 +161,10 @@ class InclinometerManager extends \Core\Model
         } else {
           $sql_avg .= "  AND Date(r.date_time) > s.installation_date ";
         }
-        $sql_avg .= " 
-          ORDER BY 
-            `date_d` DESC) AS inclinaison 
-          GROUP BY 
+        $sql_avg .= "
+          ORDER BY
+            `date_d` DESC) AS inclinaison
+          GROUP BY
             sensor_id
           ";
 
@@ -196,7 +196,7 @@ class InclinometerManager extends \Core\Model
 
   /**
    * Compute the standard deviation of inclinaison (X, Y, Z) received from today to a specific date in term of days
-   * 
+   *
    * @param int $sensor_id sensor id for which we want to compute the std dev inclinaison data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
    * compute variation between today and the last value 30 days ago. Defaut = 1 i.e since the installation date
@@ -207,23 +207,23 @@ class InclinometerManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_stdDev = "SELECT 
-      sensor_id, 
+    $sql_stdDev = "SELECT
+      sensor_id,
       STDDEV(angle_x) AS stdDev_angle_x,
       STDDEV(angle_y) AS stdDev_angle_y,
       STDDEV(angle_z) AS stdDev_angle_z
-      FROM 
+      FROM
         (
-        SELECT 
-          `sensor_id`, 
+        SELECT
+          `sensor_id`,
           DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-          angle_x, angle_y, angle_z  
-        FROM 
-          inclinometer AS inc 
-          LEFT JOIN record AS r ON (r.id = inc.record_id) 
+          angle_x, angle_y, angle_z
+        FROM
+          inclinometer AS inc
+          LEFT JOIN record AS r ON (r.id = inc.record_id)
           LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
-        WHERE 
-          `msg_type` LIKE 'inclinometre' 
+        WHERE
+          `msg_type` LIKE 'inclinometre'
           AND s.deveui LIKE :deveui ";
 
         if ($time_period != -1) {
@@ -232,10 +232,10 @@ class InclinometerManager extends \Core\Model
           $sql_stdDev .= "  AND Date(r.date_time) > s.installation_date ";
         }
 
-      $sql_stdDev .= "ORDER BY 
+      $sql_stdDev .= "ORDER BY
             `date_d` DESC
-          ) AS inclinaison_data 
-          GROUP BY 
+          ) AS inclinaison_data
+          GROUP BY
           sensor_id
       ";
 
@@ -265,8 +265,8 @@ class InclinometerManager extends \Core\Model
   }
   /**
    * Get all the inclinometer messages received from the sensors, for a specific group (RTE for example)
-   * sensor_id | deveui |site | equipement | date_time | payload | type message | 
-   * nx |ny |nz | angle_x | angle_y |angle_z | temperature 
+   * sensor_id | deveui |site | equipement | date_time | payload | type message |
+   * nx |ny |nz | angle_x | angle_y |angle_z | temperature
    *
    * @param string $group_name the name of the group we want to retrieve inclinometer data
    * @return array  results from the query
@@ -314,7 +314,7 @@ class InclinometerManager extends \Core\Model
 
   /**
    * Get all the inclinometer messages received from the sensors given a specific sensor id
-   *  sensor_id | date_time | nx |ny |nz | angle_x | angle_y |angle_z | temperature 
+   *  sensor_id | date_time | nx |ny |nz | angle_x | angle_y |angle_z | temperature
    *
    * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
    * @return array  results from the query
@@ -361,7 +361,7 @@ class InclinometerManager extends \Core\Model
 
   /**
    * Get all the angles X Y Z received from the sensors given a specific sensor id
-   *  sensor_id | date_time | angle_x | angle_y |angle_z | temperature 
+   *  sensor_id | date_time | angle_x | angle_y |angle_z | temperature
    *
    * @param int $sensor_id sensor id for which we want to retrieve the inclinometer data
    * @return array  results from the query
@@ -384,7 +384,7 @@ class InclinometerManager extends \Core\Model
     LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
     `msg_type` LIKE 'inclinometre'
-    AND deveui = :deveui 
+    AND deveui = :deveui
     AND Date(r.date_time) >= Date(s.installation_date) ";
 
     if (!empty($startDate) && !empty($endDate)) {
@@ -490,14 +490,14 @@ class InclinometerManager extends \Core\Model
   public static function insertInclinometer($inclinometer)
   {
 
-    $sql_data_record_inclinometer = 'INSERT INTO  inclinometer (`record_id`, `nx`, `ny`, `nz`, `angle_x`, `angle_y`, `angle_z`, `temperature`)
+    $sql_data_record_inclinometer = 'INSERT INTO  inclinometer (`record_id`, `nx`, `ny`, `nz`, `angle_x`, `angle_y`, `angle_z`, `temperature`, `battery_left` )
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui)) as record_id,
-      :nx AS nx, :ny AS ny, :nz AS nz, :angle_x AS angleX, :angle_y AS angleY, :angle_z AS angleZ, :temperature AS temperature) AS id_record
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui)) as record_id,
+      :nx AS nx, :ny AS ny, :nz AS nz, :angle_x AS angleX, :angle_y AS angleY, :angle_z AS angleZ, :temperature AS temperature, :battery_left AS battery) AS id_record
       WHERE NOT EXISTS (
       SELECT record_id FROM inclinometer WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
-      AND sensor_id = (SELECT id FROM sensor WHERE deveui LIKE :deveui))
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui))
     ) LIMIT 1';
 
     $db = static::getDB();
@@ -512,15 +512,19 @@ class InclinometerManager extends \Core\Model
     $stmt->bindValue(':angle_y', $inclinometer->angleY, PDO::PARAM_STR);
     $stmt->bindValue(':angle_z', $inclinometer->angleZ, PDO::PARAM_STR);
     $stmt->bindValue(':temperature', $inclinometer->temperature, PDO::PARAM_STR);
-
+    $battery_left = null;
+    if (property_exists($inclinometer, 'battery_left')){
+        $battery_left =$inclinometer->battery_left;
+    }
+    $stmt->bindValue(':battery_left',$battery_left, PDO::PARAM_STR);
     $stmt->execute();
 
     $count = $stmt->rowCount();
     if ($count == '0') {
-      echo "\n0 inclinometer data were affected\n";
+      echo "\n[Inclinometre] No inclinometer inserted.\n";
       return false;
     } else {
-      echo "\n 1 inclinometer data was affected.\n";
+      echo "\n[Inclinometre] Inclinometer inserted.\n";
       return true;
     }
   }
@@ -531,7 +535,7 @@ class InclinometerManager extends \Core\Model
    *
    * @param int $sensor_id sensor id for which we want to compute the variation data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
-   * compute variation between today and the last value 30 days ago . Defaut $time_period = - 1 i.e we take 
+   * compute variation between today and the last value 30 days ago . Defaut $time_period = - 1 i.e we take
    * values since the first record (installation date )
    * @return array  results from the query
    * sensor_id |deveui |
@@ -543,10 +547,10 @@ class InclinometerManager extends \Core\Model
     $db = static::getDB();
 
     if ($percentage){
-      $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui, 
+      $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui,
       ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
       IFNULL(ROUND((sum(ABS(newAngleX - oldAngleX))/newAngleX)*100, :precision),0) AS pourcentage_variation_angleX,
-      ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY, 
+      ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY,
       ROUND((sum(ABS(newAngleY - oldAngleY))/newAngleY)*100,:precision) as pourcentage_variation_angleY,
       ROUND(newAngleZ,:precision) AS newAngleZ, ROUND(oldAngleZ,:precision) AS oldAngleZ,
       ROUND((sum(ABS(newAngleZ - oldAngleZ))/newAngleZ)*100,:precision) as pourcentage_variation_angleZ,
@@ -554,10 +558,10 @@ class InclinometerManager extends \Core\Model
       ROUND((sum(ABS(newTemp - oldTemp))/newTemp)*100,1) as variation_temperature ";
 
     }else {
-      $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui, 
+      $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui,
       ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
       ROUND(sum(newAngleX - oldAngleX), :precision) AS pourcentage_variation_angleX,
-      ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY, 
+      ROUND(newAngleY,:precision) AS newAngleY, ROUND(oldAngleY,:precision) AS oldAngleY,
       ROUND(sum(newAngleY - oldAngleY), :precision) AS pourcentage_variation_angleY,
       ROUND(newAngleZ,:precision) AS newAngleZ, ROUND(oldAngleZ,:precision) AS oldAngleZ,
       ROUND(sum(newAngleZ - oldAngleZ), :precision) AS pourcentage_variation_angleZ,
@@ -630,7 +634,7 @@ class InclinometerManager extends \Core\Model
    *
    * @param string $deveui sensor deveui for which we want to compute the variation data
    * @param int $time_period the last X days for computing the reference values. Ex : $time_period = 30,
-   * get the references values 30 days from now. defaults to -1 meaning that we take 
+   * get the references values 30 days from now. defaults to -1 meaning that we take
    * all records in account so the first record will correspond to installation date
    * @return array which contain the reference values (angleX, angleY, angleZ, temperature)
    */
@@ -679,7 +683,7 @@ class InclinometerManager extends \Core\Model
    *
    * @param string $deveui sensor deveui for which we want to compute the variation data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
-   * compute variation between today and the last value 30 days ago. defaults to -1 meaning that we take 
+   * compute variation between today and the last value 30 days ago. defaults to -1 meaning that we take
    * all records in account
    * @return array which contain daily variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
@@ -748,7 +752,7 @@ class InclinometerManager extends \Core\Model
         $variationAngleZ = $angleZ - $angleZ_ref;
         $variationTemperature = $temperature - $temperature_ref;
       }
-      
+
       $tmpArr = array(
         "date" => $date, "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
         "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature
@@ -770,7 +774,7 @@ class InclinometerManager extends \Core\Model
    *
    * @param string $deveui sensor deveui for which we want to compute the variation data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
-   * compute variation between today and the last value 30 days ago. defaults to -1 meaning that we take 
+   * compute variation between today and the last value 30 days ago. defaults to -1 meaning that we take
    * all records in account
    * @return array which contain monthly variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
@@ -796,7 +800,7 @@ class InclinometerManager extends \Core\Model
           LEFT JOIN record AS r ON (r.id = inc.record_id)
           INNER JOIN
         (SELECT
-            MAX(r.date_time) AS max_date_time   
+            MAX(r.date_time) AS max_date_time
             FROM
             inclinometer AS inc
             LEFT JOIN record AS r ON (r.id = inc.record_id)
@@ -871,7 +875,7 @@ class InclinometerManager extends \Core\Model
    *
    * @param string $deveui sensor deveui for which we want to compute the variation data
    * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
-   * compute variation between today and the last value 30 days ago. defaults to -1 meaning that we take 
+   * compute variation between today and the last value 30 days ago. defaults to -1 meaning that we take
    * all records in account
    * @return array which contain weekly variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
@@ -897,7 +901,7 @@ class InclinometerManager extends \Core\Model
           LEFT JOIN record AS r ON (r.id = inc.record_id)
           INNER JOIN
         (SELECT
-            MAX(r.date_time) AS max_date_time   
+            MAX(r.date_time) AS max_date_time
             FROM
             inclinometer AS inc
             LEFT JOIN record AS r ON (r.id = inc.record_id)
@@ -1162,7 +1166,7 @@ class InclinometerManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql = "SELECT `temperature`, r.date_time AS date_d 
+    $sql = "SELECT `temperature`, r.date_time AS date_d
       FROM `record` AS r
       LEFT JOIN inclinometer AS inc ON (inc.record_id = r.id)
       LEFT JOIN sensor AS s ON (s.id = r.sensor_id)

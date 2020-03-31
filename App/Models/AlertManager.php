@@ -11,7 +11,7 @@ namespace App\Models;
 
 use App\Config;
 use App\Utilities;
-use App\Controllers\ControllerDataObjenious;
+use App\Models\API\API;
 use \App\Models\UserManager;
 use \Core\View;
 use \App\Mail;
@@ -24,7 +24,7 @@ class AlertManager extends \Core\Model
     /** Create a new alert on the database from an array data received
      *
      * @param array $dataArr array which contain the data that will serve to add a new alert on the DB
-     * @return void  
+     * @return void
      */
     public static function insert($alert)
     {
@@ -58,15 +58,15 @@ class AlertManager extends \Core\Model
      * @param string $label label to attribute for the alert
      * @param string $deveui deveui of the sensor
      * @param datetime $date_time date_time format when the alert occured
-     * @param int $structure_d id of the structure where the alert ocurred 
+     * @param int $structure_d id of the structure where the alert ocurred
      * @param float $value value of the alert
-     * @return void  
+     * @return void
      */
-    public function create($label, $deveui, $date_time, $structure_id, $value)
+    public function create($label,  $criticality, $msg, $deveui, $date_time, $structure_id, $value)
     {
 
         //Check if type alert does not exist, otherwise, add it
-        AlertManager::insertTypeEvent($label);
+        AlertManager::insertTypeEvent($label, $criticality, $msg);
 
         $db = static::getDB();
 
@@ -75,7 +75,7 @@ class AlertManager extends \Core\Model
         (SELECT (SELECT id FROM type_alert WHERE type_alert.label LIKE :label),
         :deveui, :structure_id, 1, :date_time, :data_value) AS alert_record
         WHERE NOT EXISTS (
-            SELECT date_time, structure_id FROM alerts WHERE date_time = :date_time 
+            SELECT date_time, structure_id FROM alerts WHERE date_time = :date_time
             AND structure_id = :structure_id
             )";
         //echo "\n QUERY : $sql";
@@ -100,7 +100,7 @@ class AlertManager extends \Core\Model
     /** Delete an alert from the database
      *
      * @param int $id_alert if of the alert to delete
-     * @return void  
+     * @return void
      */
     public static function delete($id_alert)
     {
@@ -118,7 +118,7 @@ class AlertManager extends \Core\Model
      *
      * @param int $id_alert if of the alert to update
      * @param int $status_alert status (1 or 0)
-     * @return void  
+     * @return void
      */
     public static function updateStatus($id_alert, $status_alert)
     {
@@ -165,7 +165,7 @@ class AlertManager extends \Core\Model
         }
         $db = static::getDB();
 
-        $sql = "UPDATE alerts 
+        $sql = "UPDATE alerts
             SET status = :status_alert
             WHERE id = :id;";
 
@@ -179,22 +179,27 @@ class AlertManager extends \Core\Model
 
     /**
      * Insert type of event in the database
-     * @param string $label 
+     * @param string $label
      * @return void
      */
-    public static function insertTypeEvent($label)
+    public static function insertTypeEvent($label, $criticality, $description)
     {
         $db = static::getDB();
-
-        $sql = "INSERT INTO type_alert (label)
-        SELECT :label
-        WHERE NOT EXISTS (
-            SELECT label FROM type_alert WHERE label = :label
-        ) LIMIT 1";
+        $sql = "INSERT INTO type_alert (`label`, `criticality`, `description`)
+                SELECT * FROM (
+                    SELECT
+                        :label,
+                        :criticality,
+                        :description) AS id_type
+                WHERE NOT EXISTS
+                    (SELECT label FROM type_alert WHERE label = :label)
+                LIMIT 1";
 
         $stmt = $db->prepare($sql);
 
         $stmt->bindValue(':label', $label, PDO::PARAM_STR);
+        $stmt->bindValue(':criticality', $criticality, PDO::PARAM_STR);
+        $stmt->bindValue(':description', $description, PDO::PARAM_STR);
 
         return $stmt->execute();
     }
@@ -203,21 +208,21 @@ class AlertManager extends \Core\Model
     /**
      * Get all the active alert from the database
      * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
-     * @param string $group_name check alert for a specific group 
+     * @param string $group_name check alert for a specific group
      * @return void
      */
     public static function getActiveAlertsInfoTable($group_name, $deveui = null, $limit = null)
     {
         $db = static::getDB();
 
-        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, 
-        type_alert.label AS label, 
-        type_alert.criticality AS criticality, 
+        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time,
+        type_alert.label AS label,
+        type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause, 
+        alerts.cause AS cause,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
-        FROM alerts 
+        FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
@@ -256,7 +261,7 @@ class AlertManager extends \Core\Model
     /**
      * Get all the active alert from the database for a specific sensor
      * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
-     * @param string $group_name check alert for a specific group 
+     * @param string $group_name check alert for a specific group
      * @return void
      */
     public static function getActiveAlertsInfoTableForSensor($deveui, $limit = null)
@@ -264,13 +269,13 @@ class AlertManager extends \Core\Model
         $db = static::getDB();
 
         $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time, sensor.device_number, sensor.deveui,
-        type_alert.label AS label, 
-        type_alert.criticality AS criticality, 
+        type_alert.label AS label,
+        type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause, 
+        alerts.cause AS cause,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
-        FROM alerts 
+        FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
@@ -298,7 +303,7 @@ class AlertManager extends \Core\Model
     /**
      * Get all the processed alert from the database for a specific sensor
      * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
-     * @param string $group_name check alert for a specific group 
+     * @param string $group_name check alert for a specific group
      * @return void
      */
     public static function getProcessedAlertsInfoTableForSensor($deveui)
@@ -306,13 +311,13 @@ class AlertManager extends \Core\Model
         $db = static::getDB();
 
         $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time, sensor.device_number, sensor.deveui,
-        type_alert.label AS label, 
-        type_alert.criticality AS criticality, 
+        type_alert.label AS label,
+        type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause, 
+        alerts.cause AS cause,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
-        FROM alerts 
+        FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
@@ -332,20 +337,20 @@ class AlertManager extends \Core\Model
     /**
      * Get all the processed alert from the database
      * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
-     * @param string $group_name check alert for a specific group 
+     * @param string $group_name check alert for a specific group
      * @return void
      */
     public static function getProcessedAlertsInfoTable($group_name)
     {
         $db = static::getDB();
 
-        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, type_alert.label AS label, 
-        type_alert.criticality AS criticality, 
+        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, type_alert.label AS label,
+        type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause, 
+        alerts.cause AS cause,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
-        FROM alerts 
+        FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
@@ -366,15 +371,15 @@ class AlertManager extends \Core\Model
     /**
      * Get the number of alerts for a specific structure
      * @param int $structure_id structure id for checking the number of alert
-     * @return array 
+     * @return array
      */
     public function getNumberActiveAlertsOnStructure($structure_id)
     {
         $db = static::getDB();
 
         $sql_nb_active_alert = "SELECT COUNT(*) as nb_active_alerts
-        FROM alerts 
-        WHERE status = 1 
+        FROM alerts
+        WHERE status = 1
         AND structure_id = :structure_id
         ";
 
@@ -395,19 +400,19 @@ class AlertManager extends \Core\Model
     /**
      * Get the number of alerts for a specific group
      * @param string $group_name group for checking the number of alert
-     * @return array 
+     * @return array
      */
     public static function getNumberActiveAlertsForGroup($group_name)
     {
         $db = static::getDB();
 
         $sql_nb_active_alert = "SELECT count(*) as nb_active_alerts
-        FROM alerts 
+        FROM alerts
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
         LEFT JOIN group_site ON (group_site.site_id = site.id)
         LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
-        WHERE status = 1 
+        WHERE status = 1
         AND group_name.name = :group_name
         ";
 
@@ -429,19 +434,19 @@ class AlertManager extends \Core\Model
     /**
      * Get the number of inactive alerts for a specific group
      * @param int $group_name group to check
-     * @return array 
+     * @return array
      */
     public function getNumberInactiveAlertsForGroup($group_name)
     {
         $db = static::getDB();
 
         $sql_nb_inactive_alert = "SELECT count(*) as nb_inactive_alerts
-        FROM alerts 
+        FROM alerts
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
         LEFT JOIN group_site ON (group_site.site_id = site.id)
         LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
-        WHERE status = 0 
+        WHERE status = 0
         AND group_name.name = :group_name
         ";
 
@@ -461,15 +466,15 @@ class AlertManager extends \Core\Model
     /**
      * Get the number of inactive alerts for a specific structure
      * @param int $structure_id structure id for checking the number of alert
-     * @return array 
+     * @return array
      */
     public function getNumberInactiveAlerts($structure_id)
     {
         $db = static::getDB();
 
         $sql_nb_inactive_alert = "SELECT COUNT(*) as nb_inactive_alerts
-        FROM alerts 
-        WHERE status = 0 
+        FROM alerts
+        WHERE status = 0
         AND structure_id = :structure_id
         ";
 
@@ -501,9 +506,9 @@ class AlertManager extends \Core\Model
             AlertManager::sensorAlert($alert, $group_name);
         }else {
             AlertManager::structureAlert($alert, $group_name);
-        
+
         }
-                
+
     }
 
     private static function sensorAlert($alert, $group_name){
@@ -624,14 +629,14 @@ class AlertManager extends \Core\Model
      */
     public static function findByID($id)
     {
-        $sql = 'SELECT alerts.id AS alert_id, alerts.date_time AS date_time,  (SELECT type_alert.label FROM type_alert WHERE type_alert.id = alerts.id_type_event) AS label, 
-        type_alert.criticality AS criticality, 
+        $sql = 'SELECT alerts.id AS alert_id, alerts.date_time AS date_time,  (SELECT type_alert.label FROM type_alert WHERE type_alert.id = alerts.id_type_event) AS label,
+        type_alert.criticality AS criticality,
         structure_id,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause, 
+        alerts.cause AS cause,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status
-        FROM alerts 
+        FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         WHERE alerts.id = :id ';
@@ -655,7 +660,7 @@ class AlertManager extends \Core\Model
     {
 
         $url = "https://api.objenious.com/v1/alerts?device_id=" . $device_id . "&state=" . $state . "&acknowledged=" . $acknowledged;
-        $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+        $results_api = API::CallAPI("GET", $url);
         $alerts_data = $results_api["alerts"];
 
         return $alerts_data;
@@ -665,7 +670,7 @@ class AlertManager extends \Core\Model
     {
 
         $url = "https://api.objenious.com/v1/alerts?group=" . $group . "&state=" . $state . "&acknowledged=" . $acknowledged;
-        $results_api = ControllerDataObjenious::CallAPI("GET", $url);
+        $results_api = API::CallAPI("GET", $url);
         $alerts_data = $results_api["alerts"];
 
         return $alerts_data;
@@ -673,7 +678,7 @@ class AlertManager extends \Core\Model
 
     public static function getAllAlertsFromAPI()
     {
-        $results_api = ControllerDataObjenious::CallAPI("GET", "https://api.objenious.com/v1/alerts");
+        $results_api = API::CallAPI("GET", "https://api.objenious.com/v1/alerts");
         $alerts_data = $results_api["alerts"];
 
         return $alerts_data;

@@ -28,10 +28,10 @@ class Message
         $this->typeMsgFormat = $this->checkTypeMessage($this->type);
 
         $this->extractDeviceProperties();
-        $this->extractProtocolData();
         $this->convertTimestampToDateTime();
 
         if ($this->typeMsgFormat == "uplink"){
+            $this->extractProtocolData();
             $this->group = explode("-", $this->group)[0];
             $this->latitude = $this->lat;
             $this->longitude = $this->lng;
@@ -69,16 +69,22 @@ class Message
     }
 
     private function extractDeviceProperties(){
+
         $this->externalId = $this->device_properties['external_id'];
         $this->appeui =  $this->device_properties['appeui'];
         $this->deveui =  $this->device_properties['deveui'];
-        $this->hardware_version =  $this->device_properties['hardware'];
-        $this->software_version =  $this->device_properties['Version du firmware'];
+        if (array_key_exists('hardware', $this->device_properties)) {
+            $this->hardware_version =  $this->device_properties['hardware'];
+        }
+        if (array_key_exists('Version du firmware', $this->device_properties)) {
+            $this->software_version =  $this->device_properties['Version du firmware'];
+        }
     }
 
     private function extractProtocolData(){
-        $this->port = $this->protocol_data['port'];
-        $this->port = $this->protocol_data['port'];
+        if (array_key_exists('port', $this->protocol_data)) {
+            $this->port = $this->protocol_data['port'];
+        }
     }
 
     /**
