@@ -24,26 +24,26 @@ class EquipementManager extends \Core\Model
    * @param string $type_asset type of assert to insert (ex : transmission line)
    * @return boolean  return True if insert query successfully executed
    */
-  public static function insertStructureType($type_asset)
+  public static function insertStructureCategory($type_asset)
   {
 
-    $sql = 'INSERT INTO structure_type (`typename`)
+    $sql = 'INSERT INTO structure_category (`name`)
     SELECT * FROM (SELECT :type_asset) AS tmp
     WHERE NOT EXISTS (
-        SELECT typename FROM structure_type WHERE typename like :type_asset
+        SELECT name FROM structure_category WHERE name = :type_asset
     ) LIMIT 1';
 
     $db = static::getDB();
     $stmt = $db->prepare($sql);
 
     $stmt->bindValue(':type_asset', $type_asset, PDO::PARAM_STR);
-
+    $stmt->execute();
     $count = $stmt->rowCount();
     if ($count == '0') {
-      echo "\n0 structure were added\n";
+      echo "\n[Structure Category] 0 structure category was added\n";
       return false;
     } else {
-      echo "\n 1 structure added.\n";
+      echo "\n[Structure Category] 1 structure category was added.\n";
       return true;
     }
   }
@@ -82,18 +82,18 @@ class EquipementManager extends \Core\Model
    *
    * @param int $structure_id id of the structure
    * @return array results of the query
-   *  equipement_id | equipement | ligneHT  
+   *  equipement_id | equipement | ligneHT
    */
   public static function getEquipementFromId($structure_id){
     $db = static::getDB();
 
-    $sql_query_equipement_by_id = "SELECT 
-        DISTINCT st.id AS equipement_id, 
-        st.nom AS equipement, 
-        st.transmision_line_name AS ligneHT 
-      FROM 
-        structure AS st 
-      WHERE 
+    $sql_query_equipement_by_id = "SELECT
+        DISTINCT st.id AS equipement_id,
+        st.nom AS equipement,
+        st.transmision_line_name AS ligneHT
+      FROM
+        structure AS st
+      WHERE
         st.id = :structure_id
       ";
 
@@ -158,7 +158,7 @@ class EquipementManager extends \Core\Model
 
   /**
    * Get sensor ID on a specific structure
-   * 
+   *
    * @param int $structure_id structure id to get the sensor id
    * @return int  sensor id
    */
@@ -182,10 +182,10 @@ class EquipementManager extends \Core\Model
     }
   }
 
-  
+
   /**
    * Get deveui of a sensor on a specific structure
-   * 
+   *
    * @param int $structure_id structure id to get the sensor id
    * @return string  deveui
    */
@@ -209,7 +209,7 @@ class EquipementManager extends \Core\Model
 
   /**
    * Get an equipement from a sensor deveui
-   * 
+   *
    * @param int $sensor_id sensor id to get the equipement ID
    * @return int  sensor id
    */
@@ -236,7 +236,7 @@ class EquipementManager extends \Core\Model
 
   /**
    * Get all the structure belonging to a specific site
-   * 
+   *
    * @param int $siteID site ID to retrieve all the structure
    * @return array results from the query
    */

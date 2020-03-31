@@ -28,8 +28,9 @@ class Message
         $this->typeMsgFormat = $this->checkTypeMessage($this->type);
 
         $this->extractDeviceProperties();
+        $this->extractProtocolData();
         $this->convertTimestampToDateTime();
-        
+
         if ($this->typeMsgFormat == "uplink"){
             $this->group = explode("-", $this->group)[0];
             $this->latitude = $this->lat;
@@ -38,7 +39,7 @@ class Message
             $this->extractExternalId();
 
         }
-    
+
     }
 
 
@@ -71,39 +72,44 @@ class Message
         $this->externalId = $this->device_properties['external_id'];
         $this->appeui =  $this->device_properties['appeui'];
         $this->deveui =  $this->device_properties['deveui'];
+        $this->hardware_version =  $this->device_properties['hardware'];
+        $this->software_version =  $this->device_properties['Version du firmware'];
+    }
+
+    private function extractProtocolData(){
+        $this->port = $this->protocol_data['port'];
+        $this->port = $this->protocol_data['port'];
     }
 
     /**
      * extract external_id data from Objenious (which correspond to the label of a sensor in Objenious)
      *
-     * @param string $external_id 
-     * @return array 
+     * @param string $external_id
+     * @return array
      */
     private function extractExternalId()
     {
-        #Remove bracket
-        $asset_name_no_bracket = str_replace(array('[', ']'), '', $this->externalId);
-        $asset_name_array = explode("-", $asset_name_no_bracket);
-        $region = $asset_name_array[0];
-        $transmission_line_name = $asset_name_array[1];
 
-        $desc_asset = $asset_name_array[2];
-        $support_asset = $asset_name_array[3];
-        $corniere = $asset_name_array[4];
+        #Remove bracket
+        $externalId_no_bracket = str_replace(array('[', ']'), '', $this->externalId);
+        $externalId_array = explode("-", $externalId_no_bracket);
+
+        $type_structure =  $externalId_array[0];
+        $region = $externalId_array[1];
+        $transmission_line_name = $externalId_array[2];
+
+        $desc_asset = $externalId_array[3];
+        $support_asset = $externalId_array[4];
+        $corniere = $externalId_array[5];
 
         #Build the asset name
         $name_asset = $desc_asset . "_" . $support_asset;
 
+        $this->typeStructure = $type_structure;
         $this->structureName = $name_asset;
         $this->transmissionLineName = $transmission_line_name;
         $this->site = $region;
 
-        if (strpos($this->structureName, 'tower') !== false) {
-            $this->typeStructure = "transmission line";
-        } else {
-            $this->typeStructure = "undefined";
-        }
-        
     }
 
     private function convertTimestampToDateTime($datetimeFormat = 'Y-m-d H:i:s', $fromTimeZone = 'UTC', $toTimeZone = 'CET')
@@ -131,45 +137,83 @@ class Message
     /**
      * Decode Payload message in order to extract information. (Inclinometer, battery, choc...)
      *
+     *
      * @param string $payload_cleartext uplink payload message
      * @return json  data decoded in json format
      */
     private function decodePayload()
     {
-        $preambule_hex = substr($this->payload_cleartext, 0, 2);
-        $preambule_bin = substr(Utilities::hexStr2bin($preambule_hex), 0, 2);
+        if ($this->getSoftwareVersion() == 1.45){
+            echo "\n## MESSAGE RECEIVED FROM SENTINEL 1.0 ## \n";
 
-        if ($preambule_bin == "00") {
-            $this->typeMsg = "inclinometre";
-            echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <=== \n";
-            $msgDecoded = $this->decodeInclinometreMsg($this->payload_cleartext);
+            $preambule_hex = substr($this->payload_cleartext, 0, 2);
+            $preambule_bin = substr(Utilities::hexStr2bin($preambule_hex), 0, 2);
 
-        } else if ($preambule_bin == "10") {
-            $this->typeMsg = "choc";
-            echo "\n ==> TYPE MESSAGE RECEIVED : choc_data data <===\n";
-            $msgDecoded = $this->decodeChocMsg($this->payload_cleartext);
+            if ($preambule_bin == "00") {
+                $this->typeMsg = "inclinometre";
+                echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <=== \n";
+                $msgDecoded = $this->decodeInclinometreMsg($this->payload_cleartext);
 
-        } else if ($preambule_bin == "11") {
-            $this->typeMsg = "global";
-            echo "\n ==> TYPE MESSAGE RECEIVED : global data <===\n";
-            $msgDecoded = $this->decodeGlobalMsg($this->payload_cleartext);
+            } else if ($preambule_bin == "10") {
+                $this->typeMsg = "choc";
+                echo "\n ==> TYPE MESSAGE RECEIVED : choc_data data <===\n";
+                $msgDecoded = $this->decodeChocMsg($this->payload_cleartext);
 
-        } else if ($preambule_bin == "01") {
-            $this->typeMsg = "spectre";
-            echo "\n ==> TYPE MESSAGE RECEIVED : spectre data <===\n";
-            $msgDecoded = $this->decodeSpectreMsg($this->payload_cleartext);
-            
-        } else {
-            $this->typeMsg = "undefined";
-            $msgDecoded = "UNDEFINED";
+            } else if ($preambule_bin == "11") {
+                $this->typeMsg = "global";
+                echo "\n ==> TYPE MESSAGE RECEIVED : global data <===\n";
+                $msgDecoded = $this->decodeGlobalMsg($this->payload_cleartext);
+
+            } else if ($preambule_bin == "01") {
+                $this->typeMsg = "spectre";
+                echo "\n ==> TYPE MESSAGE RECEIVED : spectre data <===\n";
+                $msgDecoded = $this->decodeSpectreMsg($this->payload_cleartext);
+
+            } else {
+                $this->typeMsg = "undefined";
+                $msgDecoded = "UNDEFINED";
+            }
+
+            $payload_decoded_json = json_decode($msgDecoded, true);
+
+            $payload_decoded_json['dateTime'] = $this->dateTime;
+            $payload_decoded_json['deveui'] = $this->deveui;
+
+            return $payload_decoded_json;
+
+        }
+        else if ($this->getSoftwareVersion() == 2.0){
+            echo "\n## MESSAGE RECEIVED FROM SENTINEL 2.0 ## \n";
+
+            if ($this->getPortMessage() == 1){
+                echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <=== \n";
+                $this->typeMsg = "inclinometre";
+                $msgDecoded = $this->decodeInclinometreMsgForProfile2($this->payload_cleartext);
+            }
+            else if ($this->getPortMessage() == 2){
+                echo "\n ==> TYPE MESSAGE RECEIVED : Spectre data <=== \n";
+                $this->typeMsg = "spectre";
+                $msgDecoded = $this->decodeSpectreMsgForProfile2($this->payload_cleartext);
+            }
+            else if ($this->getPortMessage() == 3){
+                echo "\n ==> TYPE MESSAGE RECEIVED : Choc data <=== \n";
+                $this->typeMsg = "choc";
+                $msgDecoded = $this->decodeChocMsgForProfile2($this->payload_cleartext);
+            }
+            else {
+                $this->typeMsg = "undefined";
+                $msgDecoded = "UNDEFINED";
+            }
+
+            $payload_decoded_json = json_decode($msgDecoded, true);
+
+            $payload_decoded_json['dateTime'] = $this->dateTime;
+            $payload_decoded_json['deveui'] = $this->deveui;
+
+            return $payload_decoded_json;
+
         }
 
-        $payload_decoded_json = json_decode($msgDecoded, true);
-
-        $payload_decoded_json['dateTime'] = $this->dateTime;
-        $payload_decoded_json['deveui'] = $this->deveui;
-
-        return $payload_decoded_json;
     }
 
 
@@ -218,6 +262,55 @@ class Message
     }
 
     /**
+     * Decode an inclinometer message  for sentinel new generation
+     *
+     * @param string $payload_cleartext payload data
+     * @return json  data decoded in json format which contain the inclinometer raw data
+     */
+     private function decodeInclinometreMsgForProfile2($payload_cleartext)
+    {
+        echo "\n Payload : ". $payload_cleartext ."\n";
+        #Take the preambule
+        $preambule_hex = substr($payload_cleartext, 0, 2);
+        $preambule_bin = Utilities::hexStr2bin($preambule_hex);
+
+        $occurence = substr($preambule_bin, 0, 2);
+        $zeroing = substr($preambule_bin, 2, 1);
+        $spectre_activation = substr($preambule_bin, 3, 1);
+        $shock_activation = substr($preambule_bin, 4, 1);
+        $error_rf = substr($preambule_bin, 5, 1);
+        $error_hardware = substr($preambule_bin, 6, 1);
+        $reset = substr($preambule_bin, 7, 1);
+
+        #Extract data from the second part
+        $msgSecondPart = substr($payload_cleartext, 2, strlen($payload_cleartext) - 2);
+        echo "\n msgSecondPart  : ". $msgSecondPart . "\n";
+        $battery_left = Utilities::hex2dec(substr($msgSecondPart, 0, 2));
+        $temperature =  Utilities::hex2dec(substr($msgSecondPart, 2, 4)) / 10;
+        $X = Utilities::hex2dec(substr($msgSecondPart, 6, 4)) * 0.0625;
+        $Y = Utilities::hex2dec(substr($msgSecondPart, 10, 4)) * 0.0625;
+        $Z = Utilities::hex2dec(substr($msgSecondPart, 14, 4)) * 0.0625;
+
+        $inclinometreMsgDecoded = (object) [
+            'type' => 'inclinometre',
+            'occurence' => $occurence,
+            'zeroing' => $zeroing,
+            'spectre_activation' => $spectre_activation,
+            'shock_activation' => $shock_activation,
+            'error_rf' => $error_rf,
+            'error_hardware' => $error_hardware,
+            'reset' => $reset,
+            'battery_left' => $battery_left,
+            'temperature' => $temperature,
+            'X' => $X,
+            'Y' => $Y,
+            'Z' => $Z
+        ];
+
+        return json_encode($inclinometreMsgDecoded, true);
+    }
+
+    /**
      * Decode a choc message
      *
      * @param string $payload_cleartext payload data
@@ -251,6 +344,51 @@ class Message
             'limiteFrequence' => $limiteFrequence,
             'redondanceMsg' => $redondanceMsg,
             'seuil' => $seuil,
+            'amplitude1' => $amplitude1,
+            'time1' => $time1,
+            'amplitude2' => $amplitude2,
+            'time2' => $time2
+        ];
+
+        return json_encode($chocMsgDecoded, true);
+    }
+
+ /**
+     * Decode a choc message for sentinel new generation
+     *
+     * @param string $payload_cleartext payload data
+     * @return json  data decoded in json format which contain the choc raw data
+     */
+    private function decodeChocMsgForProfile2($payload_cleartext)
+    {
+        echo "\n Payload : ". $payload_cleartext;
+
+        #Take the preambule
+        $preambule_hex = substr($payload_cleartext, 0, 2);
+        $preambule_bin = Utilities::hexStr2bin($preambule_hex);
+
+        #Extract data from prembule
+        $limiteFrequence = substr($preambule_bin, 0, 2);
+        $seuil = substr($preambule_bin, 2, 3);
+        $redondanceMsg = substr($preambule_bin, 3, 1);
+
+        #Extract data from the second part
+        $msgSecondPart = substr($payload_cleartext, 2, strlen($payload_cleartext) - 2);
+
+        $amplitude1 = Utilities::accumulatedTable16(Utilities::hex2dec(substr($msgSecondPart, 0, 2)));
+
+        $time1 = Utilities::hex2dec(substr($msgSecondPart, 2, 2));
+        $time1 = ($time1 + 1) * 200; //# 200 is micro second format
+
+        $amplitude2 = Utilities::accumulatedTable16(Utilities::hex2dec(substr($msgSecondPart, 4, 2)));
+        $time2 = Utilities::hex2dec(substr($msgSecondPart, 6, 2));
+        $time2 = ($time2 + 1) * 200; //# 200 is micro second format
+
+        $chocMsgDecoded = (object) [
+            'type' => 'choc',
+            'limiteFrequence' => $limiteFrequence,
+            'seuil' => $seuil,
+            'redondanceMsg' => $redondanceMsg,
             'amplitude1' => $amplitude1,
             'time1' => $time1,
             'amplitude2' => $amplitude2,
@@ -295,6 +433,78 @@ class Message
             'shock' => $shock
         ];
         return json_encode($globalMSGDecoded);
+    }
+
+   /**
+     * Decode a spectre message for sentinel new generation
+     *
+     * @param string $payload_cleartext payload data
+     * @return json  data decoded in json format which contain the spectre raw data
+     */
+    private function decodeSpectreMsgForProfile2($payload_cleartext)
+    {
+        echo "\n Payload : ". $payload_cleartext ."\n";
+        #Take the preambule
+        $spectre_msg_hex = $payload_cleartext;
+        $preambule_hex = substr($payload_cleartext, 0, 2);
+        $preambule_bin = Utilities::hexStr2bin($preambule_hex);
+        $spectre_msg_dec = "";
+
+        for ($i = 2; $i < intval(strlen(strval($spectre_msg_hex))); $i += 2) {
+            $data_i_hex = substr($spectre_msg_hex, $i, 2);
+
+            $data_i_dec = Utilities::hex2dec($data_i_hex);
+            $spectre_msg_dec .= strval($data_i_dec);
+        }
+
+        #Extract data from prembule
+        $occurence = substr($preambule_bin, 0, 2);
+        $seuil = substr($preambule_bin, 2, 3);
+        $spectre_number_selection = substr($preambule_bin, 5, 3);
+        $resolution = 0;
+        $min_freq = 0;
+        $max_freq = 0;
+
+        if (strval($spectre_number_selection) == "000") {
+            $resolution = 1;
+            $min_freq = 1;
+            $max_freq = 50;
+        } else if (strval($spectre_number_selection) == "001") {
+            $resolution = 2;
+            $min_freq = 51;
+            $max_freq = 150;
+        } else if (strval($spectre_number_selection) == "010") {
+            $resolution = 4;
+            $min_freq = 151;
+            $max_freq = 350;
+        } else if (strval($spectre_number_selection) == "011") {
+            $resolution = 8;
+            $min_freq = 351;
+            $max_freq = 751;
+        } else if (strval($spectre_number_selection) == "100") {
+            $resolution = 16;
+            $min_freq = 751;
+            $max_freq = 1550;
+        } else if (strval($spectre_number_selection) == "110") {
+            $resolution = 0;
+            $min_freq = 0;
+            $max_freq = 0;
+        }
+
+
+        $spectreMSGDecoded = (object) [
+            'type' => 'spectre',
+            'occurence' => $occurence,
+            'seuil' => $seuil,
+            'spectre_number' => $spectre_number_selection,
+            'resolution' => $resolution,
+            'min_freq' => $min_freq,
+            'max_freq' => $max_freq,
+            'spectre_msg_hex' => $spectre_msg_hex,
+            'spectre_msg_dec' => $spectre_msg_dec
+        ];
+
+        return json_encode($spectreMSGDecoded, true);
     }
 
     /**
@@ -371,7 +581,7 @@ class Message
      * extract event data from objenious
      *
      * @param json $data json data received from Objenious
-     * @return array 
+     * @return array
      */
     private function extractEventData($data)
     {
@@ -397,6 +607,17 @@ class Message
 
         return $eventDataArr;
     }
-    
 
+
+    public function getPortMessage(){
+        return $this->port;
+    }
+
+    public function getHardwareVersion(){
+        return $this->hardware_version;
+    }
+
+     public function getSoftwareVersion(){
+        return $this->software_version;
+    }
 }

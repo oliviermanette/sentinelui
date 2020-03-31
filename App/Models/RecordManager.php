@@ -45,11 +45,15 @@ class RecordManager extends \Core\Model
   {
 
     $message = new Message($data);
+    echo "Message port : " . $message->getPortMessage() . "\n";
+
+    echo "Version capteur : " . $message->getSoftwareVersion();
+    exit();
 
     if ($message->getFormatMessage() == "uplink") {
 
-      RecordManager::handleUplinkMessage($message);
-      
+      RecordManager::handleUplinkMessage($message, $message->getSoftwareVersion());
+
     } else if ($message->getFormatMessage() == "event") {
 
       RecordManager::handleEventMessage($message);
@@ -59,17 +63,23 @@ class RecordManager extends \Core\Model
     }
   }
 
-  private static function handleUplinkMessage($message)
+  private static function handleUplinkMessage($message, $version = 1.0)
   {
-    EquipementManager::insertStructureType($message->typeStructure);
+    echo "name asser: " . $message->structureName . "\n";
+
+    EquipementManager::insertStructureCategory($message->typeStructure);
+
 
     $success = RecordManager::insertRecordData($message);
-    //$success = true;
+
+
+
+    $success = true;
     if ($success) {
       if ($message->typeMsg == "choc") {
 
         $choc = new Choc($message->msgDecoded);
-
+        exit();
         if (!ChocManager::insertChoc($choc)) {
           return false;
         }
@@ -88,7 +98,7 @@ class RecordManager extends \Core\Model
           //Send alert
           AlertManager::sendAlert($alert, $message->group);
 
-          
+
         }
       }
       //battery data
@@ -110,10 +120,10 @@ class RecordManager extends \Core\Model
         //Insert temperature
         $currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
         TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
-        
+
         $inclinometreManager = new InclinometerManager();
         $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
-        
+
         if ($hasAlertArr["alertOnX"]) {
           $label = "high_inclinometer_variationX";
           $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
@@ -151,20 +161,20 @@ class RecordManager extends \Core\Model
   private static function handleEventMessage($message)
   {
     $label = $message->type;
-  
+
     $alert = new Alert($label, $message->deveui, $message->dateTime);
     $group = SensorManager::getOwner($alert->deveui);
     AlertManager::insertTypeEvent($label);
     AlertManager::insert($alert);
     var_dump($alert);
-    
+
     AlertManager::sendAlert($alert, $group);
   }
 
   /**
-   * Init Pool DB 
-   * A pool is automatically created for each different pair (structure_Id, sensor_Id) 
-   * found in the record table. 
+   * Init Pool DB
+   * A pool is automatically created for each different pair (structure_Id, sensor_Id)
+   * found in the record table.
    *
    * @param string $group_name group to deal with (RTE)
    * @return void
@@ -178,7 +188,7 @@ class RecordManager extends \Core\Model
     foreach ($resultsArr as $coupleArr) {
       $structure_id = $coupleArr["structure_id"];
       $sensor_id = $coupleArr["sensor_id"];
-      //Add to the DB 
+      //Add to the DB
       if (RecordManager::insertPoolData($structure_id, $sensor_id)) {
         echo "(Structure_id : " . $structure_id . ", Sensor_id : " . $sensor_id . ") \n";
       }
@@ -214,14 +224,14 @@ class RecordManager extends \Core\Model
     }
   }
 
-  /** 
+  /**
    * Get the pool id from a structure and a sensor
    *
    * @param int $structure_id id of the structure
-   * @param int $sensor_id id of the sensor  
+   * @param int $sensor_id id of the sensor
    * @return int results of the query
    *  id of the pool
-   * 
+   *
    */
   public function getPoolId($structure_id, $sensor_id)
   {
@@ -244,12 +254,12 @@ class RecordManager extends \Core\Model
     }
   }
 
-  /** 
+  /**
    * Get all the sensor ID from all the pool
    *
    * @return array results of the query
-   *  sensor_id 
-   * 
+   *  sensor_id
+   *
    */
   public function getAllSensorIdFromPool()
   {
@@ -267,8 +277,8 @@ class RecordManager extends \Core\Model
 
   /**
    * Insert Pool Data to Database
-   * @param int $structure_id 
-   * @param int $sensor_id 
+   * @param int $structure_id
+   * @param int $sensor_id
    * @return void
    */
   public static function insertPoolData($structure_id, $sensor_id)
@@ -278,7 +288,7 @@ class RecordManager extends \Core\Model
 
     $sql = "INSERT INTO pool(structure_id, sensor_id)
     SELECT :structure_id, :sensor_id
-    WHERE NOT EXISTS (SELECT * FROM pool 
+    WHERE NOT EXISTS (SELECT * FROM pool
           WHERE structure_id=:structure_id AND sensor_id=:sensor_id LIMIT 1)";
 
     $db = static::getDB();
@@ -314,14 +324,44 @@ class RecordManager extends \Core\Model
   public static function insertRecordData($message)
   {
 
+    $data_record = "INSERT INTO record
+                  (`sensor_id`,
+                  `structure_id`,
+                  `payload`,
+                  `date_time`,
+                  `msg_type`,
+                  `longitude`,
+                  `latitude`)
+          SELECT * FROM   (
+          SELECT (
+                  SELECT id
+                  FROM   sensor
+                  WHERE  deveui = :deveui_sensor),
+                  (SELECT structure.id
+                      FROM   structure
+                            LEFT JOIN attr_transmission_line
+                                    ON structure.attr_transmission_id = attr_transmission_line.id
+                      WHERE  structure.nom = :name_asset
+                            AND attr_transmission_line.name LIKE :transmission_line_name),
+                    :payload_raw,
+                    :date_time,
+                    :type_msg,
+                    :longitude,
+                    :latitude) AS id_record
+      WHERE  NOT EXISTS (SELECT date_time
+                        FROM   record
+                        WHERE  date_time = :date_time)
+      LIMIT  1 ";
+    /*
     $data_record = 'INSERT INTO  record (`sensor_id`,  `structure_id`, `payload`, `date_time`,  `msg_type`,`longitude`, `latitude`)
     SELECT * FROM
-    (SELECT (SELECT id FROM sensor WHERE deveui LIKE :deveui_sensor),
+    (SELECT (SELECT id FROM sensor WHERE deveui = :deveui_sensor),
     (SELECT id FROM structure WHERE nom = :name_asset and structure.transmision_line_name = :transmission_line_name),
     :payload_raw, :date_time, :type_msg, :longitude, :latitude) AS id_record
     WHERE NOT EXISTS (
       SELECT date_time FROM record WHERE date_time = :date_time
     ) LIMIT 1';
+    */
 
     $db = static::getDB();
     $stmt = $db->prepare($data_record);
@@ -338,28 +378,28 @@ class RecordManager extends \Core\Model
     $stmt->execute();
     $count = $stmt->rowCount();
     if ($count == '0') {
-      echo "\n0 rows were affected\n";
+      echo "\n[record] No new record inserted\n";
       return false;
     } else {
-      echo "\nSuccess: At least 1 row was affected.\n";
+      echo "\n[record] Success: new record insert.\n";
       return true;
     }
   }
 
 
-  /** 
+  /**
    * Get the last date of the last message received by a specific sensor
    *
-   * @param int $sensor_id if of a sensor  
+   * @param int $sensor_id if of a sensor
    * @return array results of the query
    *  date
-   * 
+   *
    */
   public function getLastDateRecordForSensor($sensor_id = 0)
   {
     $db = static::getDB();
-    $sql_last_date = "SELECT s.device_number, MAX(DATE(r.date_time)) as dateMaxReceived 
-      FROM record AS r 
+    $sql_last_date = "SELECT s.device_number, MAX(DATE(r.date_time)) as dateMaxReceived
+      FROM record AS r
       LEFT JOIN sensor AS s ON (s.id = r.sensor_id) ";
     //All date
     if ($sensor_id != 0) {
@@ -378,13 +418,13 @@ class RecordManager extends \Core\Model
     }
   }
 
-  /** 
+  /**
    * Get the date of the last message received on a specific structure
    *
-   * @param int $structure_id id of the equipement  
+   * @param int $structure_id id of the equipement
    * @return string results of the query
    *  date
-   * 
+   *
    */
   public static function getDateLastReceivedData($structure_id)
   {
@@ -402,11 +442,11 @@ class RecordManager extends \Core\Model
     }
   }
 
-  /** 
+  /**
    * Get the min and max date from table record
-   *  
+   *
    * @return array results of the query
-   * 
+   *
    */
   public static function getDateMinMaxFromRecord()
   {
@@ -431,13 +471,13 @@ class RecordManager extends \Core\Model
     }
   }
 
-  /** 
+  /**
    * Get a summarize of the records table
    *
-   * @param string $group_name group  
+   * @param string $group_name group
    * @return array results of the query
-   *  sensor_id | site | ligneHT | equipement | nb_messages | nb_chocs | last_message_received | status 
-   * 
+   *  sensor_id | site | ligneHT | equipement | nb_messages | nb_chocs | last_message_received | status
+   *
    */
   public static function getBriefInfoFromRecord($group_name)
   {
@@ -445,63 +485,63 @@ class RecordManager extends \Core\Model
     $db = static::getDB();
 
     $query_get_number_record = "
-    SELECT 
-    sensor_id, 
+    SELECT
+    sensor_id,
     deveui,
-    site, 
-    ligneHT, 
-    equipement, 
+    site,
+    ligneHT,
+    equipement,
     nb_messages,
-    nb_choc, 
+    nb_choc,
     DATE_FORMAT(
       last_message_received, '%d/%m/%Y %H:%i:%s'
     ) AS `last_message_received` ,
     DATE_FORMAT(date_installation, '%d/%m/%Y') AS 'date_installation',
     status
-   FROM 
+   FROM
     (
-      SELECT 
-        sensor.device_number AS 'sensor_id', 
+      SELECT
+        sensor.device_number AS 'sensor_id',
         sensor.deveui AS 'deveui',
         sensor.installation_date AS 'date_installation',
-        s.nom AS `site`, 
+        s.nom AS `site`,
         sensor.status AS status,
-        st.transmision_line_name AS `LigneHT`, 
-        st.nom AS `equipement`, 
+        st.transmision_line_name AS `LigneHT`,
+        st.nom AS `equipement`,
         sum(
           case when msg_type = 'choc' then 1 else 0 end
-        ) AS 'nb_choc', 
-        count(*) AS 'nb_messages', 
+        ) AS 'nb_choc',
+        count(*) AS 'nb_messages',
         Max(
           r.date_time
-        ) AS `last_message_received` 
-      FROM 
+        ) AS `last_message_received`
+      FROM
         sensor
         LEFT JOIN record AS r ON (r.sensor_id = sensor.id)
-        LEFT JOIN structure AS st ON st.id = r.structure_id 
-        LEFT JOIN site AS s ON s.id = st.site_id 
-        LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id) 
-        LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id) 
-      WHERE 
-        gn.name = :group_name 
-      
-      GROUP BY 
+        LEFT JOIN structure AS st ON st.id = r.structure_id
+        LEFT JOIN site AS s ON s.id = st.site_id
+        LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
+        LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+      WHERE
+        gn.name = :group_name
+
+      GROUP BY
         sensor.deveui,
         sensor.device_number,
         sensor.installation_date,
         sensor.status,
-        r.sensor_id, 
-        st.nom, 
-        s.nom, 
+        r.sensor_id,
+        st.nom,
+        s.nom,
         st.transmision_line_name
     ) AS all_message_rte_sensor";
-    //  AND Date(r.date_time) >= Date(sensor.installation_date) 
+    //  AND Date(r.date_time) >= Date(sensor.installation_date)
     $stmt = $db->prepare($query_get_number_record);
     $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
       $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      //Get variation inclinometer 
+      //Get variation inclinometer
       $newDataArr = array();
       foreach ($res as $data) {
         $deveui = $data["deveui"];
@@ -534,13 +574,13 @@ class RecordManager extends \Core\Model
   }
 
 
-  /** 
+  /**
    * Get the data for displaying the map
    *
-   * @param string $group_name group  
+   * @param string $group_name group
    * @return array results of the query
-   *  sensor_id | latitude_site | longitude_site | latitude_sensor | longitude_sensor | site | equipement 
-   * 
+   *  sensor_id | latitude_site | longitude_site | latitude_sensor | longitude_sensor | site | equipement
+   *
    */
   public static function getDataMap($group_name)
   {
@@ -632,7 +672,7 @@ class RecordManager extends \Core\Model
 
     $db = static::getDB();
 
-    $sql =  "SELECT sensor.device_number AS `sensorID`, 
+    $sql =  "SELECT sensor.device_number AS `sensorID`,
     DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS `dateTime`,
     r.msg_type AS `typeMessage`, s.nom AS `site`, st.nom AS `equipement`
     FROM record as r
@@ -684,7 +724,7 @@ class RecordManager extends \Core\Model
     JOIN sensor ON (sensor.id=r.sensor_id)
     JOIN structure as st ON (st.id=r.structure_id)
     JOIN site as s ON (s.id=st.site_id)
-    WHERE sp.subspectre_number = '001' AND r.sensor_id = :sensor_id 
+    WHERE sp.subspectre_number = '001' AND r.sensor_id = :sensor_id
     AND Date(r.date_time) >= Date(sensor.installation_date) ";
     if (!empty($dateMin) && !empty($dateMax)) {
       $query_all_dates .= "AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
@@ -708,7 +748,7 @@ class RecordManager extends \Core\Model
         JOIN structure as st ON (st.id=r.structure_id)
         JOIN site as s ON (s.id=st.site_id)
         WHERE r.sensor_id = :sensor_id AND r.date_time >= '$current_date'
-        ORDER BY r.date_time ASC 
+        ORDER BY r.date_time ASC
         LIMIT 5";
 
         $stmt = $db->prepare($query_all_spectre_i);
@@ -829,12 +869,12 @@ class RecordManager extends \Core\Model
   }
 
 
-  /** 
+  /**
    * Get the datatype ID in the DB from the name
    *
-   * @param string $name name of the datatype 
+   * @param string $name name of the datatype
    * @return int id
-   * 
+   *
    */
   public function getDataTypeIdFromName($name)
   {

@@ -32,7 +32,7 @@ $router = new Core\Router();
  * PAGES
  */
 
- /** 
+ /**
   * ACTION PAGES
 
   */
@@ -73,7 +73,7 @@ $router->add('{controller}/{action}');
 $router->add('{controller}/{id:\d+}/{action}');
 
 //TESTING
-$router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'testChoc']);
+$router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'receiveRawDataFromObjenious']);
 $router->add('alerts-test', ['controller' => 'ControllerAlert', 'action' => 'getAlertsFromAPI']);
 $router->add('go', ['controller' => 'ControllerInit', 'action' => 'goTimeSeries']);
 $router->add('go2', ['controller' => 'ControllerInit', 'action' => 'goTestTimeSeries']);
