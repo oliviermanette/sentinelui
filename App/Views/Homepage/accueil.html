@@ -205,7 +205,7 @@
 
 
   $(document).ready(function () {
-    
+
     var date = Date();
     fetchDataMap(showMap);
 
@@ -250,7 +250,7 @@
         {
         "": ""
         },
-    
+
       ],
       "columnDefs": [{
         "targets": 8,
@@ -274,11 +274,11 @@
             return '<b>' + status +'</b>';
         }
         }
-        
+
       ],
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var status = aData["status"];
-        if (status == "active") {
+        if (status == "ACTIVE") {
           $('td', nRow).css({
             //green
             "background-color": "rgba(152,251,152, 0.15)"
@@ -289,7 +289,7 @@
             "background-color": "rgba(254, 16, 16, 0.15)"
           })
         }
-      },      
+      },
       "lengthMenu": [
         [10, 25, 50, -1],
         [10, 25, 50, 'All']
