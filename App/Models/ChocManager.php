@@ -99,7 +99,7 @@ class ChocManager extends \Core\Model
     s.nom AS site,
     st.nom AS equipement,
     st.transmision_line_name AS ligneHT,
-    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
+    r.date_time as date_time,
     r.payload,
     r.msg_type AS 'Type message',
     amplitude_1,
@@ -120,7 +120,7 @@ class ChocManager extends \Core\Model
     WHERE
     gn.name = :group_name
     AND Date(r.date_time) >= Date(sensor.installation_date)
-    ORDER BY date_d DESC
+    ORDER BY r.date_time DESC
     ";
 
     $stmt = $db->prepare($sql_choc_data);

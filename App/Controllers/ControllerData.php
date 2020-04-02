@@ -174,7 +174,7 @@ class ControllerData extends Authenticated
         $equipement_id = $equipement['equipement_id'];
         $equipement_pylone = $equipement['equipement'];
         $equipement_name = $equipement['ligneHT'];
-        
+
         //Get the sensor ID on the associated structure
         $sensor_id = EquipementManager::getSensorIdOnEquipement($equipement_id);
         //Get the device number
@@ -333,7 +333,7 @@ class ControllerData extends Authenticated
       $startDate = $_POST['startDate'];
       $endDate = $_POST['endDate'];
       $searchByDate = true;
-      
+
     }
 
     //Attention à la date valide (inferieur data d'activité et installation)
@@ -356,9 +356,9 @@ class ControllerData extends Authenticated
         $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
         $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
       }
-            
+
       $allStructureData["equipement_0"] = array(
-        
+
         'deveui' => $deveui,
         'sensor_id' => $sensor_id,
         'equipement_name' => $equipement_pylone,
@@ -416,7 +416,7 @@ class ControllerData extends Authenticated
     $requestedDate = $_GET['requestedDate'];
 
     $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $equipement_id, $requestedDate);
-    
+
     $timeSerie = new TimeSeries();
     $timeSerie->createFromSpectreArr($allSubSpectresArr);
     //print_r($timeSerie->getTimeSerieData());
@@ -437,6 +437,7 @@ class ControllerData extends Authenticated
     $group_name = $_SESSION['group_name'];
 
     $equipementManager = new EquipementManager();
+
     $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
     View::renderTemplate('Others/changeEquipementForm.html', [
       'all_equipment' => $all_equipment,

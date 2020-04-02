@@ -138,8 +138,7 @@ class EquipementManager extends \Core\Model
 
     $sql_query_equipement_by_id = "SELECT DISTINCT equipement_id, equipement, ligneHT, nomSite FROM
     (SELECT  gs.sensor_id, site.nom AS nomSite, site.id AS site_id, st.transmision_line_name AS ligneHT, st.nom AS equipement, st.id AS equipement_id FROM structure AS st
-      INNER JOIN record AS r ON (r.structure_id=st.id)
-      INNER JOIN sensor AS s ON (s.id = r.sensor_id)
+      INNER JOIN sensor AS s ON (s.structure_id = st.id)
       INNER JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
       INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
       LEFT JOIN site ON (site.id=st.site_id)
