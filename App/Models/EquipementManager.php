@@ -218,8 +218,7 @@ class EquipementManager extends \Core\Model
 
     $sql_equipement_id = "SELECT DISTINCT structure.id AS equipement_id
     FROM structure
-    LEFT JOIN record as r ON (r.structure_id = structure.id)
-    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    LEFT JOIN sensor ON (sensor.structure_id = structure.id)
     WHERE sensor.deveui = :deveui";
 
     $stmt = $db->prepare($sql_equipement_id);
