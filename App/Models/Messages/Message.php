@@ -78,6 +78,9 @@ class Message
         }
         if (array_key_exists('Version du firmware', $this->device_properties)) {
             $this->software_version =  $this->device_properties['Version du firmware'];
+            if( strpos($this->software_version, ',') !== false ) {
+                $this->software_version = str_replace(',', '.',$this->software_version);
+            }
         }
     }
 
@@ -624,6 +627,7 @@ class Message
     }
 
      public function getSoftwareVersion(){
+
         return $this->software_version;
     }
 }
