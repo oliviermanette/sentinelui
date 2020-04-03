@@ -25,36 +25,30 @@
                                 {{ infoArr.ligneHT }} | Capteur n°
                                 {{infoArr.device_number}} | ID : {{infoArr.id_device}}</h4>
                             <div class="small text-muted">{{infoArr.toto}}</div>
-
                         </div>
                     </div>
                 </div>
             </div>
             <!-- Widget sensors -->
-            <div class="mt-3 row">
+            <div class="row mt-5">
                 <!-- Statut s Card  -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    {% if infoArr.status == "inactive" %}
-                    <div class="card border-left-danger shadow h-100 py-2">
-                        {% elseif infoArr.status == "active" %}
-                        <div class="card border-left-success shadow h-100 py-2">
-                            {% endif %}
+                <div class="col-md-3 mb-4">
+
+                    <div class="card border-left-{% if infoArr.status == 'INACTIVE' %}danger
+                        {% elseif infoArr.status == 'ACTIVE' %}success{% endif %} shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            Statut
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}
-                                        </div>
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Statut</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
+                    </div>
                     <!-- Capteurs inactifs Card  -->
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
@@ -70,7 +64,7 @@
                     </div>
 
                     <!-- Alertes Card  -->
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
@@ -90,7 +84,7 @@
                     </div>
 
                     <!-- Groupe Card  -->
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
@@ -105,12 +99,12 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
                 </div>
             </div>
             <!-- Informations sensors -->
             <div class="card-body">
-                
+
                 {% include "Sensors/viewInformationsSensor.html" %}
             </div>
             <!-- Activity sensors -->
@@ -330,7 +324,7 @@
             e.preventDefault();
             let deveui = '{{infoArr.deveui}}';
             var lastXdays = $("input[name='options']:checked").val();
-           
+
             removeElement("chartVariationAngleInclinometer");
             addElement("canvasVariationInclinometer", "canvas", "chartVariationAngleInclinometer");
             if (lastXdays === "7") {

@@ -58,11 +58,11 @@ class ControllerSensors extends Authenticated
         $infoArr['id_objenious'] = $id_objenious;
         $infoArr['lastMsgReceived'] = $lastMsgReceived;
         $infoArr['nbreTotMsg'] = $nbreTotMsg;
-        $infoArr['lastBatteryLevel'] = $lastBatteryLevel[0]["battery_level"];
+        $infoArr['lastBatteryLevel'] = $lastBatteryLevel;
 
         //Data map
         $dataMapArr = json_encode($infoArr);
-        
+
         //get activity of sensors
         $recordRawArr = SensorManager::getRecordsFromDeveui($deveui);
         $date_min_max = SensorManager::getDateMinMaxActivity($deveui);
@@ -85,16 +85,16 @@ class ControllerSensors extends Authenticated
         $positionInstallation = SensorManager::getPositionInstallation($deveui);
 
         //var_dump($inclinaisonRefArr);
-        
+
         //1.Variation 1 month (30 days)
         $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 30, $precision = 3);
         //2.Variation 1 week (7 days)
         $variationWeekArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 7, $precision = 3);
-        //3.Variation 1 day 
+        //3.Variation 1 day
         $variationDayArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 1, $precision = 3);
 
         $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
-        
+
         //4. chart data
         //Inclinometer raw data
         $inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
@@ -142,7 +142,7 @@ class ControllerSensors extends Authenticated
         //Alerts
         $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name, $deveui);
         $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($group_name, $deveui);
-        
+
 
         View::renderTemplate('Sensors/infoDevice.html', [
             'deveui' => $deveui,
@@ -179,12 +179,12 @@ class ControllerSensors extends Authenticated
 
     public function getChartDataNbChocAction(){
         if (isset($_POST["deveui"]) && isset($_POST["startDate"]) && isset($_POST["endDate"])){
-            
+
             $startDate = $_POST["startDate"];
             $endDate = $_POST["endDate"];
             $deveui = $_POST["deveui"];
             $nbChocData = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
-            
+
 
             print json_encode($nbChocData);
         }
@@ -255,7 +255,7 @@ class ControllerSensors extends Authenticated
 
                 $timestamp = time();
                 $filename = 'Export_data_sensors_'.$deveui.'_' . $timestamp . '.xls';
-                
+
                 header("Content-Type: application/vnd.ms-excel");
                 header("Content-Disposition: attachment; filename=\"$filename\"");
 
