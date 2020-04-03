@@ -1,7 +1,7 @@
 Chart.defaults.global.plugins.datalabels.display = false;
 
 /**
- * @desc Draw chart for displaying number of choc per day 
+ * @desc Draw chart for displaying number of choc per day
  * @param json data - data which contain nb of choc and date
  * @return chart instance
  */
@@ -22,7 +22,7 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
       date.push(data[i].date_d);
     }
 
-    //Create the dataset 
+    //Create the dataset
     var chartdata = {
       labels: date,
       datasets: [{
@@ -239,7 +239,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
 
 
     //Create chart data
-    // We will fill later the datasets 
+    // We will fill later the datasets
     var chartdata = {
       labels: [],
       datasets: [{
@@ -395,7 +395,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
       chartInstance.update();
 
       var count = 0;
-      //Convert to float 
+      //Convert to float
       var powerValueArray = value.powerValues.map(function (v) {
         return parseFloat(v);
       });
@@ -1018,7 +1018,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
         // Boolean to enable panning
         enabled: true,
         drag: dragOptions,
-        // Panning directions. Remove the appropriate direction to disable 
+        // Panning directions. Remove the appropriate direction to disable
         // Eg. 'y' would only allow panning in the y direction
         mode: 'y'
       },
@@ -1027,7 +1027,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
       zoom: {
         // Boolean to enable zooming
         enabled: true,
-        // Zooming directions. Remove the appropriate direction to disable 
+        // Zooming directions. Remove the appropriate direction to disable
         // Eg. 'y' would only allow zooming in the y direction
         mode: 'y',
         // Speed of zoom via mouse wheel
@@ -1065,9 +1065,9 @@ function drawNoDataAvailable(canvaID) {
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = "22px normal 'Helvetica Nueue'";
+        ctx.font = "35px normal 'Helvetica Nueue'";
         ctx.fillStyle = "gray";
-        ctx.fillText('Pas de données disponible', width / 2, height / 2);
+        ctx.fillText('Pas encore de ce type de données disponible pour ce capteur', width / 2, height / 2);
         ctx.restore();
       }
     }

@@ -134,6 +134,7 @@
             <!-- Alert sensors -->
             <div id="alertsStructure" class="card-body">
                 <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi des alertes</h3>
+
                 <h4 class="card-title">Alertes relevées par le capteur</h4>
                 {% for message in flash_alerts %}
                 <div class="alert alert-{{ message.type }}" role="alert">
