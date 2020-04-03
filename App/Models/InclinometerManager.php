@@ -529,6 +529,42 @@ class InclinometerManager extends \Core\Model
     }
   }
 
+   /**
+   * Insert battery data to the database for sentinel 2.0
+   * @param json $battery_data_json json array which contain the data to insert
+   * @return array
+   */
+  public static function insertBattery($inclinometer)
+  {
+
+    $sql_data_record_battery = 'INSERT INTO  global (`record_id`, `battery_level`)
+      SELECT * FROM
+      (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui)) AS record_id,
+      :battery AS battery) AS id_record
+      WHERE NOT EXISTS (
+      SELECT record_id FROM global WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
+      AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui))
+      ) LIMIT 1';
+
+    $db = static::getDB();
+    $stmt = $db->prepare($sql_data_record_battery);
+
+    $stmt->bindValue(':date_time', $inclinometer->dateTime, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $inclinometer->deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':battery', floatval($inclinometer->battery_left), PDO::PARAM_STR);
+
+    $stmt->execute();
+
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      echo "\n0 battery were affected\n";
+      return false;
+    } else {
+      echo "\n 1 battery data was affected.\n";
+      return true;
+    }
+  }
 
   /**
    * Compute variation (%) of inclinometer data from today to a specific date in term of days

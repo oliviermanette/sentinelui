@@ -47,9 +47,10 @@ class RecordManager extends \Core\Model
     $message = new Message($data);
 
     if ($message->getFormatMessage() == "uplink") {
+
       echo "Message port : " . $message->getPortMessage() . "\n";
       echo "Version capteur : " . $message->getSoftwareVersion(). "\n";
-      RecordManager::handleUplinkMessage($message, $message->getSoftwareVersion());
+      RecordManager::handleUplinkMessage($message);
 
     } else if ($message->getFormatMessage() == "event") {
 
@@ -60,7 +61,7 @@ class RecordManager extends \Core\Model
     }
   }
 
-  private static function handleUplinkMessage($message, $version = 1.0)
+  private static function handleUplinkMessage($message)
   {
     echo "name asser: " . $message->structureName . "\n";
 
@@ -68,8 +69,7 @@ class RecordManager extends \Core\Model
 
 
     $success = RecordManager::insertRecordData($message);
-
-    $success = true;
+    $success = True;
     if ($success) {
       if ($message->typeMsg == "choc") {
 
@@ -108,7 +108,12 @@ class RecordManager extends \Core\Model
       else if ($message->typeMsg == "inclinometre") {
         $inclinometer = new Inclinometer($message->msgDecoded);
 
-
+        var_dump($inclinometer);
+        if (isset($inclinometer->battery_left)){
+          if (!InclinometerManager::insertBattery($inclinometer)) {
+          return false;
+          }
+        }
         if (!InclinometerManager::insertInclinometer($inclinometer)) {
           return false;
         }
