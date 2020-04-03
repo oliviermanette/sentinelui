@@ -69,7 +69,7 @@ class RecordManager extends \Core\Model
 
 
     $success = RecordManager::insertRecordData($message);
-    $success = True;
+
     if ($success) {
       if ($message->typeMsg == "choc") {
 
