@@ -378,11 +378,17 @@ class RecordManager extends \Core\Model
     $stmt->bindValue(':transmission_line_name', $message->transmissionLineName, PDO::PARAM_STR);
     $stmt->bindValue(':message_id', $message->id, PDO::PARAM_STR);
     $stmt->bindValue(':payload_raw', $message->payload_cleartext, PDO::PARAM_STR);
-    $stmt->bindValue(':count_msg', $message->count, PDO::PARAM_STR);
+
+
     $stmt->bindValue(':date_time', $message->dateTime, PDO::PARAM_STR);
     $stmt->bindValue(':type_msg', $message->typeMsg, PDO::PARAM_STR);
     $stmt->bindValue(':longitude', $message->longitude, PDO::PARAM_STR);
     $stmt->bindValue(':latitude', $message->latitude, PDO::PARAM_STR);
+    $count = null;
+    if (property_exists($message, 'count')){
+      $count = $message->count;
+    }
+    $stmt->bindValue(':count_msg', $count, PDO::PARAM_STR);
 
     $stmt->execute();
     $count = $stmt->rowCount();
