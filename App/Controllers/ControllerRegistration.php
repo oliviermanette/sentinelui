@@ -26,7 +26,6 @@ class ControllerRegistration extends \Core\Controller
   }
 
   public function createAction(){
-    //var_dump($_POST);
     $user = new UserManager($_POST);
 
     $view = new View();
