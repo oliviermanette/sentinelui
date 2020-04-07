@@ -44,7 +44,7 @@ class InclinometerManager extends \Core\Model
       $stdDevAngleY = $stdDevInclinaisonArr["stdDevAngleY"];
       $stdDevAngleZ = $stdDevInclinaisonArr["stdDevAngleZ"];
 
-      if ($method == "RANGE"){
+      if ($method == "RANGE") {
         $references_values = InclinometerManager::getValuesReference($inclinometer->deveui, -1);
 
         $date_ref = $references_values["date"];
@@ -69,7 +69,7 @@ class InclinometerManager extends \Core\Model
         if ($diffAngleZ > $inclinometerRangeThresh || $diffAngleZ < -$inclinometerRangeThresh) {
           $alertBoolArr["alertOnZ"] = true;
         }
-      }else if ($method == "STD"){
+      } else if ($method == "STD") {
         switch ($inclinometerTreshSTD) {
           case 1:
             $highTreshX = $avgAngleX + $stdDevAngleX;
@@ -156,12 +156,12 @@ class InclinometerManager extends \Core\Model
           `msg_type` LIKE 'inclinometre'
           AND s.deveui LIKE :deveui ";
 
-        if ($time_period != -1) {
-          $sql_avg .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
-        } else {
-          $sql_avg .= "  AND Date(r.date_time) > s.installation_date ";
-        }
-        $sql_avg .= "
+    if ($time_period != -1) {
+      $sql_avg .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    } else {
+      $sql_avg .= "  AND Date(r.date_time) > s.installation_date ";
+    }
+    $sql_avg .= "
           ORDER BY
             `date_d` DESC) AS inclinaison
           GROUP BY
@@ -226,20 +226,20 @@ class InclinometerManager extends \Core\Model
           `msg_type` LIKE 'inclinometre'
           AND s.deveui LIKE :deveui ";
 
-        if ($time_period != -1) {
-          $sql_stdDev .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
-        } else {
-          $sql_stdDev .= "  AND Date(r.date_time) > s.installation_date ";
-        }
+    if ($time_period != -1) {
+      $sql_stdDev .= " AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    } else {
+      $sql_stdDev .= "  AND Date(r.date_time) > s.installation_date ";
+    }
 
-      $sql_stdDev .= "ORDER BY
+    $sql_stdDev .= "ORDER BY
             `date_d` DESC
           ) AS inclinaison_data
           GROUP BY
           sensor_id
       ";
 
-    $stmt = $db->prepare( $sql_stdDev);
+    $stmt = $db->prepare($sql_stdDev);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
@@ -513,10 +513,10 @@ class InclinometerManager extends \Core\Model
     $stmt->bindValue(':angle_z', $inclinometer->angleZ, PDO::PARAM_STR);
     $stmt->bindValue(':temperature', $inclinometer->temperature, PDO::PARAM_STR);
     $battery_left = null;
-    if (property_exists($inclinometer, 'battery_left')){
-        $battery_left =$inclinometer->battery_left;
+    if (property_exists($inclinometer, 'battery_left')) {
+      $battery_left = $inclinometer->battery_left;
     }
-    $stmt->bindValue(':battery_left',$battery_left, PDO::PARAM_STR);
+    $stmt->bindValue(':battery_left', $battery_left, PDO::PARAM_STR);
     $stmt->execute();
 
     $count = $stmt->rowCount();
@@ -529,7 +529,7 @@ class InclinometerManager extends \Core\Model
     }
   }
 
-   /**
+  /**
    * Insert battery data to the database for sentinel 2.0
    * @param json $battery_data_json json array which contain the data to insert
    * @return array
@@ -582,7 +582,7 @@ class InclinometerManager extends \Core\Model
   {
     $db = static::getDB();
 
-    if ($percentage){
+    if ($percentage) {
       $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui,
       ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
       IFNULL(ROUND((sum(ABS(newAngleX - oldAngleX))/newAngleX)*100, :precision),0) AS pourcentage_variation_angleX,
@@ -592,8 +592,7 @@ class InclinometerManager extends \Core\Model
       ROUND((sum(ABS(newAngleZ - oldAngleZ))/newAngleZ)*100,:precision) as pourcentage_variation_angleZ,
       newTemp,oldTemp,
       ROUND((sum(ABS(newTemp - oldTemp))/newTemp)*100,1) as variation_temperature ";
-
-    }else {
+    } else {
       $sql_variation_angle = "SELECT first_date, last_date, new_values_inclinometer.deveui,
       ROUND(newAngleX,:precision) AS newAngleX, ROUND(oldAngleX,:precision) AS oldAngleX,
       ROUND(sum(newAngleX - oldAngleX), :precision) AS pourcentage_variation_angleX,
@@ -712,6 +711,30 @@ class InclinometerManager extends \Core\Model
     return $references_values;
   }
 
+  public static function computeDirectionVariationForLast($deveui, $time_period = -1)
+  {
+    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
+    $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+    $variationDirectionArr = array();
+    foreach ($percentageVariationDayArr as $array) {
+      $x_deg = $array["variationAngleX"];
+      $y_deg = $array["variationAngleY"];
+      $x_rad = (pi() / 180) * $x_deg;
+      $y_rad = (pi() / 180) * $y_deg;
+
+      $delta_x_cm = (tan($x_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
+      $delta_y_cm = (tan($y_rad) * $equipment_height) * 100;
+
+      //echo "(", $delta_x . ", " . $delta_y . ")\n";
+      $tmpArr = array(
+        "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
+      );
+      array_push($variationDirectionArr, $tmpArr);
+    }
+
+    return $variationDirectionArr;
+  }
+
   /**
    * Compute daily variation of inclinometer data from today until the last X days. To compute the
    * variation, we first get the reference value of measurement. We assume that this is the first record
@@ -775,13 +798,13 @@ class InclinometerManager extends \Core\Model
       $angleX = $values["angle_x"];
       $angleY = $values["angle_y"];
       $angleZ = $values["angle_z"];
-      if ($percentage){
+      if ($percentage) {
         $temperature = $values["temperature"];
         $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
         $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
         $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
         $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
-      }else {
+      } else {
         $temperature = $values["temperature"];
         $variationAngleX = $angleX - $angleX_ref;
         $variationAngleY = $angleY - $angleY_ref;
@@ -1172,9 +1195,9 @@ class InclinometerManager extends \Core\Model
         AND Date(r.date_time) > Date(s.installation_date)
         AND s.deveui = :deveui  ";
 
-        if ($time_period != -1) {
+    if ($time_period != -1) {
       $sql_data_inclinometer .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
-        }
+    }
 
     $sql_data_inclinometer .= " ORDER BY r.date_time ASC";
 
@@ -1227,6 +1250,4 @@ class InclinometerManager extends \Core\Model
       return $all_temp;
     }
   }
-
-
 }

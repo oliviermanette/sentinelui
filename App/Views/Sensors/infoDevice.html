@@ -221,6 +221,10 @@
                 "iDisplayLength": 10
             });
 
+            //Draw direction inclinometer
+            let variationDirection = '{{ variationDirectionArr|raw}}';
+            drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer");
+
             //Draw chart inclinometer monthly
             let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
             drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);

@@ -32,10 +32,10 @@ $router = new Core\Router();
  * PAGES
  */
 
- /**
-  * ACTION PAGES
+/**
+ * ACTION PAGES
 
-  */
+ */
 //Homepage
 $router->add('', ['controller' => 'ControllerAccueil', 'action' => 'index']);
 //New login
@@ -75,6 +75,7 @@ $router->add('{controller}/{id:\d+}/{action}');
 //TESTING
 $router->add('data-test', ['controller' => 'ControllerDataObjenious', 'action' => 'receiveRawDataFromObjenious']);
 $router->add('alerts-test', ['controller' => 'ControllerAlert', 'action' => 'getAlertsFromAPI']);
+$router->add('test-sql', ['controller' => 'ControllerDataObjenious', 'action' => 'testSQL']);
 $router->add('go', ['controller' => 'ControllerInit', 'action' => 'goTimeSeries']);
 $router->add('go2', ['controller' => 'ControllerInit', 'action' => 'goTestTimeSeries']);
 $router->add('api-test', ['controller' => 'ControllerInit', 'action' => 'testApi']);
@@ -82,5 +83,3 @@ $router->add('fill-weather', ['controller' => 'ControllerInit', 'action' => 'fil
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);
-
-

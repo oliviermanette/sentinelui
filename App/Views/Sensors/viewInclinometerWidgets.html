@@ -48,73 +48,105 @@
                 </div>
             </div>
         </div>
-            <!-- CHART Inclinometre angle  -->
-            <div class="card-header py-3 d-flex justify-content-center">
-                <div class="row justify-content-center">
-                    <div class="col">
-                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
-                            <div id="{{val.equipementId}}">
-                                <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-2"
-                                    data-toggle="buttons">
-                                    <label class="btn btn-outline-secondary">
-                                        <input id="option1" type="radio" name="options" autocomplete="off" value="-1"
-                                            checked=""> Depuis l'installation
-                                    </label>
-                                    <label class="btn btn-outline-secondary">
-                                        <input id="option2" type="radio" name="options" autocomplete="off" value="7">
-                                        Dernier 7 jours
-                                    </label>
-                                    <label class="btn btn-outline-secondary active">
-                                        <input id="option3" type="radio" name="options" autocomplete="off" value="30">
-                                        Dernier 30 jours
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!--  Scatter CHART  direction  -->
+        <div class="card-header py-3 d-flex justify-content-center">
             <div class="row justify-content-center">
-                <div class="col-md-12">
-                    <div class="canvasInclinometer">
-                        <canvas id="chartAngleInclinometer"></canvas>
-                    </div>
+                <div class="col">
+                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Direction </h3>
                 </div>
             </div>
-
-            <!-- CHART percentage variation Inclinometre  -->
-            <div class="card-header py-3 d-flex justify-content-center">
-                <div class="row justify-content-center">
-                    <div class="col">
-                        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
-                            <div id="{{val.equipementId}}">
-                                <div id="radioButtonPercentageVariationInclinometer"
-                                    class="btn-group btn-group-toggle mx-2" data-toggle="buttons">
-                                    <label class="btn btn-outline-secondary active">
-                                        <input type="radio" name="options" autocomplete="off" value="1" checked="">
-                                        Journalier
-                                    </label>
-                                    <label class="btn btn-outline-secondary">
-                                        <input type="radio" name="options" autocomplete="off" value="7">
-                                        Hebdomadaire
-                                    </label>
-                                    <label class="btn btn-outline-secondary">
-                                        <input type="radio" name="options" autocomplete="off" value="30">
-                                        Mensuelle
-                                    </label>
-                                </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="canvasDirectionInclinometer">
+                    <canvas id="chartDirectionInclinometer"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Scatter CHART  direction   -->
+        <!--  line  CHART  vitesse  -->
+        <div class="card-header py-3 d-flex justify-content-center">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Vitesse </h3>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="canvasVitesseInclinometer">
+                    <canvas id="chartVitesseInclinometer"></canvas>
+                </div>
+            </div>
+        </div>
+        <!--line  CHART  vitesse    -->
+        <!-- CHART Inclinometre angle  -->
+        <div class="card-header py-3 d-flex justify-content-center">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                        <div id="{{val.equipementId}}">
+                            <div id="radioButtonInclinometer" class="btn-group btn-group-toggle mx-2"
+                                data-toggle="buttons">
+                                <label class="btn btn-outline-secondary">
+                                    <input id="option1" type="radio" name="options" autocomplete="off" value="-1"
+                                        checked=""> Depuis l'installation
+                                </label>
+                                <label class="btn btn-outline-secondary">
+                                    <input id="option2" type="radio" name="options" autocomplete="off" value="7">
+                                    Dernier 7 jours
+                                </label>
+                                <label class="btn btn-outline-secondary active">
+                                    <input id="option3" type="radio" name="options" autocomplete="off" value="30">
+                                    Dernier 30 jours
+                                </label>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center mb-5">
-                <div class="col-md-12">
-                    <div id="canvasVariationInclinometer">
-                        <canvas id="chartVariationAngleInclinometer"></canvas>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="canvasInclinometer">
+                    <canvas id="chartAngleInclinometer"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHART percentage variation Inclinometre  -->
+        <div class="card-header py-3 d-flex justify-content-center">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                        <div id="{{val.equipementId}}">
+                            <div id="radioButtonPercentageVariationInclinometer" class="btn-group btn-group-toggle mx-2"
+                                data-toggle="buttons">
+                                <label class="btn btn-outline-secondary active">
+                                    <input type="radio" name="options" autocomplete="off" value="1" checked="">
+                                    Journalier
+                                </label>
+                                <label class="btn btn-outline-secondary">
+                                    <input type="radio" name="options" autocomplete="off" value="7">
+                                    Hebdomadaire
+                                </label>
+                                <label class="btn btn-outline-secondary">
+                                    <input type="radio" name="options" autocomplete="off" value="30">
+                                    Mensuelle
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-12">
+                <div id="canvasVariationInclinometer">
+                    <canvas id="chartVariationAngleInclinometer"></canvas>
+                </div>
+            </div>
+        </div>
 
         {% for row in totalVariationArr %}
 

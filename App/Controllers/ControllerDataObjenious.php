@@ -5,6 +5,8 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Models\RecordManager;
+use \App\Models\InclinometerManager;
+use \App\Models\EquipementManager;
 use App\Models\API\TemperatureAPI;
 
 ini_set('error_reporting', E_ALL);
@@ -22,14 +24,16 @@ This class handle this HTTP request
 /data
 
 */
-class ControllerDataObjenious extends \Core\Controller{
+class ControllerDataObjenious extends \Core\Controller
+{
 
 
   /**
    * When Objenious send an uplink, it goes here
    * @return void
    */
-  public function receiveRawDataFromObjeniousAction(){
+  public function receiveRawDataFromObjeniousAction()
+  {
     //Get the JSON content from the HTTP request
     $data = json_decode(file_get_contents('php://input'), true);
     //Parse the JSON content to insert into the DB
@@ -52,7 +56,11 @@ class ControllerDataObjenious extends \Core\Controller{
     $recordManager->parseJsonDataAndInsert($data);
   }
 
+  public function testSQLAction()
+  {
+    $deveui = '0004A30B00E829A7';
+    $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui);
 
-
-  
+    var_dump($variationDirectionArr);
+  }
 }

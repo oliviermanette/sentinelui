@@ -84,7 +84,8 @@ class EquipementManager extends \Core\Model
    * @return array results of the query
    *  equipement_id | equipement | ligneHT
    */
-  public static function getEquipementFromId($structure_id){
+  public static function getEquipementFromId($structure_id)
+  {
     $db = static::getDB();
 
     $sql_query_equipement_by_id = "SELECT
@@ -107,7 +108,8 @@ class EquipementManager extends \Core\Model
     }
   }
 
-  public static function getSiteLocation($structure_id){
+  public static function getSiteLocation($structure_id)
+  {
     $db = static::getDB();
 
     $sql = "SELECT site.nom FROM site
@@ -229,6 +231,30 @@ class EquipementManager extends \Core\Model
       if (isset($sensor_id_res[0])) {
         return $sensor_id_res[0]['equipement_id'];
       }
+    }
+  }
+
+  /**
+   * Get an equipement height from a sensor deveui
+   *
+   * @param int $sensor_id sensor id to get the equipement ID
+   * @return int  sensor id
+   */
+  public static function getEquipementHeightBySensorDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_equipement_id = "SELECT DISTINCT structure.height AS height
+    FROM structure
+    LEFT JOIN sensor ON (sensor.structure_id = structure.id)
+    WHERE sensor.deveui = :deveui";
+
+    $stmt = $db->prepare($sql_equipement_id);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $height = $stmt->fetch(PDO::FETCH_COLUMN);
+      return  $height;
     }
   }
 

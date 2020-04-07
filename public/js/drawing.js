@@ -654,51 +654,51 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
     var chartdata = {
       labels: date,
       datasets: [{
-          fill: true,
-          label: "Température de la station météo",
-          lineTension: 0.1,
-          backgroundColor: "rgba(167,105,0,0.4)",
-          borderColor: "rgb(167, 105, 0)",
-          borderCapStyle: 'butt',
-          borderDash: [],
-          borderDashOffset: 0.0,
-          borderJoinStyle: 'miter',
-          pointBorderColor: "white",
-          pointBackgroundColor: "black",
-          pointBorderWidth: 1,
-          pointHoverRadius: 8,
-          pointHoverBackgroundColor: "brown",
-          pointHoverBorderColor: "yellow",
-          pointHoverBorderWidth: 2,
-          pointRadius: 4,
-          pointHitRadius: 10,
-          spanGaps: true,
-          xAxisID: 'xAxis1',
-          data: officialTemperature
-        },
-        {
-          fill: false,
-          label: "Température du capteur",
-          borderColor: "red",
-          borderWidth: 1,
-          lineTension: 0,
-          borderCapStyle: 'square',
-          borderDash: [], // try [5, 15] for instance
-          borderDashOffset: 0.0,
-          borderJoinStyle: 'miter',
-          pointBorderColor: "black",
-          pointBackgroundColor: "white",
-          pointBorderWidth: 1,
-          pointHoverRadius: 8,
-          pointHoverBackgroundColor: "yellow",
-          pointHoverBorderColor: "brown",
-          pointHoverBorderWidth: 2,
-          pointRadius: 4,
-          pointHitRadius: 10,
-          spanGaps: false,
-          xAxisID: 'xAxis2',
-          data: temperature
-        },
+        fill: true,
+        label: "Température de la station météo",
+        lineTension: 0.1,
+        backgroundColor: "rgba(167,105,0,0.4)",
+        borderColor: "rgb(167, 105, 0)",
+        borderCapStyle: 'butt',
+        borderDash: [],
+        borderDashOffset: 0.0,
+        borderJoinStyle: 'miter',
+        pointBorderColor: "white",
+        pointBackgroundColor: "black",
+        pointBorderWidth: 1,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: "brown",
+        pointHoverBorderColor: "yellow",
+        pointHoverBorderWidth: 2,
+        pointRadius: 4,
+        pointHitRadius: 10,
+        spanGaps: true,
+        xAxisID: 'xAxis1',
+        data: officialTemperature
+      },
+      {
+        fill: false,
+        label: "Température du capteur",
+        borderColor: "red",
+        borderWidth: 1,
+        lineTension: 0,
+        borderCapStyle: 'square',
+        borderDash: [], // try [5, 15] for instance
+        borderDashOffset: 0.0,
+        borderJoinStyle: 'miter',
+        pointBorderColor: "black",
+        pointBackgroundColor: "white",
+        pointBorderWidth: 1,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: "yellow",
+        pointHoverBorderColor: "brown",
+        pointHoverBorderWidth: 2,
+        pointRadius: 4,
+        pointHitRadius: 10,
+        spanGaps: false,
+        xAxisID: 'xAxis2',
+        data: temperature
+      },
       ]
     };
     var canva_id = "#" + canvaID;
@@ -709,20 +709,20 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
       maintainAspectRatio: false,
       scales: {
         xAxes: [{
-            id: 'xAxis1',
-            scaleLabel: {
-              display: true,
-              labelString: 'Date',
-            },
-            ticks: {
-              autoskip: true,
-              maxTicksLimit: 20
-            }
-          }, {
-            id: 'xAxis2',
+          id: 'xAxis1',
+          scaleLabel: {
+            display: true,
+            labelString: 'Date',
+          },
+          ticks: {
             autoskip: true,
             maxTicksLimit: 20
           }
+        }, {
+          id: 'xAxis2',
+          autoskip: true,
+          maxTicksLimit: 20
+        }
 
         ],
         yAxes: [{
@@ -787,26 +787,26 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
   var chartdata = {
     labels: date,
     datasets: [{
-        label: 'X °',
-        fill: false,
-        backgroundColor: 'blue',
-        borderColor: 'blue',
-        data: nx
-      },
-      {
-        label: 'Y °',
-        fill: false,
-        backgroundColor: 'orange',
-        borderColor: 'orange',
-        data: ny
-      },
-      {
-        label: 'Z °',
-        fill: false,
-        backgroundColor: 'green',
-        borderColor: 'green',
-        data: nz
-      }
+      label: 'X °',
+      fill: false,
+      backgroundColor: 'blue',
+      borderColor: 'blue',
+      data: nx
+    },
+    {
+      label: 'Y °',
+      fill: false,
+      backgroundColor: 'orange',
+      borderColor: 'orange',
+      data: ny
+    },
+    {
+      label: 'Z °',
+      fill: false,
+      backgroundColor: 'green',
+      borderColor: 'green',
+      data: nz
+    }
     ]
   };
   var canva_id = "#" + canvaID;
@@ -867,7 +867,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
-  var includeX,  includeY, includeZ = true;
+  var includeX, includeY, includeZ = true;
 
   if (isEmpty(inclinometerData)) {
 
@@ -888,17 +888,17 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
       date.push(inclinometerData[i].date_d);
     }
 
-   switch (excludeAngle) {
-    case 'x':
-       var hiddenX = true;
-       break;
-     case 'y':
-       var hiddenY = true;
-     case 'z':
-       var hiddenZ = true;
-       break;
-     default:
-   }
+    switch (excludeAngle) {
+      case 'x':
+        var hiddenX = true;
+        break;
+      case 'y':
+        var hiddenY = true;
+      case 'z':
+        var hiddenZ = true;
+        break;
+      default:
+    }
     var ratio = 10;
     const avgX = computeAverage(angle_x);
     const avgY = computeAverage(angle_y);
@@ -919,32 +919,32 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
     var chartdata = {
       labels: date,
       datasets: [{
-          label: 'X °',
-          fill: false,
-          backgroundColor: '#20324B',
-          borderColor: '#20324B',
-          data: angle_x,
-          yAxisID: "y-axis-1",
-          hidden: hiddenX,
-        },
-        {
-          label: 'Y °',
-          fill: false,
-          backgroundColor: 'orange',
-          borderColor: 'orange',
-          data: angle_y,
-          yAxisID: "y-axis-1",
-          hidden: hiddenY,
-        },
-        {
-          label: 'Z °',
-          fill: false,
-          backgroundColor: 'royalblue',
-          borderColor: 'royalblue',
-          data: angle_z,
-          yAxisID: "y-axis-2",
-          hidden: hiddenZ,
-        }
+        label: 'X °',
+        fill: false,
+        backgroundColor: '#20324B',
+        borderColor: '#20324B',
+        data: angle_x,
+        yAxisID: "y-axis-1",
+        hidden: hiddenX,
+      },
+      {
+        label: 'Y °',
+        fill: false,
+        backgroundColor: 'orange',
+        borderColor: 'orange',
+        data: angle_y,
+        yAxisID: "y-axis-1",
+        hidden: hiddenY,
+      },
+      {
+        label: 'Z °',
+        fill: false,
+        backgroundColor: 'royalblue',
+        borderColor: 'royalblue',
+        data: angle_z,
+        yAxisID: "y-axis-2",
+        hidden: hiddenZ,
+      }
       ]
     };
     var canva_id = "#" + canvaID;
@@ -1131,32 +1131,32 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
   var chartdata = {
     labels: date,
     datasets: [{
-        label: 'X °',
-        fill: false,
-        backgroundColor: '#20324B',
-        borderColor: '#20324B',
-        data: variation_angle_x,
-        yAxisID: "y-axis-0",
-        hidden:hiddenX,
-      },
-      {
-        label: 'Y °',
-        fill: false,
-        backgroundColor: 'orange',
-        borderColor: 'orange',
-        data: variation_angle_y,
-        yAxisID: "y-axis-0",
-        hidden: hiddenY,
-      },
-      {
-        label: 'Z °',
-        fill: false,
-        backgroundColor: 'royalblue',
-        borderColor: 'royalblue',
-        data: variation_angle_z,
-        yAxisID: "y-axis-0",
-        hidden:hiddenZ,
-      }
+      label: 'X °',
+      fill: false,
+      backgroundColor: '#20324B',
+      borderColor: '#20324B',
+      data: variation_angle_x,
+      yAxisID: "y-axis-0",
+      hidden: hiddenX,
+    },
+    {
+      label: 'Y °',
+      fill: false,
+      backgroundColor: 'orange',
+      borderColor: 'orange',
+      data: variation_angle_y,
+      yAxisID: "y-axis-0",
+      hidden: hiddenY,
+    },
+    {
+      label: 'Z °',
+      fill: false,
+      backgroundColor: 'royalblue',
+      borderColor: 'royalblue',
+      data: variation_angle_z,
+      yAxisID: "y-axis-0",
+      hidden: hiddenZ,
+    }
     ]
   };
   var canva_id = "#" + canvaID;
@@ -1197,7 +1197,7 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
       }],
     },
     legend: {
-       display: false //This will do the task
+      display: false //This will do the task
     },
     pan: {
       enabled: true,
@@ -1380,6 +1380,96 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
     options: options
   });
 
+}
+
+function drawChartDirectionFromData(directionData, canvaID = "chartDirectionInclinometer") {
+
+  if (typeof chocData != 'object') {
+    directionData = JSON.parse(directionData);
+  }
+
+  if (isEmpty(directionData)) {
+
+    drawNoDataAvailable(canvaID);
+
+  }
+  else {
+
+    var dataChartArr = [];
+    for (var i in directionData) {
+      var obj = {
+        x: directionData[i].delta_x,
+        y: directionData[i].delta_y
+      };
+      dataChartArr.push(obj);
+    }
+    console.log("DATA CHART ARRAY : ", dataChartArr);
+    var ctx = document.getElementById(canvaID).getContext('2d');
+
+    // Define the data
+    var data = {
+      datasets: [{
+        label: "Direction des déplacements",
+        label: "Déplacement",
+        backgroundColor: "rgba(255,99,132,0.2)",
+        borderColor: "rgba(255,99,132,1)",
+        borderWidth: 2,
+        //showLine: true,
+        hoverBackgroundColor: "rgba(255,99,132,0.4)",
+        hoverBorderColor: "rgba(255,99,132,1)",
+        data: dataChartArr,
+      }]
+    }; // Add data values to array
+    // End Defining data
+    var options = {
+      maintainAspectRatio: true,
+      responsive: true,
+      title: {
+        display: true,
+        text: "Direction des déplacements"
+      },
+      scales: {
+        yAxes: [{
+          stacked: true,
+          gridLines: {
+            display: true,
+            color: "rgba(255,99,132,0.2)"
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Delta Y (cm)',
+            fontSize: 20,
+          }
+        }],
+        xAxes: [{
+          gridLines: {
+            display: true,
+            color: "rgba(255,99,132,0.2)"
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Delta X (cm)',
+            fontSize: 20,
+          },
+        }]
+      },
+      pan: {
+        enabled: true,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: true,
+        mode: 'xy',
+      }
+    };
+
+    // End Defining data
+    var myChart = new Chart(ctx, {
+      type: 'scatter',
+      data: data,
+      options: options
+    });
+  }
 }
 
 /**
@@ -1592,44 +1682,44 @@ function showMap(data) {
   }).addTo(map);
 
   L.control.custom({
-      position: 'topright',
-      content: '<button type="button" class="btn btn-default">' +
-        '    <i class="fa fa-crosshairs"></i>' +
-        '</button>' +
-        '<button type="button" class="btn btn-danger">' +
-        '    <i class="fa fa-times"></i>' +
-        '</button>' +
-        '<button type="button" class="btn btn-success">' +
-        '    <i class="fa fa-check"></i>' +
-        '</button>' +
-        '<button type="button" class="btn btn-warning">' +
-        '    <i class="fa fa-exclamation-triangle"></i>' +
-        '</button>',
-      classes: 'btn-group-vertical btn-group-sm',
-      style: {
-        margin: '30px',
-        padding: '0px 0 0 0',
-        cursor: 'pointer',
-        height: '100px',
+    position: 'topright',
+    content: '<button type="button" class="btn btn-default">' +
+      '    <i class="fa fa-crosshairs"></i>' +
+      '</button>' +
+      '<button type="button" class="btn btn-danger">' +
+      '    <i class="fa fa-times"></i>' +
+      '</button>' +
+      '<button type="button" class="btn btn-success">' +
+      '    <i class="fa fa-check"></i>' +
+      '</button>' +
+      '<button type="button" class="btn btn-warning">' +
+      '    <i class="fa fa-exclamation-triangle"></i>' +
+      '</button>',
+    classes: 'btn-group-vertical btn-group-sm',
+    style: {
+      margin: '30px',
+      padding: '0px 0 0 0',
+      cursor: 'pointer',
+      height: '100px',
+    },
+    datas: {
+      'foo': 'bar',
+    },
+    events: {
+      click: function (data) {
+        console.log('wrapper div element clicked');
+        console.log(data);
       },
-      datas: {
-        'foo': 'bar',
+      dblclick: function (data) {
+        console.log('wrapper div element dblclicked');
+        console.log(data);
       },
-      events: {
-        click: function (data) {
-          console.log('wrapper div element clicked');
-          console.log(data);
-        },
-        dblclick: function (data) {
-          console.log('wrapper div element dblclicked');
-          console.log(data);
-        },
-        contextmenu: function (data) {
-          console.log('wrapper div element contextmenu');
-          console.log(data);
-        },
-      }
-    })
+      contextmenu: function (data) {
+        console.log('wrapper div element contextmenu');
+        console.log(data);
+      },
+    }
+  })
     .addTo(map);
 
   for (var i = 0; i < data.length; i++) {

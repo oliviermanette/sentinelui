@@ -42,7 +42,8 @@ class ControllerSensors extends Authenticated
      *
      * @return void
      */
-    public function infoAction(){
+    public function infoAction()
+    {
 
         $user = Auth::getUser();
         $group_name = $user->getGroupName();
@@ -73,9 +74,9 @@ class ControllerSensors extends Authenticated
         $activeAlertsArr = AlertManager::getActiveAlertsInfoTableForSensor($deveui);
         $processedAlertsArr = AlertManager::getProcessedAlertsInfoTableForSensor($deveui);
 
-        if (empty($activeAlertsArr) ){
+        if (empty($activeAlertsArr)) {
             Flash::addAlert("Statut : OK. Pas d'alertes concernant cet équipement", Flash::OK);
-        }else {
+        } else {
             Flash::addAlert("Attention, des alertes ont été soulevées", Flash::WARNING);
         }
 
@@ -104,6 +105,10 @@ class ControllerSensors extends Authenticated
         $inclinometerDataDayArr = InclinometerManager::getInclinometerDataForLast($deveui, -1);
         $inclinometerDataDayArr = json_encode($inclinometerDataDayArr);
 
+        //Direction inclinometer
+        $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, -1);
+        $variationDirectionArr = json_encode($variationDirectionArr);
+
         //absolute variation
         $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationDayArr = json_encode($percentageVariationDayArr);
@@ -113,7 +118,7 @@ class ControllerSensors extends Authenticated
         $percentageVariationMonthArr = json_encode($percentageVariationMonthArr);
         //Choc
         //Nb choc
-        $nbChocDataMonthArr = ChocManager::getNbChocForLast($deveui,30);
+        $nbChocDataMonthArr = ChocManager::getNbChocForLast($deveui, 30);
         $nbChocDataMonthArr = json_encode($nbChocDataMonthArr);
         $nbChocDataWeekArr = ChocManager::getNbChocForLast($deveui, 7);
         $nbChocDataWeekArr = json_encode($nbChocDataWeekArr);
@@ -129,7 +134,7 @@ class ControllerSensors extends Authenticated
         $powerChocDataDayArr = json_encode($powerChocDataDayArr);
 
         //Temperature data
-        $tempArr = InclinometerManager::getTemperatureRecordsForSensor($deveui,-1);
+        $tempArr = InclinometerManager::getTemperatureRecordsForSensor($deveui, -1);
         $tempArr = json_encode($tempArr);
         $site = SensorManager::getSiteWhereIsInstalled($deveui);
         $historicalTemperatureDataArr = TemperatureManager::getHistoricalDataForSite($deveui, $site);
@@ -173,12 +178,14 @@ class ControllerSensors extends Authenticated
             'alerts_active_info_arr' => $alertsActiveDataArr,
             'alerts_processed_info_arr' => $alertsProcessedDataArr,
             'positionInstallation' => $positionInstallation,
-        ]);
 
+            'variationDirectionArr' => $variationDirectionArr,
+        ]);
     }
 
-    public function getChartDataNbChocAction(){
-        if (isset($_POST["deveui"]) && isset($_POST["startDate"]) && isset($_POST["endDate"])){
+    public function getChartDataNbChocAction()
+    {
+        if (isset($_POST["deveui"]) && isset($_POST["startDate"]) && isset($_POST["endDate"])) {
 
             $startDate = $_POST["startDate"];
             $endDate = $_POST["endDate"];
@@ -212,7 +219,7 @@ class ControllerSensors extends Authenticated
     public function downloadActivityDataAction()
     {
 
-        if (isset($_GET['exportDataFormat']) && isset($_GET['deveui'])){
+        if (isset($_GET['exportDataFormat']) && isset($_GET['deveui'])) {
             $format = $_GET['exportDataFormat'];
             $deveui = $_GET['deveui'];
 
@@ -254,7 +261,7 @@ class ControllerSensors extends Authenticated
             } else if (strcmp($format, "excel") == 0) {
 
                 $timestamp = time();
-                $filename = 'Export_data_sensors_'.$deveui.'_' . $timestamp . '.xls';
+                $filename = 'Export_data_sensors_' . $deveui . '_' . $timestamp . '.xls';
 
                 header("Content-Type: application/vnd.ms-excel");
                 header("Content-Disposition: attachment; filename=\"$filename\"");
@@ -281,8 +288,5 @@ class ControllerSensors extends Authenticated
                 }
             }
         }
-
-
     }
-
 }
