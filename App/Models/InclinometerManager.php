@@ -716,21 +716,25 @@ class InclinometerManager extends \Core\Model
     $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
     $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
     $variationDirectionArr = array();
+
     foreach ($percentageVariationDayArr as $array) {
+      $date = $array["date"];
       $x_deg = $array["variationAngleX"];
       $y_deg = $array["variationAngleY"];
+      #echo "(", $x_deg . ", " . $y_deg . ")\n";
       $x_rad = (pi() / 180) * $x_deg;
       $y_rad = (pi() / 180) * $y_deg;
 
       $delta_x_cm = (tan($x_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
       $delta_y_cm = (tan($y_rad) * $equipment_height) * 100;
 
-      //echo "(", $delta_x . ", " . $delta_y . ")\n";
+
       $tmpArr = array(
-        "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
+        "date" => $date, "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
       );
       array_push($variationDirectionArr, $tmpArr);
     }
+
 
     return $variationDirectionArr;
   }

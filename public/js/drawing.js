@@ -1396,21 +1396,24 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
   else {
 
     var dataChartArr = [];
+    var mapDirectionDateTime = new Map();
     for (var i in directionData) {
+      let date_time = directionData[i].date;
       var obj = {
         x: directionData[i].delta_x,
         y: directionData[i].delta_y
       };
+      var key = directionData[i].delta_x * directionData[i].delta_y;
       dataChartArr.push(obj);
-    }
-    console.log("DATA CHART ARRAY : ", dataChartArr);
-    var ctx = document.getElementById(canvaID).getContext('2d');
+      mapDirectionDateTime.set(key, date_time);
 
+    }
+    console.log("mapDirectionDateTime : ", mapDirectionDateTime)
+    var ctx = document.getElementById(canvaID).getContext('2d');
     // Define the data
     var data = {
       datasets: [{
         label: "Direction des déplacements",
-        label: "Déplacement",
         backgroundColor: "rgba(255,99,132,0.2)",
         borderColor: "rgba(255,99,132,1)",
         borderWidth: 2,
@@ -1424,6 +1427,31 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
     var options = {
       maintainAspectRatio: true,
       responsive: true,
+      tooltips: {
+        callbacks: {
+          title: function (tooltipItem, data) {
+
+            //let date = data.labels[tooltipItem[0].index];
+            //console.log("tooltipItem.value : ", tooltipItem);
+            let date = mapDirectionDateTime.get(tooltipItem[0].value * tooltipItem[0].label);
+            //console.log("Date : ", date)
+            return "Le " + date;
+          },
+          label: function (tooltipItem, data) {
+            return "X = " + tooltipItem.xLabel + " Y =" + tooltipItem.yLabel;
+          },
+          afterLabel: function (tooltipItem, data) {
+            //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
+            //return "Heure : " + hour;
+          }
+        },
+        backgroundColor: '#FFF',
+        titleFontSize: 15,
+        titleFontColor: '#233754',
+        bodyFontColor: '#000',
+        bodyFontSize: 14,
+        displayColors: false
+      },
       title: {
         display: true,
         text: "Direction des déplacements"
@@ -1439,7 +1467,14 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
             display: true,
             labelString: 'Delta Y (cm)',
             fontSize: 20,
-          }
+          },
+          ticks: {
+            min: -2,
+            max: 2,
+            beginAtZero: false,
+            stepSize: 0.5,
+            autoskip: true,
+          },
         }],
         xAxes: [{
           gridLines: {
@@ -1450,6 +1485,13 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
             display: true,
             labelString: 'Delta X (cm)',
             fontSize: 20,
+          },
+          ticks: {
+            min: -1,
+            max: 2,
+            beginAtZero: false,
+            stepSize: 0.5,
+            autoskip: true,
           },
         }]
       },

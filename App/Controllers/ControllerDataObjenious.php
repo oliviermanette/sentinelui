@@ -59,8 +59,11 @@ class ControllerDataObjenious extends \Core\Controller
   public function testSQLAction()
   {
     $deveui = '0004A30B00E829A7';
-    $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui);
+    $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, -1);
+
+    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
 
     var_dump($variationDirectionArr);
+    //var_dump($percentageVariationDayArr);
   }
 }
