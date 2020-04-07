@@ -224,6 +224,9 @@
             //Draw direction inclinometer
             let variationDirection = '{{ variationDirectionArr|raw}}';
             drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer");
+            //Draw speed variation
+            let variationSpeed = '{{ variationSpeedDirectionArr|raw}}';
+            drawChartSpeedVariationFromData(variationSpeed, "chartVitesseInclinometer");
 
             //Draw chart inclinometer monthly
             let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';

@@ -56,14 +56,12 @@ class ControllerDataObjenious extends \Core\Controller
     $recordManager->parseJsonDataAndInsert($data);
   }
 
+
   public function testSQLAction()
   {
-    $deveui = '0004A30B00E829A7';
-    $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, -1);
+    $deveui = '0004A30B00E7F581';
 
-    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
-
-    var_dump($variationDirectionArr);
-    //var_dump($percentageVariationDayArr);
+    $height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+    echo $height;
   }
 }

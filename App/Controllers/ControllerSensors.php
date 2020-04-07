@@ -108,10 +108,14 @@ class ControllerSensors extends Authenticated
         //Direction inclinometer
         $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, -1);
         $variationDirectionArr = json_encode($variationDirectionArr);
+        //Speed variation
+        $variationSpeedDirectionArr = InclinometerManager::computeDerivativeSpeedVariation($deveui, -1);
+        $variationSpeedDirectionArr = json_encode($variationSpeedDirectionArr);
 
         //absolute variation
         $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationDayArr = json_encode($percentageVariationDayArr);
+
         $percentageVariationWeekArr = InclinometerManager::computeWeeklyVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationWeekArr = json_encode($percentageVariationWeekArr);
         $percentageVariationMonthArr = InclinometerManager::computeMonthlyVariationPercentageAngleForLast($deveui, false, -1);
@@ -180,6 +184,7 @@ class ControllerSensors extends Authenticated
             'positionInstallation' => $positionInstallation,
 
             'variationDirectionArr' => $variationDirectionArr,
+            'variationSpeedDirectionArr' => $variationSpeedDirectionArr,
         ]);
     }
 

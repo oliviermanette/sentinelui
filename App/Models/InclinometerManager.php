@@ -711,6 +711,40 @@ class InclinometerManager extends \Core\Model
     return $references_values;
   }
 
+  public static function computeDerivativeSpeedVariation($deveui, $time_period = -1)
+  {
+    $variation = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
+    $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+    $variationSpeedDerivateArr = array();
+    $variationSpeedNormalArr = array();
+    for ($i = 0; $i < count($variation); $i++) {
+      $date = $variation[$i]["date"];
+      $x_deg = $variation[$i]["variationAngleX"];
+      $y_deg = $variation[$i]["variationAngleY"];
+      $distanceXY_deg = sqrt(pow($x_deg, 2) + pow($y_deg, 2));
+
+      $distanceXY_rad = (pi() / 180) * $distanceXY_deg;
+      $delta_xy_cm = (tan($distanceXY_rad) * $equipment_height) * 100;
+
+      if ($i == 0) {
+        $delta_xy_cm_diff = 0;
+      } else {
+        $delta_xy_cm_diff = abs($delta_xy_cm - $variationSpeedNormalArr[$i - 1]["delta_xy_cm"]);
+      }
+
+      $tmpArr = array(
+        "date" => $date, "delta_xy_cm" => $delta_xy_cm_diff
+      );
+      $tmpArr1 = array(
+        "date" => $date, "delta_xy_cm" => $delta_xy_cm
+      );
+      array_push($variationSpeedDerivateArr, $tmpArr);
+      array_push($variationSpeedNormalArr, $tmpArr1);
+    }
+
+    return $variationSpeedDerivateArr;
+  }
+
   public static function computeDirectionVariationForLast($deveui, $time_period = -1)
   {
     $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
@@ -734,8 +768,6 @@ class InclinometerManager extends \Core\Model
       );
       array_push($variationDirectionArr, $tmpArr);
     }
-
-
     return $variationDirectionArr;
   }
 

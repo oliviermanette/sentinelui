@@ -1127,6 +1127,14 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
     variation_angle_z.push(inclinometerData[i].variationAngleZ);
     date.push(inclinometerData[i].date);
   }
+  const avgX = computeAverage(variation_angle_x);
+  const avgY = computeAverage(variation_angle_y);
+
+
+  var rangeHighAxisX = Math.max.apply(Math, variation_angle_x) * 2;
+  var rangeLowAxisX = Math.min.apply(Math, variation_angle_x) * 2;
+
+  console.log(rangeLowAxisX);
 
   var chartdata = {
     labels: date,
@@ -1180,8 +1188,10 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
         },
         ticks: {
           beginAtZero: false,
-          min: -threshAnnotation - 8,
-          max: threshAnnotation + 8,
+          min: rangeLowAxisX,
+          max: rangeHighAxisX,
+          /* min: -threshAnnotation - 8,
+           max: threshAnnotation + 8,*/
         },
         scaleLabel: {
           display: true,
@@ -1382,6 +1392,97 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
 
 }
 
+function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinometer") {
+  //console.log(data);
+  if (typeof chocData != 'object') {
+    data = JSON.parse(data);
+  }
+
+  if (isEmpty(data)) {
+
+    drawNoDataAvailable(canvaID);
+
+  }
+  else {
+    var variation_speed_xy = [];
+    var date = [];
+
+    for (var i in data) {
+      //console.log(inclinometerData[i]);
+      variation_speed_xy.push(data[i].delta_xy_cm);
+      date.push(data[i].date);
+    }
+    var chartdata = {
+      labels: date,
+      datasets: [{
+        label: 'Deplacement',
+        backgroundColor: "rgba(255,99,132,0.2)",
+        borderColor: "rgba(255,99,132,1)",
+        borderWidth: 2,
+        //showLine: true,
+        hoverBackgroundColor: "rgba(255,99,132,0.4)",
+        hoverBorderColor: "rgba(255,99,132,1)",
+        data: variation_speed_xy
+      },
+      ]
+    };
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
+
+    var options = {
+      responsive: true,
+      maintainAspectRatio: true,
+      title: {
+        display: true,
+        text: 'Vitesse de déplacement'
+      },
+      scales: {
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          },
+          ticks: {
+            autoskip: true,
+            source: date,
+            maxTicksLimit: 20
+          },
+        }],
+        yAxes: [{
+          ticks: {
+            min: -1,
+            beginAtZero: false,
+            stepSize: 0.5,
+            autoskip: true,
+            maxTicksLimit: 20
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Deplacement (cm)'
+          },
+        }]
+      },
+      legend: {
+        display: true
+      },
+      pan: {
+        enabled: true,
+        mode: 'xy'
+      },
+      zoom: {
+        enabled: true,
+        mode: 'xy',
+      }
+    };
+
+    var chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: chartdata,
+      options: options,
+    });
+  }
+}
+
 function drawChartDirectionFromData(directionData, canvaID = "chartDirectionInclinometer") {
 
   if (typeof chocData != 'object') {
@@ -1408,7 +1509,6 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       mapDirectionDateTime.set(key, date_time);
 
     }
-    console.log("mapDirectionDateTime : ", mapDirectionDateTime)
     var ctx = document.getElementById(canvaID).getContext('2d');
     // Define the data
     var data = {
