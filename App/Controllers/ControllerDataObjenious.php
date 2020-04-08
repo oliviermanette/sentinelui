@@ -7,6 +7,7 @@ use \Core\View;
 use \App\Models\RecordManager;
 use \App\Models\InclinometerManager;
 use \App\Models\EquipementManager;
+use \App\Models\SensorManager;
 use App\Models\API\TemperatureAPI;
 
 ini_set('error_reporting', E_ALL);
@@ -60,9 +61,8 @@ class ControllerDataObjenious extends \Core\Controller
   public function testSQLAction()
   {
     $deveui = '0004A30B00E829A7';
-    $variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
-    $height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-
-    var_dump($variationArr);
+    //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
+    //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+    var_dump(SensorManager::isInstalled($deveui));
   }
 }

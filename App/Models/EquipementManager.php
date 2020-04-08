@@ -258,6 +258,8 @@ class EquipementManager extends \Core\Model
     }
   }
 
+
+
   /**
    * Get all the structure belonging to a specific site
    *

@@ -19,7 +19,8 @@ use PDO;
 class SensorManager extends \Core\Model
 {
 
-  public static function getPositionInstallation($deveui){
+  public static function getPositionInstallation($deveui)
+  {
     $db = static::getDB();
 
     $sql = "SELECT position FROM `sensor`
@@ -34,7 +35,8 @@ class SensorManager extends \Core\Model
     }
   }
 
-  public static function getOwner($deveui){
+  public static function getOwner($deveui)
+  {
     $db = static::getDB();
 
     $sql = "SELECT group_name.name FROM group_name
@@ -51,7 +53,8 @@ class SensorManager extends \Core\Model
     }
   }
 
-  public static function getSiteWhereIsInstalled($deveui){
+  public static function getSiteWhereIsInstalled($deveui)
+  {
     $db = static::getDB();
 
     $sql = "SELECT DISTINCT site.nom FROM site
@@ -76,7 +79,8 @@ class SensorManager extends \Core\Model
    * @return string deveui of the sensor
    *
    */
-  public function getDeveuiFromSensorId($sensor_id){
+  public function getDeveuiFromSensorId($sensor_id)
+  {
     $db = static::getDB();
 
     $sql_deveui_sensor = "SELECT deveui FROM `sensor`
@@ -150,7 +154,8 @@ class SensorManager extends \Core\Model
     }
   }
 
-  public static function getSensorIdUsingSiteAndEquipementID($site_id, $equipement_id){
+  public static function getSensorIdUsingSiteAndEquipementID($site_id, $equipement_id)
+  {
     $db = static::getDB();
 
     $sql_query_id =  "SELECT DISTINCT(`sensor_id`) FROM `record` AS r
@@ -184,7 +189,7 @@ class SensorManager extends \Core\Model
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $device_label= $stmt->fetchAll(PDO::FETCH_COLUMN);
+      $device_label = $stmt->fetchAll(PDO::FETCH_COLUMN);
       return $device_label[0];
     }
   }
@@ -196,7 +201,8 @@ class SensorManager extends \Core\Model
    * @return string last date
    *
    */
-  public static function getLastMessageReceivedFromDeveui($deveui){
+  public static function getLastMessageReceivedFromDeveui($deveui)
+  {
     $db = static::getDB();
 
     $sql_last_date_received = "SELECT DATE_FORMAT(MAX(r.date_time), '%d/%m/%Y %H:%i:%s')
@@ -211,10 +217,37 @@ class SensorManager extends \Core\Model
 
     if ($stmt->execute()) {
       $last_date = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      if (!(empty($last_date))){
+      if (!(empty($last_date))) {
         return $last_date[0];
       }
       return 0;
+    }
+  }
+
+  /**
+   * Get the battery state of sensor
+   *
+   * @param string $deveui
+   * @return int battery value left
+   * date_time | battery_left
+   *
+   */
+  public static function isInstalled($deveui)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT installation_date FROM sensor
+    WHERE deveui = :deveui";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $installation_date = $stmt->fetch(PDO::FETCH_COLUMN);
+      if (empty($installation_date)) {
+        return False;
+      }
+      return True;
     }
   }
 
@@ -243,8 +276,8 @@ class SensorManager extends \Core\Model
 
     if ($stmt->execute()) {
       $batteryInfo = $stmt->fetch(PDO::FETCH_COLUMN);
-      if (empty($batteryInfo)){
-          $batteryInfo = 100;
+      if (empty($batteryInfo)) {
+        $batteryInfo = 100;
       }
       return $batteryInfo;
     }
@@ -413,7 +446,8 @@ class SensorManager extends \Core\Model
    * id_device | groupe | device_number | ligneHT | equipement | last_message_received | status |date_installation
    *
    */
-  public static function getBriefInfoForGroup($group_name){
+  public static function getBriefInfoForGroup($group_name)
+  {
     $db = static::getDB();
 
     $sql_brief_info = "SELECT
@@ -476,7 +510,8 @@ class SensorManager extends \Core\Model
    * @return int id of the device
    *
    */
-  public static function getSensorIdFromEquipementAndSiteId($site_id, $structure_id){
+  public static function getSensorIdFromEquipementAndSiteId($site_id, $structure_id)
+  {
     $db = static::getDB();
 
     $sql_id_sensor = "SELECT DISTINCT sensor.id FROM sensor
@@ -495,7 +530,8 @@ class SensorManager extends \Core\Model
     }
   }
 
-  public static function getStatusDevice($sensor_id){
+  public static function getStatusDevice($sensor_id)
+  {
     $db = static::getDB();
 
     $sql_status_device = "SELECT sensor.status FROM sensor
@@ -568,5 +604,4 @@ class SensorManager extends \Core\Model
       return $nb_actif_sensor[0];
     }
   }
-
 }

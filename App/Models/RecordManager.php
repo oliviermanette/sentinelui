@@ -48,14 +48,10 @@ class RecordManager extends \Core\Model
 
     if ($message->getFormatMessage() == "uplink") {
 
-      echo "Message port : " . $message->getPortMessage() . "\n";
-      echo "Version capteur : " . $message->getSoftwareVersion(). "\n";
       RecordManager::handleUplinkMessage($message);
-
     } else if ($message->getFormatMessage() == "event") {
 
       RecordManager::handleEventMessage($message);
-
     } else if ($message->getFormatMessage() == "downlink") {
     } else if ($message->getFormatMessage() == "join") {
     }
@@ -63,7 +59,6 @@ class RecordManager extends \Core\Model
 
   private static function handleUplinkMessage($message)
   {
-    echo "name asser: " . $message->structureName . "\n";
 
     EquipementManager::insertStructureCategory($message->typeStructure);
 
@@ -74,26 +69,24 @@ class RecordManager extends \Core\Model
       if ($message->typeMsg == "choc") {
 
         $choc = new Choc($message->msgDecoded);
-
         if (!ChocManager::insertChoc($choc)) {
           return false;
         }
 
         $chocManager = new ChocManager();
+        //Check if the sensor is installed
+        if (SensorManager::isInstalled($choc->deveui)) {
+          $hasAlert = $chocManager->check($choc, $message->group);
+          //Create new alert if it's the case
+          if ($hasAlert) {
+            $label = "high_choc";
+            $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc());
 
-        $hasAlert = $chocManager->check($choc, $message->group);
-
-        //Create new alert if it's the case
-        if ($hasAlert) {
-          $label = "high_choc";
-          $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc());
-
-          AlertManager::insertTypeEvent($label,  $alert->criticality, $alert->msg);
-          AlertManager::insert($alert);
-          //Send alert
-          AlertManager::sendAlert($alert, $message->group);
-
-
+            AlertManager::insertTypeEvent($label,  $alert->criticality, $alert->msg);
+            AlertManager::insert($alert);
+            //Send alert
+            AlertManager::sendAlert($alert, $message->group);
+          }
         }
       }
       //battery data
@@ -108,10 +101,9 @@ class RecordManager extends \Core\Model
       else if ($message->typeMsg == "inclinometre") {
         $inclinometer = new Inclinometer($message->msgDecoded);
 
-        var_dump($inclinometer);
-        if (isset($inclinometer->battery_left)){
+        if (isset($inclinometer->battery_left)) {
           if (!InclinometerManager::insertBattery($inclinometer)) {
-          return false;
+            return false;
           }
         }
         if (!InclinometerManager::insertInclinometer($inclinometer)) {
@@ -122,36 +114,40 @@ class RecordManager extends \Core\Model
         $currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
         TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
 
-        $inclinometreManager = new InclinometerManager();
-        $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
+        //Check only if it's installed on the structure
+        if (SensorManager::isInstalled($inclinometer->deveui)) {
 
-        if ($hasAlertArr["alertOnX"]) {
-          $label = "high_inclinometer_variationX";
-          $criticality = "HIGH";
-          $msg = "Grosse variation au niveau de l'inclinaison X";
-          $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
-          AlertManager::insertTypeEvent($label, $criticality, $msg);
-          AlertManager::insert($alert);
-          AlertManager::sendAlert($alert, $message->group);
-        }
-        if ($hasAlertArr["alertOnY"]) {
-          $label = "high_inclinometer_variationY";
-          $criticality = "HIGH";
-          $msg = "Grosse variation au niveau de l'inclinaison Y";
-          $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
-          AlertManager::insertTypeEvent($label, $criticality, $msg);
-          AlertManager::insert($alert);
-          AlertManager::sendAlert($alert, $message->group);
-        }
-        if ($hasAlertArr["alertOnZ"]) {
-          $label = "high_inclinometer_variationZ";
-          $criticality = "HIGH";
-          $msg = "Grosse variation au niveau de l'inclinaison Z";
+          $inclinometreManager = new InclinometerManager();
+          $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
 
-          $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
-          AlertManager::insertTypeEvent($label,  $criticality, $msg);
-          AlertManager::insert($alert);
-          AlertManager::sendAlert($alert, $message->group);
+          if ($hasAlertArr["alertOnX"]) {
+            $label = "high_inclinometer_variationX";
+            $criticality = "HIGH";
+            $msg = "Grosse variation au niveau de l'inclinaison X";
+            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
+            AlertManager::insertTypeEvent($label, $criticality, $msg);
+            AlertManager::insert($alert);
+            AlertManager::sendAlert($alert, $message->group);
+          }
+          if ($hasAlertArr["alertOnY"]) {
+            $label = "high_inclinometer_variationY";
+            $criticality = "HIGH";
+            $msg = "Grosse variation au niveau de l'inclinaison Y";
+            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
+            AlertManager::insertTypeEvent($label, $criticality, $msg);
+            AlertManager::insert($alert);
+            AlertManager::sendAlert($alert, $message->group);
+          }
+          if ($hasAlertArr["alertOnZ"]) {
+            $label = "high_inclinometer_variationZ";
+            $criticality = "HIGH";
+            $msg = "Grosse variation au niveau de l'inclinaison Z";
+
+            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
+            AlertManager::insertTypeEvent($label,  $criticality, $msg);
+            AlertManager::insert($alert);
+            AlertManager::sendAlert($alert, $message->group);
+          }
         }
       }
       //Subspectre data
@@ -169,7 +165,7 @@ class RecordManager extends \Core\Model
   private static function handleEventMessage($message)
   {
     $label = $message->type;
-    echo "Label : ".$label;
+    echo "Label : " . $label;
 
     $alert = new Alert($label, $message->deveui, $message->dateTime);
     $group = SensorManager::getOwner($alert->deveui);
@@ -390,7 +386,7 @@ class RecordManager extends \Core\Model
     $stmt->bindValue(':longitude', $message->longitude, PDO::PARAM_STR);
     $stmt->bindValue(':latitude', $message->latitude, PDO::PARAM_STR);
     $count = null;
-    if (property_exists($message, 'count')){
+    if (property_exists($message, 'count')) {
       $count = $message->count;
     }
     $stmt->bindValue(':count_msg', $count, PDO::PARAM_STR);
