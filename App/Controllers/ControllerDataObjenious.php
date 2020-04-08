@@ -59,9 +59,10 @@ class ControllerDataObjenious extends \Core\Controller
 
   public function testSQLAction()
   {
-    $deveui = '0004A30B00E7F581';
-
+    $deveui = '0004A30B00E829A7';
+    $variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
     $height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-    echo $height;
+
+    var_dump($variationArr);
   }
 }

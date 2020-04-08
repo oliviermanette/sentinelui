@@ -713,7 +713,8 @@ class InclinometerManager extends \Core\Model
 
   public static function computeDerivativeSpeedVariation($deveui, $time_period = -1)
   {
-    $variation = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
+    //$variation = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
+    $variation = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, $time_period);
     $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
     $variationSpeedDerivateArr = array();
     $variationSpeedNormalArr = array();
@@ -747,7 +748,9 @@ class InclinometerManager extends \Core\Model
 
   public static function computeDirectionVariationForLast($deveui, $time_period = -1)
   {
-    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
+    //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
+    $percentageVariationDayArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, $time_period);
+
     $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
     $variationDirectionArr = array();
 
@@ -772,7 +775,7 @@ class InclinometerManager extends \Core\Model
   }
 
   /**
-   * Compute daily variation of inclinometer data from today until the last X days. To compute the
+   * Compute daily variation of ALL inclinometer data from today until the last X days. To compute the
    * variation, we first get the reference value of measurement. We assume that this is the first record
    * from the first day of instalation of the sensor
    *
@@ -782,7 +785,7 @@ class InclinometerManager extends \Core\Model
    * all records in account
    * @return array which contain daily variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
-  public static function computeDailyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
+  public static function computeVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
   {
     $db = static::getDB();
 
@@ -855,6 +858,110 @@ class InclinometerManager extends \Core\Model
       array_push($variationsArr, $tmpArr);
       //echo "\n Date : ".$date." | Angle Referent X : ".$angleX_ref ." |Angle courant X : ".$angleX." | Variation X :". $variationAngleX . "<br/>\n";
       //echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
+    }
+
+    //print_r($variationsArr);
+    $db = null;
+    return $variationsArr;
+  }
+
+  /**
+   * Compute average daily variation of inclinometer data from today until the last X days. To compute the
+   * variation, we first get the reference value of measurement. We assume that this is the first record
+   * from the first day of instalation of the sensor
+   *
+   * @param string $deveui sensor deveui for which we want to compute the variation data
+   * @param int $time_period the last X days for computing the variation. Ex : $time_period = 30,
+   * compute variation between today and the last value 30 days ago. defaults to -1 meaning that we take
+   * all records in account
+   * @return array which contain daily variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
+   */
+  public static function computeAverageDailyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
+  {
+    $db = static::getDB();
+
+    $references_values = InclinometerManager::getValuesReference($deveui, $time_period);
+
+    $date_ref = $references_values["date"];
+    $angleX_ref = $references_values["angle_x"];
+    $angleY_ref = $references_values["angle_y"];
+    $angleZ_ref = $references_values["angle_z"];
+    $temperature_ref = $references_values["temperature"];
+
+    $sql_all_values = "SELECT
+      date,
+      AVG(angle_x) AS average_angle_x,
+      AVG(angle_y) AS average_angle_y,
+      AVG(angle_z) AS average_angle_z,
+      AVG(temperature) AS average_temperature
+    FROM
+      (
+        SELECT
+          `sensor_id`,
+          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
+          angle_x,
+          angle_y,
+          angle_z,
+          temperature
+        FROM
+          inclinometer AS inc
+          LEFT JOIN record AS r ON (r.id = inc.record_id)
+          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+        WHERE
+          `msg_type` LIKE 'inclinometre'
+          AND s.deveui = :deveui
+          AND Date(r.date_time) > s.installation_date ";
+
+    if ($time_period != -1) {
+      $sql_all_values .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    }
+
+    $sql_all_values .= "ORDER BY
+                `date` DESC
+            ) AS inclinaison
+          GROUP BY
+            inclinaison.date
+          ORDER BY
+            date DESC";
+
+    $stmt = $db->prepare($sql_all_values);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
+
+    $stmt->execute();
+    $all_values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $nbResults = count($all_values);
+
+    $variationsArr = array();
+    /*echo "NBRE RESULTS : " . $nbResults . "\n";
+    print_r($all_values);*/
+    foreach ($all_values as $values) {
+
+      $date = $values["date"];
+      $angleX = $values["average_angle_x"];
+      $angleY = $values["average_angle_y"];
+      $angleZ = $values["average_angle_z"];
+      if ($percentage) {
+        $temperature = $values["average_temperature"];
+        $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
+        $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
+        $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
+        $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      } else {
+        $temperature = $values["average_temperature"];
+        $variationAngleX = $angleX - $angleX_ref;
+        $variationAngleY = $angleY - $angleY_ref;
+        $variationAngleZ = $angleZ - $angleZ_ref;
+        $variationTemperature = $temperature - $temperature_ref;
+      }
+
+      $tmpArr = array(
+        "date" => $date, "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
+        "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature
+      );
+      array_push($variationsArr, $tmpArr);
     }
 
     //print_r($variationsArr);

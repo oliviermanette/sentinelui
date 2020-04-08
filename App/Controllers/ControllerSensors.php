@@ -113,7 +113,7 @@ class ControllerSensors extends Authenticated
         $variationSpeedDirectionArr = json_encode($variationSpeedDirectionArr);
 
         //absolute variation
-        $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, -1);
+        $percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
         $percentageVariationDayArr = json_encode($percentageVariationDayArr);
 
         $percentageVariationWeekArr = InclinometerManager::computeWeeklyVariationPercentageAngleForLast($deveui, false, -1);
