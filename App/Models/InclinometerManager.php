@@ -889,40 +889,28 @@ class InclinometerManager extends \Core\Model
     $temperature_ref = $references_values["temperature"];
 
     $sql_all_values = "SELECT
-      date,
-      AVG(angle_x) AS average_angle_x,
-      AVG(angle_y) AS average_angle_y,
-      AVG(angle_z) AS average_angle_z,
-      AVG(temperature) AS average_temperature
-    FROM
-      (
-        SELECT
-          `sensor_id`,
-          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
-          angle_x,
-          angle_y,
-          angle_z,
-          temperature
-        FROM
-          inclinometer AS inc
-          LEFT JOIN record AS r ON (r.id = inc.record_id)
-          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
-        WHERE
-          `msg_type` LIKE 'inclinometre'
-          AND s.deveui = :deveui
-          AND Date(r.date_time) > s.installation_date ";
+        DATE(r.date_time) AS date,
+        AVG(angle_x) AS average_angle_x,
+        AVG(angle_y) AS average_angle_y,
+        AVG(angle_z) AS average_angle_z,
+        AVG(temperature) AS average_temperature
+      FROM
+        inclinometer AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+        LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE
+        `msg_type` LIKE 'inclinometre'
+        AND s.deveui LIKE '0004A30B00E829A7'
+        AND Date(r.date_time) > s.installation_date  ";
 
     if ($time_period != -1) {
       $sql_all_values .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
     }
 
-    $sql_all_values .= "ORDER BY
-                `date` DESC
-            ) AS inclinaison
-          GROUP BY
-            inclinaison.date
-          ORDER BY
-            date DESC";
+    $sql_all_values .= "GROUP BY
+            date
+            ORDER BY
+          `date` ASC";
 
     $stmt = $db->prepare($sql_all_values);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
