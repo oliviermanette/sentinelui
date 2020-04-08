@@ -171,7 +171,6 @@ class RecordManager extends \Core\Model
     $group = SensorManager::getOwner($alert->deveui);
     AlertManager::insertTypeEvent($label, $alert->criticality, $alert->msg);
     AlertManager::insert($alert);
-    var_dump($alert);
 
     //AlertManager::sendAlert($alert, $group);
   }
