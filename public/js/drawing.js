@@ -1412,6 +1412,12 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
       variation_speed_xy.push(data[i].delta_xy_cm);
       date.push(data[i].date);
     }
+
+    var max_déplacement = Math.max.apply(null, variation_speed_xy);
+    var min_déplacement = Math.min.apply(null, variation_speed_xy);
+    var high_range_max = max_déplacement + 1;
+    var low_range_max = min_déplacement + 1;
+
     var chartdata = {
       labels: date,
       datasets: [{
@@ -1433,7 +1439,7 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
       responsive: true,
       maintainAspectRatio: true,
       title: {
-        display: true,
+        display: false,
         text: 'Vitesse de déplacement'
       },
       scales: {
@@ -1451,6 +1457,7 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
         yAxes: [{
           ticks: {
             min: -1,
+            max: high_range_max,
             beginAtZero: false,
             stepSize: 0.5,
             autoskip: true,
@@ -1463,7 +1470,7 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
         }]
       },
       legend: {
-        display: true
+        display: false
       },
       pan: {
         enabled: true,
@@ -1557,8 +1564,8 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
         displayColors: false
       },
       title: {
-        display: true,
-        text: "Direction des déplacements"
+        display: false,
+        text: "Direction et distance des déplacements"
       },
       legend: {
         display: false
