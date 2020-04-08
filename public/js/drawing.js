@@ -1511,15 +1511,19 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
     }
     var ctx = document.getElementById(canvaID).getContext('2d');
     // Define the data
+    var pointRadius = [];
+    var pointBackgroundColors = [];
+    var borderColor = [];
     var data = {
       datasets: [{
         label: "Direction des déplacements",
-        backgroundColor: "rgba(255,99,132,0.2)",
-        borderColor: "rgba(255,99,132,1)",
+        pointBackgroundColor: pointBackgroundColors,
+        borderColor: borderColor,
         borderWidth: 2,
         //showLine: true,
         hoverBackgroundColor: "rgba(255,99,132,0.4)",
         hoverBorderColor: "rgba(255,99,132,1)",
+        pointRadius: pointRadius,
         data: dataChartArr,
       }]
     }; // Add data values to array
@@ -1556,6 +1560,9 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
         display: true,
         text: "Direction des déplacements"
       },
+      legend: {
+        display: false
+      },
       scales: {
         yAxes: [{
           stacked: true,
@@ -1569,7 +1576,7 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
             fontSize: 20,
           },
           ticks: {
-            min: -3,
+            min: -4,
             max: 4,
             beginAtZero: false,
             stepSize: 0.5,
@@ -1587,8 +1594,8 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
             fontSize: 20,
           },
           ticks: {
-            min: -2,
-            max: 2,
+            min: -4,
+            max: 4,
             beginAtZero: false,
             stepSize: 0.5,
             autoskip: true,
@@ -1611,6 +1618,30 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       data: data,
       options: options
     });
+    //console.log(myChart);
+    //Change color and size of last point
+    for (i = 0; i < myChart.data.datasets[0].data.length; i++) {
+      if (i < myChart.data.datasets[0].data.length - 1) {
+        pointBackgroundColors.push("rgba(103, 128, 159, 0.7)");
+        borderColor.push("rgba(103, 128, 159, 1)")
+        pointRadius.push(2)
+      } else {
+        pointBackgroundColors.push("rgba(255,99,132,1)");
+        pointRadius.push(5)
+      }
+
+      /*
+      if (myChart.data.datasets[0].data[i] > 0.5) {
+        pointBackgroundColors.push("#90cd8a");
+      } else {
+        pointBackgroundColors.push("#f58368");
+      }*/
+    }
+    //myChart.data.datasets[0]['backgroundColor'][4] = "#FF0000";
+    for (var i = 0; i < myChart.data.datasets[0].data.length; i++) {
+      //pointRadius.push(i);
+    }
+    myChart.update();
   }
 }
 
