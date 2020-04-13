@@ -1636,7 +1636,7 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       } else {
         pointBackgroundColors.push("rgba(255,99,132,1)");
         pointRadius.push(5);
-        console.log(myChart.data.datasets[0].data[0])
+        //console.log(myChart.data.datasets[0].data[0])
       }
 
     }
@@ -1645,51 +1645,51 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       //pointRadius.push(i);
     }
     myChart.update();
-
-    function addData(chart, label, data) {
-      chart.data.labels.push(label);
-      chart.data.datasets.forEach((dataset) => {
-        dataset.data.push(data);
-      });
-      chart.update();
-    }
-    function removeData(chart) {
-      chart.data.labels.pop();
-      chart.data.datasets.forEach((dataset) => {
-        dataset.data.pop();
-      });
-      chart.update();
-    }
-    const sleep = milliseconds => {
-      return new Promise(resolve => setTimeout(resolve, milliseconds));
-    };
-
-    /*Function to update the bar chart*/
-    function updateBarGraph(chart, data) {
-      chart.data.datasets.pop();
-
-      chart.data.datasets.push({
-        data: []
-      });
-      for (i = 0; i < data.length; i++) {
-        var obj = {
-          x: data[i].delta_x,
-          y: data[i].delta_y
-        };
-        sleep(2000).then(() => {
-          chart.data.datasets[0].data[i] = obj;
+    /*
+        function addData(chart, label, data) {
+          chart.data.labels.push(label);
+          chart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+          });
           chart.update();
-        });
+        }
+        function removeData(chart) {
+          chart.data.labels.pop();
+          chart.data.datasets.forEach((dataset) => {
+            dataset.data.pop();
+          });
+          chart.update();
+        }
+        const sleep = milliseconds => {
+          return new Promise(resolve => setTimeout(resolve, milliseconds));
+        };
 
-      }
+        /*Function to update the bar chart
+        function updateBarGraph(chart, data) {
+          chart.data.datasets.pop();
 
-    }
+          chart.data.datasets.push({
+            data: []
+          });
+          for (i = 0; i < data.length; i++) {
+            var obj = {
+              x: data[i].delta_x,
+              y: data[i].delta_y
+            };
+            sleep(2000).then(() => {
+              chart.data.datasets[0].data[i] = obj;
+              chart.update();
+            });
 
-    /*Updating the bar chart with updated data in every second.*/
-    setInterval(function () {
-      updateBarGraph(myChart, directionData);
-    }, 1000);
+          }
 
+        }
+
+        /*Updating the bar chart with updated data in every second.
+        setInterval(function () {
+          updateBarGraph(myChart, directionData);
+        }, 1000);
+    */
   }
 }
 
