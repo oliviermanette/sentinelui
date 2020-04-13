@@ -111,8 +111,10 @@ class RecordManager extends \Core\Model
         }
 
         //Insert current temperature of the site today
-        $currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
-        TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
+        $dataArr = TemperatureAPI::getDataWeather($message->latitude, $message->longitude);
+        TemperatureManager::insertDataWeather($dataArr, $message->site, $message->dateTime);
+        //$currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
+        //TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
 
         //Check only if it's installed on the structure
         if (SensorManager::isInstalled($inclinometer->deveui)) {

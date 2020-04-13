@@ -9,6 +9,7 @@ use \App\Models\InclinometerManager;
 use \App\Models\EquipementManager;
 use \App\Models\SensorManager;
 use App\Models\API\TemperatureAPI;
+use App\Models\TemperatureManager;
 
 ini_set('error_reporting', E_ALL);
 error_reporting(-1); // reports all errors
@@ -60,9 +61,16 @@ class ControllerDataObjenious extends \Core\Controller
 
   public function testSQLAction()
   {
+    /*
     $deveui = '0004A30B00E829A7';
     //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
     //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-    var_dump(SensorManager::isInstalled($deveui));
+    var_dump(SensorManager::isInstalled($deveui));*/
+    $latitude = 43.3657709;
+    $longitude = -0.3810126;
+
+    $dataArr = TemperatureAPI::getDataWeather($latitude, $longitude);
+    print_r($dataArr);
+    TemperatureManager::insertDataWeather($dataArr, "Laruns", "2020-04-15 08:30:29");
   }
 }
