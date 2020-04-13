@@ -1616,14 +1616,15 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       zoom: {
         enabled: true,
         mode: 'xy',
-      }
+      },
+
     };
 
     // End Defining data
     var myChart = new Chart(ctx, {
       type: 'scatter',
       data: data,
-      options: options
+      options: options,
     });
     //console.log(myChart);
     //Change color and size of last point
@@ -1634,21 +1635,61 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
         pointRadius.push(2)
       } else {
         pointBackgroundColors.push("rgba(255,99,132,1)");
-        pointRadius.push(5)
+        pointRadius.push(5);
+        console.log(myChart.data.datasets[0].data[0])
       }
 
-      /*
-      if (myChart.data.datasets[0].data[i] > 0.5) {
-        pointBackgroundColors.push("#90cd8a");
-      } else {
-        pointBackgroundColors.push("#f58368");
-      }*/
     }
-    //myChart.data.datasets[0]['backgroundColor'][4] = "#FF0000";
+
     for (var i = 0; i < myChart.data.datasets[0].data.length; i++) {
       //pointRadius.push(i);
     }
     myChart.update();
+
+    function addData(chart, label, data) {
+      chart.data.labels.push(label);
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data);
+      });
+      chart.update();
+    }
+    function removeData(chart) {
+      chart.data.labels.pop();
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+      });
+      chart.update();
+    }
+    const sleep = milliseconds => {
+      return new Promise(resolve => setTimeout(resolve, milliseconds));
+    };
+
+    /*Function to update the bar chart*/
+    function updateBarGraph(chart, data) {
+      chart.data.datasets.pop();
+
+      chart.data.datasets.push({
+        data: []
+      });
+      for (i = 0; i < data.length; i++) {
+        var obj = {
+          x: data[i].delta_x,
+          y: data[i].delta_y
+        };
+        sleep(2000).then(() => {
+          chart.data.datasets[0].data[i] = obj;
+          chart.update();
+        });
+
+      }
+
+    }
+
+    /*Updating the bar chart with updated data in every second.*/
+    setInterval(function () {
+      updateBarGraph(myChart, directionData);
+    }, 1000);
+
   }
 }
 
@@ -1927,4 +1968,20 @@ function addData(chart, label, color, data) {
     data: data
   });
   chart.update();
+}
+
+function drawPrevision(site) {
+  window.weatherWidgetConfig = window.weatherWidgetConfig || [];
+  window.weatherWidgetConfig.push({
+    selector: ".weatherForecastWidget",
+    apiKey: "052NMBEM22M3WRCGVFD7209PV",
+    location: site,
+    unitGroup: "metric"
+  });
+  (function () {
+    var d = document, s = d.createElement('script');
+    s.src = 'public/js/weather-forecast-widget.min.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
 }

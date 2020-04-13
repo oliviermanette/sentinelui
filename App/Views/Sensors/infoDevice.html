@@ -107,6 +107,7 @@
 
                 {% include "Sensors/viewInformationsSensor.html" %}
             </div>
+
             <!-- Activity sensors -->
             <div class="card-body">
                 <div class="row mb-3">
@@ -180,7 +181,6 @@
 
             let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
 
-            console.log(data_map_json);
             var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json
                     .longitude_sensor
                 ],
@@ -252,6 +252,11 @@
             drawChartTemperatureFromData(temperatureData, "chartTemperature");
             drawChartHistoricalTemperature(historicalTemperatureData, "chartHistoricalTemperature");
             //drawBothTemperature(temperatureData, historicalTemperatureData, "chartHistoricalTemperature")
+
+            //Prevision
+            //let location= '{{ location|raw}}';
+            //console.log("Data map : ",location);
+            //drawPrevision(location);
 
         });
 

@@ -61,6 +61,7 @@ class ControllerSensors extends Authenticated
         $infoArr['nbreTotMsg'] = $nbreTotMsg;
         $infoArr['lastBatteryLevel'] = $lastBatteryLevel;
 
+        $site = $infoArr["site"];
         //Data map
         $dataMapArr = json_encode($infoArr);
 
@@ -141,6 +142,8 @@ class ControllerSensors extends Authenticated
         $tempArr = InclinometerManager::getTemperatureRecordsForSensor($deveui, -1);
         $tempArr = json_encode($tempArr);
         $site = SensorManager::getSiteWhereIsInstalled($deveui);
+        $weatherDataArr = TemperatureManager::getDataWeatherForSite($deveui, $site);
+
         $historicalTemperatureDataArr = TemperatureManager::getHistoricalDataForSite($deveui, $site);
         $historicalTemperatureDataArr = json_encode($historicalTemperatureDataArr);
         //var_dump($historicalTemperatureDataArr);
@@ -155,6 +158,7 @@ class ControllerSensors extends Authenticated
 
         View::renderTemplate('Sensors/infoDevice.html', [
             'deveui' => $deveui,
+            'location' => $site,
             'inclinometerRangeThresh' => $inclinometerRangeThresh,
             'firstActivity' => $firstActivity,
             'lastActivity' => $lastActivity,
@@ -178,6 +182,7 @@ class ControllerSensors extends Authenticated
             'percentageVariationMonthArr' => $percentageVariationMonthArr,
             'inclinaisonRefArr' => $inclinaisonRefArr,
             'temperatureArr' => $tempArr,
+            'weatherDataArr' => $weatherDataArr,
             'historicalTemperatureDataArr' => $historicalTemperatureDataArr,
             'alerts_active_info_arr' => $alertsActiveDataArr,
             'alerts_processed_info_arr' => $alertsProcessedDataArr,

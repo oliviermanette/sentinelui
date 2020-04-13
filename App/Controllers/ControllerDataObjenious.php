@@ -70,7 +70,7 @@ class ControllerDataObjenious extends \Core\Controller
     $longitude = -0.3810126;
 
     $dataArr = TemperatureAPI::getDataWeather($latitude, $longitude);
-    print_r($dataArr);
+
     TemperatureManager::insertDataWeather($dataArr, "Laruns", "2020-04-15 08:30:29");
   }
 }

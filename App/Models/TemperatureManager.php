@@ -46,10 +46,15 @@ class TemperatureManager extends \Core\Model
 
     public static function insertDataWeather($dataArr, $site, $dateTime)
     {
-
+        foreach ($dataArr as $data) {
+            print_r($data);
+            echo "\ncoucou\n";
+        }
+        exit();
         $temperature = $dataArr["currently"]["temperature"];
         $summary = $dataArr["currently"]["summary"];
         $humidity = $dataArr["currently"]["humidity"];
+        $icon = $dataArr["currently"]["icon"];
         $windspeed = $dataArr["currently"]["windSpeed"];
         $windgust = $dataArr["currently"]["windGust"];
         $cloudcover = $dataArr["currently"]["cloudCover"];
@@ -67,11 +72,11 @@ class TemperatureManager extends \Core\Model
 
         $db = static::getDB();
 
-        $sql = "INSERT INTO `weather_associated` (`site_id`,`temperature`,`dateTime`, `summary`,`humidity`, `windspeed`,`windgust`,`cloudcover`,`has_alert`, `alert_description`,`alert_severity`, `uri_alert`)
+        $sql = "INSERT INTO `weather_associated` (`site_id`,`temperature`,`dateTime`, `summary`, `icon`,`humidity`, `windspeed`,`windgust`,`cloudcover`,`has_alert`, `alert_description`,`alert_severity`, `uri_alert`)
             SELECT * FROM
             (SELECT (SELECT id FROM site WHERE nom like :site ) as site_id,
             :temperature AS temperature, :dateTime AS dateTime,
-            :summary, :humidity, :windspeed, :windgust, :cloudcover, :hasAlert, :alert_description, :alert_severity, :uri_alert
+            :summary, :icon, :humidity, :windspeed, :windgust, :cloudcover, :hasAlert, :alert_description, :alert_severity, :uri_alert
             ) AS weather_record
             WHERE NOT EXISTS (
             SELECT dateTime FROM weather_associated
@@ -84,6 +89,7 @@ class TemperatureManager extends \Core\Model
         $stmt->bindValue(':temperature', $temperature, PDO::PARAM_STR);
         $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
         $stmt->bindValue(':summary', $summary, PDO::PARAM_STR);
+        $stmt->bindValue(':icon', $icon, PDO::PARAM_STR);
         $stmt->bindValue(':humidity', $humidity, PDO::PARAM_STR);
         $stmt->bindValue(':windspeed', $windspeed, PDO::PARAM_STR);
         $stmt->bindValue(':windgust', $windgust, PDO::PARAM_STR);
@@ -104,6 +110,28 @@ class TemperatureManager extends \Core\Model
         }
     }
 
+    public static function getDataWeatherForSite($deveui, $site)
+    {
+        $db = static::getDB();
+
+        $sql = "SELECT DISTINCT `temperature`, `summary`, `icon`,  `windSpeed`, `alert_description`, `alert_severity`, DATE_FORMAT(weather_associated.dateTime, '%Y-%m-%d') as date_d FROM `weather_associated`
+        LEFT JOIN site ON (site.id = weather_associated.site_id)
+        LEFT join structure ON (structure.site_id = site.id)
+        LEFT JOIN record ON (record.structure_id = structure.id)
+        LEFT JOIN sensor ON (sensor.id = record.sensor_id)
+        WHERE sensor.deveui =  :deveui
+        AND site.nom LIKE  :site AND weather_associated.dateTime > sensor.installation_date
+        ORDER BY `date_d`  DESC LIMIT 1";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':site', $site, PDO::PARAM_STR);
+        $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $temperatureDataArr = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $temperatureDataArr;
+        }
+    }
 
     public static function getHistoricalDataForSite($deveui, $site)
     {
