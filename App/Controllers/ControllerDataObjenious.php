@@ -7,6 +7,7 @@ use \Core\View;
 use \App\Models\RecordManager;
 use \App\Models\InclinometerManager;
 use \App\Models\EquipementManager;
+use \App\Models\SpectreManager;
 use \App\Models\SensorManager;
 use App\Models\API\TemperatureAPI;
 use App\Models\TemperatureManager;
@@ -61,16 +62,14 @@ class ControllerDataObjenious extends \Core\Controller
 
   public function testSQLAction()
   {
-    /*
+
     $deveui = '0004A30B00E829A7';
+    $date_time_first_measure = '2020-03-29 20:49:36';
     //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
     //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-    var_dump(SensorManager::isInstalled($deveui));*/
-    $latitude = 43.3657709;
-    $longitude = -0.3810126;
-
-    $dataArr = TemperatureAPI::getDataWeather($latitude, $longitude);
-
-    TemperatureManager::insertDataWeather($dataArr, "Laruns", "2020-04-15 08:30:29");
+    $spectreManager = new SpectreManager();
+    $spectreManager->getActivityData($deveui);
+    //$spectreManager->reconstituteAllSpectreForSensorFirstGeneration($deveui);
+    //$spectreManager->getAllSubspectres($deveui, $date_time_first_measure);
   }
 }

@@ -54,7 +54,8 @@ class TimeSeries extends \Core\Model
         $this->dataType_id = $recordManager->getDataTypeIdFromName("spectre");
     }
 
-    public function getId(){
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -86,9 +87,9 @@ class TimeSeries extends \Core\Model
 
     /**
      * replace list of peaks with a new list
-     * @param array @peakArr : news peaks 
-     * 
-     * @return void 
+     * @param array @peakArr : news peaks
+     *
+     * @return void
      */
     public function setPeaks($peakArr)
     {
@@ -97,12 +98,12 @@ class TimeSeries extends \Core\Model
 
     /**
      * Find the first X peaks from the spectre
-     * 
+     *
      * @param array $peakArr array data which contain all the peak ([valX, valYH])
      * @param int $nb first nbre peak to find in the spectre
-     * @param float $thresh_high difference of at least thresh_hig% between the max and lower values 
-     * to be considered a peak. 
-     * @param float $thresh_low limits peaks to trhesh_low% in amplitude of the largest peak. 
+     * @param float $thresh_high difference of at least thresh_hig% between the max and lower values
+     * to be considered a peak.
+     * @param float $thresh_low limits peaks to trhesh_low% in amplitude of the largest peak.
      * @return array array which contain all the peak (valX and valY)
      */
     public function findPeaks($peaksArr, $nb, $thresh_high = 0.25, $thresh_low = 0.05)
@@ -128,7 +129,7 @@ class TimeSeries extends \Core\Model
                 $lblSearch4Peak = true;
             }
             if ($lblSearch4Peak) {
-                if ($fltYvalAmplitude <= $thresh_high * $fltLocalMax) {                   
+                if ($fltYvalAmplitude <= $thresh_high * $fltLocalMax) {
                     $peaksResult->setNewPeak($intCurrentPeakPos, $fltLocalMax);
                     //reset local peak to current position
                     $fltLocalMax = $fltYvalAmplitude;
@@ -163,33 +164,35 @@ class TimeSeries extends \Core\Model
      * From a spectre Array data, create the time serie object
      *
      * @param array $spectreArr array data that contain all the info needed for building the timeserie
-     * @return void  
+     * @return void
      */
     public function createFromSpectreArr($spectreArr)
     {
+
 
         //Get basic info from the spectre array
         $record_id = $spectreArr["record_id"];
         $this->record_id = $record_id;
         $date_time = $spectreArr["date_time"];
         $this->date_time = $date_time;
-        $sensor_id = $spectreArr["sensor_id"];
-        $this->sensor_id = $sensor_id;
+
         $structure_id = $spectreArr["structure_id"];
         $this->structure_id = $structure_id;
-        
+        //var_dump($spectreArr);
         //Loop over the 5 subspectre to get the full spectre
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 1; $i < 6; $i++) {
             $subspectreName = "subspectre_" . $i;
+            //var_dump($subspectreName);
             //get the subspectre data
             if (array_key_exists($subspectreName, $spectreArr)) {
+                //echo "ok \n";
                 $subspectreData = $spectreArr[$subspectreName];
-
-                $subspectreDataValuesHex = $subspectreData["subspectre"];
+               
+                $subspectreDataValuesHex = $subspectreData["data"];
                 $resolution = $subspectreData["resolution"];
                 $min_freq = $subspectreData["min_freq"];
                 $max_freq = $subspectreData["max_freq"];
-                
+
                 //fill in the subspectre array with the subspectre data value in hexa
                 array_push($this->listSubspectreArr, $subspectreDataValuesHex);
 
@@ -210,7 +213,7 @@ class TimeSeries extends \Core\Model
                     array_push($this->listPeakArr, $peak);
                     $dataValueTmpArr = array("x" => $axisX_freq, "y" => $axisY_amplitude);
                     array_push($this->timeSerieArr, $dataValueTmpArr);
-            
+
 
                     $axisX_freq = $axisX_freq + $resolution;
                 }
@@ -223,7 +226,7 @@ class TimeSeries extends \Core\Model
     /**
      * save the object Time Serie to the Database
      * Need first to create the TimeSerie Object
-     * @return true is the object has been well saved  
+     * @return true is the object has been well saved
      */
     public function save()
     {
@@ -252,7 +255,7 @@ class TimeSeries extends \Core\Model
      * @param int $date_time
      * @param float $valueX x axis (frequency of the peak)
      * @param float $valueY y axis (amplitude of the peak)
-     * @return true if the object has been saved correctly  
+     * @return true if the object has been saved correctly
      */
     private static function insertTimeSeriesData($record_id, $structure_id, $sensor_id, $date_time, $valueX, $valueY)
     {
@@ -284,7 +287,8 @@ class TimeSeries extends \Core\Model
         return false;
     }
 
-    public function getDateTime(){
+    public function getDateTime()
+    {
         return $this->date_time;
     }
 }

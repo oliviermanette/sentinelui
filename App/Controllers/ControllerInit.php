@@ -27,30 +27,31 @@ use Core\Controller;
 class ControllerInit extends \Core\Controller
 {
 
-    public function testApiAction(){
+    public function testApiAction()
+    {
 
         SensorAPI::getNbStatutsSensorsFromApi("RTE");
     }
 
-    public function fillTemperatureDataForSiteAction(){
+    public function fillTemperatureDataForSiteAction()
+    {
         //Get all latitude and longitude of all the site in the DB
         $coordinateDataArr = SiteManager::getGeoCoordinates("RTE");
-        
-        foreach ($coordinateDataArr as $coordinateData){
-            
+
+        foreach ($coordinateDataArr as $coordinateData) {
+
             $latitude = $coordinateData["latitude"];
             $longitude = $coordinateData["longitude"];
             $site = $coordinateData["nom"];
             $startDate = "2019-09-01";
             $endDate = "2020-02-25";
-            $temperatureDataArr = TemperatureAPI::getHistoricalTemperatureData($latitude, $longitude,$startDate, $endDate);
+            $temperatureDataArr = TemperatureAPI::getHistoricalTemperatureData($latitude, $longitude, $startDate, $endDate);
             //print_r($temperatureDataArr);
-            foreach ($temperatureDataArr as $temperatureData){
+            foreach ($temperatureDataArr as $temperatureData) {
                 $date = $temperatureData["date"];
                 $temperature = $temperatureData["temperature"];
                 TemperatureManager::insert($temperature, $site, $date);
             }
-            
         }
     }
 
@@ -70,11 +71,11 @@ class ControllerInit extends \Core\Controller
         $recordManager = new RecordManager();
         //$recordManager->initPool($group_name);
         $spectreManager = new SpectreManager();
-        //Get all the sensor ID from Pool ID 
+        //Get all the sensor ID from Pool ID
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
         $coupleArr = $recordManager->getCoupleStructureIDSensorIDFromRecord($group_name);
 
-        ControllerInit::getTimeSerie(28, 3 , "2019-10-24");
+        ControllerInit::getTimeSerie(28, 3, "2019-10-24");
         exit();
 
 
@@ -85,7 +86,7 @@ class ControllerInit extends \Core\Controller
             $poolId = $recordManager->getPoolId($structure_id, $sensor_id);
 
             //Get all the spectre from a specific sensor
-            $allSpectreArr = $spectreManager->reconstituteAllSpectreForSensor($sensor_id);
+            $allSpectreArr = $spectreManager->reconstituteAllSpectreForSensorFirstGeneration($sensor_id);
 
             //Loop over all spectre received by a specific sensor
             foreach ($allSpectreArr as $spectreArr) {
@@ -141,7 +142,7 @@ class ControllerInit extends \Core\Controller
             $neuralNetwork = new NeuralNetwork(5, 1);
             $neuralNetwork->setUp($spectreArr);
             $neuralNetwork->save();
-            
+
             exit();
             print_r(Utilities::getCombinations(2,10));
             //print_r($arrayTest);
@@ -161,7 +162,7 @@ class ControllerInit extends \Core\Controller
         //print_r($allSpectreArr);
         //exit();
         foreach ($allSpectreArr as $spectreArr) {
-            
+
             //echo "\n==> NEW SPECTRE <== \n";
             $dateTime = $spectreArr["date_time"];
             //echo $dateTime;
