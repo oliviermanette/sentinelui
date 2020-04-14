@@ -231,77 +231,169 @@ class ControllerSensors extends Authenticated
      *
      * @return void
      */
-    public function downloadActivityDataAction()
+    public function downloadDataAction()
     {
 
-        if (isset($_GET['exportDataFormat']) && isset($_GET['deveui'])) {
+        if (isset($_GET['exportDataFormat']) && isset($_GET['deveui']) && isset($_GET['type'])) {
             $format = $_GET['exportDataFormat'];
             $deveui = $_GET['deveui'];
+            $type =  $_GET['type'];
 
-            //Get activity data
-            $recordRawArr = SensorManager::getRecordsFromDeveui($deveui);
-            //print_r($recordRawArr);
-            if (strcmp($format, "csv") == 0) {
-                $timestamp = time();
-                $filename = 'Export_data_sensors_' . $timestamp . '.csv';
+            if ($type == "raw") {
+                $this->downloadRawActivityData($deveui, $format);
+            } else if ($type == "inclination") {
+                $this->downloadInclinationActivityData($deveui, $format);
+            } else if ($type == "shock") {
+                $this->downloadShockActivityData($deveui, $format);
+            } else if ($type == "spectre") {
+                $this->downloadSpectreActivityData($deveui, $format);
+            }
+        }
+    }
 
-                header('Content-Type: text/csv; charset=utf-8');
-                header("Content-Disposition: attachment; filename=\"$filename\"");
 
-                $columnNames = array();
-                if (!empty($recordRawArr)) {
-                    //We only need to loop through the first row of our result
-                    //in order to collate the column names.
-                    $firstRow = $recordRawArr[0];
-                    foreach ($firstRow as $colName => $val) {
-                        $columnNames[] = $colName;
-                    }
+    private function downloadRawActivityData($deveui, $format)
+    {
+
+        //Get activity data
+        $recordRawArr = SensorManager::getRecordsFromDeveui($deveui);
+        //print_r($recordRawArr);
+        if (strcmp($format, "csv") == 0) {
+            $timestamp = time();
+            $filename = 'Export_raw_data_sensors_' . $timestamp . '.csv';
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+
+            $columnNames = array();
+            if (!empty($recordRawArr)) {
+                //We only need to loop through the first row of our result
+                //in order to collate the column names.
+                $firstRow = $recordRawArr[0];
+                foreach ($firstRow as $colName => $val) {
+                    $columnNames[] = $colName;
                 }
+            }
 
-                $output = fopen("php://output", "w");
-                //Start off by writing the column names to the file.
-                fputcsv($output, $columnNames);
-                //If we want to personalize the names
-                /*fputcsv($output, array('Deveui', 'Site', 'Equipement', 'Date Time',
+            $output = fopen("php://output", "w");
+            //Start off by writing the column names to the file.
+            fputcsv($output, $columnNames);
+            //If we want to personalize the names
+            /*fputcsv($output, array('Deveui', 'Site', 'Equipement', 'Date Time',
                 'payload', 'Type message', 'payload', 'Amplitude 1', 'Amplitude 2',
                 'Time 1', 'Time 2', 'X', 'Y', 'Z', 'Temperature', 'Batterie'));*/
-                //Then, loop through the rows and write them to the CSV file.
-                foreach ($recordRawArr as $row) {
-                    fputcsv($output, $row);
-                }
+            //Then, loop through the rows and write them to the CSV file.
+            foreach ($recordRawArr as $row) {
+                fputcsv($output, $row);
+            }
 
-                //Close the file pointer.
-                fclose($output);
-                exit();
-            } else if (strcmp($format, "excel") == 0) {
+            //Close the file pointer.
+            fclose($output);
+            exit();
+        } else if (strcmp($format, "excel") == 0) {
 
-                $timestamp = time();
-                $filename = 'Export_data_sensors_' . $deveui . '_' . $timestamp . '.xls';
+            $timestamp = time();
+            $filename = 'Export_data_sensors_' . $deveui . '_' . $timestamp . '.xls';
 
-                header("Content-Type: application/vnd.ms-excel");
-                header("Content-Disposition: attachment; filename=\"$filename\"");
+            header("Content-Type: application/vnd.ms-excel");
+            header("Content-Disposition: attachment; filename=\"$filename\"");
 
-                $isPrintHeader = false;
+            $isPrintHeader = false;
 
-                $columnNames = array();
-                if (!empty($recordRawArr)) {
-                    //We only need to loop through the first row of our result
-                    //in order to collate the column names.
-                    $firstRow = $recordRawArr[0];
-                    if (!$isPrintHeader) {
-                        foreach ($firstRow as $colName => $val) {
-                            echo $colName . "\t";
-                            //echo implode("\t", array_keys($colName)) . "\n";
-                            $isPrintHeader = true;
-                        }
-                        echo "\n";
-                    }
-                    foreach ($recordRawArr as $row) {
-                        echo implode("\t", array_values($row)) . "\n";
+            $columnNames = array();
+            if (!empty($recordRawArr)) {
+                //We only need to loop through the first row of our result
+                //in order to collate the column names.
+                $firstRow = $recordRawArr[0];
+                if (!$isPrintHeader) {
+                    foreach ($firstRow as $colName => $val) {
+                        echo $colName . "\t";
+                        //echo implode("\t", array_keys($colName)) . "\n";
+                        $isPrintHeader = true;
                     }
                     echo "\n";
                 }
+                foreach ($recordRawArr as $row) {
+                    echo implode("\t", array_values($row)) . "\n";
+                }
+                echo "\n";
             }
+        }
+    }
+
+    private function downloadInclinationActivityData($deveui, $format)
+    {
+        $dataArr = InclinometerManager::getActivityData($deveui);
+
+        if (strcmp($format, "csv") == 0) {
+
+            $timestamp = time();
+            $filename = 'Export_inclination_data_sensors_' . $timestamp . '.csv';
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+
+            $columnNames = array();
+            if (!empty($dataArr)) {
+                //We only need to loop through the first row of our result
+                //in order to collate the column names.
+                $firstRow = $dataArr[0];
+                foreach ($firstRow as $colName => $val) {
+                    $columnNames[] = $colName;
+                }
+            }
+
+            $output = fopen("php://output", "w");
+
+            fputcsv($output, $columnNames);
+
+            foreach ($dataArr as $row) {
+                fputcsv($output, $row);
+            }
+
+            //Close the file pointer.
+            fclose($output);
+            exit();
+        } else if (strcmp($format, "excel") == 0) {
+
+            $timestamp = time();
+            $filename = 'Export_inclination_data_sensors_' . $deveui . '_' . $timestamp . '.xls';
+
+            header("Content-Type: application/vnd.ms-excel");
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+
+            $isPrintHeader = false;
+
+            $columnNames = array();
+            if (!empty($dataArr)) {
+                //We only need to loop through the first row of our result
+                //in order to collate the column names.
+                $firstRow = $dataArr[0];
+                if (!$isPrintHeader) {
+                    foreach ($firstRow as $colName => $val) {
+                        echo $colName . "\t";
+                        //echo implode("\t", array_keys($colName)) . "\n";
+                        $isPrintHeader = true;
+                    }
+                    echo "\n";
+                }
+                foreach ($dataArr as $row) {
+                    echo implode("\t", array_values($row)) . "\n";
+                }
+                echo "\n";
+            }
+        }
+    }
+
+    private function downloadShockActivityData($deveui, $format)
+    {
+        if (strcmp($format, "csv") == 0) {
+        }
+    }
+
+    private function downloadSpectreActivityData($deveui, $format)
+    {
+        if (strcmp($format, "csv") == 0) {
         }
     }
 }

@@ -774,6 +774,133 @@ class InclinometerManager extends \Core\Model
     return $variationDirectionArr;
   }
 
+  public static function getActivityData($deveui, $time_period = -1)
+  {
+    $db = static::getDB();
+
+    $references_values = InclinometerManager::getValuesReference($deveui, $time_period);
+    $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+
+    $date_ref = $references_values["date"];
+    $angleX_ref = $references_values["angle_x"];
+    $angleY_ref = $references_values["angle_y"];
+    $angleZ_ref = $references_values["angle_z"];
+    $temperature_ref = $references_values["temperature"];
+
+    $sql_all_values = "SELECT
+        r.date_time AS date,
+        s.device_number,
+        st.nom as structure_name,
+        st.transmision_line_name as transmission_name,
+        site.nom as site_name,
+        angle_x,
+        angle_y,
+        angle_z,
+        temperature
+        FROM
+        inclinometer AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+        LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
+        LEFT JOIN structure AS st ON (st.id = s.structure_id)
+        LEFT JOIN site AS site ON (site.id = st.site_id)
+        WHERE
+        `msg_type` LIKE 'inclinometre'
+        AND Date(r.date_time) >= Date(s.installation_date)
+        AND s.deveui = :deveui ";
+
+    if ($time_period != -1) {
+      $sql_all_values .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    }
+
+    $sql_all_values .= "ORDER BY r.date_time ASC";
+
+    $stmt = $db->prepare($sql_all_values);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
+
+    $stmt->execute();
+    $all_values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $nbResults = count($all_values);
+
+    $dataArr = array();
+    $count = 0;
+    $variationSpeedNormalArr = array();
+    foreach ($all_values as $values) {
+
+      $date = $values["date"];
+      $device_number = $values["device_number"];
+      $structure_name = $values["structure_name"];
+      $transmission_name = $values["transmission_name"];
+      $site_name = $values["site_name"];
+      $angleX = $values["angle_x"];
+      $angleY = $values["angle_y"];
+      $temperature = $values["temperature"];
+
+      //Variation in degrees since the first day of installation
+      $variationAngleX_deg = (($angleX - $angleX_ref) / $angleX_ref);
+      $variationAngleY_deg = (($angleY - $angleY_ref) / $angleY_ref);
+      $variationAngleTemperature =  (($temperature - $temperature_ref) / $temperature_ref);
+      //Variation in pourcentage since the first day of installation
+      $variationAngleX_pourcent = $variationAngleX_deg * 100;
+      $variationAngleY_pourcent =  $variationAngleY_deg * 100;
+      $variationTemperature_pourcent = $variationAngleTemperature * 100;
+      //Variation in rad since the first day of installation
+      $variationAngleX_rad = (pi() / 180) * $variationAngleX_deg;
+      $variationAngleY_rad = (pi() / 180) * $variationAngleY_deg;
+      //Variation X and Y in cm since  the first day of installation
+      $deltaInclinaisonX_cm = (tan($variationAngleX_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
+      $deltaInclinaisonY_cm = (tan($variationAngleY_rad) * $equipment_height) * 100;
+      //Distance XY in deg and radian  since  the first day of installation
+      $distanceXY_deg = sqrt(pow($variationAngleX_deg, 2) + pow($variationAngleY_deg, 2));
+      $distanceXY_rad = (pi() / 180) * $distanceXY_deg;
+      //Inclination XY in cm  since  the first day of installation
+      $deltaInclinaisonXY_cm = (tan($distanceXY_rad) * $equipment_height) * 100;
+      //Put all the data in an array
+      $tmpArr = array(
+        "date" => $date,
+        "device_number" => $device_number,
+        "structure_name" => $structure_name,
+        "transmission_name" => $transmission_name,
+        "site_name" => $site_name,
+        "variationAngleX_deg" => $variationAngleX_deg,
+        "variationAngleY_deg" => $variationAngleY_deg,
+        "variationAngleTemperature" => $variationAngleTemperature,
+        "variationAngleX_installation_pourcent" => $variationAngleX_pourcent,
+        "variationAngleY_installation_pourcent" => $variationAngleY_pourcent,
+        "variationTemperature_installation_pourcent" => $variationTemperature_pourcent,
+        "deltaInclinaisonX_cm" => $deltaInclinaisonX_cm,
+        "deltaInclinaisonY_cm" => $deltaInclinaisonY_cm,
+        "deltaInclinaisonXY_cm" => $deltaInclinaisonXY_cm,
+      );
+
+      //Compute the speed derivative (value inclination XY today - value inclination XY yesterday)
+      if ($count == 0) {
+        $deltaInclinaisonXY_cm_diff = 0;
+      } else {
+        $deltaInclinaisonXY_cm_diff = abs($deltaInclinaisonXY_cm - $variationSpeedNormalArr[$count - 1]["deltaInclinaisonXY_cm"]);
+      }
+
+      $tmpLightArr = array(
+        "date" => $date, "deltaInclinaisonXY_cm" => $deltaInclinaisonXY_cm_diff
+      );
+      $tmpLightArr1 = array(
+        "date" => $date, "deltaInclinaisonXY_cm" => $deltaInclinaisonXY_cm
+      );
+      array_push($variationSpeedNormalArr, $tmpLightArr1);
+      //Put this data in the array
+      $tmpArr["deltaInclinaisonXY_cm_diff_previous"] = $deltaInclinaisonXY_cm_diff;
+      //Push this tmp array into the global array
+      array_push($dataArr, $tmpArr);
+
+      $count += 1;
+    }
+
+    $db = null;
+    return $dataArr;
+  }
+
   /**
    * Compute daily variation of ALL inclinometer data from today until the last X days. To compute the
    * variation, we first get the reference value of measurement. We assume that this is the first record
@@ -866,7 +993,7 @@ class InclinometerManager extends \Core\Model
   }
 
   /**
-   * Compute average daily variation of inclinometer data from today until the last X days. To compute the
+   * Compute absolute average daily variation of inclinometer data from today until the last X days. To compute the
    * variation, we first get the reference value of measurement. We assume that this is the first record
    * from the first day of instalation of the sensor
    *
