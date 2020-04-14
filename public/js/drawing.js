@@ -1576,8 +1576,8 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
     }; // Add data values to array
     // End Defining data
     var options = {
-      maintainAspectRatio: true,
-      responsive: true,
+      maintainAspectRatio: false,
+      responsive: false,
       tooltips: {
         callbacks: {
           title: function (tooltipItem, data) {
