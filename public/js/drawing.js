@@ -1134,8 +1134,6 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
   var rangeHighAxisX = Math.max.apply(Math, variation_angle_x) * 2;
   var rangeLowAxisX = Math.min.apply(Math, variation_angle_x) * 2;
 
-  console.log(rangeLowAxisX);
-
   var chartdata = {
     labels: date,
     datasets: [{
@@ -1490,7 +1488,49 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
   }
 }
 
+drawArrow = function (context, fromx, fromy, tox, toy) {
+  var headlen = 10; // length of head in pixels
+  var dx = tox - fromx;
+  var dy = toy - fromy;
+  var angle = Math.atan2(dy, dx);
+  context.moveTo(fromx, fromy);
+  context.lineTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+  context.moveTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+}
+
+function drawVerticalAxis(canvaID) {
+
+  Chart.plugins.register({
+    beforeDraw: function (chart, options) {
+      if (chart.config.data.drawXYAxes) {
+        var ctx = chart.chart.ctx;
+        var yaxis = chart.scales['scale'];
+        var paddingX = 100;
+        var paddingY = 40;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = '#0000ff';
+        ctx.lineWidth = 0.75;
+
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter - yaxis.drawingArea - paddingX, yaxis.yCenter);
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter + yaxis.drawingArea + paddingX, yaxis.yCenter);
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter - yaxis.drawingArea - paddingY);
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter + yaxis.drawingArea + paddingY);
+
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  });
+}
+
+
+
 function drawChartDirectionFromData(directionData, canvaID = "chartDirectionInclinometer") {
+
 
   if (typeof chocData != 'object') {
     directionData = JSON.parse(directionData);
@@ -1565,14 +1605,14 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       },
       title: {
         display: false,
-        text: "Direction et distance des déplacements"
+        text: "Direction et inclinaison"
       },
       legend: {
         display: false
       },
       scales: {
         yAxes: [{
-          stacked: true,
+          id: "y-axis-0",
           gridLines: {
             display: true,
             color: "rgba(255,99,132,0.2)"
@@ -1591,6 +1631,7 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
           },
         }],
         xAxes: [{
+          id: "x-axis-0",
           gridLines: {
             display: true,
             color: "rgba(255,99,132,0.2)"
@@ -1617,6 +1658,42 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
         enabled: true,
         mode: 'xy',
       },
+      annotation: {
+        events: ['click'],
+        drawTime: 'afterDatasetsDraw',
+        annotations: [{
+          id: 'hline1',
+          type: 'line',
+          mode: 'vertical',
+          scaleID: 'x-axis-0',
+          value: 0,
+          borderColor: 'rgba(103, 128, 159, 0.7)',
+          label: {
+            enabled: true,
+            content: 'Y',
+            position: "top",
+            backgroundColor: "rgba(103, 128, 159, 0.7)",
+          },
+        }, {
+          id: 'hline2',
+          type: 'line',
+          mode: 'horizontal',
+          scaleID: 'y-axis-0',
+          value: 0,
+          borderColor: 'rgba(103, 128, 159, 0.7)',
+          label: {
+            backgroundColor: "rgba(103, 128, 159, 0.7)",
+            content: "X",
+            position: "right",
+            enabled: true
+          },
+
+
+        }],
+
+      }
+
+
 
     };
 
@@ -1641,10 +1718,14 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
 
     }
 
+
+
+
     for (var i = 0; i < myChart.data.datasets[0].data.length; i++) {
       //pointRadius.push(i);
     }
     myChart.update();
+
     /*
         function addData(chart, label, data) {
           chart.data.labels.push(label);

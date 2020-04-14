@@ -155,6 +155,9 @@ class ControllerSensors extends Authenticated
         $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name, $deveui);
         $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($group_name, $deveui);
 
+        //Image sensor
+        $image_path = SensorManager::getPathImage($deveui);
+
 
         View::renderTemplate('Sensors/infoDevice.html', [
             'deveui' => $deveui,
@@ -190,6 +193,8 @@ class ControllerSensors extends Authenticated
 
             'variationDirectionArr' => $variationDirectionArr,
             'variationSpeedDirectionArr' => $variationSpeedDirectionArr,
+
+            'image_path' => $image_path,
         ]);
     }
 

@@ -252,6 +252,32 @@ class SensorManager extends \Core\Model
   }
 
   /**
+   * Return the image path of the sensor if exist
+   *
+   * @param string $deveui
+   * @return string path of the image
+   *
+   */
+  public static function getPathImage($deveui)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT img_file FROM sensor
+    WHERE deveui = :deveui";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $img_path = $stmt->fetch(PDO::FETCH_COLUMN);
+      if (empty($img_path)) {
+        return "";
+      }
+      return $img_path;
+    }
+  }
+
+  /**
    * Get the battery state of sensor
    *
    * @param string $deveui

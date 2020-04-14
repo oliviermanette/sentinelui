@@ -52,10 +52,30 @@
         <div class="card-header py-3 d-flex justify-content-center">
             <div class="row justify-content-center">
                 <div class="col">
-                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Direction et distance des déplacements</h3>
+                    <!--
+                    <form method="post" action="" enctype='multipart/form-data'>
+                        <input type='file' name='file' />
+                        <input type='submit' value='Save name' name='but_upload'>
+                    </form>
+                    -->
+                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Direction et inclinaison</h3>
                 </div>
             </div>
         </div>
+        {% if image_path %}
+        <div class="row justify-content-center">
+            <div class="col-md-3">
+                <div class="img_sensor">
+                    <img src='{{image_path}}' style="width:80%;height:90%;">
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="canvasDirectionInclinometer">
+                    <canvas id="chartDirectionInclinometer"></canvas>
+                </div>
+            </div>
+        </div>
+        {% else%}
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="canvasDirectionInclinometer">
@@ -63,12 +83,15 @@
                 </div>
             </div>
         </div>
+        {% endif%}
+
         <!-- Scatter CHART  direction   -->
         <!--  line  CHART  vitesse  -->
         <div class="card-header py-3 d-flex justify-content-center">
             <div class="row justify-content-center">
                 <div class="col">
-                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Vitesse de déplacement (cm / jour) </h3>
+                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Vitesse de déplacement (cm / jour)
+                    </h3>
                 </div>
             </div>
         </div>
