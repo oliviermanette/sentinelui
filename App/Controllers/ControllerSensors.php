@@ -387,7 +387,64 @@ class ControllerSensors extends Authenticated
 
     private function downloadShockActivityData($deveui, $format)
     {
+        $dataArr = ChocManager::getActivityData($deveui);
         if (strcmp($format, "csv") == 0) {
+
+            $timestamp = time();
+            $filename = 'Export_choc_data_sensors_' . $timestamp . '.csv';
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+
+            $columnNames = array();
+            if (!empty($dataArr)) {
+                //We only need to loop through the first row of our result
+                //in order to collate the column names.
+                $firstRow = $dataArr[0];
+                foreach ($firstRow as $colName => $val) {
+                    $columnNames[] = $colName;
+                }
+            }
+
+            $output = fopen("php://output", "w");
+
+            fputcsv($output, $columnNames);
+
+            foreach ($dataArr as $row) {
+                fputcsv($output, $row);
+            }
+
+            //Close the file pointer.
+            fclose($output);
+            exit();
+        } else if (strcmp($format, "excel") == 0) {
+
+            $timestamp = time();
+            $filename = 'Export_choc_data_sensors_' . $deveui . '_' . $timestamp . '.xls';
+
+            header("Content-Type: application/vnd.ms-excel");
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+
+            $isPrintHeader = false;
+
+            $columnNames = array();
+            if (!empty($dataArr)) {
+                //We only need to loop through the first row of our result
+                //in order to collate the column names.
+                $firstRow = $dataArr[0];
+                if (!$isPrintHeader) {
+                    foreach ($firstRow as $colName => $val) {
+                        echo $colName . "\t";
+                        //echo implode("\t", array_keys($colName)) . "\n";
+                        $isPrintHeader = true;
+                    }
+                    echo "\n";
+                }
+                foreach ($dataArr as $row) {
+                    echo implode("\t", array_values($row)) . "\n";
+                }
+                echo "\n";
+            }
         }
     }
 

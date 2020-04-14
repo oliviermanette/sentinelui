@@ -78,6 +78,43 @@ class ChocManager extends \Core\Model
     $this->structure_id = $structure_id;
   }
 
+  public static function getActivityData($deveui, $time_period = -1)
+  {
+    $db = static::getDB();
+
+    $sql_power_choc = "SELECT
+      r.date_time AS date_d,
+      s.device_number,
+        st.nom as structure_name,
+        st.transmision_line_name as transmission_name,
+        site.nom as site_name,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
+        LEFT JOIN structure AS st ON (st.id = s.structure_id)
+        LEFT JOIN site AS site ON (site.id = st.site_id)
+      WHERE
+      `msg_type` LIKE 'choc'
+      AND s.deveui = :deveui ";
+
+    if ($time_period != -1) {
+      $sql_power_choc .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    }
+    $sql_power_choc .= "ORDER BY `date_d` ASC";
+
+    $stmt = $db->prepare($sql_power_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
+    if ($stmt->execute()) {
+      $dataArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $dataArr;
+    }
+  }
 
 
   /**
@@ -847,7 +884,7 @@ class ChocManager extends \Core\Model
     }
   }
   //TODO COMMENT AND NETTOYER UN PEU CODE INUTILE
-  public static function getPowerChocForLast($deveui, $time_period)
+  public static function getPowerChocForLast($deveui, $time_period = -1)
   {
     $db = static::getDB();
 
@@ -860,15 +897,19 @@ class ChocManager extends \Core\Model
       LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
       WHERE
       `msg_type` LIKE 'choc'
-      AND s.deveui = :deveui
-      AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE()
-      ORDER BY `date_d` ASC
-        ";
+      AND s.deveui = :deveui ";
+
+    if ($time_period != -1) {
+      $sql_power_choc .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    }
+    $sql_power_choc .= "ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);
 
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-    $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
@@ -1164,7 +1205,8 @@ class ChocManager extends \Core\Model
     }
   }
 
-  public static function insertChoc($choc){
+  public static function insertChoc($choc)
+  {
     $sql_data_record_choc = 'INSERT INTO  choc (`record_id`, `amplitude_1`,  `amplitude_2`, `time_1`, `time_2`,  `freq_1`,`freq_2`, `power`)
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "choc"
@@ -1200,5 +1242,4 @@ class ChocManager extends \Core\Model
       return true;
     }
   }
-
 }
