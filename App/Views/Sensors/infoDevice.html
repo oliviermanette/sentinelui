@@ -36,63 +36,45 @@
 
                     <div class="card border-left-{% if infoArr.status == 'INACTIVE' %}danger
                         {% elseif infoArr.status == 'ACTIVE' %}success{% endif %} shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Statut</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <!-- Capteurs inactifs Card  -->
-                    <div class="col-md-3 mb-4">
-                        <div class="card shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">batterie
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.lastBatteryLevel}}
-                                            %</div>
-                                    </div>
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Statut</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Alertes Card  -->
-                    <div class="col-md-3 mb-4">
-                        <div class="card shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Dernier
-                                            message enregistré</div>
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col-auto">
-                                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                                    {{infoArr.lastMsgReceived}}</div>
-                                            </div>
-                                        </div>
+                </div>
+                <!-- Capteurs inactifs Card  -->
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">batterie
                                     </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.lastBatteryLevel}}
+                                        %</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Groupe Card  -->
-                    <div class="col-md-3 mb-4">
-                        <div class="card shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            Nombre total de message</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            {{infoArr.nbreTotMsg}}
+                <!-- Alertes Card  -->
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Dernier
+                                        message enregistré</div>
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col-auto">
+                                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                                {{infoArr.lastMsgReceived}}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -100,457 +82,461 @@
                         </div>
                     </div>
                 </div>
-                </div>
-            </div>
-            <!-- Informations sensors -->
-            <div class="card-body">
 
-                {% include "Sensors/viewInformationsSensor.html" %}
-            </div>
-
-            <!-- Activity sensors -->
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <h3 class="card-title">Activités du capteur</h3>
-                    </div>
-                    <div class="col-md-4">
-                        <button id="exportData" type="button"
-                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                            onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=excel&deveui={{infoArr.deveui}}')"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
-                            (Excel)</button>
-                    </div>
-                    <div class="col-md-4">
-                        <button id="exportData" type="button"
-                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                            onclick="window.open('/ControllerSensors/downloadActivityData?exportDataFormat=csv&deveui={{infoArr.deveui}}')"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Télécharger les données
-                            (Csv)</button>
+                <!-- Groupe Card  -->
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Nombre total de message</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{infoArr.nbreTotMsg}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                {% include "Sensors/viewTableActivityData.html" %}
-
-            </div>
-            <!-- Alert sensors -->
-            <div id="alertsStructure" class="card-body">
-                <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi des alertes</h3>
-
-                <h4 class="card-title">Alertes relevées par le capteur</h4>
-                {% for message in flash_alerts %}
-                <div class="alert alert-{{ message.type }}" role="alert">
-                    {{ message.body }}
-                </div>
-                {% endfor %}
-                {% include "Sensors/viewTableDataNewAlerts.html" %}
-            </div>
-            <!-- Alert historique sensors -->
-            <div class="card-body">
-                <h3 class="card-title">Historique des alertes</h3>
-                {% include "Sensors/viewTableDataOldAlerts.html" %}
             </div>
         </div>
+    </div>
+    <!-- Informations sensors -->
+    <div class="card-body">
 
-        {% include "Sensors/viewInclinometerWidgets.html" %}
-        {% include "Sensors/viewChocsCharts.html" %}
-        {% include "Sensors/viewTemperatureWidget.html" %}
+        {% include "Sensors/viewInformationsSensor.html" %}
     </div>
 
+    <!-- Activity sensors -->
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <h3 class="card-title">Activités du capteur</h3>
+            </div>
+        </div>
+        {% include "Sensors/viewTableActivityData.html" %}
 
+    </div>
+    <!-- Alert sensors -->
+    <div id="alertsStructure" class="card-body">
+        <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi des alertes</h3>
 
-    {% endblock %}
+        <h4 class="card-title">Alertes relevées par le capteur</h4>
+        {% for message in flash_alerts %}
+        <div class="alert alert-{{ message.type }}" role="alert">
+            {{ message.body }}
+        </div>
+        {% endfor %}
+        {% include "Sensors/viewTableDataNewAlerts.html" %}
+    </div>
+    <!-- Alert historique sensors -->
+    <div class="card-body">
+        <h3 class="card-title">Historique des alertes</h3>
+        {% include "Sensors/viewTableDataOldAlerts.html" %}
+    </div>
+</div>
 
-    {% block script %}
-
-    <script>
-        var inclinometerRangeThresh = "{{ inclinometerRangeThresh|raw}}";
-         let positionInstallation= '{{ positionInstallation|raw}}';
-            console.log(positionInstallation);
-            var excludeAngle = '';
-            if (positionInstallation == "horizontal"){
-                excludeAngle = "z";
-            }else if (positionInstallation == "vertical"){
-                excludeAngle = "x";
-            }else {
-                excludeAngle = "z";
-            }
-        $(document).ready(function () {
-            init_daterangepickerNbChoc();
-            init_daterangepickerPowerChoc();
-
-
-            let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
-
-            var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json
-                    .longitude_sensor
-                ],
-                13);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
-                id: 'mapbox.streets'
-            }).addTo(map);
+{% include "Sensors/viewInclinometerWidgets.html" %}
+{% include "Sensors/viewChocsCharts.html" %}
+{% include "Sensors/viewTemperatureWidget.html" %}
+</div>
 
 
 
-            if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
-                longitude_sensor = data_map_json.longitude_sensor;
-                latitude_sensor = data_map_json.latitude_sensor;
+{% endblock %}
+
+{% block script %}
+
+<script>
+    var inclinometerRangeThresh = "{{ inclinometerRangeThresh|raw}}";
+    let positionInstallation = '{{ positionInstallation|raw}}';
+    console.log(positionInstallation);
+    var excludeAngle = '';
+    if (positionInstallation == "horizontal") {
+        excludeAngle = "z";
+    } else if (positionInstallation == "vertical") {
+        excludeAngle = "x";
+    } else {
+        excludeAngle = "z";
+    }
+    $(document).ready(function () {
+        init_daterangepickerNbChoc();
+        init_daterangepickerPowerChoc();
 
 
-                sensor_id = data_map_json.sensor_id;
-                site = data_map_json.site;
-                equipement = data_map_json.equipement;
+        let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
 
-                L.marker([latitude_sensor, longitude_sensor]).addTo(map)
-                    .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
-            }
+        var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json
+            .longitude_sensor
+        ],
+            13);
 
-            $('#tableDataActivitySensor').DataTable({
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 'tr'
-                    }
-                },
-                "lengthMenu": [
-                    [10, 25, 50, -1],
-                    [10, 25, 50, 'All']
-                ],
-                "iDisplayLength": 10
-            });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
+            id: 'mapbox.streets'
+        }).addTo(map);
 
-            //Draw direction inclinometer
-            let variationDirection = '{{ variationDirectionArr|raw}}';
-            drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer");
-            //Draw speed variation
-            let variationSpeed = '{{ variationSpeedDirectionArr|raw}}';
-            drawChartSpeedVariationFromData(variationSpeed, "chartVitesseInclinometer");
 
-            //Draw chart inclinometer monthly
+
+        if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
+            longitude_sensor = data_map_json.longitude_sensor;
+            latitude_sensor = data_map_json.latitude_sensor;
+
+
+            sensor_id = data_map_json.sensor_id;
+            site = data_map_json.site;
+            equipement = data_map_json.equipement;
+
+            L.marker([latitude_sensor, longitude_sensor]).addTo(map)
+                .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+        }
+
+        $('#tableDataActivitySensor').DataTable({
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 10
+        });
+
+        //Draw direction inclinometer
+        let variationDirection = '{{ variationDirectionArr|raw}}';
+        drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer");
+        //Draw speed variation
+        let variationSpeed = '{{ variationSpeedDirectionArr|raw}}';
+        drawChartSpeedVariationFromData(variationSpeed, "chartVitesseInclinometer");
+
+        //Draw chart inclinometer monthly
+        let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
+        drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);
+
+        //Draw chart variation inclinometer absolute variation
+        let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
+        drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
+
+
+        //Draw chart choc
+        //Nb choc
+        let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
+        drawChartNbChocPerDate(nbChocDataMonth, "chartNbChoc");
+
+        //Power
+        let powerChocDataMonth = '{{ powerChocDataMonthArr|raw}}';
+        drawChartPowerChocPerDateBar(powerChocDataMonth, "chartPowerChoc");
+
+        //Draw temperature
+        let temperatureData = '{{ temperatureArr|raw}}';
+        let historicalTemperatureData = '{{ historicalTemperatureDataArr|raw}}';
+        drawChartTemperatureFromData(temperatureData, "chartTemperature");
+        drawChartHistoricalTemperature(historicalTemperatureData, "chartHistoricalTemperature");
+        //drawBothTemperature(temperatureData, historicalTemperatureData, "chartHistoricalTemperature")
+
+        //Prevision
+        //let location= '{{ location|raw}}';
+        //console.log("Data map : ",location);
+        //drawPrevision(location);
+
+    });
+
+    //When the user want to change the date for displaying the chart concerning the power of choc
+    // Day, week or month
+    $(document).on("click", "#radioButtonInclinometer", function (e) {
+        e.preventDefault();
+        let deveui = '{{infoArr.deveui}}';
+        var lastXdays = $("input[name='options']:checked").val();
+
+        removeElement("canvasInclinometer");
+        addElement("canvasInclinometer", "canvas", "chartAngleInclinometer");
+        if (lastXdays === "-1") {
             let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
+            console.log("Since installation date : ", inclinometerDataDay);
             drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);
+        }
+        if (lastXdays === "7") {
+            let inclinometerDataWeek = '{{ inclinometerDataWeekArr|raw}}';
+            console.log("Last 7 days : ", inclinometerDataWeek);
+            drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer", excludeAngle);
+        }
+        if (lastXdays === "30") {
+            let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
+            drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer", excludeAngle);
+        }
 
-            //Draw chart variation inclinometer absolute variation
-            let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
+    });
 
+    $(document).on("click", "#radioButtonNbChoc", function (e) {
+        e.preventDefault();
 
-            //Draw chart choc
-            //Nb choc
+        let deveui = '{{infoArr.deveui}}';
+        var lastXdays = $("input[name='options']:checked").val();
+
+        removeElement("chartNbChoc");
+        addElement("canvasNbchoc", "canvas", "chartNbChoc");
+        if (lastXdays === "7") {
+            let nbChocDataWeek = '{{ nbChocDataWeekArr|raw}}';
+            drawChartNbChocPerDate(nbChocDataWeek, "chartNbChoc");
+        }
+        if (lastXdays === "30") {
             let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
             drawChartNbChocPerDate(nbChocDataMonth, "chartNbChoc");
+        }
+        if (lastXdays === "1") {
+            let nbChocDataDay = '{{ nbChocDataDay|raw}}';
+            drawChartNbChocPerDate(nbChocDataDay, "chartNbChoc");
+        }
 
-            //Power
-            let powerChocDataMonth = '{{ powerChocDataMonthArr|raw}}';
-            drawChartPowerChocPerDateBar(powerChocDataMonth, "chartPowerChoc");
+    });
+    $(document).on("click", "#radioButtonPowerChoc", function (e) {
+        e.preventDefault();
+        let deveui = '{{infoArr.deveui}}';
+        var lastXdays = $("input[name='options']:checked").val();
 
-            //Draw temperature
-            let temperatureData= '{{ temperatureArr|raw}}';
-            let historicalTemperatureData= '{{ historicalTemperatureDataArr|raw}}';
-            drawChartTemperatureFromData(temperatureData, "chartTemperature");
-            drawChartHistoricalTemperature(historicalTemperatureData, "chartHistoricalTemperature");
-            //drawBothTemperature(temperatureData, historicalTemperatureData, "chartHistoricalTemperature")
+        removeElement("chartPowerChoc");
+        addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
+        if (lastXdays === "7") {
+            let nbPowerDataWeek = '{{ powerChocDataWeekArr|raw}}';
+            //console.log("Week : ", nbPowerDataWeek);
+            drawChartPowerChocPerDateBar(nbPowerDataWeek, "chartPowerChoc");
+        }
+        if (lastXdays === "30") {
+            let nbPowerDataMonth = '{{ powerChocDataMonthArr|raw}}';
+            //console.log("Month :", nbPowerDataMonth);
+            drawChartPowerChocPerDateBar(nbPowerDataMonth, "chartPowerChoc");
+        }
+        if (lastXdays === "1") {
+            let nbPowerDataDay = '{{ powerChocDataDayArr|raw}}';
+            //console.log("Day :", nbPowerDataDay);
+            drawChartPowerChocPerDateBar(nbPowerDataDay, "chartPowerChoc");
+        }
 
-            //Prevision
-            //let location= '{{ location|raw}}';
-            //console.log("Data map : ",location);
-            //drawPrevision(location);
+    });
 
-        });
+    $(document).on("click", "#radioButtonPercentageVariationInclinometer", function (e) {
+        e.preventDefault();
+        let deveui = '{{infoArr.deveui}}';
+        var lastXdays = $("input[name='options']:checked").val();
 
-        //When the user want to change the date for displaying the chart concerning the power of choc
-        // Day, week or month
-        $(document).on("click", "#radioButtonInclinometer", function (e) {
-            e.preventDefault();
-            let deveui = '{{infoArr.deveui}}';
-            var lastXdays = $("input[name='options']:checked").val();
+        removeElement("chartVariationAngleInclinometer");
+        addElement("canvasVariationInclinometer", "canvas", "chartVariationAngleInclinometer");
+        if (lastXdays === "7") {
+            let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
+            console.log("Data :", inclinometerVariationWeeklyData);
+            drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
+        }
+        if (lastXdays === "30") {
+            let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
+            console.log("Data :", inclinometerVariationMonthlyData);
+            drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
 
-            removeElement("canvasInclinometer");
-            addElement("canvasInclinometer", "canvas", "chartAngleInclinometer");
-            if (lastXdays === "-1") {
-                let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
-                console.log("Since installation date : ", inclinometerDataDay);
-                drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer",  excludeAngle);
-            }
-            if (lastXdays === "7") {
-                let inclinometerDataWeek = '{{ inclinometerDataWeekArr|raw}}';
-                console.log("Last 7 days : ", inclinometerDataWeek);
-                drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer",  excludeAngle);
-            }
-            if (lastXdays === "30") {
-                let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
-                drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer", excludeAngle);
-            }
-
-        });
-
-        $(document).on("click", "#radioButtonNbChoc", function (e) {
-            e.preventDefault();
-
-            let deveui = '{{infoArr.deveui}}';
-            var lastXdays = $("input[name='options']:checked").val();
-
-            removeElement("chartNbChoc");
-            addElement("canvasNbchoc", "canvas", "chartNbChoc");
-            if (lastXdays === "7") {
-                let nbChocDataWeek = '{{ nbChocDataWeekArr|raw}}';
-                drawChartNbChocPerDate(nbChocDataWeek, "chartNbChoc");
-            }
-            if (lastXdays === "30") {
-                let nbChocDataMonth = '{{ nbChocDataMonthArr|raw}}';
-                drawChartNbChocPerDate(nbChocDataMonth, "chartNbChoc");
-            }
-            if (lastXdays === "1") {
-                let nbChocDataDay = '{{ nbChocDataDay|raw}}';
-                drawChartNbChocPerDate(nbChocDataDay, "chartNbChoc");
-            }
-
-        });
-        $(document).on("click", "#radioButtonPowerChoc", function (e) {
-            e.preventDefault();
-            let deveui = '{{infoArr.deveui}}';
-            var lastXdays = $("input[name='options']:checked").val();
-
-            removeElement("chartPowerChoc");
-            addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
-            if (lastXdays === "7") {
-                let nbPowerDataWeek = '{{ powerChocDataWeekArr|raw}}';
-                //console.log("Week : ", nbPowerDataWeek);
-                drawChartPowerChocPerDateBar(nbPowerDataWeek, "chartPowerChoc");
-            }
-            if (lastXdays === "30") {
-                let nbPowerDataMonth = '{{ powerChocDataMonthArr|raw}}';
-                //console.log("Month :", nbPowerDataMonth);
-                drawChartPowerChocPerDateBar(nbPowerDataMonth, "chartPowerChoc");
-            }
-            if (lastXdays === "1") {
-                let nbPowerDataDay = '{{ powerChocDataDayArr|raw}}';
-                //console.log("Day :", nbPowerDataDay);
-                drawChartPowerChocPerDateBar(nbPowerDataDay, "chartPowerChoc");
-            }
-
-        });
-
-        $(document).on("click", "#radioButtonPercentageVariationInclinometer", function (e) {
-            e.preventDefault();
-            let deveui = '{{infoArr.deveui}}';
-            var lastXdays = $("input[name='options']:checked").val();
-
-            removeElement("chartVariationAngleInclinometer");
-            addElement("canvasVariationInclinometer", "canvas", "chartVariationAngleInclinometer");
-            if (lastXdays === "7") {
-                let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
-                 console.log("Data :", inclinometerVariationWeeklyData);
-                drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData,"chartVariationAngleInclinometer",false, 2,excludeAngle );
-            }
-            if (lastXdays === "30") {
-                let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
-                console.log("Data :", inclinometerVariationMonthlyData);
-                drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData, "chartVariationAngleInclinometer",false, 2, excludeAngle);
-
-            }
-            if (lastXdays === "1") {
-                let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-                console.log("Data :", inclinometerVariationDailyData);
-                drawVariationChartAngleXYZFromData(inclinometerVariationDailyData,"chartVariationAngleInclinometer",
+        }
+        if (lastXdays === "1") {
+            let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
+            console.log("Data :", inclinometerVariationDailyData);
+            drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer",
                 false, 2, excludeAngle);
+        }
+
+    });
+
+
+    function fetchChartNbChoc(startDate, endDate) {
+        let formData = new FormData();
+        let deveui = '{{infoArr.deveui}}';
+        formData.append('startDate', startDate);
+        formData.append('endDate', endDate);
+        formData.append('deveui', deveui);
+
+        let xhttp;
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                let jsonData = this.responseText;
+                console.log("Data return : ", jsonData);
+                removeElement("chartNbChoc");
+                addElement("canvasNbchoc", "canvas", "chartNbChoc");
+                let nbChocData = jsonData;
+                drawChartNbChocPerDate(nbChocData, "chartNbChoc");
+
+
             }
+        };
+        xhttp.open("POST", "/ControllerSensors/getChartDataNbChoc", true);
+        xhttp.send(formData);
+    }
+
+    function fetchChartPowerChoc(startDate, endDate) {
+        let formData = new FormData();
+        let deveui = '{{infoArr.deveui}}';
+        formData.append('startDate', startDate);
+        formData.append('endDate', endDate);
+        formData.append('deveui', deveui);
+
+        let xhttp;
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                let jsonData = this.responseText;
+
+                removeElement("chartPowerChoc");
+                addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
+                let powerChocData = jsonData;
+                drawChartPowerChocPerDateBar(powerChocData, "chartPowerChoc");
+
+
+            }
+        };
+        xhttp.open("POST", "/ControllerSensors/getChartDataPowerChoc", true);
+        xhttp.send(formData);
+    }
+    /* DATERANGEPICKER */
+
+    function init_daterangepickerNbChoc() {
+        moment.locale('fr');
+        if (typeof ($.fn.daterangepicker) === 'undefined') {
+            return;
+        }
+
+        var cb = function (start, end, label) {
+            //console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrangeNbchoc span').html(start.format('L') + ' - ' + end.format('L'));
+        };
+
+        var optionSet = {
+            minDate: '{{firstActivity}}',
+            maxDate: '{{lastActivity}}',
+            startDate: '{{firstActivity}}',
+            endDate: '{{lastActivity}}',
+            dateLimit: {
+                days: 60
+            },
+            showDropdowns: true,
+            showWeekNumbers: true,
+            ranges: {
+                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
+            locale: {
+                applyLabel: 'Appliquer',
+                cancelLabel: 'Annuler',
+                fromLabel: 'De',
+                toLabel: 'à',
+                customRangeLabel: 'Specifique',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ],
+                firstDay: 1
+            }
+        }
+
+        $('#reportrangeNbchoc').daterangepicker(optionSet, cb);
+
+        $('#reportrangeNbchoc').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD');
+            endDate = picker.endDate.format('YYYY-MM-DD');;
+            let diffDays = picker.endDate.diff(picker.startDate, 'days');
+            console.log('Selection start : ', startDate);
+            console.log("Selection end : ", endDate);
+            fetchChartNbChoc(startDate, endDate);
 
         });
+        $('#reportrangeNbchoc').on('cancel.daterangepicker', function (ev, picker) {
+            startDate = '';
+            endDate = '';
+            $('#reportrangeNbchoc span').html(startDate + ' - ' + endDate);
+        });
 
+        $('#reportrangeNbchoc').on('show.daterangepicker', function () {
+            let firstActivity = '{{firstActivity}}';
+            let lastActivity = '{{lastActivity}}';
+            console.log('First Activity : ', firstActivity);
+            console.log("Last Activity : ", lastActivity);
+        });
+    }
 
-        function fetchChartNbChoc(startDate, endDate) {
-            let formData = new FormData();
-            let deveui = '{{infoArr.deveui}}';
-            formData.append('startDate', startDate);
-            formData.append('endDate', endDate);
-            formData.append('deveui', deveui);
-
-            let xhttp;
-            xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    let jsonData = this.responseText;
-                    console.log("Data return : ", jsonData);
-                    removeElement("chartNbChoc");
-                    addElement("canvasNbchoc", "canvas", "chartNbChoc");
-                    let nbChocData = jsonData;
-                    drawChartNbChocPerDate(nbChocData, "chartNbChoc");
-
-
-                }
-            };
-            xhttp.open("POST", "/ControllerSensors/getChartDataNbChoc", true);
-            xhttp.send(formData);
+    function init_daterangepickerPowerChoc() {
+        moment.locale('fr');
+        if (typeof ($.fn.daterangepicker) === 'undefined') {
+            return;
         }
 
-        function fetchChartPowerChoc(startDate, endDate) {
-            let formData = new FormData();
-            let deveui = '{{infoArr.deveui}}';
-            formData.append('startDate', startDate);
-            formData.append('endDate', endDate);
-            formData.append('deveui', deveui);
+        var cb = function (start, end, label) {
+            //console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrangePowerchoc span').html(start.format('L') + ' - ' + end.format('L'));
+        };
 
-            let xhttp;
-            xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    let jsonData = this.responseText;
-
-                    removeElement("chartPowerChoc");
-                    addElement("canvasPowerchoc", "canvas", "chartPowerChoc");
-                    let powerChocData = jsonData;
-                    drawChartPowerChocPerDateBar(powerChocData, "chartPowerChoc");
-
-
-                }
-            };
-            xhttp.open("POST", "/ControllerSensors/getChartDataPowerChoc", true);
-            xhttp.send(formData);
-        }
-        /* DATERANGEPICKER */
-
-        function init_daterangepickerNbChoc() {
-            moment.locale('fr');
-            if (typeof ($.fn.daterangepicker) === 'undefined') {
-                return;
+        var optionSet = {
+            minDate: '{{firstActivity}}',
+            maxDate: '{{lastActivity}}',
+            startDate: '{{firstActivity}}',
+            endDate: '{{lastActivity}}',
+            dateLimit: {
+                days: 60
+            },
+            showDropdowns: true,
+            showWeekNumbers: true,
+            ranges: {
+                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
+            locale: {
+                applyLabel: 'Appliquer',
+                cancelLabel: 'Annuler',
+                fromLabel: 'De',
+                toLabel: 'à',
+                customRangeLabel: 'Specifique',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ],
+                firstDay: 1
             }
-
-            var cb = function (start, end, label) {
-                //console.log(start.toISOString(), end.toISOString(), label);
-                $('#reportrangeNbchoc span').html(start.format('L') + ' - ' + end.format('L'));
-            };
-
-            var optionSet = {
-                minDate: '{{firstActivity}}',
-                maxDate: '{{lastActivity}}',
-                startDate: '{{firstActivity}}',
-                endDate: '{{lastActivity}}',
-                dateLimit: {
-                    days: 60
-                },
-                showDropdowns: true,
-                showWeekNumbers: true,
-                ranges: {
-                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
-                    'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
-                    'Ce mois': [moment().startOf('month'), moment().endOf('month')]
-                },
-                opens: 'left',
-                buttonClasses: ['btn btn-default'],
-                applyClass: 'btn-small btn-primary',
-                cancelClass: 'btn-small',
-                format: 'DD/MM/YYYY',
-                separator: ' à ',
-                locale: {
-                    applyLabel: 'Appliquer',
-                    cancelLabel: 'Annuler',
-                    fromLabel: 'De',
-                    toLabel: 'à',
-                    customRangeLabel: 'Specifique',
-                    daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
-                    monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
-                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
-                    ],
-                    firstDay: 1
-                }
-            }
-
-            $('#reportrangeNbchoc').daterangepicker(optionSet, cb);
-
-            $('#reportrangeNbchoc').on('apply.daterangepicker', function (ev, picker) {
-                startDate = picker.startDate.format('YYYY-MM-DD');
-                endDate = picker.endDate.format('YYYY-MM-DD');;
-                let diffDays = picker.endDate.diff(picker.startDate, 'days');
-                console.log('Selection start : ', startDate);
-                console.log("Selection end : ", endDate);
-                fetchChartNbChoc(startDate, endDate);
-
-            });
-            $('#reportrangeNbchoc').on('cancel.daterangepicker', function (ev, picker) {
-                startDate = '';
-                endDate = '';
-                $('#reportrangeNbchoc span').html(startDate + ' - ' + endDate);
-            });
-
-            $('#reportrangeNbchoc').on('show.daterangepicker', function () {
-                let firstActivity = '{{firstActivity}}';
-                let lastActivity = '{{lastActivity}}';
-                console.log('First Activity : ', firstActivity);
-                console.log("Last Activity : ", lastActivity);
-            });
         }
 
-        function init_daterangepickerPowerChoc() {
-            moment.locale('fr');
-            if (typeof ($.fn.daterangepicker) === 'undefined') {
-                return;
-            }
+        $('#reportrangePowerchoc').daterangepicker(optionSet, cb);
 
-            var cb = function (start, end, label) {
-                //console.log(start.toISOString(), end.toISOString(), label);
-                $('#reportrangePowerchoc span').html(start.format('L') + ' - ' + end.format('L'));
-            };
+        $('#reportrangePowerchoc').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD');
+            endDate = picker.endDate.format('YYYY-MM-DD');;
+            let diffDays = picker.endDate.diff(picker.startDate, 'days');
+            fetchChartPowerChoc(startDate, endDate);
 
-            var optionSet = {
-                minDate: '{{firstActivity}}',
-                maxDate: '{{lastActivity}}',
-                startDate: '{{firstActivity}}',
-                endDate: '{{lastActivity}}',
-                dateLimit: {
-                    days: 60
-                },
-                showDropdowns: true,
-                showWeekNumbers: true,
-                ranges: {
-                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
-                    'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
-                    'Ce mois': [moment().startOf('month'), moment().endOf('month')]
-                },
-                opens: 'left',
-                buttonClasses: ['btn btn-default'],
-                applyClass: 'btn-small btn-primary',
-                cancelClass: 'btn-small',
-                format: 'DD/MM/YYYY',
-                separator: ' à ',
-                locale: {
-                    applyLabel: 'Appliquer',
-                    cancelLabel: 'Annuler',
-                    fromLabel: 'De',
-                    toLabel: 'à',
-                    customRangeLabel: 'Specifique',
-                    daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
-                    monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
-                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
-                    ],
-                    firstDay: 1
-                }
-            }
+        });
+        $('#reportrangePowerchoc').on('cancel.daterangepicker', function (ev, picker) {
+            startDate = '';
+            endDate = '';
+            $('#reportrangePowerchoc span').html(startDate + ' - ' + endDate);
+        });
 
-            $('#reportrangePowerchoc').daterangepicker(optionSet, cb);
+        $('#reportrangePowerchoc').on('show.daterangepicker', function () {
+            let firstActivity = '{{firstActivity}}';
+            let lastActivity = '{{lastActivity}}';
+        });
+    }
+</script>
 
-            $('#reportrangePowerchoc').on('apply.daterangepicker', function (ev, picker) {
-                startDate = picker.startDate.format('YYYY-MM-DD');
-                endDate = picker.endDate.format('YYYY-MM-DD');;
-                let diffDays = picker.endDate.diff(picker.startDate, 'days');
-                fetchChartPowerChoc(startDate, endDate);
-
-            });
-            $('#reportrangePowerchoc').on('cancel.daterangepicker', function (ev, picker) {
-                startDate = '';
-                endDate = '';
-                $('#reportrangePowerchoc span').html(startDate + ' - ' + endDate);
-            });
-
-            $('#reportrangePowerchoc').on('show.daterangepicker', function () {
-                let firstActivity = '{{firstActivity}}';
-                let lastActivity = '{{lastActivity}}';
-            });
-        }
-    </script>
-
-    {% endblock %}
+{% endblock %}
