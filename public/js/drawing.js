@@ -1623,8 +1623,8 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
             fontSize: 20,
           },
           ticks: {
-            min: -4,
-            max: 4,
+            min: -3,
+            max: 3,
             beginAtZero: false,
             stepSize: 0.5,
             autoskip: true,
@@ -1642,8 +1642,8 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
             fontSize: 20,
           },
           ticks: {
-            min: -4,
-            max: 4,
+            min: -3,
+            max: 3,
             beginAtZero: false,
             stepSize: 0.5,
             autoskip: true,
