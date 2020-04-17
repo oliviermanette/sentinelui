@@ -3,3 +3,4 @@
 [20-Feb-2020 17:24:55 Europe/Berlin] PHP Fatal error:  Maximum execution time of 120 seconds exceeded in C:\xampp\htdocs\index.php on line 28
 [20-Feb-2020 17:24:55 Europe/Berlin] PHP Fatal error:  Maximum execution time of 120 seconds exceeded in C:\xampp\htdocs\index.php on line 28
 [20-Feb-2020 17:24:55 Europe/Berlin] PHP Fatal error:  Maximum execution time of 120 seconds exceeded in C:\xampp\htdocs\index.php on line 28
+[17-Apr-2020 15:58:20 Europe/Berlin] PHP Fatal error:  Cannot use App\Models\RecordManager as RecordManager because the name is already in use in C:\xampp\htdocs\sentive\App\Controllers\ControllerDataObjenious.php on line 8

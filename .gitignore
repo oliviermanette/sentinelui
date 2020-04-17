@@ -15,3 +15,4 @@ package-lock.json
 composer.lock
 node_modules
 sendgrid.env
+logs/all_errors.log
