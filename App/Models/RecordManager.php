@@ -599,24 +599,24 @@ class RecordManager extends \Core\Model
    *  sensor_id | latitude_site | longitude_site | latitude_sensor | longitude_sensor | site | equipement
    *
    */
-  public static function getDataMap($group_name)
+  public static function getDataMapForGroup($group_id)
   {
     $db = static::getDB();
 
-    $query_data_map = "SELECT DISTINCT r.sensor_id, s.latitude AS latitude_site, s.longitude AS longitude_site,
-    st.latitude AS latitude_sensor, st.longitude AS longitude_sensor, s.nom AS site, st.nom AS equipement
-    FROM record AS r
-    INNER JOIN sensor ON (sensor.id=r.sensor_id)
-    INNER JOIN structure AS st ON r.structure_id = st.id
-    INNER JOIN site AS s ON s.id = st.site_id
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE gn.name LIKE :group_name";
+    $query_data_map = "SELECT DISTINCT sensor.device_number, sensor.deveui, s.latitude AS latitude_site, s.longitude AS longitude_site,
+    st.latitude AS latitude_sensor, st.longitude AS longitude_sensor, attr_transmission_line.name AS transmission_line_name, s.nom AS site, st.nom AS equipement
+    FROM sensor
+    LEFT JOIN structure AS st ON sensor.structure_id = st.id
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
+    LEFT JOIN site AS s ON s.id = st.site_id
+    LEFT JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
+    LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+    WHERE gn.group_id = :group_id";
 
     $stmt = $db->prepare($query_data_map);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':group_id', $group_id, PDO::PARAM_INT);
     if ($stmt->execute()) {
-      $data_map = $stmt->fetchAll();
+      $data_map = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $data_map;
     }
   }

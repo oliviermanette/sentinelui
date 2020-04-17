@@ -146,8 +146,10 @@ class UserManager extends \Core\Model
     $stmt->execute();
 
     $user = $stmt->fetch();
-    $groupe_name = UserManager::findGroupById($id);
-    $user->setGroupName($groupe_name);
+    $group = UserManager::findGroupById($id);
+
+    $user->setGroupName($group["name"]);
+
     return $user;
   }
 
@@ -161,7 +163,7 @@ class UserManager extends \Core\Model
   public static function findGroupById($user_id)
   {
 
-    $sql = "SELECT gn.name
+    $sql = "SELECT gn.group_id, gn.name
     FROM user AS u
     LEFT JOIN group_users as gu ON (gu.user_id = u.id)
     LEFT JOIN group_name as gn ON (gn.group_id = gu.group_id)
@@ -172,7 +174,7 @@ class UserManager extends \Core\Model
     $stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-      $group= $stmt->fetch(PDO::FETCH_COLUMN);
+      $group = $stmt->fetch(PDO::FETCH_ASSOC);
 
       return $group;
     }
@@ -183,7 +185,7 @@ class UserManager extends \Core\Model
    *
    * @param string $id The user ID
    *
-   * @return array 
+   * @return array
    */
   public static function findNameUserById($user_id)
   {
@@ -288,7 +290,7 @@ class UserManager extends \Core\Model
     $user = static::findByEmail($email);
     //var_dump($user);
     if ($user) {
-        $user->sendPasswordResetEmail();
+      $user->sendPasswordResetEmail();
     }
   }
 
@@ -343,7 +345,8 @@ class UserManager extends \Core\Model
     $this->groupe_name = $groupName;
   }
 
-  public function getGroupName(){
+  public function getGroupName()
+  {
     return $this->groupe_name;
   }
 
@@ -418,10 +421,11 @@ class UserManager extends \Core\Model
     return false;
   }
 
-  public static function findToSendAlerts($group){
+  public static function findToSendAlerts($group)
+  {
     $db = static::getDB();
 
-    $sql = "SELECT user.email, user.phone_number, user.first_name, user.last_name, user.company FROM `user`  
+    $sql = "SELECT user.email, user.phone_number, user.first_name, user.last_name, user.company FROM `user`
     LEFT JOIN group_users ON (user.id = group_users.user_id)
     LEFT JOIN group_name ON (group_name.group_id = group_users.group_id)
     WHERE group_name.name = :group_name AND user.send_alert is true";
@@ -434,12 +438,10 @@ class UserManager extends \Core\Model
 
     $db = 0;
     return $users;
-
-    
   }
   /**
    * Update the profile account in the DB
-   * 
+   *
    * @param int $user_id The id of the user
    * @param array $data array that contain the profile information for updating
    *
@@ -458,8 +460,7 @@ class UserManager extends \Core\Model
     $phone_number = $data["phone_number"];
     $city = $data["city"];
     $zip_code = $data["zip_code"];
-    $country = $data["country"];
-    ;
+    $country = $data["country"];;
     $sql = "UPDATE user
         SET user.country = :country, user.zip_code = :zip_code, user.phone_number = :phone_number,
         user.adress = :adress, user.city = :city, user.company = :company, user.username = :username,

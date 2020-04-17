@@ -1967,6 +1967,7 @@ function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectr
  * @return map instance
  */
 function showMap(data) {
+  console.log("Data :", data);
   data = JSON.parse(data);
   //console.log("Data show map : ", data);
   //For centering the map around France at initialization
@@ -2032,12 +2033,13 @@ function showMap(data) {
       latitude_sensor = obj.latitude_sensor;
 
 
-      sensor_id = obj.sensor_id;
+      device_number = obj.device_number;
       site = obj.site;
       equipement = obj.equipement;
+      line_HT = obj.transmission_line_name
 
       L.marker([latitude_sensor, longitude_sensor]).addTo(map)
-        .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+        .bindPopup("<b>Capteur : " + device_number + "</b><br />" + site + " | " + equipement + " | " + line_HT).openPopup();
     }
   }
 }
