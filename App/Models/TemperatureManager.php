@@ -179,7 +179,8 @@ class TemperatureManager extends \Core\Model
     {
         $db = static::getDB();
 
-        $sql = "SELECT DISTINCT `temperature`, `summary`, `icon`,  `windSpeed`, `alert_description`, `alert_severity`, DATE_FORMAT(weather_associated.dateTime, '%Y-%m-%d') as date_d FROM `weather_associated`
+        $sql = "SELECT DISTINCT `temperature`, `summary`, `icon`,  `precipitation`, `humidity`,
+        `windSpeed`, `windGust`, `alert_description`, `alert_severity`, DATE_FORMAT(weather_associated.dateTime, '%Y-%m-%d') as date_d FROM `weather_associated`
         LEFT JOIN site ON (site.id = weather_associated.site_id)
         LEFT join structure ON (structure.site_id = site.id)
         LEFT JOIN record ON (record.structure_id = structure.id)
@@ -194,6 +195,30 @@ class TemperatureManager extends \Core\Model
 
         if ($stmt->execute()) {
             $temperatureDataArr = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $temperatureDataArr;
+        }
+    }
+
+    public static function getAllDataWeatherForSite($deveui, $site)
+    {
+        $db = static::getDB();
+
+        $sql = "SELECT DISTINCT `temperature`, `summary`, `icon`,  `precipitation`, `humidity`,
+        `windSpeed`, `windGust`, `cloudCover`, `alert_description`, `alert_severity`, weather_associated.dateTime as date_time FROM `weather_associated`
+        LEFT JOIN site ON (site.id = weather_associated.site_id)
+        LEFT join structure ON (structure.site_id = site.id)
+        LEFT JOIN record ON (record.structure_id = structure.id)
+        LEFT JOIN sensor ON (sensor.id = record.sensor_id)
+        WHERE sensor.deveui =  :deveui
+        AND site.nom LIKE  :site AND weather_associated.dateTime > sensor.installation_date
+        ORDER BY `date_time` DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':site', $site, PDO::PARAM_STR);
+        $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $temperatureDataArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $temperatureDataArr;
         }
     }

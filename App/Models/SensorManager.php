@@ -72,6 +72,25 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getStructureWhereIsInstalled($deveui)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT DISTINCT structure.nom, structure.latitude, structure.longitude,
+    attr_transmission_line.name FROM structure
+    LEFT JOIN sensor ON (sensor.structure_id = structure.id)
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id=structure.attr_transmission_id
+    WHERE sensor.deveui = :deveui";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $site = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $site;
+    }
+  }
+
   /**
    * Get the deveui of a device given his id
    *

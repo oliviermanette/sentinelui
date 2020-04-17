@@ -207,6 +207,20 @@
             "iDisplayLength": 10
         });
 
+        $('#tableDataWeather').DataTable({
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 10,
+            "order": [[0, "desc"]]
+        });
         //Draw direction inclinometer
         let variationDirection = '{{ variationDirectionArr|raw}}';
         drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer");

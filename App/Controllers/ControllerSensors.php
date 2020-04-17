@@ -146,7 +146,12 @@ class ControllerSensors extends Authenticated
 
         $historicalTemperatureDataArr = TemperatureManager::getHistoricalDataForSite($deveui, $site);
         $historicalTemperatureDataArr = json_encode($historicalTemperatureDataArr);
-        $link = "";//TemperatureAPI::generateMeteogramLink($site, "42.9883", "-0.4266");
+        $allDataWeather = TemperatureManager::getAllDataWeatherForSite($deveui, $site);
+
+        $structure = SensorManager::getStructureWhereIsInstalled($deveui);
+        //$allDataWeather = json_encode($allDataWeather);
+
+        $link = TemperatureAPI::generateMeteogramLink($site, $structure["latitude"],$structure["longitude"]);
         //var_dump($historicalTemperatureDataArr);
 
         //Get settings
@@ -193,6 +198,7 @@ class ControllerSensors extends Authenticated
             'temperatureArr' => $tempArr,
             'weatherDataArr' => $weatherDataArr,
             'historicalTemperatureDataArr' => $historicalTemperatureDataArr,
+            'allDataWeather' => $allDataWeather,
             'link' => $link,
 
             //Alerts
