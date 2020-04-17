@@ -1087,7 +1087,7 @@ function drawNoDataAvailable(canvaID) {
 
 }
 
-function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentage = true, threshAnnotation = 2, excludeAngle = null) {
+function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentage = true, excludeAngle = null) {
   if (typeof inclinometerData != 'object') {
     inclinometerData = JSON.parse(inclinometerData);
   }
@@ -1188,8 +1188,6 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
           beginAtZero: false,
           min: rangeLowAxisX,
           max: rangeHighAxisX,
-          /* min: -threshAnnotation - 8,
-           max: threshAnnotation + 8,*/
         },
         scaleLabel: {
           display: true,
@@ -1215,46 +1213,6 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
       enabled: true,
       mode: 'y',
     },
-    annotation: {
-      events: ['click'],
-      drawTime: 'afterDatasetsDraw',
-      annotations: [{
-        id: 'hline1',
-        type: 'line',
-        mode: 'horizontal',
-        scaleID: 'y-axis-0',
-        value: threshAnnotation,
-        borderColor: 'red',
-        borderDash: [2, 2],
-        label: {
-          enabled: true,
-          content: 'Seuil d\'alerte haut',
-          backgroundColor: "red",
-        },
-        onClick: function (e) {
-          var link = "/settings";
-          window.open(link);
-        },
-      }, {
-        id: 'hline2',
-        type: 'line',
-        mode: 'horizontal',
-        scaleID: 'y-axis-0',
-        value: -threshAnnotation,
-        borderColor: 'red',
-        borderDash: [2, 2],
-        label: {
-          backgroundColor: "red",
-          content: "Seuil d\'alerte bas",
-          enabled: true
-        },
-        onClick: function (e) {
-          var link = "/settings";
-          window.open(link);
-        },
-      }],
-
-    }
   };
 
 

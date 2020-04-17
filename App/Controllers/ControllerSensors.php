@@ -150,7 +150,7 @@ class ControllerSensors extends Authenticated
         //var_dump($historicalTemperatureDataArr);
 
         //Get settings
-        $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
+        //$inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
 
         //Alerts
         $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name, $deveui);
@@ -163,7 +163,7 @@ class ControllerSensors extends Authenticated
         View::renderTemplate('Sensors/infoDevice.html', [
             'deveui' => $deveui,
             'location' => $site,
-            'inclinometerRangeThresh' => $inclinometerRangeThresh,
+            //'inclinometerRangeThresh' => $inclinometerRangeThresh,
             'firstActivity' => $firstActivity,
             'lastActivity' => $lastActivity,
             'infoArr' => $infoArr,

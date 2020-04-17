@@ -150,9 +150,8 @@
 {% block script %}
 
 <script>
-    var inclinometerRangeThresh = "{{ inclinometerRangeThresh|raw}}";
+    //var inclinometerRangeThresh = "{{ inclinometerRangeThresh|raw}}";
     let positionInstallation = '{{ positionInstallation|raw}}';
-    console.log(positionInstallation);
     var excludeAngle = '';
     if (positionInstallation == "horizontal") {
         excludeAngle = "z";
@@ -221,7 +220,7 @@
 
         //Draw chart variation inclinometer absolute variation
         let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
-        drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
+        drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer", false, excludeAngle);
 
 
         //Draw chart choc
@@ -330,19 +329,19 @@
         if (lastXdays === "7") {
             let inclinometerVariationWeeklyData = '{{ percentageVariationWeekArr|raw}}';
             console.log("Data :", inclinometerVariationWeeklyData);
-            drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
+            drawVariationChartAngleXYZFromData(inclinometerVariationWeeklyData, "chartVariationAngleInclinometer", false, excludeAngle);
         }
         if (lastXdays === "30") {
             let inclinometerVariationMonthlyData = '{{ percentageVariationMonthArr|raw}}';
             console.log("Data :", inclinometerVariationMonthlyData);
-            drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData, "chartVariationAngleInclinometer", false, 2, excludeAngle);
+            drawVariationChartAngleXYZFromData(inclinometerVariationMonthlyData, "chartVariationAngleInclinometer", false, excludeAngle);
 
         }
         if (lastXdays === "1") {
             let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
             console.log("Data :", inclinometerVariationDailyData);
             drawVariationChartAngleXYZFromData(inclinometerVariationDailyData, "chartVariationAngleInclinometer",
-                false, 2, excludeAngle);
+                false, excludeAngle);
         }
 
     });
