@@ -102,23 +102,23 @@ class Message
         #Remove bracket
         $externalId_no_bracket = str_replace(array('[', ']'), '', $this->externalId);
         $externalId_array = explode("-", $externalId_no_bracket);
+            if (count($externalId_array)>1){
+            $type_structure =  $externalId_array[0];
+            $region = $externalId_array[1];
+            $transmission_line_name = $externalId_array[2];
 
-        $type_structure =  $externalId_array[0];
-        $region = $externalId_array[1];
-        $transmission_line_name = $externalId_array[2];
+            $desc_asset = $externalId_array[3];
+            $support_asset = $externalId_array[4];
+            $corniere = $externalId_array[5];
 
-        $desc_asset = $externalId_array[3];
-        $support_asset = $externalId_array[4];
-        $corniere = $externalId_array[5];
+            #Build the asset name
+            $name_asset = $desc_asset . "_" . $support_asset;
 
-        #Build the asset name
-        $name_asset = $desc_asset . "_" . $support_asset;
-
-        $this->typeStructure = $type_structure;
-        $this->structureName = $name_asset;
-        $this->transmissionLineName = $transmission_line_name;
-        $this->site = $region;
-
+            $this->typeStructure = $type_structure;
+            $this->structureName = $name_asset;
+            $this->transmissionLineName = $transmission_line_name;
+            $this->site = $region;
+        }
     }
 
     private function convertTimestampToDateTime($datetimeFormat = 'Y-m-d H:i:s', $fromTimeZone = 'UTC', $toTimeZone = 'CET')
@@ -293,7 +293,6 @@ class Message
 
         #Extract data from the second part
         $msgSecondPart = substr($payload_cleartext, 2, strlen($payload_cleartext) - 2);
-        echo "\n msgSecondPart  : ". $msgSecondPart . "\n";
         $battery_left = Utilities::hex2dec(substr($msgSecondPart, 0, 2));
         $temperature =  Utilities::hex2dec(substr($msgSecondPart, 2, 4)) / 10;
         $X = Utilities::hex2dec(substr($msgSecondPart, 6, 4)) * 0.0625;

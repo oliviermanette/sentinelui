@@ -44,17 +44,20 @@ class TemperatureAPI
         return $currentTemperature;
     }
 
-    public static function getDataWeather($latitude, $longitude, $API_NAME = "DARKSKY")
+    public static function getCurrentDataWeather($latitude, $longitude, $API_NAME = "DARKSKY")
     {
         //Darksy is now deprecated because has been bought by Apple
         if ($API_NAME == "DARKSKY") {
             $API_KEY = \App\Config::WEATHERDARK_SKY_API_KEY;
             $url = "https://api.darksky.net/forecast/" . $API_KEY . "/" . $latitude . "," . $longitude . "?lang=fr&units=si&exclude=minutely,hourly,daily";
             $responseArr = API::CallAPI("GET", $url);
+             return $responseArr;
+
         } else if ($API_NAME == "VISUALCROSSING") {
             $API_KEY = \App\Config::WEATHER_VISUALCROSSING_API_KEY;
             $url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/forecast?contentType=json&key=" . $API_KEY . "&locations=" . $latitude . "," . $longitude . "&shortColumnNames=False&aggregateHours=24&unitGroup=metric";
             $responseArr = API::CallAPI("GET", $url);
+            return Utilities::array_find_value_by_key($responseArr["locations"], "currentConditions");
         } else {
             $responseArr = array();
         }

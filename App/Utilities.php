@@ -24,7 +24,7 @@ class Utilities
     }
     $x = 1;
     $y = 1;
-    
+
     $i = $n - $k + 1;
     while ($i <= $n){
       $x = ($x * $i) / $y;
@@ -38,7 +38,7 @@ class Utilities
 ​
 La fonction qui permet de donner toutes les combinaisons de 2 parmi le tableau N
 ​
-Input : N without key or with a numerical index key (counts the rank) 
+Input : N without key or with a numerical index key (counts the rank)
 Ex : array(1,2,3)
 ​
 Output : array of different combination
@@ -84,7 +84,7 @@ function getCombination($n)
 
      return $arrayCombination;
   }
-  
+
 
   public static function hexStr2bin($hex){
     $maxchars = 8;
@@ -351,5 +351,31 @@ function getCombination($n)
   public static function computeIntersectB($slope, $ptIntersect){
     return $ptIntersect[1] - $slope * $ptIntersect[0];
   }
+
+  public static function array_find_deep($array, $search, $keys = array())
+{
+    foreach($array as $key => $value) {
+        if (is_array($value)) {
+            $sub = Utilities::array_find_deep($value, $search, array_merge($keys, array($key)));
+            if (count($sub)) {
+                return $sub;
+            }
+        } elseif ($value === $search) {
+            return array_merge($keys, array($key));
+        }
+    }
+
+    return array();
+}
+
+public static function array_find_value_by_key($dataArr, $search){
+  foreach ($dataArr as $data){
+      if (isset($data[$search])){
+          return $data[$search];
+      }
+    }
+
+}
+
 
 }

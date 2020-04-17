@@ -45,15 +45,18 @@ class RecordManager extends \Core\Model
   {
 
     $message = new Message($data);
+    //Check if the sensors is associated to an installation before dealing with a message
+    if (SensorManager::isInstalled($message->deveui)) {
+      if ($message->getFormatMessage() == "uplink") {
+        RecordManager::handleUplinkMessage($message);
+      } else if ($message->getFormatMessage() == "event") {
 
-    if ($message->getFormatMessage() == "uplink") {
-
-      RecordManager::handleUplinkMessage($message);
-    } else if ($message->getFormatMessage() == "event") {
-
-      RecordManager::handleEventMessage($message);
-    } else if ($message->getFormatMessage() == "downlink") {
-    } else if ($message->getFormatMessage() == "join") {
+        RecordManager::handleEventMessage($message);
+      } else if ($message->getFormatMessage() == "downlink") {
+      } else if ($message->getFormatMessage() == "join") {
+      }
+    }else {
+      echo "\nThe sensor has not been yet installed. \n";
     }
   }
 
@@ -111,8 +114,8 @@ class RecordManager extends \Core\Model
         }
 
         //Insert current temperature of the site today
-        $dataArr = TemperatureAPI::getDataWeather($message->latitude, $message->longitude);
-        TemperatureManager::insertDataWeather($dataArr, $message->site, $message->dateTime);
+        $dataArr = TemperatureAPI::getCurrentDataWeather($message->latitude, $message->longitude, $API_NAME = "DARKSKY");
+        TemperatureManager::insertDataWeather($dataArr, $message->site, $message->dateTime, $API_NAME = "DARKSKY");
         //$currentTemperature = TemperatureAPI::getCurrentTemperature($message->latitude, $message->longitude);
         //TemperatureManager::insert($currentTemperature, $message->site, $message->dateTime);
 
