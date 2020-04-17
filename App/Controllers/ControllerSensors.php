@@ -84,12 +84,10 @@ class ControllerSensors extends Authenticated
         }
 
         //Get inclinometer data
-        //References values
-        $inclinaisonRefArr = InclinometerManager::getValuesReference($deveui, -1);
         $positionInstallation = SensorManager::getPositionInstallation($deveui);
 
         //var_dump($inclinaisonRefArr);
-
+        /*
         //1.Variation 1 month (30 days)
         $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 30, $precision = 3);
         //2.Variation 1 week (7 days)
@@ -97,7 +95,7 @@ class ControllerSensors extends Authenticated
         //3.Variation 1 day
         $variationDayArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 1, $precision = 3);
 
-        $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);
+        $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);*/
 
         //4. chart data
         //Inclinometer raw data
@@ -152,7 +150,7 @@ class ControllerSensors extends Authenticated
         //var_dump($historicalTemperatureDataArr);
 
         //Get settings
-        $inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
+        //$inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
 
         //Alerts
         $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name, $deveui);
@@ -163,42 +161,48 @@ class ControllerSensors extends Authenticated
 
 
         View::renderTemplate('Sensors/infoDevice.html', [
+            //Sensor
             'deveui' => $deveui,
             'location' => $site,
-            'inclinometerRangeThresh' => $inclinometerRangeThresh,
             'firstActivity' => $firstActivity,
             'lastActivity' => $lastActivity,
             'infoArr' => $infoArr,
-            'dataMapArray' => $dataMapArr,
-            'activeAlertsArr' => $activeAlertsArr,
-            'processedAlertsArr' => $processedAlertsArr,
             'recordRawArr' => $recordRawArr,
-            'totalVariationArr' => $totalVariationArr,
+            'positionInstallation' => $positionInstallation,
+            'image_path' => $image_path,
+
+            //Inclinometer
             'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
             'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
             'inclinometerDataDayArr' => $inclinometerDataDayArr,
+            'percentageVariationDayArr' => $percentageVariationDayArr,
+            'percentageVariationWeekArr' => $percentageVariationWeekArr,
+            'percentageVariationMonthArr' => $percentageVariationMonthArr,
+            'variationDirectionArr' => $variationDirectionArr,
+            'variationSpeedDirectionArr' => $variationSpeedDirectionArr,
+
+            //Choc
             'nbChocDataMonthArr' => $nbChocDataMonthArr,
             'nbChocDataWeekArr' => $nbChocDataWeekArr,
             'nbChocDataDay' => $nbChocDataDay,
             'powerChocDataMonthArr' => $powerChocDataMonthArr,
             'powerChocDataDayArr' => $powerChocDataDayArr,
             'powerChocDataWeekArr' => $powerChocDataWeekArr,
-            'percentageVariationDayArr' => $percentageVariationDayArr,
-            'percentageVariationWeekArr' => $percentageVariationWeekArr,
-            'percentageVariationMonthArr' => $percentageVariationMonthArr,
-            'inclinaisonRefArr' => $inclinaisonRefArr,
+
+            //Weather
             'temperatureArr' => $tempArr,
             'weatherDataArr' => $weatherDataArr,
             'historicalTemperatureDataArr' => $historicalTemperatureDataArr,
+            'link' => $link,
+
+            //Alerts
+            'activeAlertsArr' => $activeAlertsArr,
+            'processedAlertsArr' => $processedAlertsArr,
             'alerts_active_info_arr' => $alertsActiveDataArr,
             'alerts_processed_info_arr' => $alertsProcessedDataArr,
-            'positionInstallation' => $positionInstallation,
 
-            'variationDirectionArr' => $variationDirectionArr,
-            'variationSpeedDirectionArr' => $variationSpeedDirectionArr,
-
-            'image_path' => $image_path,
-            'link' => $link,
+            //Map
+            'dataMapArray' => $dataMapArr,
         ]);
     }
 
