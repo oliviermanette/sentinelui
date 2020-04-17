@@ -199,7 +199,7 @@ class TemperatureManager extends \Core\Model
         }
     }
 
-    public static function getAllDataWeatherForSite($deveui, $site)
+    public static function getAllDataWeatherForSite($deveui, $site, $limit = 30)
     {
         $db = static::getDB();
 
@@ -211,7 +211,7 @@ class TemperatureManager extends \Core\Model
         LEFT JOIN sensor ON (sensor.id = record.sensor_id)
         WHERE sensor.deveui =  :deveui
         AND site.nom LIKE  :site AND weather_associated.dateTime > sensor.installation_date
-        ORDER BY `date_time` DESC";
+        ORDER BY `date_time` DESC LIMIT $limit";
 
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':site', $site, PDO::PARAM_STR);
