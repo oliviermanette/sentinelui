@@ -49,7 +49,7 @@ class TemperatureManager extends \Core\Model
     {
 
         if ($API_NAME == "VISUALCROSSING"){
-              TemperatureManager::insertFromVisualCrossingAPI($dataArr, $site);
+            TemperatureManager::insertFromVisualCrossingAPI($dataArr, $site);
 
         }
         else if ($API_NAME == "DARKSKY"){
