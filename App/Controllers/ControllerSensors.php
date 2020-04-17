@@ -9,6 +9,7 @@ use \App\Models\InclinometerManager;
 use \App\Auth;
 use \App\Flash;
 use App\Models\AlertManager;
+use App\Models\API\TemperatureAPI;
 use App\Models\BatteryManager;
 use App\Models\ChocManager;
 use App\Models\SpectreManager;
@@ -147,6 +148,7 @@ class ControllerSensors extends Authenticated
 
         $historicalTemperatureDataArr = TemperatureManager::getHistoricalDataForSite($deveui, $site);
         $historicalTemperatureDataArr = json_encode($historicalTemperatureDataArr);
+        $link = "";//TemperatureAPI::generateMeteogramLink($site, "42.9883", "-0.4266");
         //var_dump($historicalTemperatureDataArr);
 
         //Get settings
@@ -196,6 +198,7 @@ class ControllerSensors extends Authenticated
             'variationSpeedDirectionArr' => $variationSpeedDirectionArr,
 
             'image_path' => $image_path,
+            'link' => $link,
         ]);
     }
 

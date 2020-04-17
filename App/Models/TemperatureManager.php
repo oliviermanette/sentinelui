@@ -43,6 +43,7 @@ class TemperatureManager extends \Core\Model
             return true;
         }
     }
+    
 
     public static function insertDataWeather($dataArr, $site, $dateTime)
     {
