@@ -149,9 +149,16 @@ class ControllerSensors extends Authenticated
         $allDataWeather = TemperatureManager::getAllDataWeatherForSite($deveui, $site);
 
         $structure = SensorManager::getStructureWhereIsInstalled($deveui);
-        //$allDataWeather = json_encode($allDataWeather);
+        if (isset($structure["longitude"]) && isset($structure["latitude"]) ){
+            $longitude = $structure["longitude"];
+            $latitude = $structure["latitude"];
+            //$allDataWeather = json_encode($allDataWeather);
 
-        $link = "";// TemperatureAPI::generateMeteogramLink($site, $structure["latitude"],$structure["longitude"]);
+            $link = TemperatureAPI::generateMeteogramLink($site, $latitude, $longitude);
+        }else {
+            $link="";
+        }
+
         //var_dump($historicalTemperatureDataArr);
 
         //Get settings
