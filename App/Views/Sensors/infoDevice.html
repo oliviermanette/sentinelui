@@ -108,16 +108,7 @@
         {% include "Sensors/viewInformationsSensor.html" %}
     </div>
 
-    <!-- Activity sensors -->
-    <div class="card-body">
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <h3 class="card-title">Activités du capteur</h3>
-            </div>
-        </div>
-        {% include "Sensors/viewTableActivityData.html" %}
 
-    </div>
     <!-- Alert sensors -->
     <div id="alertsStructure" class="card-body">
         <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi des alertes</h3>
@@ -140,6 +131,16 @@
 {% include "Sensors/viewInclinometerWidgets.html" %}
 {% include "Sensors/viewChocsCharts.html" %}
 {% include "Sensors/viewTemperatureWidget.html" %}
+
+    <!-- Activity sensors -->
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <h3 class="card-title">Activités du capteur</h3>
+            </div>
+        </div>
+        {% include "Sensors/viewTableActivityData.html" %}
+    </div>
 </div>
 
 
