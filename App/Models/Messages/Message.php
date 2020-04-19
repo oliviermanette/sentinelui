@@ -30,21 +30,20 @@ class Message
         $this->extractDeviceProperties();
         $this->convertTimestampToDateTime();
 
-        if ($this->typeMsgFormat == "uplink"){
+        if ($this->typeMsgFormat == "uplink") {
             $this->extractProtocolData();
             $this->group = explode("-", $this->group)[0];
             $this->latitude = $this->lat;
             $this->longitude = $this->lng;
             $this->msgDecoded = $this->decodePayload();
             $this->extractExternalId();
-
         }
-
     }
 
 
 
-    public function getFormatMessage(){
+    public function getFormatMessage()
+    {
         return $this->typeMsgFormat;
     }
 
@@ -68,7 +67,8 @@ class Message
         }
     }
 
-    private function extractDeviceProperties(){
+    private function extractDeviceProperties()
+    {
 
         $this->externalId = $this->device_properties['external_id'];
         $this->appeui =  $this->device_properties['appeui'];
@@ -78,13 +78,14 @@ class Message
         }
         if (array_key_exists('Version du firmware', $this->device_properties)) {
             $this->software_version =  $this->device_properties['Version du firmware'];
-            if( strpos($this->software_version, ',') !== false ) {
-                $this->software_version = str_replace(',', '.',$this->software_version);
+            if (strpos($this->software_version, ',') !== false) {
+                $this->software_version = str_replace(',', '.', $this->software_version);
             }
         }
     }
 
-    private function extractProtocolData(){
+    private function extractProtocolData()
+    {
         if (array_key_exists('port', $this->protocol_data)) {
             $this->port = $this->protocol_data['port'];
         }
@@ -102,7 +103,7 @@ class Message
         #Remove bracket
         $externalId_no_bracket = str_replace(array('[', ']'), '', $this->externalId);
         $externalId_array = explode("-", $externalId_no_bracket);
-            if (count($externalId_array)>1){
+        if (count($externalId_array) > 1) {
             $type_structure =  $externalId_array[0];
             $region = $externalId_array[1];
             $transmission_line_name = $externalId_array[2];
@@ -123,18 +124,28 @@ class Message
 
     private function convertTimestampToDateTime($datetimeFormat = 'Y-m-d H:i:s', $fromTimeZone = 'UTC', $toTimeZone = 'CET')
     {
-
-        //Split 2019-11-29T16:01:26.572226000Z to keep only the last part 572226000Z
+        //At the end we want to have something like this : 2020-04-16T20:05:13
+        //Sometime at the input we get either "2020-04-16T20:05:13Z" or 2020-04-17T02:35:22.15915Z
+        //So we need to remove the extra and remove the Z as well
         $part = explode(".", $this->timestamp);
-        $second = substr($part[1], 0, 3);
-        //Finnaly we get 2019-11-29T16:01:26.572Z
-        $secondTimeZone = $second; //. "Z";
-        $timestamp = $part[0] . "." . $secondTimeZone;
+
+        //Second case
+        if (isset($part[1])) {
+            $second = substr($part[1], 0, 3);
+            //Finnaly we get 2019-11-29T16:01:26.572Z
+            $secondTimeZone = $second; //. "Z";
+            var_dump($secondTimeZone);
+            $this->timestamp = $part[0] . "." . $secondTimeZone;
+        }
+        //first case
+        else {
+            $this->timestamp = rtrim($this->timestamp, "Z");
+        }
 
         //Objenious work with UTC Timezone
         $timezoneUTC = new \DateTimeZone($fromTimeZone);
         //Create object DateTime
-        $datetime = new \DateTime($timestamp, $timezoneUTC);
+        $datetime = new \DateTime($this->timestamp, $timezoneUTC);
         //Convert to TimeZone France
         $france_time = new \DateTimeZone($toTimeZone);
         $datetime->setTimezone($france_time);
@@ -152,7 +163,7 @@ class Message
      */
     private function decodePayload()
     {
-        if ($this->getSoftwareVersion() == 1.45){
+        if ($this->getSoftwareVersion() == 1.45) {
             echo "\n## MESSAGE RECEIVED FROM SENTINEL 1.0 ## \n";
 
             $preambule_hex = substr($this->payload_cleartext, 0, 2);
@@ -162,22 +173,18 @@ class Message
                 $this->typeMsg = "inclinometre";
                 echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <=== \n";
                 $msgDecoded = $this->decodeInclinometreMsg($this->payload_cleartext);
-
             } else if ($preambule_bin == "10") {
                 $this->typeMsg = "choc";
                 echo "\n ==> TYPE MESSAGE RECEIVED : choc_data data <===\n";
                 $msgDecoded = $this->decodeChocMsg($this->payload_cleartext);
-
             } else if ($preambule_bin == "11") {
                 $this->typeMsg = "global";
                 echo "\n ==> TYPE MESSAGE RECEIVED : global data <===\n";
                 $msgDecoded = $this->decodeGlobalMsg($this->payload_cleartext);
-
             } else if ($preambule_bin == "01") {
                 $this->typeMsg = "spectre";
                 echo "\n ==> TYPE MESSAGE RECEIVED : spectre data <===\n";
                 $msgDecoded = $this->decodeSpectreMsg($this->payload_cleartext);
-
             } else {
                 $this->typeMsg = "undefined";
                 $msgDecoded = "UNDEFINED";
@@ -189,27 +196,22 @@ class Message
             $payload_decoded_json['deveui'] = $this->deveui;
 
             return $payload_decoded_json;
-
-        }
-        else if ($this->getSoftwareVersion() == 2.0){
+        } else if ($this->getSoftwareVersion() == 2.0) {
             echo "\n## MESSAGE RECEIVED FROM SENTINEL 2.0 ## \n";
 
-            if ($this->getPortMessage() == 1){
+            if ($this->getPortMessage() == 1) {
                 echo "\n ==> TYPE MESSAGE RECEIVED : Inclinometre data <=== \n";
                 $this->typeMsg = "inclinometre";
                 $msgDecoded = $this->decodeInclinometreMsgForProfile2($this->payload_cleartext);
-            }
-            else if ($this->getPortMessage() == 2){
+            } else if ($this->getPortMessage() == 2) {
                 echo "\n ==> TYPE MESSAGE RECEIVED : Spectre data <=== \n";
                 $this->typeMsg = "spectre";
                 $msgDecoded = $this->decodeSpectreMsgForProfile2($this->payload_cleartext);
-            }
-            else if ($this->getPortMessage() == 3){
+            } else if ($this->getPortMessage() == 3) {
                 echo "\n ==> TYPE MESSAGE RECEIVED : Choc data <=== \n";
                 $this->typeMsg = "choc";
                 $msgDecoded = $this->decodeChocMsgForProfile2($this->payload_cleartext);
-            }
-            else {
+            } else {
                 $this->typeMsg = "undefined";
                 $msgDecoded = "UNDEFINED";
             }
@@ -220,9 +222,7 @@ class Message
             $payload_decoded_json['deveui'] = $this->deveui;
 
             return $payload_decoded_json;
-
         }
-
     }
 
 
@@ -276,9 +276,9 @@ class Message
      * @param string $payload_cleartext payload data
      * @return json  data decoded in json format which contain the inclinometer raw data
      */
-     private function decodeInclinometreMsgForProfile2($payload_cleartext)
+    private function decodeInclinometreMsgForProfile2($payload_cleartext)
     {
-        echo "\n Payload : ". $payload_cleartext ."\n";
+        echo "\n Payload : " . $payload_cleartext . "\n";
         #Take the preambule
         $preambule_hex = substr($payload_cleartext, 0, 2);
         $preambule_bin = Utilities::hexStr2bin($preambule_hex);
@@ -361,7 +361,7 @@ class Message
         return json_encode($chocMsgDecoded, true);
     }
 
- /**
+    /**
      * Decode a choc message for sentinel new generation
      *
      * @param string $payload_cleartext payload data
@@ -369,7 +369,7 @@ class Message
      */
     private function decodeChocMsgForProfile2($payload_cleartext)
     {
-        echo "\n Payload : ". $payload_cleartext;
+        echo "\n Payload : " . $payload_cleartext;
 
         #Take the preambule
         $preambule_hex = substr($payload_cleartext, 0, 2);
@@ -443,7 +443,7 @@ class Message
         return json_encode($globalMSGDecoded);
     }
 
-   /**
+    /**
      * Decode a spectre message for sentinel new generation
      *
      * @param string $payload_cleartext payload data
@@ -451,7 +451,7 @@ class Message
      */
     private function decodeSpectreMsgForProfile2($payload_cleartext)
     {
-        echo "\n Payload : ". $payload_cleartext ."\n";
+        echo "\n Payload : " . $payload_cleartext . "\n";
         #Take the preambule
         $spectre_msg_hex = $payload_cleartext;
         $preambule_hex = substr($payload_cleartext, 0, 2);
@@ -617,15 +617,18 @@ class Message
     }
 
 
-    public function getPortMessage(){
+    public function getPortMessage()
+    {
         return $this->port;
     }
 
-    public function getHardwareVersion(){
+    public function getHardwareVersion()
+    {
         return $this->hardware_version;
     }
 
-     public function getSoftwareVersion(){
+    public function getSoftwareVersion()
+    {
 
         return $this->software_version;
     }
