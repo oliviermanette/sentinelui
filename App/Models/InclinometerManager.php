@@ -1027,7 +1027,7 @@ class InclinometerManager extends \Core\Model
         LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
       WHERE
         `msg_type` LIKE 'inclinometre'
-        AND s.deveui LIKE '0004A30B00E829A7'
+        AND s.deveui = :deveui
         AND Date(r.date_time) > s.installation_date  ";
 
     if ($time_period != -1) {

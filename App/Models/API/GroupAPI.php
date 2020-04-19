@@ -13,7 +13,6 @@ class GroupAPI
     {
         $url = "https://api.objenious.com/v1/groups";
         $results_api = API::CallAPI("GET", $url);
-
         return $results_api;
     }
 
