@@ -54,22 +54,20 @@ class EquipementManager extends \Core\Model
    * @param string $group_name the name of the group we want to retrieve equipment data
    * @return array  results from the query
    */
-  public static function getEquipements($group_name)
+  public static function getEquipements($groupId)
   {
 
     $db = static::getDB();
 
-    $sql_query_get_equipement = "SELECT DISTINCT equipement, equipement_id FROM (SELECT site.nom AS site ,st.nom AS equipement, st.id AS equipement_id, gn.name AS GroupeName FROM structure AS st
-    LEFT JOIN record AS r ON (r.structure_id=st.id)
-    LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+    $sql_query_get_equipement = "SELECT s.device_number, st.nom AS equipement, st.id AS equipement_id
+    FROM structure AS st
+    LEFT JOIN sensor AS s ON (s.structure_id = st.id)
     LEFT JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
     LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    LEFT JOIN group_site AS grs ON (grs.group_id=gn.group_id)
-    LEFT JOIN site ON (site.id = grs.site_id)
-    WHERE gn.name LIKE :group_name) AS equipement_RTE";
+    WHERE gn.group_id = :groupId";
 
     $stmt = $db->prepare($sql_query_get_equipement);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
       $all_equipment = $stmt->fetchAll();
@@ -134,21 +132,20 @@ class EquipementManager extends \Core\Model
    * @param string $group_name the name of the group we want to retrieve equipment data
    * @return array  results from the query
    */
-  function getEquipementsBySiteId($siteID, $group_name)
+  function getEquipementsBySiteId($siteID, $groupId)
   {
     $db = static::getDB();
 
-    $sql_query_equipement_by_id = "SELECT DISTINCT equipement_id, equipement, ligneHT, nomSite FROM
-    (SELECT  gs.sensor_id, site.nom AS nomSite, site.id AS site_id, st.transmision_line_name AS ligneHT, st.nom AS equipement, st.id AS equipement_id FROM structure AS st
-      INNER JOIN sensor AS s ON (s.structure_id = st.id)
-      INNER JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
-      INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-      LEFT JOIN site ON (site.id=st.site_id)
-      WHERE gn.name = :group_name AND site_id = :site_id) AS RTE ";
+    $sql_query_equipement_by_id = "SELECT site.nom AS site_name, st.nom AS equipement, st.id AS equipement_id FROM structure AS st
+    LEFT JOIN sensor AS s ON (s.structure_id = st.id)
+    LEFT JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
+    LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+    LEFT JOIN site ON (site.id=st.site_id)
+    WHERE gn.group_id = :groupId AND site_id = :siteId";
 
     $stmt = $db->prepare($sql_query_equipement_by_id);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-    $stmt->bindValue(':site_id', $siteID, PDO::PARAM_INT);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+    $stmt->bindValue(':siteId', $siteID, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
       $all_equipment_by_id = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -41,15 +41,15 @@ class ControllerData extends Authenticated
     $user = Auth::getUser();
     $group_name = $user->getGroupName();
 
-    $all_site = SiteManager::getSites($group_name);
-    $all_equipment = EquipementManager::getEquipements($group_name);
+    $sites = SiteManager::getSites($user->group_id);
+    $all_equipment = EquipementManager::getEquipements($user->group_id);
     $date_min_max = RecordManager::getDateMinMaxFromRecord();
 
     $min_date = $date_min_max[0];
     $max_date = $date_min_max[1];
 
     View::renderTemplate('Data/index.html', [
-      'all_site'    => $all_site,
+      'all_site'    => $sites,
       'all_equipment' => $all_equipment,
       'min_date' => $min_date,
       'max_date' => $max_date,
@@ -70,8 +70,8 @@ class ControllerData extends Authenticated
     $group_name = $user->getGroupName();
 
     $choc_data_arr = ChocManager::getAllChocDataForGroup($group_name);
-    $all_equipment = EquipementManager::getEquipements($group_name);
-    $all_site = SiteManager::getSites($group_name);
+    $all_equipment = EquipementManager::getEquipements($user->group_id);
+    $all_site = SiteManager::getSites($user->group_id);
     $date_min_max = RecordManager::getDateMinMaxFromRecord();
 
     $min_date = $date_min_max[0];
@@ -116,7 +116,7 @@ class ControllerData extends Authenticated
       $equipement_id = $_POST['equipmentID'];
       $searchSpecificEquipement = true;
     }
-    $startDate="";
+    $startDate = "";
     $endDate = "";
     if (!empty($_POST['startDate']) && !empty($_POST['endDate'])) {
       $startDate = $_POST['startDate'];
@@ -220,7 +220,8 @@ class ControllerData extends Authenticated
     ]);
   }
 
-  public function getChartsSpectre(){
+  public function getChartsSpectre()
+  {
     $group_name = $_SESSION['group_name'];
     $site_id = $_POST["site_request"];
     $equipement_id = $_POST["equipement_request"];
@@ -333,7 +334,6 @@ class ControllerData extends Authenticated
       $startDate = $_POST['startDate'];
       $endDate = $_POST['endDate'];
       $searchByDate = true;
-
     }
 
     //Attention à la date valide (inferieur data d'activité et installation)
@@ -347,11 +347,11 @@ class ControllerData extends Authenticated
       #Retrieve the sensor id
       $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
       $deveui = EquipementManager::getDeveuiSensorOnEquipement($equipement_id);
-      if ($searchByDate){
+      if ($searchByDate) {
         $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
         $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
         $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
-      }else {
+      } else {
         $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
         $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
         $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
@@ -383,7 +383,7 @@ class ControllerData extends Authenticated
         #Retrieve the sensor id
         $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
         //print_r($equipement_id);
-       if ($searchByDate) {
+        if ($searchByDate) {
           $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
           $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
           $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
@@ -410,9 +410,10 @@ class ControllerData extends Authenticated
     print json_encode($allStructureData);
   }
 
-  public function downloadSpectreAction(){
+  public function downloadSpectreAction()
+  {
     $equipement_id = $_GET['equipementID'];
-    $site_id= $_GET['siteID'];
+    $site_id = $_GET['siteID'];
     $requestedDate = $_GET['requestedDate'];
 
     $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $equipement_id, $requestedDate);
@@ -421,7 +422,6 @@ class ControllerData extends Authenticated
     $timeSerie->createFromSpectreArr($allSubSpectresArr);
     //print_r($timeSerie->getTimeSerieData());
     ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $requestedDate);
-
   }
 
   /**
@@ -432,13 +432,11 @@ class ControllerData extends Authenticated
    */
   public function changeEquipementAction()
   {
-
+    $user = Auth::getUser();
     $siteID = $_POST['site_id'];
-    $group_name = $_SESSION['group_name'];
-
     $equipementManager = new EquipementManager();
 
-    $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
+    $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $user->group_id);
     View::renderTemplate('Others/changeEquipementForm.html', [
       'all_equipment' => $all_equipment,
     ]);
