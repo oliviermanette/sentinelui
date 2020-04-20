@@ -252,11 +252,11 @@ class AlertManager extends \Core\Model
      * @param string $group_name check alert for a specific group
      * @return void
      */
-    public static function getActiveAlertsInfoTable($group_name, $deveui = null, $limit = null)
+    public static function getActiveAlertsInfoTable($groupId, $deveui = null, $limit = null)
     {
         $db = static::getDB();
 
-        $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time,
+        $query_alerts_data = "SELECT group_name.name, alerts.id AS alert_id, alerts.date_time AS date_time,
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
@@ -266,17 +266,17 @@ class AlertManager extends \Core\Model
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
+        LEFT JOIN sensor ON sensor.structure_id = structure.id
+        LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
+        LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
         LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN group_site ON (group_site.site_id = site.id)
-        LEFT JOIN group_name ON (group_name.group_id = group_site.group_id) ";
+        LEFT JOIN group_site ON (group_site.site_id = site.id) ";
 
         if (isset($deveui)) {
-            $query_alerts_data .= "LEFT JOIN sensor_group ON (sensor_group.groupe_id = group_name.group_id)
-            LEFT JOIN sensor ON (sensor.id = sensor_group.sensor_id)
-            WHERE sensor.deveui = :deveui AND group_name.name = :group_name
+            $query_alerts_data .= " WHERE sensor.deveui = :deveui AND group_name.group_id = :groupId
             AND alerts.status = 1";
         } else {
-            $query_alerts_data .= "WHERE group_name.name = :group_name
+            $query_alerts_data .= "WHERE group_name.group_id = :groupId
             AND alerts.status = 1 ";
         }
 
@@ -285,7 +285,7 @@ class AlertManager extends \Core\Model
         }
 
         $stmt = $db->prepare($query_alerts_data);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
         if (isset($limit)) {
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         }
@@ -319,11 +319,9 @@ class AlertManager extends \Core\Model
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
-        LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN record ON (record.structure_id = structure.id)
-        LEFT JOIN sensor ON (sensor.id = record.sensor_id)
+        LEFT JOIN sensor ON (sensor.structure_id = structure.id)
         WHERE alerts.status = 1
-        AND sensor.deveui LIKE :deveui";
+        AND sensor.deveui = :deveui";
 
         if (isset($limit)) {
             $query_alerts_data .= "LIMIT :limit";
@@ -361,11 +359,9 @@ class AlertManager extends \Core\Model
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
-        LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN record ON (record.structure_id = structure.id)
-        LEFT JOIN sensor ON (sensor.id = record.sensor_id)
+        LEFT JOIN sensor ON (sensor.structure_id = structure.id)
         WHERE alerts.status = 0
-        AND sensor.deveui LIKE :deveui";
+        AND sensor.deveui = :deveui";
 
         $stmt = $db->prepare($query_alerts_data);
         $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
@@ -381,7 +377,7 @@ class AlertManager extends \Core\Model
      * @param string $group_name check alert for a specific group
      * @return void
      */
-    public static function getProcessedAlertsInfoTable($group_name)
+    public static function getProcessedAlertsInfoTable($groupId)
     {
         $db = static::getDB();
 
@@ -394,14 +390,16 @@ class AlertManager extends \Core\Model
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
+        LEFT JOIN sensor ON sensor.structure_id = structure.id
+        LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
+        LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
         LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN group_site ON (group_site.site_id = site.id)
-        LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
-        WHERE group_name.name = :group_name
+        LEFT JOIN group_site ON (group_site.site_id = site.id) 
+        WHERE group_name.group_id = :groupId
         AND alerts.status = 0";
 
         $stmt = $db->prepare($query_alerts_data);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $resArr = $stmt->fetchAll();

@@ -15,7 +15,9 @@
                             <th>Equipement</th>
                             <th>Ligne HT</th>
                             <th>Criticité</th>
-                            <th>Valeur</th>
+                            <th>Valeur X</th>
+                            <th>Valeur Y</th>
+                            <th>Valeur chock</th>
                             <th>Nom capteur</th>
                             <th>Statut</th>
                             <th>Action</th>
@@ -29,7 +31,9 @@
                             <td>{{ row.equipement_name }}</td>
                             <td>{{ row.ligneHT }}</td>
                             <td>{{ row.criticality }}</td>
-                            <td>{{ row.valeur }}</td>
+                            <td>{{ row.valueX }}</td>
+                            <td>{{ row.valueY }}</td>
+                            <td>{{ row.valueShock}}</td>
                             <td>{{ row.device_number }}</td>
                             <td>{{ row.status}}</td>
                             <td><a href="/ControllerAlert/deleteAlert?id_alert={{row.alert_id}}"><i

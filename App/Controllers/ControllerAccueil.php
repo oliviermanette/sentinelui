@@ -33,12 +33,11 @@ class ControllerAccueil extends Authenticated
   public function indexAction()
   {
     $user = Auth::getUser();
-    $group_name = $user->getGroupName();
 
-    $brief_data_record = RecordManager::getBriefInfoFromRecord($group_name);
-    $nb_active_sensors = SensorManager::getNumberActiveSensor($group_name);
-    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensor($group_name);
-    $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($group_name);
+    $brief_data_record = RecordManager::getBriefInfoFromRecord($user->group_name);
+    $nb_active_sensors = SensorManager::getNumberActiveSensor($user->group_name);
+    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensor($user->group_name);
+    $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($user->group_name);
 
     //Create object txt that will contain the brief records
     Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
@@ -63,7 +62,7 @@ class ControllerAccueil extends Authenticated
 
     $group = UserManager::findGroupById($user->id);
 
-    $data_map = RecordManager::getDataMapForGroup(intval($group["group_id"]));
+    $data_map = RecordManager::getDataMapForGroup($user->group_id);
 
     $arr = [];
     $inc = 0;

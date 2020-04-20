@@ -26,10 +26,8 @@ class ControllerAlert extends \Core\Controller
     public function indexAction()
     {
         $user = Auth::getUser();
-        $group_name = $user->getGroupName();
-        
-        $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name);
-        $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($group_name);
+        $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($user->group_id);
+        $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($user->group_id);
 
         View::renderTemplate('Alerts/index.html', [
             'alerts_active_info_arr' => $alertsActiveDataArr,
@@ -43,7 +41,8 @@ class ControllerAlert extends \Core\Controller
      *
      * @return void
      */
-    public function updateAlertAction(){
+    public function updateAlertAction()
+    {
         $id_alert = $_GET['id_alert'];
         $status_alert = $_GET['status_alert'];
 
@@ -55,9 +54,7 @@ class ControllerAlert extends \Core\Controller
         } else {
             $this->redirect('/ControllerAlert/showUpdateErrorMessage');
         }
-        View::renderTemplate('Alerts/index.html', [
-        ]);
-
+        View::renderTemplate('Alerts/index.html', []);
     }
 
     /**
@@ -65,19 +62,17 @@ class ControllerAlert extends \Core\Controller
      *
      * @return void
      */
-    public function deleteAlertAction(){
+    public function deleteAlertAction()
+    {
         $id_alert = $_GET['id_alert'];
         $alertManager = new AlertManager();
         $isDeleted = AlertManager::delete($id_alert);
 
-        if ($isDeleted){
+        if ($isDeleted) {
             $this->redirect('/ControllerAlert/showDeleteSuccessMessage');
-        }else{
+        } else {
             $this->redirect('/ControllerAlert/showDeleteErrorMessage');
         }
-
-        
-
     }
 
     /**
@@ -108,7 +103,7 @@ class ControllerAlert extends \Core\Controller
      */
     public function showDeleteErrorMessageAction()
     {
-        Flash::addMessage('Error during delete alert', $type = 'error' );
+        Flash::addMessage('Error during delete alert', $type = 'error');
 
         $this->redirect('/alerts');
     }
@@ -123,5 +118,4 @@ class ControllerAlert extends \Core\Controller
 
         $this->redirect('/alerts');
     }
-
 }

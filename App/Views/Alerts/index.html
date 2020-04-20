@@ -36,12 +36,12 @@
         $('#tableDataNewAlerts').DataTable({
             "createdRow": function (row, data, dataIndex, cells) {
                 var type_raw_message = data[1];
-                var statut = data[7];
+                var statut = data[9];
                 console.log(statut);
                 if (statut == "1") {
-                    cells[7].innerText = "En cours";
+                    cells[9].innerText = "En cours";
                 } else {
-                    cells[7].innerText = "Traité";
+                    cells[9].innerText = "Traité";
                 }
                 switch (type_raw_message) {
                     case 'ChangeStatusInactive':
