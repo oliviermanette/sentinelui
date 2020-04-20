@@ -166,8 +166,8 @@
                     responsive: true,
                     responsive: {
                         details: {
-                        type: 'column',
-                        target: 'tr'
+                            type: 'column',
+                            target: 'tr'
                         }
                     },
                     orderCellsTop: true,
@@ -193,7 +193,7 @@
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
                 data = JSON.parse(data);
-                console.log("Data spectre : ",data);
+                console.log("Data spectre : ", data);
                 removeElement("container-chart");
 
                 var spectre_data_json = data['spectre_data'];
@@ -209,9 +209,8 @@
                     addElement("row-chart", "canvas", name_canva);
                     var name_spectre_data = "spectre_" + String(i);
                     var date_subspectre0 = spectre_data_json[name_spectre_data][0]["date"];
-                    console.log(date_subspectre0);
                     var link =
-                    "/ControllerData/downloadSpectre?siteID="+site_id+"&equipementID="+equipement_id+"&requestedDate="+date_subspectre0;
+                        "/ControllerData/downloadSpectre?siteID=" + site_id + "&equipementID=" + equipement_id + "&requestedDate=" + date_subspectre0;
                     addButton("row-chart", "Telecharger le spectre", link);
                 }
                 for (i = 0; i < numberOfSpectre; i++) {
@@ -221,7 +220,7 @@
                     //console.log("SPECTRE DATA I : ", spectre_i);
                     drawChartSpectreFromData(spectre_i, name_canva);
                 }
-            
+
             }
         };
         xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
@@ -249,7 +248,7 @@
             timePickerIncrement: 1,
             timePicker12Hour: true,
             ranges: {
-                'Aucune Date':['09/01/2019',moment()],
+                'Aucune Date': ['09/01/2019', moment()],
                 'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
                 'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],

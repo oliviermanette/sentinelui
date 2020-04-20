@@ -136,7 +136,8 @@ class EquipementManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_query_equipement_by_id = "SELECT site.nom AS site_name, st.nom AS equipement, st.id AS equipement_id FROM structure AS st
+    $sql_query_equipement_by_id = "SELECT s.device_number, s.deveui, site.nom AS site_name, st.nom AS equipement, st.id AS equipement_id 
+    FROM structure AS st
     LEFT JOIN sensor AS s ON (s.structure_id = st.id)
     LEFT JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
     LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)

@@ -56,6 +56,26 @@ class ControllerData extends Authenticated
     ]);
   }
 
+  /**
+   * Get all charts
+   *
+   * @return void
+   */
+  public function getAllChartsAction()
+  {
+    $site_id = $_POST["site_request"];
+    $equipement_id = $_POST["equipement_request"];
+    $startDate = $_POST["startDate"];
+    $endDate = $_POST["endDate"];
+
+    //Get deveui for this specific structure and site
+
+    if (isset($_POST["site_request"]) && isset($$_POST["equipement_request"])) {
+      $all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate);
+      print json_encode($all_charts_data);
+    }
+  }
+
 
 
   /**
