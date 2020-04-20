@@ -503,7 +503,7 @@ class RecordManager extends \Core\Model
    *  sensor_id | site | ligneHT | equipement | nb_messages | nb_chocs | last_message_received | status
    *
    */
-  public static function getBriefInfoFromRecord($group_name)
+  public static function getBriefInfoFromRecord($groupId)
   {
 
     $db = static::getDB();
@@ -547,7 +547,7 @@ class RecordManager extends \Core\Model
         LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
         LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
       WHERE
-        gn.name = :group_name
+        gn.group_id = :groupId
 
       GROUP BY
         sensor.deveui,
@@ -561,7 +561,7 @@ class RecordManager extends \Core\Model
     ) AS all_message_rte_sensor";
     //  AND Date(r.date_time) >= Date(sensor.installation_date)
     $stmt = $db->prepare($query_get_number_record);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
       $res = $stmt->fetchAll(PDO::FETCH_ASSOC);

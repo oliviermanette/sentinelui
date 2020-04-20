@@ -441,7 +441,7 @@ class AlertManager extends \Core\Model
      * @param string $group_name group for checking the number of alert
      * @return array
      */
-    public static function getNumberActiveAlertsForGroup($group_name)
+    public static function getNumberActiveAlertsForGroup($groupId)
     {
         $db = static::getDB();
 
@@ -449,14 +449,14 @@ class AlertManager extends \Core\Model
         FROM alerts
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN group_site ON (group_site.site_id = site.id)
-        LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
-        WHERE status = 1
-        AND group_name.name = :group_name
-        ";
+        LEFT JOIN sensor ON sensor.structure_id = structure.id
+        LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
+        LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
+        WHERE alerts.status = 1
+        AND group_name.group_id = :groupId";
 
         $stmt = $db->prepare($sql_nb_active_alert);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $results = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -475,7 +475,7 @@ class AlertManager extends \Core\Model
      * @param int $group_name group to check
      * @return array
      */
-    public function getNumberInactiveAlertsForGroup($group_name)
+    public function getNumberInactiveAlertsForGroup($groupId)
     {
         $db = static::getDB();
 
@@ -483,14 +483,15 @@ class AlertManager extends \Core\Model
         FROM alerts
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN group_site ON (group_site.site_id = site.id)
-        LEFT JOIN group_name ON (group_name.group_id = group_site.group_id)
-        WHERE status = 0
-        AND group_name.name = :group_name
+        LEFT JOIN sensor ON sensor.structure_id = structure.id
+        LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
+        LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
+        WHERE alerts.status = 0
+        AND group_name.group_id = :groupId
         ";
 
         $stmt = $db->prepare($sql_nb_inactive_alert);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $results = $stmt->fetch(PDO::FETCH_ASSOC);

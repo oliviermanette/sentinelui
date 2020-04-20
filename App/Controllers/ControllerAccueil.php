@@ -34,10 +34,10 @@ class ControllerAccueil extends Authenticated
   {
     $user = Auth::getUser();
 
-    $brief_data_record = RecordManager::getBriefInfoFromRecord($user->group_name);
-    $nb_active_sensors = SensorManager::getNumberActiveSensor($user->group_name);
-    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensor($user->group_name);
-    $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($user->group_name);
+    $brief_data_record = RecordManager::getBriefInfoFromRecord($user->group_id);
+    $nb_active_sensors = SensorManager::getNumberActiveSensor($user->group_id);
+    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensor($user->group_id);
+    $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($user->group_id);
 
     //Create object txt that will contain the brief records
     Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");

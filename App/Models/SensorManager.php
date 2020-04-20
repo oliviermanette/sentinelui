@@ -641,7 +641,7 @@ class SensorManager extends \Core\Model
    * @param string $group_name the group we want to check the number of actif sensor
    * @return array  array results
    */
-  public static function getNumberActiveSensor($group_name)
+  public static function getNumberActiveSensor($groupId)
   {
     $db = static::getDB();
 
@@ -652,15 +652,15 @@ class SensorManager extends \Core\Model
       LEFT JOIN sensor_group AS gs ON (gs.sensor_id = s.id)
       LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
     WHERE
-      gn.name = :group_name
+      gn.group_id = :groupId
       AND s.status LIKE 'active'";
 
     $stmt = $db->prepare($sql_nb_actif_sensor);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $nb_actif_sensor[0];
+      $nb_actif_sensor = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor;
     }
   }
 
@@ -670,7 +670,7 @@ class SensorManager extends \Core\Model
    * @param string $group_name the group we want to check the number of actif sensor
    * @return array  array results
    */
-  public static function getNumberInactiveSensor($group_name)
+  public static function getNumberInactiveSensor($groupId)
   {
     $db = static::getDB();
 
@@ -681,15 +681,15 @@ class SensorManager extends \Core\Model
       LEFT JOIN sensor_group AS gs ON (gs.sensor_id = s.id)
       LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
     WHERE
-      gn.name = :group_name
+      gn.group_id = :groupId
       AND s.status LIKE 'inactive'";
 
     $stmt = $db->prepare($sql_nb_actif_sensor);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $nb_actif_sensor[0];
+      $nb_actif_sensor = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor;
     }
   }
 }
