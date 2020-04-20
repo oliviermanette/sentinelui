@@ -7,6 +7,7 @@ use \App\Models\UserManager;
 use \App\Models\SettingManager;
 use \App\Auth;
 use \App\Flash;
+use \App\Utilities;
 
 
 /**
@@ -29,67 +30,87 @@ class ControllerSetting extends Authenticated
 
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentUser();
-        var_dump($settingsArr);
-        //Get the shock threshold and inclinometer threshold
-        //TODO : change and make it more reusable
 
-        $settingsShock = 0; //$settingsArr[0];
-        $settingsInclinometer = 0; // $settingsArr[1];
-        $settingsTimePeriod = 0; //$settingsArr[2];
-        $settingsRangeInclinometer = 0; // $settingsArr[3];
-        $settingsAlertEmailActivated = 0; // $settingsArr[4];
-
+        $first_inclination_thresh = Utilities::array_find_deep($settingsArr, "first_inclination_thresh");
+        $second_inclination_thresh = Utilities::array_find_deep($settingsArr, "second_inclination_thresh");
+        $third_inclination_thresh = Utilities::array_find_deep($settingsArr, "third_inclination_thresh");
+        $isAlertEmailActivated = Utilities::array_find_deep($settingsArr, "isAlertEmailActivated");
+        if ($first_inclination_thresh) {
+            $first_inclination_thresh = $settingsArr[$first_inclination_thresh[0]];
+        } else {
+            $first_inclination_thresh = 0;
+        }
+        if ($second_inclination_thresh) {
+            $second_inclination_thresh = $settingsArr[$second_inclination_thresh[0]];
+        } else {
+            $second_inclination_thresh = 0;
+        }
+        if ($third_inclination_thresh) {
+            $third_inclination_thresh = $settingsArr[$third_inclination_thresh[0]];
+        } else {
+            $third_inclination_thresh = 0;
+        }
+        if ($isAlertEmailActivated) {
+            $isAlertEmailActivated = $settingsArr[$isAlertEmailActivated[0]];
+        } else {
+            $isAlertEmailActivated = 0;
+        }
 
         View::renderTemplate('Profile/settings.html', [
-            'settingsShock' => $settingsShock,
-            'settingsInclinometer' => $settingsInclinometer,
-            'settingsTimePeriod' => $settingsTimePeriod,
-            'settingsRangeInclinometer' => $settingsRangeInclinometer,
-            'settingsAlertEmailActivated' => $settingsAlertEmailActivated,
+            'settingsFirstInclinationThresh' => $first_inclination_thresh,
+            'settingsSecondInclinationThresh' => $second_inclination_thresh,
+            'settingsThirdInclinationThresh' => $third_inclination_thresh,
+            'settingsAlertEmailActivated' => $isAlertEmailActivated,
         ]);
     }
 
     public function updateAction()
     {
         $user = Auth::getUser();
-        $user_email = $user->email;
-        $group_name = $_SESSION['group_name'];
-        $shockThresh = $_POST["shockThresh"];
-        $inclinometerThresh = $_POST["inclinometerThresh"];
-        $timePeriod = $_POST["rangeDateCheck"];
-        $inclinometerRangeThresh = $_POST["inclinometerRangeThresh"];
+
+        $firstInclinationThresh = $_POST["firstInclinationThresh"];
+        $secondInclinationThresh = $_POST["secondInclinationThresh"];
+        $thirdInclinationThresh = $_POST["thirdInclinationThresh"];
+
         if (isset($_POST["alertSwitchNotification"])) {
             $alertNotification = 1;
         } else {
             $alertNotification = 0;
         }
-        if (
-            SettingManager::updateShockThresh($group_name, $shockThresh) &&
-            SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh) &&
-            SettingManager::updateTimePeriodCheck($group_name, $timePeriod)
-            && SettingManager::updateInclinometerRangeThresh($group_name, $inclinometerRangeThresh)
-            && SettingManager::updateAlertNotification($user_email, $alertNotification)
-        ) {
-            Flash::addMessage('Mise à jour réussie des paramètres');
+
+        $updateOk = True;
+        //Check if settings exist 
+        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "first_inclination_thresh")) {
+            SettingManager::updateSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
         } else {
-            Flash::addMessage('Erreur avec la mise à jour des paramètres', Flash::WARNING);
+            SettingManager::insertSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
         }
+        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "second_inclination_thresh")) {
+            SettingManager::updateSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
+        } else {
+            SettingManager::insertSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
+        }
+        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "third_inclination_thresh")) {
+            SettingManager::updateSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
+        } else {
+            SettingManager::insertSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
+        }
+
+
+        Flash::addMessage('Mise à jour réussie des paramètres');
+
         $this->redirect(Auth::getReturnToPage());
     }
 
     public function getSettingsForCurrentUser()
     {
         $user = Auth::getUser();
-        $user_id = $user->id;
-        var_dump($_SESSION['group_name']);
-        $group_name = $_SESSION['group_name'];
-
-        $settingsArr = SettingManager::findByGroupName($group_name);
-
+        //var_dump($user);
+        $settingsArr = SettingManager::findByGroupId($user->group_id);
         $isAlertEmailActivated = SettingManager::checkIfAlertActivated($user->email);
         $tmpArr = array("isAlertEmailActivated" => $isAlertEmailActivated);
         array_push($settingsArr, $tmpArr);
-        //$settingsArr["isAlertEmailActivated"] = $isAlertEmailActivated;
+
         return $settingsArr;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use PDO;
 use \App\Token;
 use \App\Mail;
@@ -20,21 +21,22 @@ class SettingManager extends \Core\Model
     /**
      * find all the settings belong to a specific group
      *
-     * @param string $group_name group name
+     * @param int $groupId group id
      *
      * @return array  array which contains all the settings applied to this specific group
      */
-    public static function findByGroupName($group_name)
+    public static function findByGroupId($groupId)
     {
         $db = static::getDB();
 
-        $sql = "SELECT group_name.name, settings.name, value FROM `group_settings`
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            WHERE group_name.name = :group_name";
+        $sql = "SELECT settings.name as name_setting, value 
+        FROM `group_settings`
+        LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+        LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+        WHERE group_settings.group_id = :groupId";
 
         $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $settingsArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -42,7 +44,8 @@ class SettingManager extends \Core\Model
         }
     }
 
-    public static function checkIfAlertActivated($email){
+    public static function checkIfAlertActivated($email)
+    {
         $db = static::getDB();
 
         $sql = "SELECT user.send_alert FROM `user` 
@@ -52,173 +55,130 @@ class SettingManager extends \Core\Model
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
         if ($stmt->execute()) {
             $isAlertEmailActivated = $stmt->fetch(PDO::FETCH_COLUMN);
-            if ($isAlertEmailActivated == 1){
+            if ($isAlertEmailActivated == 1) {
                 return true;
             }
             return false;
         }
     }
 
-
     /**
-     * Get the value for the shock thresh setting
+     * Check if a setting exist for a specific group
      *
-     * @param string $group_name group name
+     * @param int $groupId group id
+     * @param string $settingName name of the setting
      *
-     * @return int  value that is applied for this specific setting
+     * @return boolean  true if exist
      */
-    public static function getShockThresh($group_name){
-
-        $db = static::getDB();
-
-        $sql = "SELECT value  AS thresh FROM group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            WHERE group_name.name = :group_name AND settings.name = 'shock_thresh'";
-
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-
-        if ($stmt->execute()) {
-            $shockThresh = $stmt->fetch(PDO::FETCH_COLUMN);
-            return (int)$shockThresh;
-        }
-    }
-
-    /**
-     * Get the value for the inclinometer thresh setting
-     *
-     * @param string $group_name group name
-     *
-     * @return int  value that is applied for this specific setting
-     */
-    public static function getInclinometerThresh($group_name)
-    {
-
-        $db = static::getDB();
-
-        $sql = "SELECT value  AS thresh FROM group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            WHERE group_name.name = :group_name AND settings.name = 'inclinometer_thresh'";
-
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-
-        if ($stmt->execute()) {
-            $inclinometerThresh = $stmt->fetch(PDO::FETCH_COLUMN);
-            return (int)$inclinometerThresh;
-        }
-    }
-
-    /**
-     * Get the value for the inclinometer thresh range setting
-     *
-     * @param string $group_name group name
-     *
-     * @return int  value that is applied for this specific setting
-     */
-    public static function getInclinometerRangeThresh($group_name)
-    {
-
-        $db = static::getDB();
-
-        $sql = "SELECT value  AS thresh FROM group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            WHERE group_name.name = :group_name AND settings.name = 'inclinometer_range_thresh'";
-
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-
-        if ($stmt->execute()) {
-            $inclinometerThresh = $stmt->fetch(PDO::FETCH_COLUMN);
-            return (int) $inclinometerThresh;
-        }
-    }
-
-    /**
-     * Get the value for the time period setting
-     *
-     * @param string $group_name group name
-     *
-     * @return int  value that is applied for this specific setting
-     */
-    public static function getTimePeriodCheck($group_name)
-    {
-
-        $db = static::getDB();
-
-        $sql = "SELECT value  AS thresh FROM group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            WHERE group_name.name = :group_name AND settings.name = 'timePeriodCheck'";
-
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-
-        if ($stmt->execute()) {
-            $timePeriodCheck = $stmt->fetch(PDO::FETCH_COLUMN);
-            return (int) $timePeriodCheck;
-        }
-    }
-
-    /**
-     * update the value for the shock thresh setting
-     *
-     * @param string $group_name group name where we want to apply this setting
-     * @param int $shockThreshValue value to apply
-     *
-     * @return void 
-     */
-    public static function updateShockThresh($group_name, $shockThreshValue){
-        $db = static::getDB();
-
-        $sql = "UPDATE group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            SET group_settings.value = :shockThreshValue
-            WHERE group_name.name = :group_name AND settings.name = 'shock_thresh'
-            ";
-
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-        $stmt->bindValue(':shockThreshValue', $shockThreshValue, PDO::PARAM_INT);
-
-        return $stmt->execute();
-    }
-
-    /**
-     * update the value for the inclinometer thresh setting
-     *
-     * @param string $group_name group name where we want to apply this setting
-     * @param int $inclinometerThreshValue value to apply
-     *
-     * @return void 
-     */
-    public static function updateInclinometerThresh($group_name, $inclinometerThreshValue)
+    public static function checkIfSettingExistForGroup($groupId, $settingName)
     {
         $db = static::getDB();
 
-        $sql = "UPDATE group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            SET group_settings.value = :inclinometerThreshValue
-            WHERE group_name.name = :group_name AND settings.name = 'inclinometer_thresh'
-            ";
+        $sql = "SELECT * FROM group_settings
+        LEFT JOIN settings ON settings.id=group_settings.settings_id
+        WHERE settings.name = :settingName
+        AND group_settings.group_id = :groupId";
 
         $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-        $stmt->bindValue(':inclinometerThreshValue', $inclinometerThreshValue, PDO::PARAM_INT);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+        $stmt->bindValue(':settingName', $settingName, PDO::PARAM_STR);
 
-        if ($stmt->execute()){
+        if ($stmt->execute()) {
+            $result = $stmt->fetch(PDO::FETCH_COLUMN);
+            if (empty($result)) {
+                return false;
+            }
             return true;
         }
-        return false;
-        
     }
 
-    public static function updateAlertNotification($email, $receiveNotification)
+    /**
+     * insert the value for a specific setting
+     * @param int $groupId group id
+     * @param string $settingName setting name
+     * @param int $settingValue setting value
+     *
+     * @return boolean return true of created successfully
+     */
+    public static function insertSettingValueForGroup($groupId, $settingName, $settingValue)
+    {
+        $db = static::getDB();
+
+        $sql = "SET @setting_id = (SELECT id FROM settings WHERE settings.name = :settingName);
+        INSERT INTO group_settings (group_id, settings_id, value)
+        VALUES (:groupId, @setting_id, :settingValue)
+        ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':settingName', $settingName, PDO::PARAM_STR);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+        $stmt->bindValue(':settingValue', $settingValue, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Get the value of a specific setting for a specific group
+     * @param int $groupId group id
+     *
+     * @return int value that is applied for this specific setting
+     */
+    public static function getSettingValueForGroup($groupId, $settingName)
+    {
+
+        $db = static::getDB();
+
+        $sql = "SELECT value AS thresh FROM group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            WHERE group_settings.group_id = :groupId AND settings.name = :settingName";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+        $stmt->bindValue(':settingName', $settingName, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $value = $stmt->fetch(PDO::FETCH_COLUMN);
+            return (int) $value;
+        }
+    }
+
+    /**
+     * update the value of a specific setting for a specific group
+     *
+     * @param int $groupId group id where we want to apply this setting
+     * @param string $settingName name of the setting
+     * @param int $value value to apply
+     *
+     * @return void 
+     */
+    public static function updateSettingValueForGroup($groupId, $settingName, $value)
+    {
+        $db = static::getDB();
+
+        $sql = "UPDATE group_settings
+            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
+            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
+            SET group_settings.value = :value
+            WHERE group_settings.group_id = :groupId AND settings.name = :settingName
+            ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+        $stmt->bindValue(':value', $value, PDO::PARAM_INT);
+        $stmt->bindValue(':settingName', $settingName, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            return True;
+        }
+        return False;
+    }
+
+
+    public static function updateAlertEmailNotification($email, $receiveNotification)
     {
         $db = static::getDB();
 
@@ -229,64 +189,6 @@ class SettingManager extends \Core\Model
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
         $stmt->bindValue(':receiveNotification', $receiveNotification, PDO::PARAM_INT);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * update the value for the inclinometer range thresh setting. 
-     *
-     * @param string $group_name group name where we want to apply this setting
-     * @param int $inclinometerRangeThreshValue value to apply
-     *
-     * @return void 
-     */
-    public static function updateInclinometerRangeThresh($group_name, $inclinometerRangeThreshValue)
-    {
-        $db = static::getDB();
-
-        $sql = "UPDATE group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            SET group_settings.value = :inclinometerThreshValue
-            WHERE group_name.name = :group_name AND settings.name = 'inclinometer_range_thresh'
-            ";
-
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-        $stmt->bindValue(':inclinometerThreshValue', $inclinometerRangeThreshValue, PDO::PARAM_INT);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * update the value for the time period setting
-     *
-     * @param string $group_name group name where we want to apply this setting
-     * @param int $timePeriodValue value to apply
-     *
-     * @return void 
-     */
-    public static function updateTimePeriodCheck($group_name, $timePeriodValue)
-    {
-        $db = static::getDB();
-
-        $sql = "UPDATE group_settings
-            LEFT JOIN settings ON (settings.id = group_settings.settings_id)
-            LEFT JOIN group_name ON (group_name.group_id = group_settings.group_id)
-            SET group_settings.value = :timePeriodValue
-            WHERE group_name.name = :group_name AND settings.name = 'timePeriodCheck'
-            ";
-
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-        $stmt->bindValue(':timePeriodValue', $timePeriodValue, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             return true;

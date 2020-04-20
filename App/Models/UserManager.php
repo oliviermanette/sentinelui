@@ -135,7 +135,10 @@ class UserManager extends \Core\Model
    */
   public static function findByID($id)
   {
-    $sql = 'SELECT * FROM user WHERE id = :id';
+    $sql = "SELECT * , group_name.name AS group_name FROM user 
+    LEFT JOIN group_users ON user.id = group_users.user_id
+    LEFT JOIN group_name ON group_name.group_id =group_users.group_id
+    WHERE user.id = :id";
 
     $db = static::getDB();
     $stmt = $db->prepare($sql);
@@ -146,9 +149,10 @@ class UserManager extends \Core\Model
     $stmt->execute();
 
     $user = $stmt->fetch();
-    $group = UserManager::findGroupById($id);
+    //$group = UserManager::findGroupById($id);
 
-    $user->setGroupName($group["name"]);
+    //$user->setGroupName($group["name"]);
+    //$user->setGroupId($group["group_id"]);
 
     return $user;
   }
@@ -343,6 +347,11 @@ class UserManager extends \Core\Model
   public function setGroupName($groupName)
   {
     $this->groupe_name = $groupName;
+  }
+
+  public function setGroupId($groupId)
+  {
+    $this->groupId = $groupId;
   }
 
   public function getGroupName()

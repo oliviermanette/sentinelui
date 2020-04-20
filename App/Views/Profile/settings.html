@@ -19,29 +19,29 @@
                 <div class="row">
                     <div class="col-sm-4">
                         <label><strong>Premier niveau (cm)</strong></label>
-                        <input type="range" class="custom-range" name="firstInclinationThresh" min="1" max="6"
-                            value="{{ settingsShock.value }}"
+                        <input type="range" class="custom-range" name="firstInclinationThresh" min="1" max="10"
+                            value="{{ settingsFirstInclinationThresh.value }}"
                             oninput="this.form.firstAmountInputInclination.value=this.value" />
-                        <input type="number" name="firstAmountInputInclination" min="1" max="6"
-                            value="{{ settingsShock.value }}"
+                        <input type="number" name="firstAmountInputInclination" min="1" max="10"
+                            value="{{ settingsFirstInclinationThresh.value }}"
                             oninput="this.form.firstInclinationThresh.value=this.value" />
                     </div>
                     <div class="col-sm-4">
                         <label><strong>Deuxième niveau (cm)</strong></label>
-                        <input type="range" class="custom-range" name="secondInclinationThresh" min="1" max="6"
-                            value="{{ settingsInclinometer.value }}"
+                        <input type="range" class="custom-range" name="secondInclinationThresh" min="1" max="10"
+                            value="{{ settingsSecondInclinationThresh.value }}"
                             oninput="this.form.SecondAmountInputInclinometer.value=this.value" />
-                        <input type="number" name="SecondAmountInputInclinometer" min="1" max="6"
-                            value="{{ settingsInclinometer.value }}"
+                        <input type="number" name="SecondAmountInputInclinometer" min="1" max="10"
+                            value="{{ settingsSecondInclinationThresh.value }}"
                             oninput="this.form.secondInclinationThresh.value=this.value" />
                     </div>
                     <div class="col-sm-4">
                         <label><strong>Troisième niveau (cm)</strong></label>
-                        <input type="range" class="custom-range" name="thirdInclinationThresh" min="1" max="6"
-                            value="{{ settingsShock.value }}"
+                        <input type="range" class="custom-range" name="thirdInclinationThresh" min="1" max="10"
+                            value="{{ settingsThirdInclinationThresh.value }}"
                             oninput="this.form.ThirdAmountInputInclination.value=this.value" />
-                        <input type="number" name="ThirdAmountInputInclination" min="1" max="6"
-                            value="{{ settingsShock.value }}"
+                        <input type="number" name="ThirdAmountInputInclination" min="1" max="10"
+                            value="{{ settingsThirdInclinationThresh.value }}"
                             oninput="this.form.thirdInclinationThresh.value=this.value" />
                     </div>
                 </div>
