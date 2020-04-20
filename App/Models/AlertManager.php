@@ -606,7 +606,7 @@ class AlertManager extends \Core\Model
         }
     }
 
-    private static function structureAlert($alert, $group_name)
+    private static function structureAlert($alert, $groupId)
     {
         $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
         $equipementName = $equipementInfoArr["equipement"];
@@ -614,7 +614,12 @@ class AlertManager extends \Core\Model
         $region = EquipementManager::getSiteLocation($alert->equipementId);
 
         //Find all users that want to receive alerts
-        $users = UserManager::findToSendAlerts($group_name);
+        $users = UserManager::findToSendAlerts($groupId);
+        $users_flod = UserManager::findToSendAlerts(73); //Flod
+        //Add the admin flod to the users array to send message
+        foreach ($users_flod as $user) {
+            array_push($users, $user);
+        }
 
         //Get info alerts
         $typeAlert = $alert->type;
