@@ -48,7 +48,6 @@ class ControllerSensors extends Authenticated
     {
 
         $user = Auth::getUser();
-        $group_name = $user->getGroupName();
 
         $label_device = $this->route_params["deviceid"];
         $deveui = SensorAPI::getDeveuiFromLabel($label_device);
@@ -99,12 +98,12 @@ class ControllerSensors extends Authenticated
 
         //4. chart data
         //Inclinometer raw data
-        $inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
+        /*$inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
         $inclinometerDataMonthArr = json_encode($inclinometerDataMonthArr);
         $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
         $inclinometerDataWeekArr = json_encode($inclinometerDataWeekArr);
         $inclinometerDataDayArr = InclinometerManager::getInclinometerDataForLast($deveui, -1);
-        $inclinometerDataDayArr = json_encode($inclinometerDataDayArr);
+        $inclinometerDataDayArr = json_encode($inclinometerDataDayArr);*/
 
         //Direction inclinometer
         $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, -1);
@@ -149,24 +148,26 @@ class ControllerSensors extends Authenticated
         $allDataWeather = TemperatureManager::getAllDataWeatherForSite($deveui, $site);
 
         $structure = SensorManager::getStructureWhereIsInstalled($deveui);
-        if (isset($structure["longitude"]) && isset($structure["latitude"]) ){
+        if (isset($structure["longitude"]) && isset($structure["latitude"])) {
             $longitude = $structure["longitude"];
             $latitude = $structure["latitude"];
             //$allDataWeather = json_encode($allDataWeather);
 
             $link = TemperatureAPI::generateMeteogramLink($site, $latitude, $longitude);
-        }else {
-            $link="";
+        } else {
+            $link = "";
         }
 
         //var_dump($historicalTemperatureDataArr);
 
         //Get settings
-        //$inclinometerRangeThresh = SettingManager::getInclinometerRangeThresh($group_name);
+        $settingArr = SettingManager::findByGroupId($user->group_id);
+        $settingArr = json_encode($settingArr);
+        //var_dump($settingArr);
 
         //Alerts
-        $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($group_name, $deveui);
-        $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($group_name, $deveui);
+        $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($user->group_name, $deveui);
+        $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($user->group_name, $deveui);
 
         //Image sensor
         $image_path = SensorManager::getPathImage($deveui);
@@ -184,9 +185,9 @@ class ControllerSensors extends Authenticated
             'image_path' => $image_path,
 
             //Inclinometer
-            'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
-            'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
-            'inclinometerDataDayArr' => $inclinometerDataDayArr,
+            //'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
+            //'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
+            //'inclinometerDataDayArr' => $inclinometerDataDayArr,
             'percentageVariationDayArr' => $percentageVariationDayArr,
             'percentageVariationWeekArr' => $percentageVariationWeekArr,
             'percentageVariationMonthArr' => $percentageVariationMonthArr,
@@ -202,7 +203,7 @@ class ControllerSensors extends Authenticated
             'powerChocDataWeekArr' => $powerChocDataWeekArr,
 
             //Weather
-            'temperatureArr' => $tempArr,
+            //'temperatureArr' => $tempArr,
             'weatherDataArr' => $weatherDataArr,
             'historicalTemperatureDataArr' => $historicalTemperatureDataArr,
             'allDataWeather' => $allDataWeather,
@@ -216,6 +217,9 @@ class ControllerSensors extends Authenticated
 
             //Map
             'dataMapArray' => $dataMapArr,
+
+            //Setings
+            'settingArr' => $settingArr,
         ]);
     }
 

@@ -1,5 +1,87 @@
 Chart.defaults.global.plugins.datalabels.display = false;
 
+
+function resetZoom(chartInstance) {
+  chartInstance.resetZoom();
+}
+
+function drawNoDataAvailable(canvaID) {
+
+  Chart.plugins.register({
+    afterDraw: function (chart) {
+      if (chart.data.datasets.length === 0) {
+        // No data is present
+        var ctx = chart.chart.ctx;
+        var width = chart.chart.width;
+        var height = chart.chart.height;
+        chart.clear();
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = "35px normal 'Helvetica Nueue'";
+        ctx.fillStyle = "gray";
+        ctx.fillText('Pas encore de ce type de données disponible pour ce capteur', width / 2, height / 2);
+        ctx.restore();
+      }
+    }
+  });
+
+
+  var canva_id = "#" + canvaID;
+  var ctx = $(canva_id);
+
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: []
+    }
+  });
+
+}
+
+drawArrow = function (context, fromx, fromy, tox, toy) {
+  var headlen = 10; // length of head in pixels
+  var dx = tox - fromx;
+  var dy = toy - fromy;
+  var angle = Math.atan2(dy, dx);
+  context.moveTo(fromx, fromy);
+  context.lineTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+  context.moveTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+}
+
+function drawVerticalAxis(canvaID) {
+
+  Chart.plugins.register({
+    beforeDraw: function (chart, options) {
+      if (chart.config.data.drawXYAxes) {
+        var ctx = chart.chart.ctx;
+        var yaxis = chart.scales['scale'];
+        var paddingX = 100;
+        var paddingY = 40;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = '#0000ff';
+        ctx.lineWidth = 0.75;
+
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter - yaxis.drawingArea - paddingX, yaxis.yCenter);
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter + yaxis.drawingArea + paddingX, yaxis.yCenter);
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter - yaxis.drawingArea - paddingY);
+        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter + yaxis.drawingArea + paddingY);
+
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  });
+}
+
+
+
 /**
  * @desc Draw chart for displaying number of choc per day
  * @param json data - data which contain nb of choc and date
@@ -654,51 +736,51 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
     var chartdata = {
       labels: date,
       datasets: [{
-        fill: true,
-        label: "Température de la station météo",
-        lineTension: 0.1,
-        backgroundColor: "rgba(167,105,0,0.4)",
-        borderColor: "rgb(167, 105, 0)",
-        borderCapStyle: 'butt',
-        borderDash: [],
-        borderDashOffset: 0.0,
-        borderJoinStyle: 'miter',
-        pointBorderColor: "white",
-        pointBackgroundColor: "black",
-        pointBorderWidth: 1,
-        pointHoverRadius: 8,
-        pointHoverBackgroundColor: "brown",
-        pointHoverBorderColor: "yellow",
-        pointHoverBorderWidth: 2,
-        pointRadius: 4,
-        pointHitRadius: 10,
-        spanGaps: true,
-        xAxisID: 'xAxis1',
-        data: officialTemperature
-      },
-      {
-        fill: false,
-        label: "Température du capteur",
-        borderColor: "red",
-        borderWidth: 1,
-        lineTension: 0,
-        borderCapStyle: 'square',
-        borderDash: [], // try [5, 15] for instance
-        borderDashOffset: 0.0,
-        borderJoinStyle: 'miter',
-        pointBorderColor: "black",
-        pointBackgroundColor: "white",
-        pointBorderWidth: 1,
-        pointHoverRadius: 8,
-        pointHoverBackgroundColor: "yellow",
-        pointHoverBorderColor: "brown",
-        pointHoverBorderWidth: 2,
-        pointRadius: 4,
-        pointHitRadius: 10,
-        spanGaps: false,
-        xAxisID: 'xAxis2',
-        data: temperature
-      },
+          fill: true,
+          label: "Température de la station météo",
+          lineTension: 0.1,
+          backgroundColor: "rgba(167,105,0,0.4)",
+          borderColor: "rgb(167, 105, 0)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: "white",
+          pointBackgroundColor: "black",
+          pointBorderWidth: 1,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: "brown",
+          pointHoverBorderColor: "yellow",
+          pointHoverBorderWidth: 2,
+          pointRadius: 4,
+          pointHitRadius: 10,
+          spanGaps: true,
+          xAxisID: 'xAxis1',
+          data: officialTemperature
+        },
+        {
+          fill: false,
+          label: "Température du capteur",
+          borderColor: "red",
+          borderWidth: 1,
+          lineTension: 0,
+          borderCapStyle: 'square',
+          borderDash: [], // try [5, 15] for instance
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: "black",
+          pointBackgroundColor: "white",
+          pointBorderWidth: 1,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: "yellow",
+          pointHoverBorderColor: "brown",
+          pointHoverBorderWidth: 2,
+          pointRadius: 4,
+          pointHitRadius: 10,
+          spanGaps: false,
+          xAxisID: 'xAxis2',
+          data: temperature
+        },
       ]
     };
     var canva_id = "#" + canvaID;
@@ -709,20 +791,20 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
       maintainAspectRatio: false,
       scales: {
         xAxes: [{
-          id: 'xAxis1',
-          scaleLabel: {
-            display: true,
-            labelString: 'Date',
-          },
-          ticks: {
+            id: 'xAxis1',
+            scaleLabel: {
+              display: true,
+              labelString: 'Date',
+            },
+            ticks: {
+              autoskip: true,
+              maxTicksLimit: 20
+            }
+          }, {
+            id: 'xAxis2',
             autoskip: true,
             maxTicksLimit: 20
           }
-        }, {
-          id: 'xAxis2',
-          autoskip: true,
-          maxTicksLimit: 20
-        }
 
         ],
         yAxes: [{
@@ -787,26 +869,26 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
   var chartdata = {
     labels: date,
     datasets: [{
-      label: 'X °',
-      fill: false,
-      backgroundColor: 'blue',
-      borderColor: 'blue',
-      data: nx
-    },
-    {
-      label: 'Y °',
-      fill: false,
-      backgroundColor: 'orange',
-      borderColor: 'orange',
-      data: ny
-    },
-    {
-      label: 'Z °',
-      fill: false,
-      backgroundColor: 'green',
-      borderColor: 'green',
-      data: nz
-    }
+        label: 'X °',
+        fill: false,
+        backgroundColor: 'blue',
+        borderColor: 'blue',
+        data: nx
+      },
+      {
+        label: 'Y °',
+        fill: false,
+        backgroundColor: 'orange',
+        borderColor: 'orange',
+        data: ny
+      },
+      {
+        label: 'Z °',
+        fill: false,
+        backgroundColor: 'green',
+        borderColor: 'green',
+        data: nz
+      }
     ]
   };
   var canva_id = "#" + canvaID;
@@ -919,32 +1001,32 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
     var chartdata = {
       labels: date,
       datasets: [{
-        label: 'X °',
-        fill: false,
-        backgroundColor: '#20324B',
-        borderColor: '#20324B',
-        data: angle_x,
-        yAxisID: "y-axis-1",
-        hidden: hiddenX,
-      },
-      {
-        label: 'Y °',
-        fill: false,
-        backgroundColor: 'orange',
-        borderColor: 'orange',
-        data: angle_y,
-        yAxisID: "y-axis-1",
-        hidden: hiddenY,
-      },
-      {
-        label: 'Z °',
-        fill: false,
-        backgroundColor: 'royalblue',
-        borderColor: 'royalblue',
-        data: angle_z,
-        yAxisID: "y-axis-2",
-        hidden: hiddenZ,
-      }
+          label: 'X °',
+          fill: false,
+          backgroundColor: '#20324B',
+          borderColor: '#20324B',
+          data: angle_x,
+          yAxisID: "y-axis-1",
+          hidden: hiddenX,
+        },
+        {
+          label: 'Y °',
+          fill: false,
+          backgroundColor: 'orange',
+          borderColor: 'orange',
+          data: angle_y,
+          yAxisID: "y-axis-1",
+          hidden: hiddenY,
+        },
+        {
+          label: 'Z °',
+          fill: false,
+          backgroundColor: 'royalblue',
+          borderColor: 'royalblue',
+          data: angle_z,
+          yAxisID: "y-axis-2",
+          hidden: hiddenZ,
+        }
       ]
     };
     var canva_id = "#" + canvaID;
@@ -1047,45 +1129,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
   }
 }
 
-function resetZoom(chartInstance) {
-  chartInstance.resetZoom();
-}
 
-function drawNoDataAvailable(canvaID) {
-
-  Chart.plugins.register({
-    afterDraw: function (chart) {
-      if (chart.data.datasets.length === 0) {
-        // No data is present
-        var ctx = chart.chart.ctx;
-        var width = chart.chart.width;
-        var height = chart.chart.height;
-        chart.clear();
-
-        ctx.save();
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = "35px normal 'Helvetica Nueue'";
-        ctx.fillStyle = "gray";
-        ctx.fillText('Pas encore de ce type de données disponible pour ce capteur', width / 2, height / 2);
-        ctx.restore();
-      }
-    }
-  });
-
-
-  var canva_id = "#" + canvaID;
-  var ctx = $(canva_id);
-
-  var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: []
-    }
-  });
-
-}
 
 function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentage = true, excludeAngle = null) {
   if (typeof inclinometerData != 'object') {
@@ -1137,32 +1181,32 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
   var chartdata = {
     labels: date,
     datasets: [{
-      label: 'X °',
-      fill: false,
-      backgroundColor: '#20324B',
-      borderColor: '#20324B',
-      data: variation_angle_x,
-      yAxisID: "y-axis-0",
-      hidden: hiddenX,
-    },
-    {
-      label: 'Y °',
-      fill: false,
-      backgroundColor: 'orange',
-      borderColor: 'orange',
-      data: variation_angle_y,
-      yAxisID: "y-axis-0",
-      hidden: hiddenY,
-    },
-    {
-      label: 'Z °',
-      fill: false,
-      backgroundColor: 'royalblue',
-      borderColor: 'royalblue',
-      data: variation_angle_z,
-      yAxisID: "y-axis-0",
-      hidden: hiddenZ,
-    }
+        label: 'X °',
+        fill: false,
+        backgroundColor: '#20324B',
+        borderColor: '#20324B',
+        data: variation_angle_x,
+        yAxisID: "y-axis-0",
+        hidden: hiddenX,
+      },
+      {
+        label: 'Y °',
+        fill: false,
+        backgroundColor: 'orange',
+        borderColor: 'orange',
+        data: variation_angle_y,
+        yAxisID: "y-axis-0",
+        hidden: hiddenY,
+      },
+      {
+        label: 'Z °',
+        fill: false,
+        backgroundColor: 'royalblue',
+        borderColor: 'royalblue',
+        data: variation_angle_z,
+        yAxisID: "y-axis-0",
+        hidden: hiddenZ,
+      }
     ]
   };
   var canva_id = "#" + canvaID;
@@ -1358,8 +1402,7 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
 
     drawNoDataAvailable(canvaID);
 
-  }
-  else {
+  } else {
     var variation_speed_xy = [];
     var date = [];
 
@@ -1385,8 +1428,7 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
         hoverBackgroundColor: "rgba(255,99,132,0.4)",
         hoverBorderColor: "rgba(255,99,132,1)",
         data: variation_speed_xy
-      },
-      ]
+      }, ]
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -1446,60 +1488,25 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
   }
 }
 
-drawArrow = function (context, fromx, fromy, tox, toy) {
-  var headlen = 10; // length of head in pixels
-  var dx = tox - fromx;
-  var dy = toy - fromy;
-  var angle = Math.atan2(dy, dx);
-  context.moveTo(fromx, fromy);
-  context.lineTo(tox, toy);
-  context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
-  context.moveTo(tox, toy);
-  context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
-}
 
-function drawVerticalAxis(canvaID) {
-
-  Chart.plugins.register({
-    beforeDraw: function (chart, options) {
-      if (chart.config.data.drawXYAxes) {
-        var ctx = chart.chart.ctx;
-        var yaxis = chart.scales['scale'];
-        var paddingX = 100;
-        var paddingY = 40;
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.strokeStyle = '#0000ff';
-        ctx.lineWidth = 0.75;
-
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter - yaxis.drawingArea - paddingX, yaxis.yCenter);
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter + yaxis.drawingArea + paddingX, yaxis.yCenter);
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter - yaxis.drawingArea - paddingY);
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter + yaxis.drawingArea + paddingY);
-
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-  });
-}
+function drawChartDirectionFromData(directionData, canvaID = "chartDirectionInclinometer", settings = []) {
 
 
-
-function drawChartDirectionFromData(directionData, canvaID = "chartDirectionInclinometer") {
-
-
-  if (typeof chocData != 'object') {
+  if (typeof directionData != 'object') {
     directionData = JSON.parse(directionData);
   }
+
+  //TODO better handle this : because an user may hot have this settings
+  var firstLevelThresh = settings[0].value
+  var secondLevelThresh = settings[1].value
+  var thirdLevelThresh = settings[2].value
+
 
   if (isEmpty(directionData)) {
 
     drawNoDataAvailable(canvaID);
 
-  }
-  else {
+  } else {
 
     var dataChartArr = [];
     var mapDirectionDateTime = new Map();
@@ -1619,40 +1626,95 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       annotation: {
         events: ['click'],
         drawTime: 'afterDatasetsDraw',
-        annotations: [{
-          id: 'hline1',
-          type: 'line',
-          mode: 'vertical',
-          scaleID: 'x-axis-0',
-          value: 0,
-          borderColor: 'rgba(103, 128, 159, 0.7)',
-          label: {
-            enabled: true,
-            content: 'Y',
-            position: "top",
-            backgroundColor: "rgba(103, 128, 159, 0.7)",
+        annotations: [
+          //Vertical axis  
+          {
+            id: 'hline1',
+            type: 'line',
+            mode: 'vertical',
+            scaleID: 'x-axis-0',
+            value: 0,
+            borderColor: 'rgba(103, 128, 159, 0.7)',
+            label: {
+              enabled: true,
+              content: 'Y',
+              position: "top",
+              backgroundColor: "rgba(103, 128, 159, 0.7)",
+            },
           },
-        }, {
-          id: 'hline2',
-          type: 'line',
-          mode: 'horizontal',
-          scaleID: 'y-axis-0',
-          value: 0,
-          borderColor: 'rgba(103, 128, 159, 0.7)',
-          label: {
-            backgroundColor: "rgba(103, 128, 159, 0.7)",
-            content: "X",
-            position: "right",
-            enabled: true
+          //horizontal axis  
+          {
+            id: 'hline2',
+            type: 'line',
+            mode: 'horizontal',
+            scaleID: 'y-axis-0',
+            value: 0,
+            borderColor: 'rgba(103, 128, 159, 0.7)',
+            label: {
+              backgroundColor: "rgba(103, 128, 159, 0.7)",
+              content: "X",
+              position: "right",
+              enabled: true
+            },
           },
+          //first level thresh
+          {
+            id: 'hline3',
+            type: 'line',
+            mode: 'horizontal',
+            scaleID: 'y-axis-0',
+            value: settings[0].value,
+            borderColor: 'rgba(240, 52, 52, 0.8)',
+            label: {
+              backgroundColor: "rgba(240, 52, 52, 0.8)",
+              content: "First level",
+              position: "top",
+              enabled: true
+            },
+            onClick: function (e) {
+              window.open("/settings");
+            }
+          },
+          //second level thresh
+          {
+            id: 'hline4',
+            type: 'line',
+            mode: 'horizontal',
+            scaleID: 'y-axis-0',
+            value: settings[1].value,
+            borderColor: 'rgba(240, 52, 52, 0.8)',
+            label: {
+              backgroundColor: "rgba(240, 52, 52, 0.8)",
+              content: "Second level",
+              position: "top",
+              enabled: true
+            },
+            onClick: function (e) {
+              window.open("/settings");
+            }
+          },
+          //third level thresh
+          {
+            id: 'hline5',
+            type: 'line',
+            mode: 'horizontal',
+            scaleID: 'y-axis-0',
+            value: settings[2].value,
+            borderColor: 'rgba(240, 52, 52, 0.8)',
+            label: {
+              backgroundColor: "rgba(240, 52, 52, 0.8)",
+              content: "Third level",
+              position: "top",
+              enabled: true
+            },
+            onClick: function (e) {
+              window.open("/settings");
+            }
+          }
 
-
-        }],
+        ],
 
       }
-
-
-
     };
 
     // End Defining data
@@ -1943,44 +2005,44 @@ function showMap(data) {
   }).addTo(map);
 
   L.control.custom({
-    position: 'topright',
-    content: '<button type="button" class="btn btn-default">' +
-      '    <i class="fa fa-crosshairs"></i>' +
-      '</button>' +
-      '<button type="button" class="btn btn-danger">' +
-      '    <i class="fa fa-times"></i>' +
-      '</button>' +
-      '<button type="button" class="btn btn-success">' +
-      '    <i class="fa fa-check"></i>' +
-      '</button>' +
-      '<button type="button" class="btn btn-warning">' +
-      '    <i class="fa fa-exclamation-triangle"></i>' +
-      '</button>',
-    classes: 'btn-group-vertical btn-group-sm',
-    style: {
-      margin: '30px',
-      padding: '0px 0 0 0',
-      cursor: 'pointer',
-      height: '100px',
-    },
-    datas: {
-      'foo': 'bar',
-    },
-    events: {
-      click: function (data) {
-        console.log('wrapper div element clicked');
-        console.log(data);
+      position: 'topright',
+      content: '<button type="button" class="btn btn-default">' +
+        '    <i class="fa fa-crosshairs"></i>' +
+        '</button>' +
+        '<button type="button" class="btn btn-danger">' +
+        '    <i class="fa fa-times"></i>' +
+        '</button>' +
+        '<button type="button" class="btn btn-success">' +
+        '    <i class="fa fa-check"></i>' +
+        '</button>' +
+        '<button type="button" class="btn btn-warning">' +
+        '    <i class="fa fa-exclamation-triangle"></i>' +
+        '</button>',
+      classes: 'btn-group-vertical btn-group-sm',
+      style: {
+        margin: '30px',
+        padding: '0px 0 0 0',
+        cursor: 'pointer',
+        height: '100px',
       },
-      dblclick: function (data) {
-        console.log('wrapper div element dblclicked');
-        console.log(data);
+      datas: {
+        'foo': 'bar',
       },
-      contextmenu: function (data) {
-        console.log('wrapper div element contextmenu');
-        console.log(data);
-      },
-    }
-  })
+      events: {
+        click: function (data) {
+          console.log('wrapper div element clicked');
+          console.log(data);
+        },
+        dblclick: function (data) {
+          console.log('wrapper div element dblclicked');
+          console.log(data);
+        },
+        contextmenu: function (data) {
+          console.log('wrapper div element contextmenu');
+          console.log(data);
+        },
+      }
+    })
     .addTo(map);
 
   for (var i = 0; i < data.length; i++) {
@@ -2020,7 +2082,8 @@ function drawPrevision(site) {
     unitGroup: "metric"
   });
   (function () {
-    var d = document, s = d.createElement('script');
+    var d = document,
+      s = d.createElement('script');
     s.src = 'public/js/weather-forecast-widget.min.js';
     s.setAttribute('data-timestamp', +new Date());
     (d.head || d.body).appendChild(s);

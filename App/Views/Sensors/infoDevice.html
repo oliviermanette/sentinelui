@@ -131,15 +131,15 @@
 {% include "Sensors/viewChocsCharts.html" %}
 {% include "Sensors/viewTemperatureWidget.html" %}
 
-    <!-- Activity sensors -->
-    <div class="card-body">
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <h3 class="card-title">Activités du capteur</h3>
-            </div>
+<!-- Activity sensors -->
+<div class="card-body">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <h3 class="card-title">Activités du capteur</h3>
         </div>
-        {% include "Sensors/viewTableActivityData.html" %}
     </div>
+    {% include "Sensors/viewTableActivityData.html" %}
+</div>
 </div>
 
 
@@ -220,16 +220,21 @@
             "iDisplayLength": 10,
             "order": [[0, "desc"]]
         });
+
+        //Settings
+        let settingsArr = JSON.parse('{{ settingArr | raw }}');
+        console.log(settingsArr)
+
         //Draw direction inclinometer
         let variationDirection = '{{ variationDirectionArr|raw}}';
-        drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer");
+        drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer", settingsArr);
         //Draw speed variation
         let variationSpeed = '{{ variationSpeedDirectionArr|raw}}';
         drawChartSpeedVariationFromData(variationSpeed, "chartVitesseInclinometer");
 
         //Draw chart inclinometer monthly
-        let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
-        drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);
+        //let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
+        //drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);
 
         //Draw chart variation inclinometer absolute variation
         let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
@@ -246,9 +251,9 @@
         drawChartPowerChocPerDateBar(powerChocDataMonth, "chartPowerChoc");
 
         //Draw temperature
-        let temperatureData = '{{ temperatureArr|raw}}';
+        //let temperatureData = '{{ temperatureArr|raw}}';
         let historicalTemperatureData = '{{ historicalTemperatureDataArr|raw}}';
-        drawChartTemperatureFromData(temperatureData, "chartTemperature");
+        //drawChartTemperatureFromData(temperatureData, "chartTemperature");
         drawChartHistoricalTemperature(historicalTemperatureData, "chartHistoricalTemperature");
         //drawBothTemperature(temperatureData, historicalTemperatureData, "chartHistoricalTemperature")
 
@@ -257,8 +262,11 @@
         //console.log("Data map : ",location);
         //drawPrevision(location);
 
+
+
     });
 
+    /*
     //When the user want to change the date for displaying the chart concerning the power of choc
     // Day, week or month
     $(document).on("click", "#radioButtonInclinometer", function (e) {
@@ -283,7 +291,7 @@
             drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer", excludeAngle);
         }
 
-    });
+    });*/
 
     $(document).on("click", "#radioButtonNbChoc", function (e) {
         e.preventDefault();
