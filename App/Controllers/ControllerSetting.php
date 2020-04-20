@@ -26,17 +26,18 @@ class ControllerSetting extends Authenticated
     {
 
         Auth::rememberRequestedPage();
-        
+
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentUser();
-
+        var_dump($settingsArr);
         //Get the shock threshold and inclinometer threshold
         //TODO : change and make it more reusable
-        $settingsShock = $settingsArr[0];
-        $settingsInclinometer = $settingsArr[1];
-        $settingsTimePeriod = $settingsArr[2];
-        $settingsRangeInclinometer= $settingsArr[3];
-        $settingsAlertEmailActivated = $settingsArr[4];
+
+        $settingsShock = 0; //$settingsArr[0];
+        $settingsInclinometer = 0; // $settingsArr[1];
+        $settingsTimePeriod = 0; //$settingsArr[2];
+        $settingsRangeInclinometer = 0; // $settingsArr[3];
+        $settingsAlertEmailActivated = 0; // $settingsArr[4];
 
 
         View::renderTemplate('Profile/settings.html', [
@@ -46,10 +47,10 @@ class ControllerSetting extends Authenticated
             'settingsRangeInclinometer' => $settingsRangeInclinometer,
             'settingsAlertEmailActivated' => $settingsAlertEmailActivated,
         ]);
-
     }
 
-    public function updateAction(){
+    public function updateAction()
+    {
         $user = Auth::getUser();
         $user_email = $user->email;
         $group_name = $_SESSION['group_name'];
@@ -57,28 +58,30 @@ class ControllerSetting extends Authenticated
         $inclinometerThresh = $_POST["inclinometerThresh"];
         $timePeriod = $_POST["rangeDateCheck"];
         $inclinometerRangeThresh = $_POST["inclinometerRangeThresh"];
-        if (isset($_POST["alertSwitchNotification"])){
+        if (isset($_POST["alertSwitchNotification"])) {
             $alertNotification = 1;
-        }else {
+        } else {
             $alertNotification = 0;
         }
-        if (SettingManager::updateShockThresh($group_name, $shockThresh) &&
-        SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh) &&
-        SettingManager::updateTimePeriodCheck($group_name, $timePeriod) 
-        && SettingManager::updateInclinometerRangeThresh($group_name, $inclinometerRangeThresh)
-            && SettingManager::updateAlertNotification($user_email, $alertNotification)){
+        if (
+            SettingManager::updateShockThresh($group_name, $shockThresh) &&
+            SettingManager::updateInclinometerThresh($group_name, $inclinometerThresh) &&
+            SettingManager::updateTimePeriodCheck($group_name, $timePeriod)
+            && SettingManager::updateInclinometerRangeThresh($group_name, $inclinometerRangeThresh)
+            && SettingManager::updateAlertNotification($user_email, $alertNotification)
+        ) {
             Flash::addMessage('Mise à jour réussie des paramètres');
-        }
-        else {
+        } else {
             Flash::addMessage('Erreur avec la mise à jour des paramètres', Flash::WARNING);
         }
         $this->redirect(Auth::getReturnToPage());
-        
     }
 
-    public function getSettingsForCurrentUser(){
+    public function getSettingsForCurrentUser()
+    {
         $user = Auth::getUser();
         $user_id = $user->id;
+        var_dump($_SESSION['group_name']);
         $group_name = $_SESSION['group_name'];
 
         $settingsArr = SettingManager::findByGroupName($group_name);
@@ -89,5 +92,4 @@ class ControllerSetting extends Authenticated
         //$settingsArr["isAlertEmailActivated"] = $isAlertEmailActivated;
         return $settingsArr;
     }
-
 }
