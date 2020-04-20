@@ -11,12 +11,6 @@
             <div class="col">
                 <h1 class="h3 mb-0 text-gray-800">Capteurs</h1>
             </div>
-            <div class="col">
-                <a href="#" class="btn btn-secondary">
-                    <span class="text">Importer des capteurs</span>
-                </a>
-
-            </div>
         </div>
 
     </div>
@@ -36,7 +30,7 @@
 
 <script>
     $(document).ready(function () {
-        $.fn.dataTable.moment( 'DD/MM/YYYY' );
+        $.fn.dataTable.moment('DD/MM/YYYY');
         /*$('#tableDataSensors thead tr').clone(true).appendTo('#tableDataSensors thead');
         $('#tableDataSensors thead tr:eq(1) th').each(function (i) {
             if (i != 0) {
@@ -58,15 +52,15 @@
             responsive: true,
             responsive: {
                 details: {
-                type: 'column',
-                target: 'tr'
+                    type: 'column',
+                    target: 'tr'
                 }
             },
             orderCellsTop: true,
             fixedHeader: true,
             "createdRow": function (row, data, dataIndex) {
                 var status = data[4];
-                if (status == "active") {
+                if (status == "ACTIVE") {
                     $(row).css({
                         //green
                         "background-color": "rgba(135, 254, 16, 0.15)"
@@ -83,15 +77,15 @@
                 [10, 25, 50, 'All']
             ],
             "iDisplayLength": 20,
-            "order": [[ 5, "desc" ]]
+            "order": [[5, "desc"]]
         });
 
         $('#tableDataNewAlerts').DataTable({
-             responsive: true,
+            responsive: true,
             responsive: {
                 details: {
-                type: 'column',
-                target: 'tr'
+                    type: 'column',
+                    target: 'tr'
                 }
             },
             "createdRow": function (row, data, dataIndex, cells) {
@@ -137,8 +131,8 @@
             responsive: true,
             responsive: {
                 details: {
-                type: 'column',
-                target: 'tr'
+                    type: 'column',
+                    target: 'tr'
                 }
             },
             "createdRow": function (row, data, dataIndex, cells) {

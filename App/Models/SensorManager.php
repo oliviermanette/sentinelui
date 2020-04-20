@@ -534,55 +534,31 @@ class SensorManager extends \Core\Model
    * id_device | groupe | device_number | ligneHT | equipement | last_message_received | status |date_installation
    *
    */
-  public static function getBriefInfoForGroup($group_name)
+  public static function getBriefInfoForGroup($groupId)
   {
     $db = static::getDB();
 
     $sql_brief_info = "SELECT
-    groupe,
-    device_number,
-    ligneHT,
-    equipement,
-    site,
-    DATE_FORMAT(
-      last_message_received, '%d/%m/%Y'
-    ) AS `last_message_received` ,
-    status,
-    date_installation
-  FROM
-    (
-      SELECT
-        sensor.id AS 'id_device_db',
+        sensor.id AS 'sensor_id',
         sensor.device_number AS 'device_number',
         sensor.deveui AS deveui,
         sensor.status AS status,
         sensor.installation_date AS date_installation,
         gn.name AS groupe,
-        st.transmision_line_name AS `LigneHT`,
+        st.transmision_line_name AS `ligneHT`,
         st.nom AS `equipement`,
-        s.nom AS 'site',
-        Max(
-          Date(r.date_time)
-        ) AS `last_message_received`
+        s.nom AS 'site'
       FROM
-        record AS r
-        LEFT JOIN structure AS st ON st.id = r.structure_id
+        sensor
+        LEFT JOIN structure AS st ON st.id = sensor.structure_id
         LEFT JOIN site AS s ON s.id = st.site_id
-        LEFT JOIN sensor ON (sensor.id = r.sensor_id)
         LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
         LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
       WHERE
-        gn.name = :group_name
-        AND Date(r.date_time) >= Date(sensor.installation_date)
-      GROUP BY
-        r.sensor_id,
-        st.nom,
-        s.nom,
-        st.transmision_line_name
-    ) AS all_message_rte_sensor";
+        gn.group_id = :groupId";
 
     $stmt = $db->prepare($sql_brief_info);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
       $resultsArr = $stmt->fetchAll(PDO::FETCH_ASSOC);

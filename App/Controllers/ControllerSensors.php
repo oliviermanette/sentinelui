@@ -31,9 +31,9 @@ class ControllerSensors extends Authenticated
      */
     public function indexAction()
     {
-        $group_name = $_SESSION['group_name'];
+        $user = Auth::getUser();
         //Get some info from the device
-        $infoArr = SensorManager::getBriefInfoForGroup($group_name);
+        $infoArr = SensorManager::getBriefInfoForGroup($user->group_id);
         View::renderTemplate('Sensors/index.html', [
             'info_sensors_array' => $infoArr
         ]);
