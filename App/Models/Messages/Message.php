@@ -3,6 +3,7 @@
 
 namespace App\Models\Messages;
 
+use App\Models\SensorManager;
 use App\Utilities;
 
 /**
@@ -20,6 +21,7 @@ class Message
 
     public function __construct($data = [])
     {
+
         foreach ($data as $key => $value) {
             $this->$key = $value;
         }
@@ -35,6 +37,7 @@ class Message
             $this->group = explode("-", $this->group)[0];
             $this->latitude = $this->lat;
             $this->longitude = $this->lng;
+            $this->device_number = SensorManager::getDeviceNumberFromDeveui($this->deveui);
             $this->msgDecoded = $this->decodePayload();
             $this->extractExternalId();
         }
@@ -194,6 +197,8 @@ class Message
 
             $payload_decoded_json['dateTime'] = $this->dateTime;
             $payload_decoded_json['deveui'] = $this->deveui;
+            $payload_decoded_json['device_number'] = $this->device_number;
+
 
             return $payload_decoded_json;
         } else if ($this->getSoftwareVersion() == 2.0) {
@@ -220,6 +225,7 @@ class Message
 
             $payload_decoded_json['dateTime'] = $this->dateTime;
             $payload_decoded_json['deveui'] = $this->deveui;
+            $payload_decoded_json['device_number'] = $this->device_number;
 
             return $payload_decoded_json;
         }

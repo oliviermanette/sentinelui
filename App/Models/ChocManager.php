@@ -21,49 +21,68 @@ class ChocManager extends \Core\Model
    * Check if a choc value is inside a specific range ( 1SD, 2SD , 3SD) to trigger an alert
    * @param int $sensor_id sensor id to target
    * @param int $time_period check for the last X days
+   * @param enum $method if VALUE, check just if the current shock is below or above the thresh. if
+   *              STD, check if the value is between 1SD, 2SD or 3SD
    * @return true if an alert is triggered
    */
-  public function check($choc, $group)
+  public function check($choc, $groupId, $method = "VALUE")
   {
-
-    $shockTreshSTD = SettingManager::getShockThresh($group);
-    $timePeriodCheck = SettingManager::getTimePeriodCheck($group);
-
-    if (isset($choc->power)) {
-
-      $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($choc->deveui, $timePeriodCheck);
-      $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($choc->deveui, $timePeriodCheck);
-
-      switch ($shockTreshSTD) {
-        case 1:
-          $highTresh = $avgPowerChoc + $stdDevPowerChoc;
-          $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
-          break;
-        case 2:
-          $highTresh = $avgPowerChoc + 2 * $stdDevPowerChoc;
-          $lowThresh = $avgPowerChoc - 2 * $stdDevPowerChoc;
-          break;
-        case 3:
-          $highTresh = $avgPowerChoc + 3 * $stdDevPowerChoc;
-          $lowThresh = $avgPowerChoc - 3 * $stdDevPowerChoc;
-          break;
-        default:
-          $highTresh = $avgPowerChoc + $stdDevPowerChoc;
-          $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
+    //The value received is in G
+    if ($method == "VALUE") {
+      $shockTresh = SettingManager::getSettingValueForGroupOrNull($groupId, "shock_thresh");
+      if (isset($choc->power)) {
+        if ($choc->power > $shockTresh) {
+          echo "ALERT ! \n";
+          return true;
+        }
+        return false;
+      }
+    } else if ($method = "STD") {
+      $shockTreshSTD = SettingManager::getSettingValueForGroupOrNull($groupId, "shock_thresh_std");
+      $timePeriodCheck = SettingManager::getSettingValueForGroupOrNull($groupId, "time_period");
+      if (!isset($timePeriodCheck)) {
+        $timePeriodCheck = -1;
+      }
+      if (!isset($shockTreshSTD)) {
+        $shockTreshSTD = 3;
       }
 
-      echo "\n</br>";
-      echo "\n Value power current choc : $choc->power ";
-      echo "\n Average choc last days : $avgPowerChoc \n";
-      echo "\n High Tresh last days : $highTresh \n";
-      echo "\n Low Tresh last days : $lowThresh \n";
+      if (isset($choc->power)) {
 
-      if ($choc->power > $highTresh || $choc->power < $lowThresh) {
-        echo "ALERT ! \n";
-        return true;
-      } else {
-        echo "No alert ! \n";
-        return false;
+        $avgPowerChoc = ChocManager::computeAvgPowerChocForLast($choc->deveui, $timePeriodCheck);
+        $stdDevPowerChoc = ChocManager::computeStdDevChocForLast($choc->deveui, $timePeriodCheck);
+
+        switch ($shockTreshSTD) {
+          case 1:
+            $highTresh = $avgPowerChoc + $stdDevPowerChoc;
+            $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
+            break;
+          case 2:
+            $highTresh = $avgPowerChoc + 2 * $stdDevPowerChoc;
+            $lowThresh = $avgPowerChoc - 2 * $stdDevPowerChoc;
+            break;
+          case 3:
+            $highTresh = $avgPowerChoc + 3 * $stdDevPowerChoc;
+            $lowThresh = $avgPowerChoc - 3 * $stdDevPowerChoc;
+            break;
+          default:
+            $highTresh = $avgPowerChoc + $stdDevPowerChoc;
+            $lowThresh = $avgPowerChoc - $stdDevPowerChoc;
+        }
+
+        echo "\n</br>";
+        echo "\n Value power current choc : $choc->power ";
+        echo "\n Average choc last days : $avgPowerChoc \n";
+        echo "\n High Tresh last days : $highTresh \n";
+        echo "\n Low Tresh last days : $lowThresh \n";
+
+        if ($choc->power > $highTresh || $choc->power < $lowThresh) {
+          echo "ALERT ! \n";
+          return true;
+        } else {
+          echo "No alert ! \n";
+          return false;
+        }
       }
     }
   }

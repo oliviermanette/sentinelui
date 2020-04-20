@@ -5,6 +5,7 @@ namespace App\Models\Messages;
 
 use App\Utilities;
 use App\Models\EquipementManager;
+use App\Models\SensorManager;
 
 /**
  *
@@ -14,19 +15,30 @@ use App\Models\EquipementManager;
 class Alert extends Message
 {
 
-    public function __construct($label, $deveui, $dateTime, $triggerValue = null)
+    public function __construct($type, $label, $deveui, $dateTime, $triggerValues = null)
     {
+        $this->type = $type;
         $this->label = $label;
         $this->deveui = $deveui;
+        $this->device_number = SensorManager::getDeviceNumberFromDeveui($this->deveui);
         $this->dateTime = $dateTime;
-        $this->triggerValue = $triggerValue;
+        if ($this->type == "inclination") {
+            $this->msg = "Forte variation d'inclinaison";
+            $this->thresh = $triggerValues["thresh"];
+            $this->valueX = $triggerValues["valueX"];
+            $this->valueY = $triggerValues["valueY"];
+        } else if ($this->type == "shock") {
+            $this->msg = "Choc intense";
+            $this->valueShock = $triggerValues;
+        }
+        $this->triggerValues = $triggerValues;
         $this->analyseLabel();
 
         $this->equipementId = EquipementManager::getEquipementIdBySensorDeveui($deveui);
-
     }
-    private function analyseLabel(){
-        switch($this->label){
+    private function analyseLabel()
+    {
+        switch ($this->label) {
             case 'ChangeStatusInactive':
                 $this->msg = "Le capteur est devenu inactif.";
                 $this->criticality = "HIGH";
@@ -47,7 +59,15 @@ class Alert extends Message
                 $this->msg = "Choc important";
                 $this->criticality = "HIGH";
                 break;
-            case 'high_variation':
+            case 'first_thresh_inclinometer_raised':
+                $this->msg = "Variation importante";
+                $this->criticality = "HIGH";
+                break;
+            case 'second_thresh_inclinometer_raised':
+                $this->msg = "Variation importante";
+                $this->criticality = "HIGH";
+                break;
+            case 'third_thresh_inclinometer_raised':
                 $this->msg = "Variation importante";
                 $this->criticality = "HIGH";
                 break;
@@ -56,7 +76,8 @@ class Alert extends Message
         }
     }
 
-    public function getProperMessageFromLabel(){
+    public function getProperMessageFromLabel()
+    {
         return $this->msg;
     }
 }

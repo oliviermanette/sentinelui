@@ -1,0 +1,10 @@
+Bonjour {{ firstName }},
+
+Une alerte vient d'être relevée de type {{label}} c'est à dire un choc anormalement élevé sur la structure.
+                                               
+Déclenchement de l'alerte le {{dateEventOccured}} à {{timeEventOccured}}
+Région: {{region}}
+Structure concernée: {{equipement}}
+Valeur de déclenchement {{value}} G
+
+Pour en savoir plus : {{url}}

@@ -6,7 +6,7 @@
 <head>
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Alerts e.g. approaching your limit</title>
+    <title>Alert</title>
 
 
     <style type="text/css">
@@ -108,21 +108,23 @@
                                             valign="top">
                                             Bonjour {{firstName}},
 
-                                            <p>Une alerte vient d'être relevée de type<strong
-                                                style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-                                                {{label}}</strong>
-                                                {% if label == 'high_choc' %}
-                                                c'est à dire un choc anormalement élevé sur la structure.
-                                                {% elseif label == 'high_inclinometer_variationX' %}
-                                                c'est à dire une variation en X qui dépasse le seuil défini.
-                                                {% elseif label == 'high_inclinometer_variationY' %}
-                                                c'est à dire une variation en Y qui dépasse le seuil défini.
-                                                {% elseif label == 'high_inclinometer_variationZ' %}
-                                                c'est à dire une variation en Z qui dépasse le seuil défini.
+                                            <p>Dépassement du seuil fixé à <strong>{{thresh}}</strong> cm.Une alerte
+                                                vient d'être déclenché de type<strong
+                                                    style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                                                    {{label}}</strong>
+                                                {% if label == 'first_thresh_inclinometer_raised' %}
+                                                c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
+                                                le premier seuil défini de {{thresh}} cm
+                                                {% elseif label == 'second_thresh_inclinometer_raised' %}
+                                                c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
+                                                le second seuil défini de {{thresh}} cm
+                                                {% elseif label == 'third_thresh_inclinometer_raised' %}
+                                                c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
+                                                le troisième seuil défini de {{thresh}} cm
                                                 {% else %}
                                                 .
                                                 {% endif %}
-                                                </p>
+                                            </p>
                                         </td>
                                     </tr>
                                     <tr
@@ -138,13 +140,10 @@
                                                     <strong>{{region}}</strong></li>
                                                 <li>Structure concernée:
                                                     <strong>{{equipement}}</strong></li>
-                                                <li>Valeur de déclenchement
-                                                        <strong>{{value}} {% if label == 'high_choc' %}
-                                                            mG
-                                        
-                                                            {% else %}
-                                                            °
-                                                            {% endif %}</strong></li>
+                                                <li>Valeur de déclenchement:
+                                                    <strong>({{valueX}}, {{valueY}}) cm</strong></li>
+                                                <li>Capteur:
+                                                    <strong> {{sensorName}}</strong></li>
                                             </ul>
                                         </td>
                                     </tr>
@@ -154,7 +153,8 @@
                                             style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;"
                                             valign="top">
                                             <a href="{{url}}" class="btn-primary"
-                                                style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">En savoir plus</a>
+                                                style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">En
+                                                savoir plus</a>
                                         </td>
                                     </tr>
                                     <tr

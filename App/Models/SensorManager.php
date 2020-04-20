@@ -35,11 +35,11 @@ class SensorManager extends \Core\Model
     }
   }
 
-  public static function getOwner($deveui)
+  public static function getGroupsOwner($deveui)
   {
     $db = static::getDB();
 
-    $sql = "SELECT group_name.name FROM group_name
+    $sql = "SELECT group_name.group_id FROM group_name
     LEFT JOIN sensor_group ON (sensor_group.groupe_id = group_name.group_id)
     LEFT JOIN sensor ON (sensor.id = sensor_group.sensor_id)
     WHERE sensor.deveui = :deveui";
@@ -48,10 +48,30 @@ class SensorManager extends \Core\Model
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $owner = $stmt->fetch(PDO::FETCH_COLUMN);
-      return $owner;
+      $ownerIdArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $ownerIdArr;
     }
   }
+
+  public static function getGroupOwnerCurrentUser($deveui)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT DISTINCT group_name.group_id FROM group_name
+    LEFT JOIN sensor_group ON (sensor_group.groupe_id = group_name.group_id)
+    LEFT JOIN group_roles ON (group_name.group_role = group_roles.id)
+    LEFT JOIN sensor ON (sensor.id = sensor_group.sensor_id)
+    WHERE sensor.deveui = :deveui AND group_roles.name= 'User' ";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $ownerId = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $ownerId;
+    }
+  }
+
 
   public static function getSiteWhereIsInstalled($deveui)
   {
@@ -148,6 +168,29 @@ class SensorManager extends \Core\Model
     if ($stmt->execute()) {
       $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
       return $id_sensor[0];
+    }
+  }
+
+  /**
+   * Get the device number of a device given his id
+   *
+   * @param string $deveui deveui of the sensor
+   * @return string device number of the sensor
+   *
+   */
+  public static function getDeviceNumberFromDeveui($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_deviceNb_sensor = "SELECT device_number FROM `sensor`
+      WHERE deveui = :deveui ";
+
+    $stmt = $db->prepare($sql_deviceNb_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $device_number = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $device_number;
     }
   }
   /**

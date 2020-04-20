@@ -46,6 +46,14 @@
                     </div>
                 </div>
                 </br>
+                <h3 class="card-title">Seuil de choc</h3>
+                <div class="col-sm-4">
+                    <label><strong>Valeur de déclenchement (G)</strong></label>
+                    <input type="range" class="custom-range" name="shockThresh" min="1" max="16"
+                        value="{{ settingsShockThresh.value }}" oninput="this.form.AmountInputShock.value=this.value" />
+                    <input type="number" name="AmountInputShock" min="1" max="16"
+                        value="{{ settingsShockThresh.value }}" oninput="this.form.shockThresh.value=this.value" />
+                </div>
                 <h3 class="card-title">Alertes notification</h3>
                 <div class="row">
                     <div class="col-sm-6">

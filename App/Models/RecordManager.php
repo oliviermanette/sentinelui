@@ -55,7 +55,7 @@ class RecordManager extends \Core\Model
       } else if ($message->getFormatMessage() == "downlink") {
       } else if ($message->getFormatMessage() == "join") {
       }
-    }else {
+    } else {
       echo "\nThe sensor has not been yet installed. \n";
     }
   }
@@ -79,16 +79,19 @@ class RecordManager extends \Core\Model
         $chocManager = new ChocManager();
         //Check if the sensor is installed
         if (SensorManager::isInstalled($choc->deveui)) {
-          $hasAlert = $chocManager->check($choc, $message->group);
+          $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
+
+          $hasAlert = $chocManager->check($choc, $group_id, $method = "VALUE");
           //Create new alert if it's the case
           if ($hasAlert) {
             $label = "high_choc";
-            $alert = new Alert($label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc());
+            $type = "shock";
+            $alert = new Alert($type, $label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc($precision = 2, $unite = "g"));
 
-            AlertManager::insertTypeEvent($label,  $alert->criticality, $alert->msg);
+            AlertManager::insertTypeEvent($label,  $alert->criticality);
             AlertManager::insert($alert);
             //Send alert
-            AlertManager::sendAlert($alert, $message->group);
+            AlertManager::sendAlert($alert, $group_id);
           }
         }
       }
@@ -123,36 +126,37 @@ class RecordManager extends \Core\Model
         if (SensorManager::isInstalled($inclinometer->deveui)) {
 
           $inclinometreManager = new InclinometerManager();
-          $hasAlertArr = $inclinometreManager->check($inclinometer, $message->group);
+          $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
 
-          if ($hasAlertArr["alertOnX"]) {
-            $label = "high_inclinometer_variationX";
-            $criticality = "HIGH";
-            $msg = "Grosse variation au niveau de l'inclinaison X";
-            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleX());
-            AlertManager::insertTypeEvent($label, $criticality, $msg);
-            AlertManager::insert($alert);
-            AlertManager::sendAlert($alert, $message->group);
-          }
-          if ($hasAlertArr["alertOnY"]) {
-            $label = "high_inclinometer_variationY";
-            $criticality = "HIGH";
-            $msg = "Grosse variation au niveau de l'inclinaison Y";
-            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleY());
-            AlertManager::insertTypeEvent($label, $criticality, $msg);
-            AlertManager::insert($alert);
-            AlertManager::sendAlert($alert, $message->group);
-          }
-          if ($hasAlertArr["alertOnZ"]) {
-            $label = "high_inclinometer_variationZ";
-            $criticality = "HIGH";
-            $msg = "Grosse variation au niveau de l'inclinaison Z";
+          $hasAlertArr = $inclinometreManager->check($inclinometer, $group_id);
+          if (Utilities::is_key_in_array($hasAlertArr, "alertThirdThresh")) {
 
-            $alert = new Alert($label, $inclinometer->deveui, $inclinometer->dateTime, $inclinometer->getAngleZ());
-            AlertManager::insertTypeEvent($label,  $criticality, $msg);
-            AlertManager::insert($alert);
-            AlertManager::sendAlert($alert, $message->group);
+            $label = "third_thresh_inclinometer_raised";
+            $criticality = "HIGH";
+            $thresh = $hasAlertArr["alertThirdThresh"]["thresh"];
+            $type = $hasAlertArr["type"];
+            $values = $hasAlertArr["alertThirdThresh"];
+          } else if (Utilities::is_key_in_array($hasAlertArr, "alertSecondThresh")) {
+
+            $label = "second_thresh_inclinometer_raised";
+            $criticality = "HIGH";
+            $thresh = $hasAlertArr["alertSecondThresh"]["thresh"];
+            $type = $hasAlertArr["type"];
+            $values = $hasAlertArr["alertSecondThresh"];
+          } else if (Utilities::is_key_in_array($hasAlertArr, "alertFirstThresh")) {
+
+            $label = "first_thresh_inclinometer_raised";
+            $criticality = "HIGH";
+            $thresh = $hasAlertArr["alertFirstThresh"]["thresh"];
+            $type = $hasAlertArr["type"];
+            $values =  $hasAlertArr["alertFirstThresh"];
           }
+
+          $alert = new Alert($type, $label, $inclinometer->deveui, $inclinometer->dateTime, $values);
+
+          AlertManager::insertTypeEvent($label, $criticality);
+          AlertManager::insert($alert);
+          AlertManager::sendAlert($alert, $group_id);
         }
       }
       //Subspectre data
@@ -170,13 +174,13 @@ class RecordManager extends \Core\Model
   private static function handleEventMessage($message)
   {
     $label = $message->type;
-    echo "Label : " . $label;
+
 
     $alert = new Alert($label, $message->deveui, $message->dateTime);
-    $group = SensorManager::getOwner($alert->deveui);
+    $group_id = SensorManager::getGroupOwner($alert->deveui);
     AlertManager::insertTypeEvent($label, $alert->criticality, $alert->msg);
     AlertManager::insert($alert);
-
+    //TODO
     //AlertManager::sendAlert($alert, $group);
   }
 

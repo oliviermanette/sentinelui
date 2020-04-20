@@ -430,17 +430,17 @@ class UserManager extends \Core\Model
     return false;
   }
 
-  public static function findToSendAlerts($group)
+  public static function findToSendAlerts($groupId)
   {
     $db = static::getDB();
 
     $sql = "SELECT user.email, user.phone_number, user.first_name, user.last_name, user.company FROM `user`
     LEFT JOIN group_users ON (user.id = group_users.user_id)
     LEFT JOIN group_name ON (group_name.group_id = group_users.group_id)
-    WHERE group_name.name = :group_name AND user.send_alert is true";
+    WHERE group_name.group_id = :groupId AND user.send_alert is true";
 
     $stmt = $db->prepare($sql);
-    $stmt->bindValue(':group_name', $group, PDO::PARAM_STR);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 
     $stmt->execute();
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);

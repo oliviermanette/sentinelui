@@ -25,7 +25,6 @@ class Choc extends Message
         $this->time2 = Utilities::microToSecond(floatval($this->time2));
 
         $this->computeChocData();
-        
     }
 
 
@@ -73,7 +72,6 @@ class Choc extends Message
         $this->frequence1 = $freq1;
         $this->frequence2 = $freq2;
         $this->power = $totalAreaPower;
-
     }
 
     public function getPowerValue()
@@ -86,9 +84,8 @@ class Choc extends Message
     {
         if ($unite == "mg") {
             return round($this->power * 100, $precision);
-        } else {
+        } else if ($unite == "g") {
             return round($this->power, $precision);
         }
     }
-
 }

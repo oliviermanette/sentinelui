@@ -1,42 +1,40 @@
 {# viewTableDataOldAlerts.html #}
 <div class="table-responsive">
-    <table id="tableDataProcessedAlerts" class="table table-bordered" id="dataTable" width="100%"
-                    cellspacing="0">
-                    <!--<table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">-->
-                    <thead>
-                        <tr>
-                            <th>Début alerte</th>
-                            <th>Type Alerte</th>
-                            <th>Equipement</th>
-                            <th>Ligne HT</th>
-                            <th>Criticité</th>
-                            <th>Cause</th>
-                            <th>Nom capteur</th>
-                            <th>Statut</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in alerts_processed_info_arr %}
-                        <tr id="{{row.alert_id}}">
-                            <td>{{ row.date_time }}</td>
-                            <td>{{ row.label}}</td>
-                            <td>{{ row.equipement_name }}></td>
-                            <td>{{ row.ligneHT }}></td>
-                            <td>{{ row.criticality }}></td>
-                            <td>{{ row.cause }}</td>
-                            <td>{{ row.device_number }}</td>
-                            <td>{{ row.status}}</td>
-                            <td><a href="/ControllerAlert/deleteAlert?id_alert={{row.alert_id}}"><i
-                                        class="far fa-trash-alt"></i></a>&nbsp
-                                &nbsp
-                                <a
-                                    href="/ControllerAlert/updateAlert?id_alert={{row.alert_id}}&status_alert={{ row.status}}"><i
-                                        class="fas fa-check"></i></a>{{ row.suivi}}
-                            </td>
+    <table id="tableDataProcessedAlerts" class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <!--<table id="tableData" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">-->
+        <thead>
+            <tr>
+                <th>Début alerte</th>
+                <th>Type Alerte</th>
+                <th>Equipement</th>
+                <th>Ligne HT</th>
+                <th>Criticité</th>
+                <th>Message</th>
+                <th>Nom capteur</th>
+                <th>Statut</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in alerts_processed_info_arr %}
+            <tr id="{{row.alert_id}}">
+                <td>{{ row.date_time }}</td>
+                <td>{{ row.label}}</td>
+                <td>{{ row.equipement_name }}></td>
+                <td>{{ row.ligneHT }}></td>
+                <td>{{ row.criticality }}></td>
+                <td>{{ row.msg }}</td>
+                <td>{{ row.device_number }}</td>
+                <td>{{ row.status}}</td>
+                <td><a href="/ControllerAlert/deleteAlert?id_alert={{row.alert_id}}"><i
+                            class="far fa-trash-alt"></i></a>&nbsp
+                    &nbsp
+                    <a href="/ControllerAlert/updateAlert?id_alert={{row.alert_id}}&status_alert={{ row.status}}"><i
+                            class="fas fa-check"></i></a>{{ row.suivi}}
+                </td>
 
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </div>

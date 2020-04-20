@@ -1,0 +1,23 @@
+Bonjour {{ firstName }},
+
+Dépassement du seuil fixé à {{thresh}}cm. Une alerte vient d'être relevée de type {{label}}
+{% if label == 'first_thresh_inclinometer_raised' %}
+                                                c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
+                                                le premier seuil défini de {{thresh}} cm
+                                                {% elseif label == 'second_thresh_inclinometer_raised' %}
+                                                c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
+                                                le second seuil défini de {{thresh}} cm
+                                                {% elseif label == 'third_thresh_inclinometer_raised' %}
+                                                c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
+                                                le troisième seuil défini de {{thresh}} cm
+                                                {% else %}
+                                                .
+                                                {% endif %}
+
+Déclenchement de l'alerte le {{dateEventOccured}} à {{timeEventOccured}}
+Région: {{region}}
+Structure concernée: {{equipement}}
+Valeur de déclenchement ({{valueX}}, {{valueY}}) cm
+Capteur: {{sensorName}}
+
+Pour en savoir plus : {{url}}

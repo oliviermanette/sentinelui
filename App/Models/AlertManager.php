@@ -29,12 +29,21 @@ class AlertManager extends \Core\Model
     public static function insert($alert)
     {
 
+        if ($alert->type == "inclination") {
+            AlertManager::insertInclinationAlert($alert);
+        } else if ($alert->type == "shock") {
+            AlertManager::insertShockAlert($alert);
+        }
+    }
+
+    private static function insertInclinationAlert($alert)
+    {
         $db = static::getDB();
 
-        $sql = "INSERT INTO alerts(id_type_event, deveui, structure_id, status, date_time, valeur)
+        $sql = "INSERT INTO alerts(id_type_event, deveui, msg, structure_id, status, date_time, valueX, valueY)
         SELECT * FROM
         (SELECT (SELECT id FROM type_alert WHERE type_alert.label LIKE :label),
-        :deveui, :structure_id, 1, :date_time, :data_value) AS alert_record
+        :deveui AS deveui, :msg AS msg, :structure_id as structure_id, 1 as status, :date_time as date_time, :valueX as valueX, :valueY as valueY) AS alert_record
         ";
 
 
@@ -42,16 +51,73 @@ class AlertManager extends \Core\Model
 
         $stmt->bindValue(':structure_id', $alert->equipementId, PDO::PARAM_INT);
         $stmt->bindValue(':deveui', $alert->deveui, PDO::PARAM_STR);
-        $stmt->bindValue(':data_value', $alert->triggerValue, PDO::PARAM_STR);
+        $stmt->bindValue(':msg', $alert->msg, PDO::PARAM_STR);
+        $stmt->bindValue(':valueX', $alert->valueX, PDO::PARAM_STR);
+        $stmt->bindValue(':valueY', $alert->valueY, PDO::PARAM_STR);
         $stmt->bindValue(':label', $alert->label, PDO::PARAM_STR);
         $stmt->bindValue(':date_time', $alert->dateTime, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
-            echo "\n NEW ALERT CREATED";
+            echo "\n NEW ALERT INCLINATION CREATED \n";
             return true;
         } else {
             return false;
         }
+    }
+
+    private static function insertShockAlert($alert)
+    {
+        $db = static::getDB();
+
+        $sql = "INSERT INTO alerts(id_type_event, deveui, msg, structure_id, status, date_time, valueShock)
+        SELECT * FROM
+        (SELECT (SELECT id FROM type_alert WHERE type_alert.label LIKE :label),
+        :deveui AS deveui, :msg AS msg, :structure_id as structure_id, 1 as status, :date_time as date_time, :valueShock as valueShock) AS alert_record
+        ";
+
+
+        $stmt = $db->prepare($sql);
+
+        $stmt->bindValue(':structure_id', $alert->equipementId, PDO::PARAM_INT);
+        $stmt->bindValue(':deveui', $alert->deveui, PDO::PARAM_STR);
+        $stmt->bindValue(':msg', $alert->msg, PDO::PARAM_STR);
+        $stmt->bindValue(':valueShock', $alert->valueShock, PDO::PARAM_STR);
+        $stmt->bindValue(':label', $alert->label, PDO::PARAM_STR);
+        $stmt->bindValue(':date_time', $alert->dateTime, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            echo "\n NEW ALERT SHOCK CREATED \n";
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Insert type of event in the database
+     * @param string $label
+     * @return void
+     */
+    public static function insertTypeEvent($label, $criticality, $description = "")
+    {
+        $db = static::getDB();
+        $sql = "INSERT INTO type_alert (`label`, `criticality`, `description`)
+                SELECT * FROM (
+                    SELECT
+                        :label,
+                        :criticality,
+                        :description) AS id_type
+                WHERE NOT EXISTS
+                    (SELECT label FROM type_alert WHERE label = :label)
+                LIMIT 1";
+
+        $stmt = $db->prepare($sql);
+
+        $stmt->bindValue(':label', $label, PDO::PARAM_STR);
+        $stmt->bindValue(':criticality', $criticality, PDO::PARAM_STR);
+        $stmt->bindValue(':description', $description, PDO::PARAM_STR);
+
+        return $stmt->execute();
     }
     /**
      * Create a new alert on the database
@@ -177,32 +243,7 @@ class AlertManager extends \Core\Model
         return $stmt->execute();
     }
 
-    /**
-     * Insert type of event in the database
-     * @param string $label
-     * @return void
-     */
-    public static function insertTypeEvent($label, $criticality, $description)
-    {
-        $db = static::getDB();
-        $sql = "INSERT INTO type_alert (`label`, `criticality`, `description`)
-                SELECT * FROM (
-                    SELECT
-                        :label,
-                        :criticality,
-                        :description) AS id_type
-                WHERE NOT EXISTS
-                    (SELECT label FROM type_alert WHERE label = :label)
-                LIMIT 1";
 
-        $stmt = $db->prepare($sql);
-
-        $stmt->bindValue(':label', $label, PDO::PARAM_STR);
-        $stmt->bindValue(':criticality', $criticality, PDO::PARAM_STR);
-        $stmt->bindValue(':description', $description, PDO::PARAM_STR);
-
-        return $stmt->execute();
-    }
 
 
     /**
@@ -219,9 +260,9 @@ class AlertManager extends \Core\Model
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause,
+        alerts.msg AS message,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -229,12 +270,12 @@ class AlertManager extends \Core\Model
         LEFT JOIN group_site ON (group_site.site_id = site.id)
         LEFT JOIN group_name ON (group_name.group_id = group_site.group_id) ";
 
-        if (isset($deveui)){
+        if (isset($deveui)) {
             $query_alerts_data .= "LEFT JOIN sensor_group ON (sensor_group.groupe_id = group_name.group_id)
             LEFT JOIN sensor ON (sensor.id = sensor_group.sensor_id)
             WHERE sensor.deveui = :deveui AND group_name.name = :group_name
             AND alerts.status = 1";
-        }else {
+        } else {
             $query_alerts_data .= "WHERE group_name.name = :group_name
             AND alerts.status = 1 ";
         }
@@ -272,9 +313,9 @@ class AlertManager extends \Core\Model
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause,
+        alerts.msg AS message,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -314,9 +355,9 @@ class AlertManager extends \Core\Model
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause,
+        alerts.msg AS message,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -347,9 +388,9 @@ class AlertManager extends \Core\Model
         $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause,
+        alerts.msg AS message,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
-        alerts.deveui AS deveui, alerts.status AS status, alerts.valeur
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
@@ -500,25 +541,25 @@ class AlertManager extends \Core\Model
      *
      * @return void
      */
-    public static function sendAlert($alert, $group_name)
+    public static function sendAlert($alert, $groupId)
     {
-        if (is_null($alert->triggerValue)){
-            AlertManager::sensorAlert($alert, $group_name);
-        }else {
-            AlertManager::structureAlert($alert, $group_name);
-
+        if (is_null($alert->triggerValues)) {
+            AlertManager::sensorAlert($alert, $groupId);
+        } else {
+            AlertManager::structureAlert($alert, $groupId);
         }
-
     }
 
-    private static function sensorAlert($alert, $group_name){
+    private static function sensorAlert($alert, $groupId)
+    {
         $msg = $alert->getProperMessageFromLabel();
         $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
         $equipementName = $equipementInfoArr["equipement"];
         $ligneHT = $equipementInfoArr["ligneHT"];
         $region = EquipementManager::getSiteLocation($alert->equipementId);
         //Find all users that want to receive alerts
-        $users = UserManager::findToSendAlerts($group_name);
+        $users = UserManager::findToSendAlerts($groupId);
+
         foreach ($users as $user) {
             $email = $user["email"];
             $phone_number = $user["phone_number"];
@@ -566,59 +607,73 @@ class AlertManager extends \Core\Model
         }
     }
 
-    private static function structureAlert($alert, $group_name){
-    $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
-    $equipementName = $equipementInfoArr["equipement"];
-    $ligneHT = $equipementInfoArr["ligneHT"];
-    $region = EquipementManager::getSiteLocation($alert->equipementId);
+    private static function structureAlert($alert, $group_name)
+    {
+        $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
+        $equipementName = $equipementInfoArr["equipement"];
+        $ligneHT = $equipementInfoArr["ligneHT"];
+        $region = EquipementManager::getSiteLocation($alert->equipementId);
 
-    //Find all users that want to receive alerts
-    $users = UserManager::findToSendAlerts($group_name);
-    foreach ($users as $user) {
+        //Find all users that want to receive alerts
+        $users = UserManager::findToSendAlerts($group_name);
 
-        $email = $user["email"];
-        $phone_number = $user["phone_number"];
-        $firstName = $user["first_name"];
-        $last_name = $user["last_name"];
-        $company = $user["company"];
-        echo "\n Envoie du mail à " . $firstName . "\n";
+        //Get info alerts
+        $typeAlert = $alert->type;
 
-        $deveui = $alert->deveui;
-        $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
-        $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $sensorName . '/info#alertsStructure';
+        foreach ($users as $user) {
 
-        $dateTime = explode(" ", $alert->dateTime);
-        $date = date('d/m/Y', strtotime($dateTime[0]));
-        $time = $dateTime[1];
-        //print_r($this->label);
-        $text = View::getTemplate('Alerts/alertStructure_email_view.txt', [
-            "firstName" => $firstName,
-            "dateEventOccured" => $date,
-            "timeEventOccured" => $time,
-            "sensorName" => $sensorName,
-            "region" => $region,
-            "equipement" => $equipementName,
-            "label" => $alert->label,
-            "value" => $alert->triggerValue,
-            "url" => $url,
+            $email = $user["email"];
+            $phone_number = $user["phone_number"];
+            $firstName = $user["first_name"];
+            $last_name = $user["last_name"];
+            $company = $user["company"];
+            echo "\n Envoie du mail à " . $firstName . "\n";
+            $device_number = $alert->device_number;
+            $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $device_number . '/info#alertsStructure';
 
-        ]);
-        $html = View::getTemplate('Alerts/alertStructure_email_view.html', [
-            "firstName" => $firstName,
-            "dateEventOccured" => $date,
-            "timeEventOccured" => $time,
-            "sensorName" => $sensorName,
-            "region" => $region,
-            "equipement" => $equipementName,
-            "label" => $alert->label,
-            "value" => $alert->triggerValue,
-            "url" => $url,
-        ]);
+            $dateTime = explode(" ", $alert->dateTime);
+            $date = date('d/m/Y', strtotime($dateTime[0]));
+            $time = $dateTime[1];
 
-        $title =  'Nouvelle alerte sur la structure ' . $equipementName . ' !';
-        Mail::send($email, $title, $text, $html);
+            if ($typeAlert == "inclination") {
+                $context = [
+                    "firstName" => $firstName,
+                    "dateEventOccured" => $date,
+                    "timeEventOccured" => $time,
+                    "sensorName" => $device_number,
+                    "region" => $region,
+                    "equipement" => $equipementName,
+                    "label" => $alert->label,
+                    "thresh" => $alert->thresh,
+                    "valueX" => $alert->valueX,
+                    "valueY" => $alert->valueY,
+                    "url" => $url,
+                ];
+                //print_r($this->label);
+                $text = View::getTemplate('Alerts/alertStructureInclination_email_view.txt', $context);
+                $html = View::getTemplate('Alerts/alertStructureInclination_email_view.html', $context);
+            } else if ($typeAlert == "shock") {
+                $context = [
+                    "firstName" => $firstName,
+                    "dateEventOccured" => $date,
+                    "timeEventOccured" => $time,
+                    "sensorName" => $device_number,
+                    "region" => $region,
+                    "equipement" => $equipementName,
+                    "label" => $alert->label,
+                    "valueShock" => $alert->valueShock,
+                    "url" => $url,
+                ];
+                //print_r($this->label);
+                $text = View::getTemplate('Alerts/alertStructureShock_email_view.txt', $context);
+                $html = View::getTemplate('Alerts/alertStructureShock_email_view.html', $context);
+            }
 
-    }
+
+
+            $title =  'Capteur' . $device_number . ' - Nouvelle alerte sur la structure ' . $equipementName . ' !';
+            Mail::send($email, $title, $text, $html);
+        }
     }
     /**
      * Find a alert by ID
@@ -633,7 +688,7 @@ class AlertManager extends \Core\Model
         type_alert.criticality AS criticality,
         structure_id,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
-        alerts.cause AS cause,
+        alerts.msg AS message,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status
         FROM alerts

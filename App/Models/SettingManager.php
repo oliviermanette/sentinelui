@@ -126,7 +126,7 @@ class SettingManager extends \Core\Model
      *
      * @return int value that is applied for this specific setting
      */
-    public static function getSettingValueForGroup($groupId, $settingName)
+    public static function getSettingValueForGroupOrNull($groupId, $settingName)
     {
 
         $db = static::getDB();
@@ -142,7 +142,10 @@ class SettingManager extends \Core\Model
 
         if ($stmt->execute()) {
             $value = $stmt->fetch(PDO::FETCH_COLUMN);
-            return (int) $value;
+            if (isset($value)) {
+                return (int) $value;
+            }
+            return Null;
         }
     }
 

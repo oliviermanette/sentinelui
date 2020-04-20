@@ -34,6 +34,7 @@ class ControllerSetting extends Authenticated
         $first_inclination_thresh = Utilities::array_find_deep($settingsArr, "first_inclination_thresh");
         $second_inclination_thresh = Utilities::array_find_deep($settingsArr, "second_inclination_thresh");
         $third_inclination_thresh = Utilities::array_find_deep($settingsArr, "third_inclination_thresh");
+        $shock_thresh = Utilities::array_find_deep($settingsArr, "shock_thresh");
         $isAlertEmailActivated = Utilities::array_find_deep($settingsArr, "isAlertEmailActivated");
         if ($first_inclination_thresh) {
             $first_inclination_thresh = $settingsArr[$first_inclination_thresh[0]];
@@ -50,6 +51,11 @@ class ControllerSetting extends Authenticated
         } else {
             $third_inclination_thresh = 0;
         }
+        if ($shock_thresh) {
+            $shock_thresh = $settingsArr[$shock_thresh[0]];
+        } else {
+            $shock_thresh = 1;
+        }
         if ($isAlertEmailActivated) {
             $isAlertEmailActivated = $settingsArr[$isAlertEmailActivated[0]];
         } else {
@@ -60,6 +66,7 @@ class ControllerSetting extends Authenticated
             'settingsFirstInclinationThresh' => $first_inclination_thresh,
             'settingsSecondInclinationThresh' => $second_inclination_thresh,
             'settingsThirdInclinationThresh' => $third_inclination_thresh,
+            'settingsShockThresh' => $shock_thresh,
             'settingsAlertEmailActivated' => $isAlertEmailActivated,
         ]);
     }
@@ -71,6 +78,7 @@ class ControllerSetting extends Authenticated
         $firstInclinationThresh = $_POST["firstInclinationThresh"];
         $secondInclinationThresh = $_POST["secondInclinationThresh"];
         $thirdInclinationThresh = $_POST["thirdInclinationThresh"];
+        $shockThresh = $_POST["shockThresh"];
 
         if (isset($_POST["alertSwitchNotification"])) {
             $alertNotification = 1;
@@ -94,6 +102,11 @@ class ControllerSetting extends Authenticated
             SettingManager::updateSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
         } else {
             SettingManager::insertSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
+        }
+        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "shock_thresh")) {
+            SettingManager::updateSettingValueForGroup($user->group_id, "shock_thresh", $shockThresh);
+        } else {
+            SettingManager::insertSettingValueForGroup($user->group_id, "shock_thresh", $thirdInclinationThresh);
         }
 
 
