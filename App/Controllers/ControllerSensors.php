@@ -158,7 +158,6 @@ class ControllerSensors extends Authenticated
             $link = "";
         }
 
-        //var_dump($historicalTemperatureDataArr);
 
         //Get settings
         $settingArr = SettingManager::findByGroupId($user->group_id);
@@ -185,9 +184,6 @@ class ControllerSensors extends Authenticated
             'image_path' => $image_path,
 
             //Inclinometer
-            //'inclinometerDataMonthArr' => $inclinometerDataMonthArr,
-            //'inclinometerDataWeekArr' => $inclinometerDataWeekArr,
-            //'inclinometerDataDayArr' => $inclinometerDataDayArr,
             'percentageVariationDayArr' => $percentageVariationDayArr,
             'percentageVariationWeekArr' => $percentageVariationWeekArr,
             'percentageVariationMonthArr' => $percentageVariationMonthArr,
@@ -212,8 +208,6 @@ class ControllerSensors extends Authenticated
             //Alerts
             'activeAlertsArr' => $activeAlertsArr,
             'processedAlertsArr' => $processedAlertsArr,
-            'alerts_active_info_arr' => $alertsActiveDataArr,
-            'alerts_processed_info_arr' => $alertsProcessedDataArr,
 
             //Map
             'dataMapArray' => $dataMapArr,

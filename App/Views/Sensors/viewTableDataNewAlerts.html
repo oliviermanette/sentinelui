@@ -10,22 +10,24 @@
                 <th>Equipement</th>
                 <th>Ligne HT</th>
                 <th>Criticité</th>
-                <th>Valeur</th>
-                <th>Nom capteur</th>
+                <th>Valeur X</th>
+                <th>Valeur Y</th>
+                <th>Valeur Choc</th>
                 <th>Statut</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for row in alerts_active_info_arr %}
+            {% for row in activeAlertsArr %}
             <tr id="{{row.alert_id}}">
                 <td>{{ row.date_time }}</td>
                 <td>{{ row.label}}</td>
-                <td>{{ row.equipement_name }}></td>
-                <td>{{ row.ligneHT }}></td>
-                <td>{{ row.criticality }}></td>
-                <td>{{ row.valeur }}</td>
-                <td>{{ row.device_number }}</td>
+                <td>{{ row.equipement_name }}</td>
+                <td>{{ row.ligneHT }}</td>
+                <td>{{ row.criticality }}</td>
+                <td>{{ row.valueX }}</td>
+                <td>{{ row.valueY }}</td>
+                <td>{{ row.valueShock }}</td>
                 <td>{{ row.status}}</td>
                 <td><a href="/ControllerAlert/deleteAlert?id_alert={{row.alert_id}}"><i
                             class="far fa-trash-alt"></i></a>&nbsp
