@@ -13,6 +13,10 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
     );
 
     public static $prefixLengthsPsr4 = array (
+        'Z' => 
+        array (
+            'ZipStream\\' => 10,
+        ),
         'T' => 
         array (
             'Twig\\' => 5,
@@ -28,9 +32,17 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
             'SendGrid\\Contacts\\' => 18,
             'SendGrid\\' => 9,
         ),
+        'P' => 
+        array (
+            'Psr\\Http\\Message\\' => 17,
+        ),
         'O' => 
         array (
             'OpenCage\\Geocoder\\' => 18,
+        ),
+        'M' => 
+        array (
+            'MyCLabs\\Enum\\' => 13,
         ),
         'C' => 
         array (
@@ -44,6 +56,10 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
     );
 
     public static $prefixDirsPsr4 = array (
+        'ZipStream\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
+        ),
         'Twig\\' => 
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
@@ -81,9 +97,17 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
             0 => __DIR__ . '/..' . '/sendgrid/php-http-client/lib',
             1 => __DIR__ . '/..' . '/sendgrid/sendgrid/lib',
         ),
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
         'OpenCage\\Geocoder\\' => 
         array (
             0 => __DIR__ . '/..' . '/opencage/geocode/src',
+        ),
+        'MyCLabs\\Enum\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/myclabs/php-enum/src',
         ),
         'Core\\' => 
         array (
