@@ -435,9 +435,13 @@ class ControllerData extends Authenticated
     //$equipement_id = $_GET['equipementID'];
     $deveui = $_GET['deveui'];
     $requestedDate = $_GET['requestedDate'];
+    if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
+      //$allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
+      $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorSecondGeneration($deveui, $requestedDate);
+    } else {
+      $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
+    }
 
-    //$allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
-    $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
 
     //var_dump($allSubSpectresArr);
     $timeSerie = new TimeSeries();

@@ -1280,7 +1280,8 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   var maxFreqData = [];
   var resolutionData = [];
   var dateDataArr = [];
-  //console.log("coucou spectre data :", spectreData);
+
+
   dateTime = spectreData["date_time"]
 
   var min_freq_initial = spectreData["min_freq"]
@@ -1292,36 +1293,42 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   //Array for storing the data for chart
   var dataChartArr = [];
   //Loop over all subspectres (5 in total that compose the whole spectre)
+  var sizeSpectres = Object.keys(spectreData).length;
+  //console.log("coucou spectre data :", spectreData);
   for (var i = 1; i <= 5; i++) {
     nameSub = "subspectre_" + String(i)
-    subspectreArr.push(spectreData[nameSub]);
-    //console.log("drawChartSpectreFromData -> spectreData[nameSub]", spectreData[nameSub]);
-    var resolution = parseInt(spectreData[nameSub]["resolution"])
-    var min_freq = parseInt(spectreData[nameSub]["min_freq"])
-    var max_freq = parseInt(spectreData[nameSub]["max_freq"])
-    //console.log("nouveau sub");
-    //Loop over data of each subspectre
-    for (var j = 0; j < spectreData[nameSub]["data"].length / 2; j++) {
 
-      var y_data_amplitudeArr = hex2dec(spectreData[nameSub]["data"].substring(index_start, index_stop));
-      //because we need the first value of min_freq
-      if (j > 0) {
-        min_freq = min_freq + resolution;
+    if (spectreData.hasOwnProperty(nameSub)) {
+      subspectreArr.push(spectreData[nameSub]);
+
+      var resolution = parseInt(spectreData[nameSub]["resolution"])
+      var min_freq = parseInt(spectreData[nameSub]["min_freq"])
+      var max_freq = parseInt(spectreData[nameSub]["max_freq"])
+      //console.log("nouveau sub");
+      //Loop over data of each subspectre
+      for (var j = 0; j < spectreData[nameSub]["data"].length / 2; j++) {
+
+        var y_data_amplitudeArr = hex2dec(spectreData[nameSub]["data"].substring(index_start, index_stop));
+        //because we need the first value of min_freq
+        if (j > 0) {
+          min_freq = min_freq + resolution;
+        }
+        if (j < (spectreData[nameSub]["data"].length / 2) - 1) {
+          var obj = {
+            x: min_freq,
+            y: y_data_amplitudeArr
+          };
+          dataChartArr.push(obj);
+        }
+        //console.log("drawChartSpectreFromData -> min_freq", min_freq);
+        index_start += 2;
+        index_stop += 2;
       }
-      if (j < (spectreData[nameSub]["data"].length / 2) - 1) {
-        var obj = {
-          x: min_freq,
-          y: y_data_amplitudeArr
-        };
-        dataChartArr.push(obj);
-      }
-      //console.log("drawChartSpectreFromData -> min_freq", min_freq);
-      index_start += 2;
-      index_stop += 2;
+
+      index_start = 2;
+      index_stop = 4;
     }
 
-    index_start = 2;
-    index_stop = 4;
   }
 
   var canva_id = "#" + canvaID;

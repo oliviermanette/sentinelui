@@ -99,7 +99,7 @@ class ControllerAccueil extends Authenticated
     if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
       //echo "\nProfile 2\n";
       //Reconstruct spectres
-      $spectres = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
+      $spectres = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
     } else {
       //echo "\nProfile 1\n";
       //Reconstruct spectres

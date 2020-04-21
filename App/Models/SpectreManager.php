@@ -66,6 +66,56 @@ class SpectreManager extends \Core\Model
     return $fullSpectreArr;
   }
 
+  public static function reconstituteAllSpectreForSensorSecondGeneration($deveui)
+  {
+    $fullSpectreArr = array();
+
+    $allSubspectresArr = SpectreManager::getAllFirstSubspectreForSensorSecondGeneration($deveui);
+
+    $spectreID = 1;
+
+    foreach ($allSubspectresArr as $firstSubSpectreArr) {
+      $spectre_name = 'spectre_' . $spectreID;
+
+      $record_id = $firstSubSpectreArr["record_id"];
+      $date_time = $firstSubSpectreArr["date_time"];
+      $fullSpectreArr[$spectre_name]["min_freq"] = 1;
+      $fullSpectreArr[$spectre_name]["max_freq"] = 1550;
+      $fullSpectreArr[$spectre_name]["record_id"] = $record_id;
+      $fullSpectreArr[$spectre_name]["date_time"] = $date_time;
+      $fullSpectreArr[$spectre_name]["structure_name"] = $firstSubSpectreArr["structure_name"];
+      $fullSpectreArr[$spectre_name]["transmission_name"] = $firstSubSpectreArr["transmission_name"];
+      $fullSpectreArr[$spectre_name]["site_name"] = $firstSubSpectreArr["site_name"];
+      $fullSpectreArr[$spectre_name]["deveui"] = $firstSubSpectreArr["deveui"];
+
+      $subspectreID = 1;
+
+      $full_spectre_decomposed = SpectreManager::getAllSubspectres($deveui, $date_time);
+
+      for ($i = 0; $i < count($full_spectre_decomposed); $i++) {
+        $subspectre_name = 'subspectre_' . $subspectreID;
+
+        $subspectreNumber = $full_spectre_decomposed[$i]["subspectre_number"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["record_id"] = $full_spectre_decomposed[$i]["record_id"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["structure_name"] = $full_spectre_decomposed[$i]["structure_name"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["transmission_name"] = $full_spectre_decomposed[$i]["transmission_name"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["site_name"] = $full_spectre_decomposed[$i]["site_name"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["deveui"] = $full_spectre_decomposed[$i]["deveui"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["date_time"] = $full_spectre_decomposed[$i]["date_time"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["data"] = $full_spectre_decomposed[$i]["subspectre"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["resolution"] = $full_spectre_decomposed[$i]["resolution"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["min_freq"] = $full_spectre_decomposed[$i]["min_freq"];
+        $fullSpectreArr[$spectre_name][$subspectre_name]["max_freq"] = $full_spectre_decomposed[$i]["max_freq"];
+
+        $subspectreID++;
+      }
+
+      $spectreID++;
+    }
+
+    return $fullSpectreArr;
+  }
+
   public static function reconstituteOneSpectreForSensorFirstGeneration($deveui, $date_request)
   {
 
@@ -81,6 +131,56 @@ class SpectreManager extends \Core\Model
       $date_time = $firstSubSpectreArr["date_time"];
       $fullSpectreArr["min_freq"] = 20;
       $fullSpectreArr["max_freq"] = 1569;
+      $fullSpectreArr["record_id"] = $record_id;
+      $fullSpectreArr["date_time"] = $date_time;
+      $fullSpectreArr["structure_name"] = $firstSubSpectreArr["structure_name"];
+      $fullSpectreArr["transmission_name"] = $firstSubSpectreArr["transmission_name"];
+      $fullSpectreArr["site_name"] = $firstSubSpectreArr["site_name"];
+      $fullSpectreArr["deveui"] = $firstSubSpectreArr["deveui"];
+
+      $subspectreID = 1;
+
+      $full_spectre_decomposed = SpectreManager::getAllSubspectres($deveui, $date_request);
+
+      for ($i = 0; $i < count($full_spectre_decomposed); $i++) {
+        $subspectre_name = 'subspectre_' . $subspectreID;
+
+        $subspectreNumber = $full_spectre_decomposed[$i]["subspectre_number"];
+
+        $fullSpectreArr[$subspectre_name]["record_id"] = $full_spectre_decomposed[$i]["record_id"];
+        $fullSpectreArr[$subspectre_name]["structure_name"] = $full_spectre_decomposed[$i]["structure_name"];
+        $fullSpectreArr[$subspectre_name]["transmission_name"] = $full_spectre_decomposed[$i]["transmission_name"];
+        $fullSpectreArr[$subspectre_name]["site_name"] = $full_spectre_decomposed[$i]["site_name"];
+        $fullSpectreArr[$subspectre_name]["deveui"] = $full_spectre_decomposed[$i]["deveui"];
+        $fullSpectreArr[$subspectre_name]["date_time"] = $full_spectre_decomposed[$i]["date_time"];
+        $fullSpectreArr[$subspectre_name]["data"] = $full_spectre_decomposed[$i]["subspectre"];
+        $fullSpectreArr[$subspectre_name]["resolution"] = $full_spectre_decomposed[$i]["resolution"];
+        $fullSpectreArr[$subspectre_name]["min_freq"] = $full_spectre_decomposed[$i]["min_freq"];
+        $fullSpectreArr[$subspectre_name]["max_freq"] = $full_spectre_decomposed[$i]["max_freq"];
+
+        $subspectreID++;
+      }
+    }
+
+    //var_dump($fullSpectreArr);
+    return $fullSpectreArr;
+  }
+
+  public static function reconstituteOneSpectreForSensorSecondGeneration($deveui, $date_request)
+  {
+
+    $fullSpectreArr = array();
+
+    $allSubspectresArr = SpectreManager::getAllFirstSubspectreForSensorSecondGeneration($deveui, $date_request);
+
+    if (isset($date_request)) {
+      //There is only one spectre to deal with
+
+      $firstSubSpectreArr = $allSubspectresArr[0];
+      $record_id = $firstSubSpectreArr["record_id"];
+      $date_time = $firstSubSpectreArr["date_time"];
+      $fullSpectreArr["min_freq"] = 1;
+      $fullSpectreArr["max_freq"] = 1550;
       $fullSpectreArr["record_id"] = $record_id;
       $fullSpectreArr["date_time"] = $date_time;
       $fullSpectreArr["structure_name"] = $firstSubSpectreArr["structure_name"];
@@ -229,7 +329,7 @@ class SpectreManager extends \Core\Model
   /**
    * Get all the first subspectre (001) received from a sensor
    * date | subspectre
-   * @param int $snesor_id
+   * @param string $deveui
    * @return array  results from the query
    */
   public static function getAllFirstSubspectreForSensorFirstGeneration($deveui, $dateTime = null)
@@ -271,6 +371,65 @@ class SpectreManager extends \Core\Model
     }
 
     $sql_subspectre_data .= ") AS first_subpsectre_sensor
+      ORDER BY date_time DESC";
+
+    $stmt = $db->prepare($sql_subspectre_data);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if (isset($dateTime)) {
+      $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
+    }
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  /**
+   * Get all the first subspectre (000) received from a sensor
+   * date | subspectre
+   * @param string $deveui
+   * @return array  results from the query
+   */
+  public static function getAllFirstSubspectreForSensorSecondGeneration($deveui, $dateTime = null)
+  {
+    $db = static::getDB();
+
+    $sql_subspectre_data = "
+          SELECT record_id, deveui, structure_name, transmission_name, site_name, structure_id, device_number, type_sensor, date_time, subspectre, resolution, subspectre_number FROM
+      (SELECT
+      sensor.device_number as device_number,
+      sensor.deveui as deveui,
+      sensor_type.name as type_sensor,
+        s.nom AS site_name,
+        st.id AS structure_id,
+        st.nom AS structure_name,
+        st.transmision_line_name as transmission_name,
+        r.id as record_id,
+        r.sensor_id,
+        r.date_time as date_time,
+        subspectre,
+        subspectre_number,
+        min_freq,
+        max_freq,
+        resolution
+      FROM
+        spectre AS sp
+        LEFT JOIN record AS r ON (r.id = sp.record_id)
+        JOIN sensor on sensor.id = r.sensor_id
+      JOIN sensor_type ON sensor_type.id = sensor.type_id
+        JOIN structure as st ON (st.id = r.structure_id)
+        JOIN site as s ON (s.id = st.site_id)
+      WHERE
+        sp.subspectre_number = '000'
+        AND sensor.deveui = :deveui
+        AND Date(r.date_time) >= Date(sensor.installation_date) ";
+
+    if (isset($dateTime)) {
+      $sql_subspectre_data .= "AND r.date_time = :dateTime ";
+    }
+
+    $sql_subspectre_data .= ") AS first_subpsectre_sensor_second_generation
       ORDER BY date_time DESC";
 
     $stmt = $db->prepare($sql_subspectre_data);
