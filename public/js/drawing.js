@@ -1,12 +1,10 @@
 Chart.defaults.global.plugins.datalabels.display = false;
 
-
 function resetZoom(chartInstance) {
   chartInstance.resetZoom();
 }
 
 function drawNoDataAvailable(canvaID) {
-
   Chart.plugins.register({
     afterDraw: function (chart) {
       if (chart.data.datasets.length === 0) {
@@ -17,28 +15,30 @@ function drawNoDataAvailable(canvaID) {
         chart.clear();
 
         ctx.save();
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.font = "35px normal 'Helvetica Nueue'";
         ctx.fillStyle = "gray";
-        ctx.fillText('Pas encore de ce type de données disponible pour ce capteur', width / 2, height / 2);
+        ctx.fillText(
+          "Pas encore de ce type de données disponible pour ce capteur",
+          width / 2,
+          height / 2
+        );
         ctx.restore();
       }
-    }
+    },
   });
-
 
   var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
 
   var myChart = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
       labels: [],
-      datasets: []
-    }
+      datasets: [],
+    },
   });
-
 }
 
 drawArrow = function (context, fromx, fromy, tox, toy) {
@@ -48,39 +48,66 @@ drawArrow = function (context, fromx, fromy, tox, toy) {
   var angle = Math.atan2(dy, dx);
   context.moveTo(fromx, fromy);
   context.lineTo(tox, toy);
-  context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+  context.lineTo(
+    tox - headlen * Math.cos(angle - Math.PI / 6),
+    toy - headlen * Math.sin(angle - Math.PI / 6)
+  );
   context.moveTo(tox, toy);
-  context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
-}
+  context.lineTo(
+    tox - headlen * Math.cos(angle + Math.PI / 6),
+    toy - headlen * Math.sin(angle + Math.PI / 6)
+  );
+};
 
 function drawVerticalAxis(canvaID) {
-
   Chart.plugins.register({
     beforeDraw: function (chart, options) {
       if (chart.config.data.drawXYAxes) {
         var ctx = chart.chart.ctx;
-        var yaxis = chart.scales['scale'];
+        var yaxis = chart.scales["scale"];
         var paddingX = 100;
         var paddingY = 40;
 
         ctx.save();
         ctx.beginPath();
-        ctx.strokeStyle = '#0000ff';
+        ctx.strokeStyle = "#0000ff";
         ctx.lineWidth = 0.75;
 
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter - yaxis.drawingArea - paddingX, yaxis.yCenter);
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter + yaxis.drawingArea + paddingX, yaxis.yCenter);
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter - yaxis.drawingArea - paddingY);
-        drawArrow(ctx, yaxis.xCenter, yaxis.yCenter, yaxis.xCenter, yaxis.yCenter + yaxis.drawingArea + paddingY);
+        drawArrow(
+          ctx,
+          yaxis.xCenter,
+          yaxis.yCenter,
+          yaxis.xCenter - yaxis.drawingArea - paddingX,
+          yaxis.yCenter
+        );
+        drawArrow(
+          ctx,
+          yaxis.xCenter,
+          yaxis.yCenter,
+          yaxis.xCenter + yaxis.drawingArea + paddingX,
+          yaxis.yCenter
+        );
+        drawArrow(
+          ctx,
+          yaxis.xCenter,
+          yaxis.yCenter,
+          yaxis.xCenter,
+          yaxis.yCenter - yaxis.drawingArea - paddingY
+        );
+        drawArrow(
+          ctx,
+          yaxis.xCenter,
+          yaxis.yCenter,
+          yaxis.xCenter,
+          yaxis.yCenter + yaxis.drawingArea + paddingY
+        );
 
         ctx.stroke();
         ctx.restore();
       }
-    }
+    },
   });
 }
-
-
 
 /**
  * @desc Draw chart for displaying number of choc per day
@@ -88,13 +115,11 @@ function drawVerticalAxis(canvaID) {
  * @return chart instance
  */
 function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
-  if (typeof data != 'object') {
+  if (typeof data != "object") {
     data = JSON.parse(data);
   }
   if (isEmpty(data)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
     var nb_choc = [];
     var date = [];
@@ -107,10 +132,12 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
     //Create the dataset
     var chartdata = {
       labels: date,
-      datasets: [{
-        labels: date,
-        data: nb_choc
-      }]
+      datasets: [
+        {
+          labels: date,
+          data: nb_choc,
+        },
+      ],
     };
 
     var canva_id = "#" + canvaID;
@@ -122,56 +149,58 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
       responsive: true,
       plugins: [ChartDataLabels],
       scales: {
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
+        xAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: "Date",
+            },
+            gridLines: {
+              display: false,
+            },
           },
-          gridLines: {
-            display: false
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: true,
-            stepSize: 1
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              stepSize: 1,
+            },
+            gridLines: {
+              display: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Nombre Choc",
+            },
+            //type: 'logarithmic',
           },
-          gridLines: {
-            display: false
-          },
-          scaleLabel: {
-            display: true,
-            labelString: 'Nombre Choc'
-          },
-          //type: 'logarithmic',
-        }]
+        ],
       },
       legend: {
-        display: false
+        display: false,
       },
       title: {
         display: true,
-        text: 'Nombre de choc enregistré',
-        fontSize: 15
+        text: "Nombre de choc enregistré",
+        fontSize: 15,
       },
       pan: {
         enabled: false,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: false,
-        mode: 'xy',
-      }
+        mode: "xy",
+      },
     };
     //Create the instance
     var chartInstance = new Chart(ctx, {
-      type: 'bar',
+      type: "bar",
       data: chartdata,
-      options: options
+      options: options,
     });
-
   }
-
 }
 
 /**
@@ -180,13 +209,11 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
  * @return chart instance
  */
 function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
-  if (typeof data != 'object') {
+  if (typeof data != "object") {
     data = JSON.parse(data);
   }
   if (isEmpty(data)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
     var power_choc = [];
     var date = [];
@@ -202,7 +229,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
       date_d = getFormattedDate(date_d);
       var obj = {
         x: date_d,
-        y: data[i].power
+        y: data[i].power,
       };
       dataChartArr.push(obj);
       count = i;
@@ -214,87 +241,86 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
         }
         power_choc_per_day = Array();
         date.push(data[i].date_d);
-
       }
       if (date.includes(data[i].date_d)) {
         //console.log(data[i].date_d, " number of choc : ", count_choc_per_day);
         power_choc_per_day.push(data[i].power);
         count_choc_per_day += 1;
-
       }
-
     }
     power_choc.push(power_choc_per_day);
 
     var dict = []; // create an empty array
 
-
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
 
-
-    var timeFormat = 'DD/MM/YYYY';
+    var timeFormat = "DD/MM/YYYY";
 
     var chartdata = {
-      datasets: [{
-        label: "Puissance du choc (g)",
-        data: dataChartArr,
-        fill: false,
-        showLine: false,
-        backgroundColor: "#F5DEB3",
-        borderColor: 'red'
-      }]
+      datasets: [
+        {
+          label: "Puissance du choc (g)",
+          data: dataChartArr,
+          fill: false,
+          showLine: false,
+          backgroundColor: "#F5DEB3",
+          borderColor: "red",
+        },
+      ],
     };
     var options = {
       maintainAspectRatio: true,
       responsive: true,
       title: {
         display: true,
-        text: "Chart.js Time Scale"
+        text: "Chart.js Time Scale",
       },
       scales: {
-        xAxes: [{
-          stacked: true,
-          type: "time",
-          ticks: {
-            source: 'date'
+        xAxes: [
+          {
+            stacked: true,
+            type: "time",
+            ticks: {
+              source: "date",
+            },
+            time: {
+              format: timeFormat,
+              unit: "day",
+              tooltipFormat: "DD/MM/YYYY",
+              scaleLabel: {
+                display: true,
+                labelString: "Date",
+              },
+            },
           },
-          time: {
-            format: timeFormat,
-            unit: 'day',
-            tooltipFormat: 'DD/MM/YYYY',
+        ],
+        yAxes: [
+          {
+            stacked: false,
             scaleLabel: {
               display: true,
-              labelString: 'Date'
-            }
-          }
-        }],
-        yAxes: [{
-          stacked: false,
-          scaleLabel: {
-            display: true,
-            labelString: 'Puissance'
-          }
-        }]
+              labelString: "Puissance",
+            },
+          },
+        ],
       },
       pan: {
         enabled: false,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: false,
-        mode: 'xy',
-      }
+        mode: "xy",
+      },
     };
 
     var chartInstance = new Chart(ctx, {
-      type: 'scatter',
+      type: "scatter",
       data: chartdata,
-      options: options
+      options: options,
     });
-
   }
-
 }
 
 /**
@@ -303,30 +329,26 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
  * @return chart instance
  */
 function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
-
-  if (typeof data != 'object') {
+  if (typeof data != "object") {
     data = JSON.parse(data);
   }
 
   if (isEmpty(data)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
-
     let dataBak = data;
     var powerChocArr = [];
     var datesArr = [];
-
-
 
     //Create chart data
     // We will fill later the datasets
     var chartdata = {
       labels: [],
-      datasets: [{
-        data: []
-      }]
+      datasets: [
+        {
+          data: [],
+        },
+      ],
     };
 
     var canva_id = "#" + canvaID;
@@ -352,65 +374,69 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
           afterLabel: function (tooltipItem, data) {
             //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
             //return "Heure : " + hour;
-          }
+          },
         },
-        backgroundColor: '#FFF',
+        backgroundColor: "#FFF",
         titleFontSize: 15,
-        titleFontColor: '#233754',
-        bodyFontColor: '#000',
+        titleFontColor: "#233754",
+        bodyFontColor: "#000",
         bodyFontSize: 14,
-        displayColors: false
+        displayColors: false,
       },
       scales: {
-        xAxes: [{
-          stacked: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
+        xAxes: [
+          {
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Date",
+            },
+            gridLines: {
+              display: false,
+            },
           },
-          gridLines: {
-            display: false
-          }
-        }],
-        yAxes: [{
-          stacked: true,
-          ticks: {
-            beginAtZero: true,
-            stepSize: 0.1
+        ],
+        yAxes: [
+          {
+            stacked: true,
+            ticks: {
+              beginAtZero: true,
+              stepSize: 0.1,
+            },
+            gridLines: {
+              display: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Puissance du choc (g)",
+            },
+            //type: 'logarithmic',
           },
-          gridLines: {
-            display: false
-          },
-          scaleLabel: {
-            display: true,
-            labelString: 'Puissance du choc (g)'
-          },
-          //type: 'logarithmic',
-        }]
+        ],
       },
       legend: {
-        display: false
+        display: false,
       },
       title: {
         display: true,
-        text: 'Puissance des chocs enregistrés',
-        fontSize: 15
+        text: "Puissance des chocs enregistrés",
+        fontSize: 15,
       },
       pan: {
         enabled: false,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: false,
-        mode: 'xy',
-      }
+        mode: "xy",
+      },
     };
 
     //Create chart Instance
     var chartInstance = new Chart(ctx, {
-      type: 'bar',
+      type: "bar",
       data: chartdata,
-      options: options
+      options: options,
     });
 
     //From the array of date and choc power, and check if for a specific date, we have multiple choc
@@ -429,7 +455,6 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
       let hour = date_time.split(" ")[1];
       let power = data[i].power;
 
-
       mapPowerDateTime.set(power, date_time);
       if (!datesArr.includes(date)) {
         chocPerDayCount = 0;
@@ -438,15 +463,12 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         }
         powerChocPerDayArr = Array();
         datesArr.push(date);
-
-
       }
       if (datesArr.includes(date)) {
         powerChocPerDayArr.push(power);
 
         chocPerDayCount += 1;
       }
-
     }
     powerChocArr.push(powerChocPerDayArr);
 
@@ -454,7 +476,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     for (var d in datesArr) {
       dict.push({
         date: datesArr[d],
-        powerValues: powerChocArr[d]
+        powerValues: powerChocArr[d],
       });
     }
 
@@ -464,10 +486,9 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     var max_choc_per_day = 12;
     for (let i = 0; i < max_choc_per_day; i++) {
       var newDataset = {
-        data: []
+        data: [],
       };
       chartInstance.data.datasets.push(newDataset);
-
     }
 
     //Loop over each date to draw value of each choc power
@@ -482,19 +503,18 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         return parseFloat(v);
       });
 
-
       var max_choc_value_per_day = Math.max.apply(null, powerValueArray);
       var min_choc_value_per_day = Math.min.apply(null, powerValueArray);
 
       //For each day, loop all over the choc data
       for (let index = 0; index < max_choc_per_day; index++) {
-
         if (index >= 0 && index < powerValueArray.length) {
           //it exists
           if (powerValueArray[index] == max_choc_value_per_day) {
             chartInstance.data.datasets[index].backgroundColor = "#d93c1c";
           } else {
-            chartInstance.data.datasets[index].backgroundColor = colorArr[index];
+            chartInstance.data.datasets[index].backgroundColor =
+              colorArr[index];
           }
           chartInstance.data.datasets[index].data[key] = powerValueArray[index];
         }
@@ -515,16 +535,12 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
  * @return chart instance
  */
 function drawChartTemperatureFromData(temperatureData, canvaID) {
-  if (typeof temperatureData != 'object') {
+  if (typeof temperatureData != "object") {
     temperatureData = JSON.parse(temperatureData);
   }
   if (isEmpty(temperatureData)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
-
-
     var temperature = [];
     var date = [];
 
@@ -537,27 +553,29 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
 
     var chartdata = {
       labels: date,
-      datasets: [{
-        labels: date,
-        lineTension: 0.1,
-        backgroundColor: "rgba(167,105,0,0.4)",
-        borderColor: "rgb(167, 105, 0)",
-        borderCapStyle: 'butt',
-        borderDash: [],
-        borderDashOffset: 0.0,
-        borderJoinStyle: 'miter',
-        pointBorderColor: "white",
-        //pointBackgroundColor: "black",
-        pointBorderWidth: 1,
-        pointHoverRadius: 8,
-        //pointHoverBackgroundColor: "brown",
-        pointHoverBorderColor: "yellow",
-        pointHoverBorderWidth: 2,
-        pointRadius: 4,
-        pointHitRadius: 10,
-        spanGaps: true,
-        data: temperature
-      }]
+      datasets: [
+        {
+          labels: date,
+          lineTension: 0.1,
+          backgroundColor: "rgba(167,105,0,0.4)",
+          borderColor: "rgb(167, 105, 0)",
+          borderCapStyle: "butt",
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: "miter",
+          pointBorderColor: "white",
+          //pointBackgroundColor: "black",
+          pointBorderWidth: 1,
+          pointHoverRadius: 8,
+          //pointHoverBackgroundColor: "brown",
+          pointHoverBorderColor: "yellow",
+          pointHoverBorderWidth: 2,
+          pointRadius: 4,
+          pointHitRadius: 10,
+          spanGaps: true,
+          data: temperature,
+        },
+      ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -566,61 +584,63 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
+        xAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: "Date",
+            },
+            ticks: {
+              autoskip: true,
+              maxTicksLimit: 15,
+            },
           },
-          ticks: {
-            autoskip: true,
-            maxTicksLimit: 15
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: false,
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Temeprature (°C)",
+            },
+            //type: 'logarithmic',
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'Temeprature (°C)'
-          },
-          //type: 'logarithmic',
-        }]
+        ],
       },
       legend: {
-        display: false
+        display: false,
       },
       title: {
         display: true,
-        text: 'Temperature relevé par le capteur en fonction du temps',
+        text: "Temperature relevé par le capteur en fonction du temps",
         fontSize: 18,
       },
       pan: {
         enabled: false,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: false,
-        mode: 'xy',
-      }
+        mode: "xy",
+      },
     };
 
     var chartInstance = new Chart(ctx, {
-      type: 'line',
+      type: "line",
       data: chartdata,
-      options: options
+      options: options,
     });
   }
 }
 
 function drawChartHistoricalTemperature(temperatureData, canvaID) {
-  if (typeof temperatureData != 'object') {
+  if (typeof temperatureData != "object") {
     temperatureData = JSON.parse(temperatureData);
   }
   if (isEmpty(temperatureData)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
     var temperature = [];
     var date = [];
@@ -634,14 +654,16 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
 
     var chartdata = {
       labels: date,
-      datasets: [{
-        labels: date,
-        backgroundColor: "rgba(79,117,180,0.4)",
-        borderColor: "rgba(49,85,144,1)",
-        borderWidth: 1,
-        lineTension: 0,
-        data: temperature
-      }]
+      datasets: [
+        {
+          labels: date,
+          backgroundColor: "rgba(79,117,180,0.4)",
+          borderColor: "rgba(49,85,144,1)",
+          borderWidth: 1,
+          lineTension: 0,
+          data: temperature,
+        },
+      ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -650,67 +672,69 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
+        xAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: "Date",
+            },
+            ticks: {
+              autoskip: true,
+              maxTicksLimit: 20,
+            },
           },
-          ticks: {
-            autoskip: true,
-            maxTicksLimit: 20
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: false,
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Temeprature (°C)",
+            },
+            //type: 'logarithmic',
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'Temeprature (°C)'
-          },
-          //type: 'logarithmic',
-        }]
+        ],
       },
       legend: {
-        display: false
+        display: false,
       },
       title: {
         display: true,
-        text: 'Température de référence (méteo locale) en fonction du temps',
+        text: "Température de référence (méteo locale) en fonction du temps",
         fontSize: 18,
       },
       pan: {
         enabled: false,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: false,
-        mode: 'xy',
-      }
+        mode: "xy",
+      },
     };
 
     var chartInstance = new Chart(ctx, {
-      type: 'line',
+      type: "line",
       data: chartdata,
-      options: options
+      options: options,
     });
   }
 }
 
 function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
-  if (typeof temperatureSensors != 'object') {
+  if (typeof temperatureSensors != "object") {
     temperatureSensors = JSON.parse(temperatureSensors);
   }
-  if (typeof temperatureWeather != 'object') {
+  if (typeof temperatureWeather != "object") {
     temperatureWeather = JSON.parse(temperatureWeather);
   }
   if (isEmpty(temperatureSensors)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
     let temperature = [];
-    let officialTemperature = []
+    let officialTemperature = [];
     let date = [];
     let officialDateTemperature = [];
 
@@ -735,16 +759,17 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
     console.log("Sensor temperature :", temperature);
     var chartdata = {
       labels: date,
-      datasets: [{
+      datasets: [
+        {
           fill: true,
           label: "Température de la station météo",
           lineTension: 0.1,
           backgroundColor: "rgba(167,105,0,0.4)",
           borderColor: "rgb(167, 105, 0)",
-          borderCapStyle: 'butt',
+          borderCapStyle: "butt",
           borderDash: [],
           borderDashOffset: 0.0,
-          borderJoinStyle: 'miter',
+          borderJoinStyle: "miter",
           pointBorderColor: "white",
           pointBackgroundColor: "black",
           pointBorderWidth: 1,
@@ -755,8 +780,8 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
           pointRadius: 4,
           pointHitRadius: 10,
           spanGaps: true,
-          xAxisID: 'xAxis1',
-          data: officialTemperature
+          xAxisID: "xAxis1",
+          data: officialTemperature,
         },
         {
           fill: false,
@@ -764,10 +789,10 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
           borderColor: "red",
           borderWidth: 1,
           lineTension: 0,
-          borderCapStyle: 'square',
+          borderCapStyle: "square",
           borderDash: [], // try [5, 15] for instance
           borderDashOffset: 0.0,
-          borderJoinStyle: 'miter',
+          borderJoinStyle: "miter",
           pointBorderColor: "black",
           pointBackgroundColor: "white",
           pointBorderWidth: 1,
@@ -778,10 +803,10 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
           pointRadius: 4,
           pointHitRadius: 10,
           spanGaps: false,
-          xAxisID: 'xAxis2',
-          data: temperature
+          xAxisID: "xAxis2",
+          data: temperature,
         },
-      ]
+      ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -790,56 +815,59 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [{
-            id: 'xAxis1',
+        xAxes: [
+          {
+            id: "xAxis1",
             scaleLabel: {
               display: true,
-              labelString: 'Date',
+              labelString: "Date",
             },
             ticks: {
               autoskip: true,
-              maxTicksLimit: 20
-            }
-          }, {
-            id: 'xAxis2',
+              maxTicksLimit: 20,
+            },
+          },
+          {
+            id: "xAxis2",
             autoskip: true,
-            maxTicksLimit: 20
-          }
-
+            maxTicksLimit: 20,
+          },
         ],
-        yAxes: [{
-          ticks: {
-            beginAtZero: false,
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Temperature (°C)",
+            },
+            //type: 'logarithmic',
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'Temperature (°C)'
-          },
-          //type: 'logarithmic',
-        }]
+        ],
       },
       legend: {
-        display: true
+        display: true,
       },
       title: {
         display: true,
-        text: 'Temperature de référence',
+        text: "Temperature de référence",
         fontSize: 18,
       },
       pan: {
         enabled: false,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: false,
-        mode: 'xy',
-      }
+        mode: "xy",
+      },
     };
 
     var chartInstance = new Chart(ctx, {
-      type: 'line',
+      type: "line",
       data: chartdata,
-      options: options
+      options: options,
     });
   }
 }
@@ -849,8 +877,11 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
  * @param json inclinometereData - data which contain inclinometer data and date
  * @return chart instance
  */
-function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_inclinometre") {
-  if (typeof inclinometerData != 'object') {
+function drawChartInclinometerFromData(
+  inclinometerData,
+  canvaID = "canvas_inclinometre"
+) {
+  if (typeof inclinometerData != "object") {
     inclinometerData = JSON.parse(inclinometerData);
   }
   var nx = [];
@@ -865,31 +896,31 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
     date.push(inclinometerData[i].date_d);
   }
 
-
   var chartdata = {
     labels: date,
-    datasets: [{
-        label: 'X °',
+    datasets: [
+      {
+        label: "X °",
         fill: false,
-        backgroundColor: 'blue',
-        borderColor: 'blue',
-        data: nx
+        backgroundColor: "blue",
+        borderColor: "blue",
+        data: nx,
       },
       {
-        label: 'Y °',
+        label: "Y °",
         fill: false,
-        backgroundColor: 'orange',
-        borderColor: 'orange',
-        data: ny
+        backgroundColor: "orange",
+        borderColor: "orange",
+        data: ny,
       },
       {
-        label: 'Z °',
+        label: "Z °",
         fill: false,
-        backgroundColor: 'green',
-        borderColor: 'green',
-        data: nz
-      }
-    ]
+        backgroundColor: "green",
+        borderColor: "green",
+        data: nz,
+      },
+    ],
   };
   var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
@@ -899,42 +930,46 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
     maintainAspectRatio: true,
     scales: {
       scales: {
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: false,
+        xAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: "Date",
+            },
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'Height (m)'
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Height (m)",
+            },
           },
-        }]
+        ],
       },
       legend: {
-        display: true
+        display: true,
       },
       title: {
         display: true,
-        text: 'Inclinometre en fonction du temps'
+        text: "Inclinometre en fonction du temps",
       },
       pan: {
         enabled: false,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: false,
-        mode: 'xy',
-      }
-    }
+        mode: "xy",
+      },
+    },
   };
 
   var chartInstance = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: chartdata,
     options: options,
   });
@@ -945,16 +980,20 @@ function drawChartInclinometerFromData(inclinometerData, canvaID = "canvas_incli
  * @param json inclinometereData - data which contain inclinometer data and date
  * @return chart instance
  */
-function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = null) {
-  if (typeof inclinometerData != 'object') {
+function drawChartAngleXYZFromData(
+  inclinometerData,
+  canvaID,
+  excludeAngle = null
+) {
+  if (typeof inclinometerData != "object") {
     inclinometerData = JSON.parse(inclinometerData);
   }
-  var includeX, includeY, includeZ = true;
+  var includeX,
+    includeY,
+    includeZ = true;
 
   if (isEmpty(inclinometerData)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
     // Object is NOT empty
     var angle_x = [];
@@ -963,7 +1002,6 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
     var date = [];
 
     for (var i in inclinometerData) {
-
       angle_x.push(inclinometerData[i].angle_x);
       angle_y.push(inclinometerData[i].angle_y);
       angle_z.push(inclinometerData[i].angle_z);
@@ -971,12 +1009,12 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
     }
 
     switch (excludeAngle) {
-      case 'x':
+      case "x":
         var hiddenX = true;
         break;
-      case 'y':
+      case "y":
         var hiddenY = true;
-      case 'z':
+      case "z":
         var hiddenZ = true;
         break;
       default:
@@ -985,56 +1023,56 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
     const avgX = computeAverage(angle_x);
     const avgY = computeAverage(angle_y);
     const avgZ = computeAverage(angle_z);
-    var rangeHighAxisX = (Math.max(parseInt(avgX), parseInt(avgY)) + ratio);
-    var rangeLowAxisX = (Math.min(parseInt(avgX), parseInt(avgY)) - ratio);
+    var rangeHighAxisX = Math.max(parseInt(avgX), parseInt(avgY)) + ratio;
+    var rangeLowAxisX = Math.min(parseInt(avgX), parseInt(avgY)) - ratio;
     var rangeHighAxisZ = parseInt(avgZ + ratio);
     var rangeLowAxisZ = parseInt(avgZ - ratio);
 
     var dragOptions = {
       animationDuration: 1000,
-      borderColor: 'rgba(225,225,225,0.3)',
+      borderColor: "rgba(225,225,225,0.3)",
       borderWidth: 5,
-      backgroundColor: 'rgb(225,225,225)',
+      backgroundColor: "rgb(225,225,225)",
     };
-
 
     var chartdata = {
       labels: date,
-      datasets: [{
-          label: 'X °',
+      datasets: [
+        {
+          label: "X °",
           fill: false,
-          backgroundColor: '#20324B',
-          borderColor: '#20324B',
+          backgroundColor: "#20324B",
+          borderColor: "#20324B",
           data: angle_x,
           yAxisID: "y-axis-1",
           hidden: hiddenX,
         },
         {
-          label: 'Y °',
+          label: "Y °",
           fill: false,
-          backgroundColor: 'orange',
-          borderColor: 'orange',
+          backgroundColor: "orange",
+          borderColor: "orange",
           data: angle_y,
           yAxisID: "y-axis-1",
           hidden: hiddenY,
         },
         {
-          label: 'Z °',
+          label: "Z °",
           fill: false,
-          backgroundColor: 'royalblue',
-          borderColor: 'royalblue',
+          backgroundColor: "royalblue",
+          borderColor: "royalblue",
           data: angle_z,
           yAxisID: "y-axis-2",
           hidden: hiddenZ,
-        }
-      ]
+        },
+      ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
 
     var options = {
       responsive: true,
-      hoverMode: 'index',
+      hoverMode: "index",
       maintainAspectRatio: true,
       stacked: false,
 
@@ -1044,56 +1082,61 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
         fontSize: 18,
       },
       scales: {
-        yAxes: [{
-          type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-          display: true,
-          position: "left",
-          id: "y-axis-1",
-          scaleLabel: {
+        yAxes: [
+          {
+            type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
             display: true,
-            labelString: 'X° and Y°'
+            position: "left",
+            id: "y-axis-1",
+            scaleLabel: {
+              display: true,
+              labelString: "X° and Y°",
+            },
+            ticks: {
+              min: rangeLowAxisX,
+              max: rangeHighAxisX,
+              beginAtZero: false,
+              stepSize: 0.5,
+              autoskip: true,
+              maxTicksLimit: 10,
+            },
           },
-          ticks: {
-            min: rangeLowAxisX,
-            max: rangeHighAxisX,
-            beginAtZero: false,
-            stepSize: 0.5,
-            autoskip: true,
-            maxTicksLimit: 10
-          },
-        }, {
-          type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-          display: false,
-          position: "right",
-          id: "y-axis-2",
-          scaleLabel: {
-            display: true,
-            labelString: 'Z°'
-          },
-          ticks: {
-            //TODO : change ratio automatic according to values
-            min: rangeLowAxisZ,
-            max: rangeHighAxisZ,
-            beginAtZero: false,
-            stepSize: 10,
-            autoskip: true,
-            maxTicksLimit: 10
-          },
+          {
+            type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+            display: false,
+            position: "right",
+            id: "y-axis-2",
+            scaleLabel: {
+              display: true,
+              labelString: "Z°",
+            },
+            ticks: {
+              //TODO : change ratio automatic according to values
+              min: rangeLowAxisZ,
+              max: rangeHighAxisZ,
+              beginAtZero: false,
+              stepSize: 10,
+              autoskip: true,
+              maxTicksLimit: 10,
+            },
 
-          // grid line settings
-          gridLines: {
-            drawOnChartArea: false, // only want the grid lines for one axis to show up
+            // grid line settings
+            gridLines: {
+              drawOnChartArea: false, // only want the grid lines for one axis to show up
+            },
           },
-        }],
-        xAxes: [{
-          ticks: {
-            autoskip: true,
-            maxTicksLimit: 15
+        ],
+        xAxes: [
+          {
+            ticks: {
+              autoskip: true,
+              maxTicksLimit: 15,
+            },
           },
-        }]
+        ],
       },
       legend: {
-        display: false //This will do the task
+        display: false, //This will do the task
       },
       // Container for pan options
       pan: {
@@ -1102,7 +1145,7 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
         drag: dragOptions,
         // Panning directions. Remove the appropriate direction to disable
         // Eg. 'y' would only allow panning in the y direction
-        mode: 'y'
+        mode: "y",
       },
 
       // Container for zoom options
@@ -1111,16 +1154,15 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
         enabled: true,
         // Zooming directions. Remove the appropriate direction to disable
         // Eg. 'y' would only allow zooming in the y direction
-        mode: 'y',
+        mode: "y",
         // Speed of zoom via mouse wheel
         // (percentage of zoom on a wheel event)
         speed: 0.1,
-      }
+      },
     };
 
-
     var chartInstance = new Chart(ctx, {
-      type: 'line',
+      type: "line",
       data: chartdata,
       options: options,
     });
@@ -1129,20 +1171,23 @@ function drawChartAngleXYZFromData(inclinometerData, canvaID, excludeAngle = nul
   }
 }
 
-
-
-function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentage = true, excludeAngle = null) {
-  if (typeof inclinometerData != 'object') {
+function drawVariationChartAngleXYZFromData(
+  inclinometerData,
+  canvaID,
+  percentage = true,
+  excludeAngle = null
+) {
+  if (typeof inclinometerData != "object") {
     inclinometerData = JSON.parse(inclinometerData);
   }
 
   switch (excludeAngle) {
-    case 'x':
+    case "x":
       var hiddenX = true;
       break;
-    case 'y':
+    case "y":
       var hiddenY = true;
-    case 'z':
+    case "z":
       var hiddenZ = true;
       break;
     default:
@@ -1151,10 +1196,12 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
   let title = "";
   let label = "";
   if (percentage) {
-    title = "Pourcentage de variation de l\'inclinaison au fil du temps depuis le jour d'installation";
+    title =
+      "Pourcentage de variation de l'inclinaison au fil du temps depuis le jour d'installation";
     label = "Variation %";
   } else {
-    title = "Variation absolue de l\'inclinaison au fil du temps depuis le jour d'installation";
+    title =
+      "Variation absolue de l'inclinaison au fil du temps depuis le jour d'installation";
     label = "Variation absolue X et Y °";
   }
   //console.log(inclinometerData);
@@ -1162,7 +1209,6 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
   var variation_angle_y = [];
   var variation_angle_z = [];
   var date = [];
-
 
   for (var i in inclinometerData) {
     //console.log(inclinometerData[i]);
@@ -1174,47 +1220,47 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
   const avgX = computeAverage(variation_angle_x);
   const avgY = computeAverage(variation_angle_y);
 
-
   var rangeHighAxisX = Math.max.apply(Math, variation_angle_x) * 2;
   var rangeLowAxisX = Math.min.apply(Math, variation_angle_x) * 2;
 
   var chartdata = {
     labels: date,
-    datasets: [{
-        label: 'X °',
+    datasets: [
+      {
+        label: "X °",
         fill: false,
-        backgroundColor: '#20324B',
-        borderColor: '#20324B',
+        backgroundColor: "#20324B",
+        borderColor: "#20324B",
         data: variation_angle_x,
         yAxisID: "y-axis-0",
         hidden: hiddenX,
       },
       {
-        label: 'Y °',
+        label: "Y °",
         fill: false,
-        backgroundColor: 'orange',
-        borderColor: 'orange',
+        backgroundColor: "orange",
+        borderColor: "orange",
         data: variation_angle_y,
         yAxisID: "y-axis-0",
         hidden: hiddenY,
       },
       {
-        label: 'Z °',
+        label: "Z °",
         fill: false,
-        backgroundColor: 'royalblue',
-        borderColor: 'royalblue',
+        backgroundColor: "royalblue",
+        borderColor: "royalblue",
         data: variation_angle_z,
         yAxisID: "y-axis-0",
         hidden: hiddenZ,
-      }
-    ]
+      },
+    ],
   };
   var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
 
   var options = {
     responsive: true,
-    hoverMode: 'index',
+    hoverMode: "index",
     maintainAspectRatio: true,
 
     title: {
@@ -1223,50 +1269,51 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
       fontSize: 18,
     },
     scales: {
-      yAxes: [{
-        id: "y-axis-0",
-        gridLines: {
-          display: true,
+      yAxes: [
+        {
+          id: "y-axis-0",
+          gridLines: {
+            display: true,
+          },
+          ticks: {
+            beginAtZero: false,
+            min: rangeLowAxisX,
+            max: rangeHighAxisX,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: label,
+          },
         },
-        ticks: {
-          beginAtZero: false,
-          min: rangeLowAxisX,
-          max: rangeHighAxisX,
+      ],
+      xAxes: [
+        {
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 15,
+          },
         },
-        scaleLabel: {
-          display: true,
-          labelString: label
-        },
-      }],
-      xAxes: [{
-        ticks: {
-          autoskip: true,
-          maxTicksLimit: 15
-
-        },
-      }],
+      ],
     },
     legend: {
-      display: false //This will do the task
+      display: false, //This will do the task
     },
     pan: {
       enabled: true,
-      mode: 'y'
+      mode: "y",
     },
     zoom: {
       enabled: true,
-      mode: 'y',
+      mode: "y",
     },
   };
 
-
   var chartInstance = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: chartdata,
     options: options,
   });
 }
-
 
 /**
  * @desc Draw chart for displaying spectre data in function to resolution
@@ -1274,19 +1321,16 @@ function drawVariationChartAngleXYZFromData(inclinometerData, canvaID, percentag
  * @return chart instance
  */
 function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
-
   var subspectreArr = [];
   var minFreqData = [];
   var maxFreqData = [];
   var resolutionData = [];
   var dateDataArr = [];
 
+  dateTime = spectreData["date_time"];
 
-  dateTime = spectreData["date_time"]
-
-  var min_freq_initial = spectreData["min_freq"]
-  var max_freq = spectreData["max_freq"]
-
+  var min_freq_initial = spectreData["min_freq"];
+  var max_freq = spectreData["max_freq"];
 
   var index_start = 2;
   var index_stop = 4;
@@ -1294,30 +1338,33 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   var dataChartArr = [];
   //Loop over all subspectres (5 in total that compose the whole spectre)
   var sizeSpectres = Object.keys(spectreData).length;
-  //console.log("coucou spectre data :", spectreData);
+  console.log("coucou spectre data :", spectreData);
   for (var i = 1; i <= 5; i++) {
-    nameSub = "subspectre_" + String(i)
+    nameSub = "subspectre_" + String(i);
 
     if (spectreData.hasOwnProperty(nameSub)) {
       subspectreArr.push(spectreData[nameSub]);
 
-      var resolution = parseInt(spectreData[nameSub]["resolution"])
-      var min_freq = parseInt(spectreData[nameSub]["min_freq"])
-      var max_freq = parseInt(spectreData[nameSub]["max_freq"])
+      var resolution = parseInt(spectreData[nameSub]["resolution"]);
+      var min_freq = parseInt(spectreData[nameSub]["min_freq"]);
+      var max_freq = parseInt(spectreData[nameSub]["max_freq"]);
       //console.log("nouveau sub");
       //Loop over data of each subspectre
       for (var j = 0; j < spectreData[nameSub]["data"].length / 2; j++) {
+        var y_data_amplitudeArr = hex2dec(
+          spectreData[nameSub]["data"].substring(index_start, index_stop)
+        );
 
-        var y_data_amplitudeArr = hex2dec(spectreData[nameSub]["data"].substring(index_start, index_stop));
         //because we need the first value of min_freq
         if (j > 0) {
           min_freq = min_freq + resolution;
         }
-        if (j < (spectreData[nameSub]["data"].length / 2) - 1) {
+        if (j < spectreData[nameSub]["data"].length / 2 - 1) {
           var obj = {
             x: min_freq,
-            y: y_data_amplitudeArr
+            y: y_data_amplitudeArr,
           };
+          //console.log(obj);
           dataChartArr.push(obj);
         }
         //console.log("drawChartSpectreFromData -> min_freq", min_freq);
@@ -1328,94 +1375,99 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
       index_start = 2;
       index_stop = 4;
     }
-
   }
 
   var canva_id = "#" + canvaID;
-  var ctx = document.getElementById(canvaID).getContext('2d');
+  var ctx = document.getElementById(canvaID).getContext("2d");
 
   /*** Gradient ***/
   var gradient = ctx.createLinearGradient(0, 0, 0, 400);
-  gradient.addColorStop(0, 'rgba(250,174,50,1)');
-  gradient.addColorStop(1, 'rgba(250,174,50,0)');
+  gradient.addColorStop(0, "rgba(250,174,50,1)");
+  gradient.addColorStop(1, "rgba(250,174,50,0)");
   /***************/
   var title = "Spectre du " + dateTime;
 
   var chartdata = {
-    datasets: [{
-      showLine: true,
-      borderColor: "#3e95cd",
-      backgroundColor: gradient,
-      pointBackgroundColor: "#3e95cd",
-      data: dataChartArr,
-    }]
+    datasets: [
+      {
+        showLine: true,
+        borderColor: "#3e95cd",
+        backgroundColor: gradient,
+        pointBackgroundColor: "#3e95cd",
+        data: dataChartArr,
+      },
+    ],
   };
   var options = {
     responsive: true,
     maintainAspectRatio: true,
     scales: {
       display: true,
-      xAxes: [{
-        gridLines: {
-          display: true
+      xAxes: [
+        {
+          gridLines: {
+            display: true,
+          },
+          ticks: {
+            beginAtZero: false,
+            min: min_freq_initial,
+            max: max_freq,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Frequence (Hz)",
+          },
         },
-        ticks: {
-          beginAtZero: false,
-          min: min_freq_initial,
-          max: max_freq,
+      ],
+      yAxes: [
+        {
+          gridLines: {
+            display: true,
+          },
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "AmplitudeArr (mg)",
+          },
         },
-        scaleLabel: {
-          display: true,
-          labelString: 'Frequence (Hz)'
-        }
-      }],
-      yAxes: [{
-        gridLines: {
-          display: true,
-        },
-        ticks: {
-          beginAtZero: false,
-        },
-        scaleLabel: {
-          display: true,
-          labelString: 'AmplitudeArr (mg)'
-        },
-      }]
+      ],
     },
     legend: {
-      display: false
+      display: false,
     },
     title: {
       display: true,
-      text: title
+      text: title,
     },
     pan: {
       enabled: true,
-      mode: 'y'
+      mode: "y",
     },
     zoom: {
       enabled: true,
-      mode: 'y',
-    }
+      mode: "y",
+    },
   };
   var chartInstance = new Chart(ctx, {
-    type: 'scatter',
+    type: "scatter",
     data: chartdata,
-    options: options
+    options: options,
   });
-
 }
 
-function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinometer") {
+function drawChartSpeedVariationFromData(
+  data,
+  canvaID = "chartVitesseInclinometer"
+) {
   //console.log(data);
-  if (typeof chocData != 'object') {
+  if (typeof chocData != "object") {
     data = JSON.parse(data);
   }
 
   if (isEmpty(data)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
     var variation_speed_xy = [];
     var date = [];
@@ -1433,16 +1485,18 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
 
     var chartdata = {
       labels: date,
-      datasets: [{
-        label: 'Deplacement',
-        backgroundColor: "rgba(255,99,132,0.2)",
-        borderColor: "rgba(255,99,132,1)",
-        borderWidth: 2,
-        //showLine: true,
-        hoverBackgroundColor: "rgba(255,99,132,0.4)",
-        hoverBorderColor: "rgba(255,99,132,1)",
-        data: variation_speed_xy
-      }, ]
+      datasets: [
+        {
+          label: "Deplacement",
+          backgroundColor: "rgba(255,99,132,0.2)",
+          borderColor: "rgba(255,99,132,1)",
+          borderWidth: 2,
+          //showLine: true,
+          hoverBackgroundColor: "rgba(255,99,132,0.4)",
+          hoverBorderColor: "rgba(255,99,132,1)",
+          data: variation_speed_xy,
+        },
+      ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -1452,106 +1506,108 @@ function drawChartSpeedVariationFromData(data, canvaID = "chartVitesseInclinomet
       maintainAspectRatio: true,
       title: {
         display: false,
-        text: 'Vitesse de déplacement'
+        text: "Vitesse de déplacement",
       },
       scales: {
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Date'
+        xAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: "Date",
+            },
+            ticks: {
+              autoskip: true,
+              source: date,
+              maxTicksLimit: 20,
+            },
           },
-          ticks: {
-            autoskip: true,
-            source: date,
-            maxTicksLimit: 20
+        ],
+        yAxes: [
+          {
+            ticks: {
+              min: -1,
+              max: high_range_max,
+              beginAtZero: false,
+              stepSize: 0.5,
+              autoskip: true,
+              maxTicksLimit: 20,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Deplacement (cm)",
+            },
           },
-        }],
-        yAxes: [{
-          ticks: {
-            min: -1,
-            max: high_range_max,
-            beginAtZero: false,
-            stepSize: 0.5,
-            autoskip: true,
-            maxTicksLimit: 20
-          },
-          scaleLabel: {
-            display: true,
-            labelString: 'Deplacement (cm)'
-          },
-        }]
+        ],
       },
       legend: {
-        display: false
+        display: false,
       },
       pan: {
         enabled: true,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: true,
-        mode: 'xy',
-      }
+        mode: "xy",
+      },
     };
 
     var chartInstance = new Chart(ctx, {
-      type: 'line',
+      type: "line",
       data: chartdata,
       options: options,
     });
   }
 }
 
-
-function drawChartDirectionFromData(directionData, canvaID = "chartDirectionInclinometer", settings = []) {
-
-
-  if (typeof directionData != 'object') {
+function drawChartDirectionFromData(
+  directionData,
+  canvaID = "chartDirectionInclinometer",
+  settings = []
+) {
+  if (typeof directionData != "object") {
     directionData = JSON.parse(directionData);
   }
 
   //TODO better handle this : because an user may hot have this settings
-  var firstLevelThresh = settings[0].value
-  var secondLevelThresh = settings[1].value
-  var thirdLevelThresh = settings[2].value
-
+  var firstLevelThresh = settings[0].value;
+  var secondLevelThresh = settings[1].value;
+  var thirdLevelThresh = settings[2].value;
 
   if (isEmpty(directionData)) {
-
     drawNoDataAvailable(canvaID);
-
   } else {
-
     var dataChartArr = [];
     var mapDirectionDateTime = new Map();
     for (var i in directionData) {
       let date_time = directionData[i].date;
       var obj = {
         x: directionData[i].delta_x,
-        y: directionData[i].delta_y
+        y: directionData[i].delta_y,
       };
       var key = directionData[i].delta_x * directionData[i].delta_y;
       dataChartArr.push(obj);
       mapDirectionDateTime.set(key, date_time);
-
     }
-    var ctx = document.getElementById(canvaID).getContext('2d');
+    var ctx = document.getElementById(canvaID).getContext("2d");
     // Define the data
     var pointRadius = [];
     var pointBackgroundColors = [];
     var borderColor = [];
     var data = {
-      datasets: [{
-        label: "Direction des déplacements",
-        pointBackgroundColor: pointBackgroundColors,
-        borderColor: borderColor,
-        borderWidth: 2,
-        //showLine: true,
-        hoverBackgroundColor: "rgba(255,99,132,0.4)",
-        hoverBorderColor: "rgba(255,99,132,1)",
-        pointRadius: pointRadius,
-        data: dataChartArr,
-      }]
+      datasets: [
+        {
+          label: "Direction des déplacements",
+          pointBackgroundColor: pointBackgroundColors,
+          borderColor: borderColor,
+          borderWidth: 2,
+          //showLine: true,
+          hoverBackgroundColor: "rgba(255,99,132,0.4)",
+          hoverBorderColor: "rgba(255,99,132,1)",
+          pointRadius: pointRadius,
+          data: dataChartArr,
+        },
+      ],
     }; // Add data values to array
     // End Defining data
     var options = {
@@ -1560,10 +1616,11 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
       tooltips: {
         callbacks: {
           title: function (tooltipItem, data) {
-
             //let date = data.labels[tooltipItem[0].index];
             //console.log("tooltipItem.value : ", tooltipItem);
-            let date = mapDirectionDateTime.get(tooltipItem[0].value * tooltipItem[0].label);
+            let date = mapDirectionDateTime.get(
+              tooltipItem[0].value * tooltipItem[0].label
+            );
             //console.log("Date : ", date)
             return "Le " + date;
           },
@@ -1573,167 +1630,169 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
           afterLabel: function (tooltipItem, data) {
             //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
             //return "Heure : " + hour;
-          }
+          },
         },
-        backgroundColor: '#FFF',
+        backgroundColor: "#FFF",
         titleFontSize: 15,
-        titleFontColor: '#233754',
-        bodyFontColor: '#000',
+        titleFontColor: "#233754",
+        bodyFontColor: "#000",
         bodyFontSize: 14,
-        displayColors: false
+        displayColors: false,
       },
       title: {
         display: false,
-        text: "Direction et inclinaison"
+        text: "Direction et inclinaison",
       },
       legend: {
-        display: false
+        display: false,
       },
       scales: {
-        yAxes: [{
-          id: "y-axis-0",
-          gridLines: {
-            display: true,
-            color: "rgba(255,99,132,0.2)"
+        yAxes: [
+          {
+            id: "y-axis-0",
+            gridLines: {
+              display: true,
+              color: "rgba(255,99,132,0.2)",
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Delta Y (cm)",
+              fontSize: 20,
+            },
+            ticks: {
+              min: -3,
+              max: 3,
+              beginAtZero: false,
+              stepSize: 0.5,
+              autoskip: true,
+            },
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'Delta Y (cm)',
-            fontSize: 20,
+        ],
+        xAxes: [
+          {
+            id: "x-axis-0",
+            gridLines: {
+              display: true,
+              color: "rgba(255,99,132,0.2)",
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Delta X (cm)",
+              fontSize: 20,
+            },
+            ticks: {
+              min: -3,
+              max: 3,
+              beginAtZero: false,
+              stepSize: 0.5,
+              autoskip: true,
+            },
           },
-          ticks: {
-            min: -3,
-            max: 3,
-            beginAtZero: false,
-            stepSize: 0.5,
-            autoskip: true,
-          },
-        }],
-        xAxes: [{
-          id: "x-axis-0",
-          gridLines: {
-            display: true,
-            color: "rgba(255,99,132,0.2)"
-          },
-          scaleLabel: {
-            display: true,
-            labelString: 'Delta X (cm)',
-            fontSize: 20,
-          },
-          ticks: {
-            min: -3,
-            max: 3,
-            beginAtZero: false,
-            stepSize: 0.5,
-            autoskip: true,
-          },
-        }]
+        ],
       },
       pan: {
         enabled: true,
-        mode: 'xy'
+        mode: "xy",
       },
       zoom: {
         enabled: true,
-        mode: 'xy',
+        mode: "xy",
       },
       annotation: {
-        events: ['click'],
-        drawTime: 'afterDatasetsDraw',
+        events: ["click"],
+        drawTime: "afterDatasetsDraw",
         annotations: [
-          //Vertical axis  
+          //Vertical axis
           {
-            id: 'hline1',
-            type: 'line',
-            mode: 'vertical',
-            scaleID: 'x-axis-0',
+            id: "hline1",
+            type: "line",
+            mode: "vertical",
+            scaleID: "x-axis-0",
             value: 0,
-            borderColor: 'rgba(103, 128, 159, 0.7)',
+            borderColor: "rgba(103, 128, 159, 0.7)",
             label: {
               enabled: true,
-              content: 'Y',
+              content: "Y",
               position: "top",
               backgroundColor: "rgba(103, 128, 159, 0.7)",
             },
           },
-          //horizontal axis  
+          //horizontal axis
           {
-            id: 'hline2',
-            type: 'line',
-            mode: 'horizontal',
-            scaleID: 'y-axis-0',
+            id: "hline2",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
             value: 0,
-            borderColor: 'rgba(103, 128, 159, 0.7)',
+            borderColor: "rgba(103, 128, 159, 0.7)",
             label: {
               backgroundColor: "rgba(103, 128, 159, 0.7)",
               content: "X",
               position: "right",
-              enabled: true
+              enabled: true,
             },
           },
           //first level thresh
           {
-            id: 'hline3',
-            type: 'line',
-            mode: 'horizontal',
-            scaleID: 'y-axis-0',
+            id: "hline3",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
             value: settings[0].value,
-            borderColor: 'rgba(240, 52, 52, 0.8)',
+            borderColor: "rgba(240, 52, 52, 0.8)",
             label: {
               backgroundColor: "rgba(240, 52, 52, 0.8)",
               content: "First level",
               position: "top",
-              enabled: true
+              enabled: true,
             },
             onClick: function (e) {
               window.open("/settings");
-            }
+            },
           },
           //second level thresh
           {
-            id: 'hline4',
-            type: 'line',
-            mode: 'horizontal',
-            scaleID: 'y-axis-0',
+            id: "hline4",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
             value: settings[1].value,
-            borderColor: 'rgba(240, 52, 52, 0.8)',
+            borderColor: "rgba(240, 52, 52, 0.8)",
             label: {
               backgroundColor: "rgba(240, 52, 52, 0.8)",
               content: "Second level",
               position: "top",
-              enabled: true
+              enabled: true,
             },
             onClick: function (e) {
               window.open("/settings");
-            }
+            },
           },
           //third level thresh
           {
-            id: 'hline5',
-            type: 'line',
-            mode: 'horizontal',
-            scaleID: 'y-axis-0',
+            id: "hline5",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
             value: settings[2].value,
-            borderColor: 'rgba(240, 52, 52, 0.8)',
+            borderColor: "rgba(240, 52, 52, 0.8)",
             label: {
               backgroundColor: "rgba(240, 52, 52, 0.8)",
               content: "Third level",
               position: "top",
-              enabled: true
+              enabled: true,
             },
             onClick: function (e) {
               window.open("/settings");
-            }
-          }
-
+            },
+          },
         ],
-
-      }
+      },
     };
 
     // End Defining data
     var myChart = new Chart(ctx, {
-      type: 'scatter',
+      type: "scatter",
       data: data,
       options: options,
     });
@@ -1742,18 +1801,14 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
     for (i = 0; i < myChart.data.datasets[0].data.length; i++) {
       if (i < myChart.data.datasets[0].data.length - 1) {
         pointBackgroundColors.push("rgba(103, 128, 159, 0.7)");
-        borderColor.push("rgba(103, 128, 159, 1)")
-        pointRadius.push(2)
+        borderColor.push("rgba(103, 128, 159, 1)");
+        pointRadius.push(2);
       } else {
         pointBackgroundColors.push("rgba(255,99,132,1)");
         pointRadius.push(5);
         //console.log(myChart.data.datasets[0].data[0])
       }
-
     }
-
-
-
 
     for (var i = 0; i < myChart.data.datasets[0].data.length; i++) {
       //pointRadius.push(i);
@@ -1814,7 +1869,7 @@ function drawChartDirectionFromData(directionData, canvaID = "chartDirectionIncl
  * @return chart instance
  */
 function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
-  if (typeof chocData != 'object') {
+  if (typeof chocData != "object") {
     chocData = JSON.parse(chocData);
   }
   var amplitudeArr = [];
@@ -1835,27 +1890,29 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
 
   var obj = {
     x: 0,
-    y: 0
+    y: 0,
   };
   dataChartArr.push(obj);
   for (var i = 0; i < 2; i++) {
     var obj_1 = {
       x: timeDataArr[i],
-      y: amplitudeArr[i]
+      y: amplitudeArr[i],
     };
     dataChartArr.push(obj_1);
   }
   var obj_2 = {
     x: timeDataArr[0] + timeDataArr[1],
-    y: 0
+    y: 0,
   };
   dataChartArr.push(obj_2);
 
   var chartdata = {
-    datasets: [{
-      data: dataChartArr,
-      showLine: true,
-    }]
+    datasets: [
+      {
+        data: dataChartArr,
+        showLine: true,
+      },
+    ],
   };
 
   var title = "Last choc which occur on " + chocData[0].date_d;
@@ -1863,43 +1920,47 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
   var ctx = $(canva_id);
 
   var barGraph = new Chart(ctx, {
-    type: 'scatter',
+    type: "scatter",
     data: chartdata,
     options: {
       scales: {
         display: true,
-        xAxes: [{
-          ticks: {
-            beginAtZero: true,
-            min: 0,
-            max: timeDataArr[0] + timeDataArr[1],
-            step: 0.01,
-          },
-          type: 'linear',
-          scaleLabel: {
-            display: true,
+        xAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              min: 0,
+              max: timeDataArr[0] + timeDataArr[1],
+              step: 0.01,
+            },
+            type: "linear",
+            scaleLabel: {
+              display: true,
 
-            labelString: 'Time (s)'
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: true,
+              labelString: "Time (s)",
+            },
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'AmplitudeArr (g)'
-          }
-        }]
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "AmplitudeArr (g)",
+            },
+          },
+        ],
       },
       legend: {
-        display: false
+        display: false,
       },
       title: {
         display: true,
-        text: title
-      }
-    }
+        text: title,
+      },
+    },
   });
 }
 
@@ -1908,9 +1969,11 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
  * @param json subspectreData - data which contain subspectre data
  * @return chart instance
  */
-function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectre") {
-
-  if (typeof subspectreData != 'object') {
+function drawChartSubSpectreFromData(
+  subspectreData,
+  canvaID = "canvas_subspectre"
+) {
+  if (typeof subspectreData != "object") {
     subspectreData = JSON.parse(subspectreData);
   }
 
@@ -1922,76 +1985,87 @@ function drawChartSubSpectreFromData(subspectreData, canvaID = "canvas_subspectr
 
   var index_start = 2;
   var index_stop = 4;
-  var new_sub = '';
+  var new_sub = "";
   var dataChartArr = [];
 
   var min_freq_initial = min_freq;
 
   for (var i = 0; i < subspectre_hex.length / 2; i++) {
-
-    var y_data_amplitudeArr = hex2dec(subspectre_hex.substring(index_start, index_stop));
+    var y_data_amplitudeArr = hex2dec(
+      subspectre_hex.substring(index_start, index_stop)
+    );
 
     if (i > 0) {
       min_freq = min_freq + resolution;
     }
 
-    if (i < (subspectre_hex.length / 2) - 1) {
+    if (i < subspectre_hex.length / 2 - 1) {
       var obj = {
         x: min_freq,
-        y: y_data_amplitudeArr
+        y: y_data_amplitudeArr,
       };
       dataChartArr.push(obj);
     }
     index_start += 2;
     index_stop += 2;
   }
-  var title = "Spectre | Resolution = " + String(resolution) + "Hz | Sous spectre = " + String(subspectre_number);
+  var title =
+    "Spectre | Resolution = " +
+    String(resolution) +
+    "Hz | Sous spectre = " +
+    String(subspectre_number);
 
   var chartdata = {
-    datasets: [{
-      data: dataChartArr,
-      showLine: true,
-    }]
+    datasets: [
+      {
+        data: dataChartArr,
+        showLine: true,
+      },
+    ],
   };
 
   var canva_id = "#" + canvaID;
   var ctx = $(canva_id);
 
   var barGraph = new Chart(ctx, {
-    type: 'scatter',
+    type: "scatter",
     data: chartdata,
     options: {
       scales: {
         display: true,
-        xAxes: [{
-          ticks: {
-            beginAtZero: false,
-            min: min_freq_initial,
-            max: max_freq,
+        xAxes: [
+          {
+            ticks: {
+              beginAtZero: false,
+              min: min_freq_initial,
+              max: max_freq,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Frequence (Hz)",
+            },
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'Frequence (Hz)'
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: false,
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "AmplitudeArr (mg)",
+            },
           },
-          scaleLabel: {
-            display: true,
-            labelString: 'AmplitudeArr (mg)'
-          },
-        }]
+        ],
       },
       legend: {
-        display: false
+        display: false,
       },
       title: {
         display: true,
-        text: title
-      }
-    }
+        text: title,
+      },
+    },
   });
 }
 
@@ -2008,54 +2082,59 @@ function showMap(data) {
   var lat_france = 46.2276;
   var long_france = 2.2137;
 
-  var map = L.map('map', {
-    attributionControl: false
+  var map = L.map("map", {
+    attributionControl: false,
   }).setView([lat_france, long_france], 5.3);
 
-  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibGlyb25lIiwiYSI6ImNrMmdrdmo1czAwOXozb29oc3NybXJqNTcifQ.sbQPrGi1n7lsCtlCvojTBA', {
-    maxZoom: 18,
-    attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
-    id: 'mapbox.streets'
-  }).addTo(map);
+  L.tileLayer(
+    "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibGlyb25lIiwiYSI6ImNrMmdrdmo1czAwOXozb29oc3NybXJqNTcifQ.sbQPrGi1n7lsCtlCvojTBA",
+    {
+      maxZoom: 18,
+      attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
+      id: "mapbox.streets",
+    }
+  ).addTo(map);
 
-  L.control.custom({
-      position: 'topright',
-      content: '<button type="button" class="btn btn-default">' +
+  L.control
+    .custom({
+      position: "topright",
+      content:
+        '<button type="button" class="btn btn-default">' +
         '    <i class="fa fa-crosshairs"></i>' +
-        '</button>' +
+        "</button>" +
         '<button type="button" class="btn btn-danger">' +
         '    <i class="fa fa-times"></i>' +
-        '</button>' +
+        "</button>" +
         '<button type="button" class="btn btn-success">' +
         '    <i class="fa fa-check"></i>' +
-        '</button>' +
+        "</button>" +
         '<button type="button" class="btn btn-warning">' +
         '    <i class="fa fa-exclamation-triangle"></i>' +
-        '</button>',
-      classes: 'btn-group-vertical btn-group-sm',
+        "</button>",
+      classes: "btn-group-vertical btn-group-sm",
       style: {
-        margin: '30px',
-        padding: '0px 0 0 0',
-        cursor: 'pointer',
-        height: '100px',
+        margin: "30px",
+        padding: "0px 0 0 0",
+        cursor: "pointer",
+        height: "100px",
       },
       datas: {
-        'foo': 'bar',
+        foo: "bar",
       },
       events: {
         click: function (data) {
-          console.log('wrapper div element clicked');
+          console.log("wrapper div element clicked");
           console.log(data);
         },
         dblclick: function (data) {
-          console.log('wrapper div element dblclicked');
+          console.log("wrapper div element dblclicked");
           console.log(data);
         },
         contextmenu: function (data) {
-          console.log('wrapper div element contextmenu');
+          console.log("wrapper div element contextmenu");
           console.log(data);
         },
-      }
+      },
     })
     .addTo(map);
 
@@ -2066,14 +2145,24 @@ function showMap(data) {
       longitude_sensor = obj.longitude_sensor;
       latitude_sensor = obj.latitude_sensor;
 
-
       device_number = obj.device_number;
       site = obj.site;
       equipement = obj.equipement;
-      line_HT = obj.transmission_line_name
+      line_HT = obj.transmission_line_name;
 
-      L.marker([latitude_sensor, longitude_sensor]).addTo(map)
-        .bindPopup("<b>Capteur : " + device_number + "</b><br />" + site + " | " + equipement + " | " + line_HT).openPopup();
+      L.marker([latitude_sensor, longitude_sensor])
+        .addTo(map)
+        .bindPopup(
+          "<b>Capteur : " +
+            device_number +
+            "</b><br />" +
+            site +
+            " | " +
+            equipement +
+            " | " +
+            line_HT
+        )
+        .openPopup();
     }
   }
 }
@@ -2082,7 +2171,7 @@ function addData(chart, label, color, data) {
   chart.data.datasets.push({
     label: label,
     backgroundColor: color,
-    data: data
+    data: data,
   });
   chart.update();
 }
@@ -2093,13 +2182,13 @@ function drawPrevision(site) {
     selector: ".weatherForecastWidget",
     apiKey: "052NMBEM22M3WRCGVFD7209PV",
     location: site,
-    unitGroup: "metric"
+    unitGroup: "metric",
   });
   (function () {
     var d = document,
-      s = d.createElement('script');
-    s.src = 'public/js/weather-forecast-widget.min.js';
-    s.setAttribute('data-timestamp', +new Date());
+      s = d.createElement("script");
+    s.src = "public/js/weather-forecast-widget.min.js";
+    s.setAttribute("data-timestamp", +new Date());
     (d.head || d.body).appendChild(s);
   })();
 }

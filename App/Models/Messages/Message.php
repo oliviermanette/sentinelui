@@ -518,6 +518,7 @@ class Message
             'spectre_msg_dec' => $spectre_msg_dec
         ];
 
+
         return json_encode($spectreMSGDecoded, true);
     }
 
