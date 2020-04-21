@@ -55,7 +55,7 @@ $router->add('profile', ['controller' => 'ControllerProfile', 'action' => 'index
 //Support page
 $router->add('support', ['controller' => 'ControllerProfile', 'action' => 'support']);
 //Search data form
-$router->add('search-data', ['controller' => 'ControllerData', 'action' => 'searchSpectre']);
+$router->add('search-spectre', ['controller' => 'ControllerData', 'action' => 'searchSpectre']);
 //Choc data display
 $router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'searchChoc']);
 //alerts data visualization
