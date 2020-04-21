@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="card mb-4 border-bottom-primary">
         <div class="card-header">
-            Données brutes - Capteurs Flod
+            Données Spectres - Capteurs Flod
         </div>
         <div class="card-body">
             <div class="container">
@@ -63,9 +63,7 @@
             </div>
             </br>
             <!-- Page Heading -->
-
-
-
+            <!--
             <div class="container">
                 <div class="col">
                     <div class="row-md-2 col-md-offset-4 text-center">
@@ -78,8 +76,10 @@
                             onclick="window.open('/ControllerData/downloadRawData?exportData=csv')"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Exporter données (CSV)</button>
                     </div>
+                    </br>
                 </div>
             </div>
+            -->
         </div>
     </div>
 
@@ -194,28 +194,32 @@
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
                 spectres_data = JSON.parse(data);
-                console.log("Data spectre : ", spectres_data);
-                console.log("Type : ", typeof spectres_data);
+
+                var deveui = spectres_data["deveui"];
+
+                //console.log("Data spectre : ", spectres_data);
+
                 removeElement("container-chart");
+                removeElement("row-button-download");
 
-                var numberOfSpectres = Object.keys(spectres_data).length;
-                console.log("xhttp1.onreadystatechange -> numberOfSpectre", numberOfSpectres);
+                addElement("chart-display-container", "div", "row-button-download");
+                var link = "/ControllerData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
+                //console.log("xhttp1.onreadystatechange -> link", link);
 
-                /*var spectre_data_json = data['spectre_data'];
-                var site_id = data['site_id'];
-                var equipement_id = data['equipment_id'];
-                */
+                addButton("row-button-download", "Telecharger toutes les données (zip)", link);
 
                 addElement("chart-display-container", "div", "container-chart");
                 addElement("container-chart", "div", "row-chart");
+                var spectresArr = spectres_data["spectres"];
+                var numberOfSpectres = Object.keys(spectresArr).length;
 
                 for (i = 1; i <= numberOfSpectres; i++) {
                     var name_canva = "canva_" + String(i);
                     addElement("row-chart", "canvas", name_canva);
                     var name_spectre_data = "spectre_" + String(i);
 
-                    var date_time = spectres_data[name_spectre_data]["date_time"];
-                    var deveui = spectres_data[name_spectre_data]["deveui"];
+                    var date_time = spectresArr[name_spectre_data]["date_time"];
+                    var deveui = spectresArr[name_spectre_data]["deveui"];
                     //console.log("xhttp1.onreadystatechange -> date_time", date_time);
 
                     var link =
@@ -226,7 +230,7 @@
                 for (i = 1; i <= numberOfSpectres; i++) {
                     var name_canva = "canva_" + String(i);
                     var name_spectre_data = "spectre_" + String(i);
-                    var spectre_i = spectres_data[name_spectre_data];
+                    var spectre_i = spectresArr[name_spectre_data];
 
                     drawChartSpectreFromData(spectre_i, name_canva);
                 }

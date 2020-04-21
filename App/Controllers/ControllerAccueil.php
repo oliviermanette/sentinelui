@@ -95,18 +95,20 @@ class ControllerAccueil extends Authenticated
     $startDate = $_POST["startDate"];
     $endDate = $_POST["endDate"];
 
+    $fullSpectreArr = array();
     //Check if the sensor if generation 2 or 1 because the treatment of the spectres are differents
     if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
       //echo "\nProfile 2\n";
       //Reconstruct spectres
-      $spectres = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+      $spectresArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
     } else {
       //echo "\nProfile 1\n";
       //Reconstruct spectres
-      $spectres = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
+      $spectresArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
     }
-
+    $fullSpectreArr["spectres"] = $spectresArr;
+    $fullSpectreArr["deveui"] = $deveui;
     //$all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate);
-    print json_encode($spectres);
+    print json_encode($fullSpectreArr);
   }
 }
