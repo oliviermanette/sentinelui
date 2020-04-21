@@ -1339,15 +1339,19 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   //Loop over all subspectres (5 in total that compose the whole spectre)
   var sizeSpectres = Object.keys(spectreData).length;
   console.log("coucou spectre data :", spectreData);
+  count_resolution_1 = 0;
   for (var i = 1; i <= 5; i++) {
     nameSub = "subspectre_" + String(i);
 
     if (spectreData.hasOwnProperty(nameSub)) {
       subspectreArr.push(spectreData[nameSub]);
-
+      console.log("drawChartSpectreFromData -> nameSub", nameSub);
       var resolution = parseInt(spectreData[nameSub]["resolution"]);
       var min_freq = parseInt(spectreData[nameSub]["min_freq"]);
       var max_freq = parseInt(spectreData[nameSub]["max_freq"]);
+      if (resolution == 1) {
+        count_resolution_1 = true;
+      }
       //console.log("nouveau sub");
       //Loop over data of each subspectre
       for (var j = 0; j < spectreData[nameSub]["data"].length / 2; j++) {
@@ -1364,7 +1368,7 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
             x: min_freq,
             y: y_data_amplitudeArr,
           };
-          //console.log(obj);
+
           dataChartArr.push(obj);
         }
         //console.log("drawChartSpectreFromData -> min_freq", min_freq);
@@ -1376,6 +1380,7 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
       index_stop = 4;
     }
   }
+  console.log(dataChartArr);
 
   var canva_id = "#" + canvaID;
   var ctx = document.getElementById(canvaID).getContext("2d");

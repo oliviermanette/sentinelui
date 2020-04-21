@@ -64,18 +64,18 @@ class ControllerDataObjenious extends \Core\Controller
   public function testSQLAction()
   {
 
-    $deveui = '0004A30B00E829A7';
+    $deveui = '0004A30B00E7D410';
     $date_time_first_measure = '2020-03-29 20:49:36';
     //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
     //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-    $dataArr = TemperatureAPI::getCurrentDataWeather('43.86801','4.568677', $API_NAME = "DARKSKY");
+    $dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
     //print_r($dataArr["locations"]);
     //var_dump($dataArr);
     /*foreach ($dataArr as $data){
       print_r($data);
     }*/
-    $res = Utilities::array_find_deep($dataArr, 'currently');
-    print_r($res);
+    $fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+    var_dump($fullSpectreArr);
     $spectreManager = new SpectreManager();
     //$spectreManager->getActivityData($deveui);
     //$spectreManager->reconstituteAllSpectreForSensorFirstGeneration($deveui);
