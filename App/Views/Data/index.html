@@ -140,17 +140,17 @@
             return;
         }
         if (!$('#equipmentField option:selected').val()) {
-            alert("Selectionner un équippement");
+            alert("Selectionner un équipement");
             return;
         }
 
         var formData = new FormData();
         formData.append('site_request', $('#siteSpectre option:selected').val());
-        formData.append('equipement_request', $('#equipmentField option:selected').val());
+        formData.append('sensor_deveui_request', $('#equipmentField option:selected').val());
         formData.append('startDate', startDate);
         formData.append('endDate', endDate);
         console.log("Site request : ", $('#siteSpectre option:selected').val());
-        console.log("Equipement request : ", $('#equipmentField option:selected').val());
+        console.log("sensor request : ", $('#equipmentField option:selected').val());
         console.log("Start date: ", startDate);
         console.log("endDate date: ", endDate);
 
@@ -185,39 +185,49 @@
 
             }
         };
-        xhttp.open("POST", "/ControllerAccueil/getDataTableAfterSubmit", true);
+        xhttp.open("POST", "/ControllerData/getDataTableAfterSubmit", true);
         xhttp.send(formData);
 
+        //For displaying the charts
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
-                data = JSON.parse(data);
-                console.log("Data spectre : ", data);
+                spectres_data = JSON.parse(data);
+                console.log("Data spectre : ", spectres_data);
+                console.log("Type : ", typeof spectres_data);
                 removeElement("container-chart");
 
-                var spectre_data_json = data['spectre_data'];
+                var numberOfSpectres = Object.keys(spectres_data).length;
+                console.log("xhttp1.onreadystatechange -> numberOfSpectre", numberOfSpectres);
+
+                /*var spectre_data_json = data['spectre_data'];
                 var site_id = data['site_id'];
                 var equipement_id = data['equipment_id'];
-                var numberOfSpectre = Object.keys(spectre_data_json).length;
+                */
 
                 addElement("chart-display-container", "div", "container-chart");
                 addElement("container-chart", "div", "row-chart");
 
-                for (i = 0; i < numberOfSpectre; i++) {
+                for (i = 1; i <= numberOfSpectres; i++) {
                     var name_canva = "canva_" + String(i);
                     addElement("row-chart", "canvas", name_canva);
                     var name_spectre_data = "spectre_" + String(i);
-                    var date_subspectre0 = spectre_data_json[name_spectre_data][0]["date"];
+
+                    var date_time = spectres_data[name_spectre_data]["date_time"];
+                    var deveui = spectres_data[name_spectre_data]["deveui"];
+                    //console.log("xhttp1.onreadystatechange -> date_time", date_time);
+
                     var link =
-                        "/ControllerData/downloadSpectre?siteID=" + site_id + "&equipementID=" + equipement_id + "&requestedDate=" + date_subspectre0;
+                        "/ControllerData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
                     addButton("row-chart", "Telecharger le spectre", link);
                 }
-                for (i = 0; i < numberOfSpectre; i++) {
+
+                for (i = 1; i <= numberOfSpectres; i++) {
                     var name_canva = "canva_" + String(i);
                     var name_spectre_data = "spectre_" + String(i);
-                    var spectre_i = spectre_data_json[name_spectre_data];
-                    //console.log("SPECTRE DATA I : ", spectre_i);
+                    var spectre_i = spectres_data[name_spectre_data];
+
                     drawChartSpectreFromData(spectre_i, name_canva);
                 }
 

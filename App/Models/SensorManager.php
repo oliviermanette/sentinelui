@@ -339,6 +339,26 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function checkProfileGenerationSensor($deveui)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT sensor_type.firmware_version FROM sensor_type
+    LEFT JOIN sensor ON sensor.type_id = sensor_type.id
+    WHERE sensor.deveui = :deveui ";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $version = $stmt->fetch(PDO::FETCH_COLUMN);
+      if ($version >= 2) {
+        return 2;
+      }
+      return 1;
+    }
+  }
+
   /**
    * Get the battery state of sensor
    *

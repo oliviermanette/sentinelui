@@ -731,6 +731,43 @@ class RecordManager extends \Core\Model
     }
   }
 
+  public static function getAllSpecificMsgFromSensor($deveui, $dateMin, $dateMax)
+  {
+
+    $db = static::getDB();
+
+    $sql = "SELECT sensor.device_number, st.id AS 'structure_id',
+    DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS `date_time`,
+    r.msg_type AS `typeMessage`, s.nom AS `site`, st.nom AS `equipement`
+    FROM record as r
+    LEFT JOIN sensor on sensor.id=r.sensor_id
+    LEFT JOIN structure AS st on st.id=r.structure_id
+    LEFT JOIN site AS s ON s.id = st.site_id
+    WHERE ";
+
+    if (!empty($dateMin) && !empty($dateMax)) {
+      $sql .= "date(r.date_time) BETWEEN date(:date_min) and date(:date_max) AND ";
+    }
+
+    $sql .= "Date(r.date_time) >= Date(sensor.installation_date)
+      AND sensor.deveui = :deveui
+      ORDER BY r.date_time DESC ";
+
+    $stmt = $db->prepare($sql);
+
+    if (!empty($dateMin) && !empty($dateMax)) {
+      $stmt->bindValue(':date_min', $dateMin, PDO::PARAM_STR);
+      $stmt->bindValue(':date_max', $dateMax, PDO::PARAM_STR);
+    }
+    //$stmt->bindValue(':type_msg', $typeMSG, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
   public static function getAllDataForChart($site_id, $equipment_id, $dateMin, $dateMax)
   {
 

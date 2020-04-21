@@ -3,6 +3,6 @@
   <select class="browser-default custom-select" name="equipment" id="equipment">
     <option value="" selected>Choisissez un équipement associé</option>
     {% for equipment in all_equipment %}
-    <option value={{equipment.equipement_id}}>Capteur {{equipment.device_number}} - {{equipment.equipement}}</option>
+    <option value={{equipment.deveui}}>Capteur {{equipment.device_number}} - {{equipment.equipement}}</option>
     {% endfor %}
   </select>

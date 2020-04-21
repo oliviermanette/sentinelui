@@ -432,15 +432,18 @@ class ControllerData extends Authenticated
 
   public function downloadSpectreAction()
   {
-    $equipement_id = $_GET['equipementID'];
-    $site_id = $_GET['siteID'];
+    //$equipement_id = $_GET['equipementID'];
+    $deveui = $_GET['deveui'];
     $requestedDate = $_GET['requestedDate'];
 
-    $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $equipement_id, $requestedDate);
+    //$allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
+    $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
 
+    //var_dump($allSubSpectresArr);
     $timeSerie = new TimeSeries();
     $timeSerie->createFromSpectreArr($allSubSpectresArr);
     //print_r($timeSerie->getTimeSerieData());
+
     ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $requestedDate);
   }
 
@@ -534,6 +537,28 @@ class ControllerData extends Authenticated
       }
     }
   }
+
+  public function getDataTableAfterSubmitAction()
+  {
+    $site_id = $_POST["site_request"];
+    $deveui = $_POST["sensor_deveui_request"];
+
+    if (isset($_POST["startDate"])) {
+      $startDate = $_POST["startDate"];
+    }
+    if (isset($_POST["endDate"])) {
+      $endDate = $_POST["endDate"];
+    }
+    $typeMSG = '';
+    $all_specific_msg = RecordManager::getAllSpecificMsgFromSensor($deveui, $startDate, $endDate);
+    //$recordManager = new RecordManager();
+    //$all_specific_msg = $recordManager->getAllSpecificMsgForSpecificId($site_id, $equipement_id, $typeMSG, $startDate, $endDate);
+
+    View::renderTemplate('Homepage/viewTableDataSpecific.html', [
+      'all_specific_msg'    => $all_specific_msg,
+    ]);
+  }
+
 
   /**
    * After filter

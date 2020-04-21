@@ -10,6 +10,7 @@ use \App\Models\EquipementManager;
 use App\Models\InclinometerManager;
 use \App\Models\RecordManager;
 use \App\Models\SensorManager;
+use App\Models\SpectreManager;
 use App\Models\UserManager;
 use App\Utilities;
 
@@ -82,28 +83,6 @@ class ControllerAccueil extends Authenticated
   }
 
 
-
-  public function getDataTableAfterSubmitAction()
-  {
-    $site_id = $_POST["site_request"];
-    $equipement_id = $_POST["equipement_request"];
-
-    if (isset($_POST["startDate"])) {
-      $startDate = $_POST["startDate"];
-    }
-    if (isset($_POST["endDate"])) {
-      $endDate = $_POST["endDate"];
-    }
-    $typeMSG = '';
-
-    $recordManager = new RecordManager();
-    $all_specific_msg = $recordManager->getAllSpecificMsgForSpecificId($site_id, $equipement_id, $typeMSG, $startDate, $endDate);
-
-    View::renderTemplate('Homepage/viewTableDataSpecific.html', [
-      'all_specific_msg'    => $all_specific_msg,
-    ]);
-  }
-
   /**
    * Get all charts
    *
@@ -111,12 +90,23 @@ class ControllerAccueil extends Authenticated
    */
   public function getAllChartsAction()
   {
-    $site_id = $_POST["site_request"];
-    $equipement_id = $_POST["equipement_request"];
+    //$site_id = $_POST["site_request"];
+    $deveui = $_POST["sensor_deveui_request"];
     $startDate = $_POST["startDate"];
     $endDate = $_POST["endDate"];
 
-    $all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate);
-    print json_encode($all_charts_data);
+    //Check if the sensor if generation 2 or 1 because the treatment of the spectres are differents
+    if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
+      //echo "\nProfile 2\n";
+      //Reconstruct spectres
+      $spectres = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
+    } else {
+      //echo "\nProfile 1\n";
+      //Reconstruct spectres
+      $spectres = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
+    }
+
+    //$all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate);
+    print json_encode($spectres);
   }
 }

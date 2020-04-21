@@ -175,9 +175,10 @@ class TimeSeries extends \Core\Model
         $this->record_id = $record_id;
         $date_time = $spectreArr["date_time"];
         $this->date_time = $date_time;
-
-        $structure_id = $spectreArr["structure_id"];
-        $this->structure_id = $structure_id;
+        $structure_name = $spectreArr["structure_name"];
+        $this->structure_name = $structure_name;
+        $site_name = $spectreArr["site_name"];
+        $this->site_name = $site_name;
         //var_dump($spectreArr);
         //Loop over the 5 subspectre to get the full spectre
         for ($i = 1; $i < 6; $i++) {
@@ -187,7 +188,7 @@ class TimeSeries extends \Core\Model
             if (array_key_exists($subspectreName, $spectreArr)) {
                 //echo "ok \n";
                 $subspectreData = $spectreArr[$subspectreName];
-               
+
                 $subspectreDataValuesHex = $subspectreData["data"];
                 $resolution = $subspectreData["resolution"];
                 $min_freq = $subspectreData["min_freq"];
