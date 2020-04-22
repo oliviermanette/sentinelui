@@ -79,14 +79,15 @@ class RecordManager extends \Core\Model
         $chocManager = new ChocManager();
         //Check if the sensor is installed
         if (SensorManager::isInstalled($choc->deveui)) {
-          $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
+          $group_id = SensorManager::getGroupOwnerCurrentUser($choc->deveui);
 
           $hasAlert = $chocManager->check($choc, $group_id, $method = "VALUE");
           //Create new alert if it's the case
           if ($hasAlert) {
             $label = "high_choc";
             $type = "shock";
-            $alert = new Alert($type, $label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc($precision = 2, $unite = "g"));
+
+            $alert = new Alert($type, $label, $choc->deveui, $choc->dateTime, $choc->getPowerValueChoc($precision = 3, $unite = "g"));
 
             AlertManager::insertTypeEvent($label,  $alert->criticality);
             AlertManager::insert($alert);
