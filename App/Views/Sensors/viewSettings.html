@@ -15,67 +15,92 @@
     <div class="card">
         <div class="card-body">
 
-            <h3 class="card-title">Seuil de déplacement d'inclinaison</h3>
+
             <form role="form" action="/ControllerSensors/updateSettingsSensor?deveui={{deveui}}" method="post"
                 name="settingform">
+                <h3 class="card-title">Seuil de déplacement d'inclinaison</h3>
+                <h5 class="h5 mb-0 text-gray-800 mb-2">Axe Y</h5>
                 <div class="row">
                     <div class="col-sm-4">
                         <!-- Default switch -->
                         <div class="custom-control custom-switch">
-                            <input name="activationAlertInclinationFirstLevel" type="checkbox"
+                            <input name="activationAlertInclinationFirstLevelY" type="checkbox"
                                 class="custom-control-input" id="inclinationSwitch1"
-                                {% if settingsFirstInclinationThresh.activated == true %} checked {% endif %}>
+                                {% if settingsFirstInclinationYThresh.activated == true %} checked {% endif %}>
                             <label class="custom-control-label" for="inclinationSwitch1">Activer l'alerte
                                 1er niveau</label>
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="custom-control custom-switch">
-                            <input name="activationAlertInclinationSecondLevel" type="checkbox"
+                            <input name="activationAlertInclinationSecondLevelY" type="checkbox"
                                 class="custom-control-input" id="inclinationSwitch2"
-                                {% if settingsSecondInclinationThresh.activated == true %} checked {% endif %}>
+                                {% if settingsSecondInclinationYThresh.activated == true %} checked {% endif %}>
                             <label class="custom-control-label" for="inclinationSwitch2">Activer l'alerte
                                 2eme niveau</label>
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="custom-control custom-switch">
-                            <input name="activationAlertInclinationThirdLevel" type="checkbox"
+                            <input name="activationAlertInclinationThirdLevelY" type="checkbox"
                                 class="custom-control-input" id="inclinationSwitch3"
-                                {% if settingsThirdInclinationThresh.activated == true %} checked {% endif %}>
+                                {% if settingsThirdInclinationYThresh.activated == true %} checked {% endif %}>
                             <label class="custom-control-label" for="inclinationSwitch3">Activer l'alerte
                                 3eme niveau</label>
                         </div>
                     </div>
                 </div>
-
-                <div class="row">
+                <div class="row mb-4">
                     <div class="col-sm-4">
                         <label><strong>Premier niveau (cm)</strong></label>
-                        <input type="range" class="custom-range" name="firstInclinationThresh" min="1" max="10"
-                            value="{{ settingsFirstInclinationThresh.value }}"
+                        <input type="range" class="custom-range" name="firstInclinationYThresh" min="1" max="10"
+                            value="{{ settingsFirstInclinationYThresh.value }}"
                             oninput="this.form.firstAmountInputInclination.value=this.value" />
                         <input type="number" name="firstAmountInputInclination" min="1" max="10"
-                            value="{{ settingsFirstInclinationThresh.value }}"
+                            value="{{ settingsFirstInclinationYThresh.value }}"
                             oninput="this.form.firstInclinationThresh.value=this.value" />
                     </div>
                     <div class="col-sm-4">
                         <label><strong>Deuxième niveau (cm)</strong></label>
-                        <input type="range" class="custom-range" name="secondInclinationThresh" min="1" max="10"
-                            value="{{ settingsSecondInclinationThresh.value }}"
+                        <input type="range" class="custom-range" name="secondInclinationYThresh" min="1" max="10"
+                            value="{{ settingsSecondInclinationYThresh.value }}"
                             oninput="this.form.SecondAmountInputInclinometer.value=this.value" />
                         <input type="number" name="SecondAmountInputInclinometer" min="1" max="10"
-                            value="{{ settingsSecondInclinationThresh.value }}"
+                            value="{{ settingsSecondInclinationYThresh.value }}"
                             oninput="this.form.secondInclinationThresh.value=this.value" />
                     </div>
                     <div class="col-sm-4">
                         <label><strong>Troisième niveau (cm)</strong></label>
-                        <input type="range" class="custom-range" name="thirdInclinationThresh" min="1" max="10"
-                            value="{{ settingsThirdInclinationThresh.value }}"
+                        <input type="range" class="custom-range" name="thirdInclinationYThresh" min="1" max="10"
+                            value="{{ settingsThirdInclinationYThresh.value }}"
                             oninput="this.form.ThirdAmountInputInclination.value=this.value" />
                         <input type="number" name="ThirdAmountInputInclination" min="1" max="10"
-                            value="{{ settingsThirdInclinationThresh.value }}"
+                            value="{{ settingsThirdInclinationYThresh.value }}"
                             oninput="this.form.thirdInclinationThresh.value=this.value" />
+                    </div>
+                </div>
+                <h5 class="h5 mb-0 text-gray-800 mb-2">Axe X</h5>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <!-- Default switch -->
+                        <div class="custom-control custom-switch">
+                            <input name="activationAlertInclinationFirstLevelX" type="checkbox"
+                                class="custom-control-input" id="inclinationXSwitch1"
+                                {% if settingsFirstInclinationXThresh.activated == true %} checked {% endif %}>
+                            <label class="custom-control-label" for="inclinationXSwitch1">Activer l'alerte
+                                1er niveau</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-sm-4">
+                        <label><strong>Premier niveau (cm)</strong></label>
+                        <input type="range" class="custom-range" name="firstInclinationXThresh" min="1" max="10"
+                            value="{{ settingsFirstInclinationXThresh.value }}"
+                            oninput="this.form.firstAmountInputInclinationX.value=this.value" />
+                        <input type="number" name="firstAmountInputInclinationX" min="1" max="10"
+                            value="{{ settingsFirstInclinationXThresh.value }}"
+                            oninput="this.form.firstInclinationXThresh.value=this.value" />
                     </div>
                 </div>
                 </br>

@@ -1517,9 +1517,9 @@ function drawChartDirectionFromData(
   }
 
 
-  firstLevelThresh = searchJsonInArray(settings, "name_setting", "first_inclination_thresh");
-  secondLevelThresh = searchJsonInArray(settings, "name_setting", "second_inclination_thresh");
-  thirdLevelThresh = searchJsonInArray(settings, "name_setting", "third_inclination_thresh");
+  firstLevelThresh = searchJsonInArray(settings, "name_setting", "first_inclinationY_thresh");
+  secondLevelThresh = searchJsonInArray(settings, "name_setting", "second_inclinationY_thresh");
+  thirdLevelThresh = searchJsonInArray(settings, "name_setting", "third_inclinationY_thresh");
 
   if (firstLevelThresh != null) {
     if (firstLevelThresh.activated == 1) {

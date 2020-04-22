@@ -25,7 +25,7 @@ class ControllerSetting extends Authenticated
      */
     public function indexAction()
     {
-
+        /*
         Auth::rememberRequestedPage();
 
         //Get the settings of the current user
@@ -68,7 +68,7 @@ class ControllerSetting extends Authenticated
             'settingsThirdInclinationThresh' => $third_inclination_thresh,
             'settingsShockThresh' => $shock_thresh,
             'settingsAlertEmailActivated' => $isAlertEmailActivated,
-        ]);
+        ]);*/
     }
 
     /*

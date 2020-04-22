@@ -134,7 +134,7 @@ class RecordManager extends \Core\Model
           $hasAlertArr = $inclinometreManager->check($inclinometer, $group_id);
           if (
             Utilities::is_key_in_array($hasAlertArr, "alertThirdThresh") &&
-            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'third_inclination_thresh')
+            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'third_inclinationY_thresh')
           ) {
 
             $label = "third_thresh_inclinometer_raised";
@@ -144,7 +144,7 @@ class RecordManager extends \Core\Model
             $values = $hasAlertArr["alertThirdThresh"];
           } else if (
             Utilities::is_key_in_array($hasAlertArr, "alertSecondThresh") &&
-            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'second_inclination_thresh')
+            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'second_inclinationY_thresh')
           ) {
 
             $label = "second_thresh_inclinometer_raised";
@@ -154,7 +154,7 @@ class RecordManager extends \Core\Model
             $values = $hasAlertArr["alertSecondThresh"];
           } else if (
             Utilities::is_key_in_array($hasAlertArr, "alertFirstThresh") &&
-            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'first_inclination_thresh')
+            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'first_inclinationY_thresh')
           ) {
 
             $label = "first_thresh_inclinometer_raised";

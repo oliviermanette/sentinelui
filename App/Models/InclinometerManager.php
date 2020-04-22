@@ -27,9 +27,9 @@ class InclinometerManager extends \Core\Model
   public function check($inclinometer, $groupId, $method = "RANGE")
   {
 
-    $first_inclination_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "first_inclination_thresh");
-    $second_inclination_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "second_inclination_thresh");
-    $third_inclination_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "third_inclination_thresh");
+    $first_inclinationY_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "first_inclinationY_thresh");
+    $second_inclinationY_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "second_inclinationY_thresh");
+    $third_inclinationY_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "third_inclinationY_thresh");
 
     $alertsArr = array("type" => "inclination");
 
@@ -38,24 +38,24 @@ class InclinometerManager extends \Core\Model
     $newDeltaY = $dataDirectionVariationArr[count($dataDirectionVariationArr) - 1]["delta_y"];
     $newDeltaX = $dataDirectionVariationArr[count($dataDirectionVariationArr) - 1]["delta_x"];
 
-    if (isset($first_inclination_thresh)) {
-      if ($newDeltaX > $first_inclination_thresh || $newDeltaY > $first_inclination_thresh) {
-        $alertFirstTmpArr = array("thresh" => $first_inclination_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
+    if (isset($first_inclinationY_thresh)) {
+      if ($newDeltaX > $first_inclinationY_thresh || $newDeltaY > $first_inclinationY_thresh) {
+        $alertFirstTmpArr = array("thresh" => $first_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
         $alertsArr["alertFirstThresh"] = $alertFirstTmpArr;
 
         echo "\n ALERT first level ! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
     }
-    if (isset($second_inclination_thresh)) {
-      if ($newDeltaX > $second_inclination_thresh || $newDeltaY > $second_inclination_thresh) {
-        $alertSecondTmpArr = array("thresh" => $second_inclination_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
+    if (isset($second_inclinationY_thresh)) {
+      if ($newDeltaX > $second_inclinationY_thresh || $newDeltaY > $second_inclinationY_thresh) {
+        $alertSecondTmpArr = array("thresh" => $second_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
         $alertsArr["alertSecondThresh"] = $alertSecondTmpArr;
         echo "\n ALERT second level ! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
     }
-    if (isset($third_inclination_thresh)) {
-      if ($newDeltaX > $third_inclination_thresh || $newDeltaY > $third_inclination_thresh) {
-        $alertThirdTmpArr = array("thresh" => $third_inclination_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
+    if (isset($third_inclinationY_thresh)) {
+      if ($newDeltaX > $third_inclinationY_thresh || $newDeltaY > $third_inclinationY_thresh) {
+        $alertThirdTmpArr = array("thresh" => $third_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
         $alertsArr["alertThirdThresh"] = $alertThirdTmpArr;
         echo "\n ALERT third level ! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
