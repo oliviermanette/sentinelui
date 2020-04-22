@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Models\UserManager;
-use \App\Models\SettingManager;
+use \App\Models\Settings\SettingGeneralManager;
 use \App\Auth;
 use \App\Flash;
 use \App\Utilities;
@@ -88,25 +88,25 @@ class ControllerSetting extends Authenticated
 
         $updateOk = True;
         //Check if settings exist 
-        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "first_inclination_thresh")) {
-            SettingManager::updateSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
+        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "first_inclination_thresh")) {
+            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
         } else {
-            SettingManager::insertSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
+            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
         }
-        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "second_inclination_thresh")) {
-            SettingManager::updateSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
+        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "second_inclination_thresh")) {
+            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
         } else {
-            SettingManager::insertSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
+            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
         }
-        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "third_inclination_thresh")) {
-            SettingManager::updateSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
+        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "third_inclination_thresh")) {
+            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
         } else {
-            SettingManager::insertSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
+            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
         }
-        if (SettingManager::checkIfSettingExistForGroup($user->group_id, "shock_thresh")) {
-            SettingManager::updateSettingValueForGroup($user->group_id, "shock_thresh", $shockThresh);
+        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "shock_thresh")) {
+            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "shock_thresh", $shockThresh);
         } else {
-            SettingManager::insertSettingValueForGroup($user->group_id, "shock_thresh", $thirdInclinationThresh);
+            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "shock_thresh", $thirdInclinationThresh);
         }
 
 
@@ -119,8 +119,8 @@ class ControllerSetting extends Authenticated
     {
         $user = Auth::getUser();
         //var_dump($user);
-        $settingsArr = SettingManager::findByGroupId($user->group_id);
-        $isAlertEmailActivated = SettingManager::checkIfAlertActivated($user->email);
+        $settingsArr = SettingGeneralManager::findByGroupId($user->group_id);
+        $isAlertEmailActivated = SettingGeneralManager::checkIfAlertActivated($user->email);
         $tmpArr = array("isAlertEmailActivated" => $isAlertEmailActivated);
         array_push($settingsArr, $tmpArr);
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use PDO;
 use App\Utilities;
+use App\Models\Settings\SettingGeneralManager;
 
 /*
 InclinometerManager.php
@@ -26,9 +27,9 @@ class InclinometerManager extends \Core\Model
   public function check($inclinometer, $groupId, $method = "RANGE")
   {
 
-    $first_inclination_thresh = SettingManager::getSettingValueForGroupOrNull($groupId, "first_inclination_thresh");
-    $second_inclination_thresh = SettingManager::getSettingValueForGroupOrNull($groupId, "second_inclination_thresh");
-    $third_inclination_thresh = SettingManager::getSettingValueForGroupOrNull($groupId, "third_inclination_thresh");
+    $first_inclination_thresh = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "first_inclination_thresh");
+    $second_inclination_thresh = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "second_inclination_thresh");
+    $third_inclination_thresh = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "third_inclination_thresh");
 
     $alertsArr = array("type" => "inclination");
 

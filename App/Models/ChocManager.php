@@ -30,7 +30,7 @@ class ChocManager extends \Core\Model
     //The value received is in G
     if ($method == "VALUE") {
 
-      $shockTresh = SettingManager::getSettingValueForGroupOrNull($groupId, "shock_thresh");
+      $shockTresh = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "shock_thresh");
 
       if (isset($choc->power)) {
         if ($choc->power > $shockTresh) {
@@ -41,8 +41,8 @@ class ChocManager extends \Core\Model
       }
     } else if ($method = "STD") {
       echo "METHOD STD ! \n";
-      $shockTreshSTD = SettingManager::getSettingValueForGroupOrNull($groupId, "shock_thresh_std");
-      $timePeriodCheck = SettingManager::getSettingValueForGroupOrNull($groupId, "time_period");
+      $shockTreshSTD = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "shock_thresh_std");
+      $timePeriodCheck = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "time_period");
       if (!isset($timePeriodCheck)) {
         $timePeriodCheck = -1;
       }

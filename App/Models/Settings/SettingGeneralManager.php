@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Settings;
 
 use PDO;
 use \App\Token;
@@ -8,7 +8,7 @@ use \App\Mail;
 use \Core\View;
 
 
-class SettingManager extends \Core\Model
+class SettingGeneralManager extends \Core\Model
 {
 
     public function __construct($data = [])

@@ -13,7 +13,7 @@ use App\Models\API\TemperatureAPI;
 use App\Models\BatteryManager;
 use App\Models\ChocManager;
 use App\Models\SpectreManager;
-use App\Models\SettingManager;
+use App\Models\Settings\SettingGeneralManager;
 use App\Models\TemperatureManager;
 
 /**
@@ -158,7 +158,7 @@ class ControllerSensors extends Authenticated
 
 
         //Get settings
-        $settingArr = SettingManager::findByGroupId($user->group_id);
+        $settingArr = SettingGeneralManager::findByGroupId($user->group_id);
         $settingArr = json_encode($settingArr);
         //var_dump($settingArr);
 
