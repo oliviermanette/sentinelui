@@ -16,18 +16,36 @@
         <div class="card-body">
 
             <h3 class="card-title">Seuil de déplacement d'inclinaison</h3>
-            <form role="form" action="/ControllerSetting/update" method="post" name="settingform">
+            <form role="form" action="/ControllerSensors/updateSettingsSensor?deveui={{deveui}}" method="post"
+                name="settingform">
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <!-- Default switch -->
                         <div class="custom-control custom-switch">
-                            <input name="alertSwitchNotification" type="checkbox" class="custom-control-input"
-                                id="customSwitches" {% if settingsAlertEmailActivated.isAlertEmailActivated == true %}
-                                checked {% endif %}>
-                            <label class="custom-control-label" for="customSwitches">Activer l'alerte
-                                d'inclinaison</label>
+                            <input name="activationAlertInclinationFirstLevel" type="checkbox"
+                                class="custom-control-input" id="inclinationSwitch1"
+                                {% if settingsFirstInclinationThresh.activated == true %} checked {% endif %}>
+                            <label class="custom-control-label" for="inclinationSwitch1">Activer l'alerte
+                                1er niveau</label>
                         </div>
-
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="custom-control custom-switch">
+                            <input name="activationAlertInclinationSecondLevel" type="checkbox"
+                                class="custom-control-input" id="inclinationSwitch2"
+                                {% if settingsSecondInclinationThresh.activated == true %} checked {% endif %}>
+                            <label class="custom-control-label" for="inclinationSwitch2">Activer l'alerte
+                                2eme niveau</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="custom-control custom-switch">
+                            <input name="activationAlertInclinationThirdLevel" type="checkbox"
+                                class="custom-control-input" id="inclinationSwitch3"
+                                {% if settingsThirdInclinationThresh.activated == true %} checked {% endif %}>
+                            <label class="custom-control-label" for="inclinationSwitch3">Activer l'alerte
+                                3eme niveau</label>
+                        </div>
                     </div>
                 </div>
 
@@ -66,10 +84,9 @@
                     <div class="col-sm-6">
                         <!-- Default switch -->
                         <div class="custom-control custom-switch">
-                            <input name="alertSwitchNotification" type="checkbox" class="custom-control-input"
-                                id="customSwitches" {% if settingsAlertEmailActivated.isAlertEmailActivated == true %}
-                                checked {% endif %}>
-                            <label class="custom-control-label" for="customSwitches">Activer l'alerte
+                            <input name="activationAlertShock" type="checkbox" class="custom-control-input"
+                                id="shockSwitch" {% if settingsShockThresh.activated == true %} checked {% endif %}>
+                            <label class="custom-control-label" for="shockSwitch">Activer l'alerte
                                 de choc</label>
                         </div>
 
@@ -91,10 +108,10 @@
                     <div class="col-sm-6">
                         <!-- Default switch -->
                         <div class="custom-control custom-switch">
-                            <input name="alertSwitchNotification" type="checkbox" class="custom-control-input"
-                                id="customSwitches" {% if settingsAlertEmailActivated.isAlertEmailActivated == true %}
-                                checked {% endif %}>
-                            <label class="custom-control-label" for="customSwitches">Recevoir les alertes par
+                            <input name="activationEmailNotification" type="checkbox" class="custom-control-input"
+                                id="emailNotificationSwitche"
+                                {% if settingsAlertEmailActivated.isAlertEmailActivated == true %} checked {% endif %}>
+                            <label class="custom-control-label" for="emailNotificationSwitche">Recevoir les alertes par
                                 mail</label>
                         </div>
 

@@ -67,12 +67,12 @@ class SettingSensorManager extends \Core\Model
     /**
      * Check if a setting exist for a specific sensor
      *
-     * @param string $deveui group deveui
+     * @param string $deveui deveui
      * @param string $settingName name of the setting
      *
      * @return boolean  true if exist
      */
-    public static function checkIfSettingExistForGroup($deveui, $settingName)
+    public static function checkIfSettingExistForSensor($deveui, $settingName)
     {
         $db = static::getDB();
 
@@ -104,7 +104,7 @@ class SettingSensorManager extends \Core\Model
      *
      * @return boolean return true of created successfully
      */
-    public static function insertSettingValueForGroup($deveui, $settingName, $settingValue)
+    public static function insertSettingValueForSensor($deveui, $settingName, $settingValue)
     {
         $db = static::getDB();
 
@@ -222,6 +222,36 @@ class SettingSensorManager extends \Core\Model
     }
 
     /**
+     *  update the activation for specific setting for a specific sensor
+     *
+     * @param string $deveui sensor deveuil where we want to apply this setting
+     * @param string $settingName name of the setting
+     *
+     *  @return boolean  true if activte correclty
+     */
+    public static function updateActivateSettingForSensor($deveui, $settingName, $toActivate)
+    {
+        $db = static::getDB();
+
+        $sql = "UPDATE sensor_settings
+            LEFT JOIN settings_sensors_name ON settings_sensors_name.id = sensor_settings.setting_name_id
+            LEFT JOIN sensor ON sensor.id = sensor_settings.sensor_id
+            SET sensor_settings.activated = :toActivate
+            WHERE sensor.deveui = :deveui
+            AND settings_sensors_name.name = :settingName
+            ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':toActivate', $toActivate, PDO::PARAM_BOOL);
+        $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+        $stmt->bindValue(':settingName', $settingName, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            return True;
+        }
+        return False;
+    }
+    /**
      *  activate a specific setting for a specific sensor
      *
      * @param string $deveui sensor deveuil where we want to apply this setting
@@ -250,6 +280,7 @@ class SettingSensorManager extends \Core\Model
         }
         return False;
     }
+
 
     /**
      *  deactivate a specific setting for a specific sensor

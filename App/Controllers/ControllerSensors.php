@@ -14,7 +14,9 @@ use App\Models\BatteryManager;
 use App\Models\ChocManager;
 use App\Models\SpectreManager;
 use App\Models\Settings\SettingGeneralManager;
+use App\Models\Settings\SettingSensorManager;
 use App\Models\TemperatureManager;
+use \App\Utilities;
 
 /**
  * Sensors controller
@@ -48,13 +50,133 @@ class ControllerSensors extends Authenticated
     public function settingsViewAction()
     {
         $user = Auth::getUser();
+        Auth::rememberRequestedPage();
         $label_device = $this->route_params["deviceid"];
         $deveui = SensorAPI::getDeveuiFromLabel($label_device);
+        //Get the settings of the current user
+        $settingsArr = $this->getSettingsForCurrentSensor($deveui);
 
+        $first_inclination_thresh = Utilities::array_find_deep($settingsArr, "first_inclination_thresh");
+        $second_inclination_thresh = Utilities::array_find_deep($settingsArr, "second_inclination_thresh");
+        $third_inclination_thresh = Utilities::array_find_deep($settingsArr, "third_inclination_thresh");
+        $shock_thresh = Utilities::array_find_deep($settingsArr, "shock_thresh");
+        $isAlertEmailActivated = Utilities::array_find_deep($settingsArr, "isAlertEmailActivated");
+        if ($first_inclination_thresh) {
+            $first_inclination_thresh = $settingsArr[$first_inclination_thresh[0]];
+        } else {
+            $first_inclination_thresh = 0;
+        }
+        if ($second_inclination_thresh) {
+            $second_inclination_thresh = $settingsArr[$second_inclination_thresh[0]];
+        } else {
+            $second_inclination_thresh = 0;
+        }
+        if ($third_inclination_thresh) {
+            $third_inclination_thresh = $settingsArr[$third_inclination_thresh[0]];
+        } else {
+            $third_inclination_thresh = 0;
+        }
+        if ($shock_thresh) {
+            $shock_thresh = $settingsArr[$shock_thresh[0]];
+        } else {
+            $shock_thresh = 1;
+        }
+        if ($isAlertEmailActivated) {
+            $isAlertEmailActivated = $settingsArr[$isAlertEmailActivated[0]];
+        } else {
+            $isAlertEmailActivated = 0;
+        }
         $context = [
             "device_number" => $label_device,
+            "deveui" => $deveui,
+            'settingsFirstInclinationThresh' => $first_inclination_thresh,
+            'settingsSecondInclinationThresh' => $second_inclination_thresh,
+            'settingsThirdInclinationThresh' => $third_inclination_thresh,
+            'settingsShockThresh' => $shock_thresh,
+            'settingsAlertEmailActivated' => $isAlertEmailActivated,
         ];
         View::renderTemplate('Sensors/viewSettings.html', $context);
+    }
+
+    public function getSettingsForCurrentSensor($deveui)
+    {
+
+        $user = Auth::getUser();
+        $settingsArr = SettingSensorManager::findByDeveui($deveui);
+        $isAlertEmailActivated = SettingSensorManager::checkIfAlertByEmailActivatedForUser($user->email);
+        $tmpArr = array("isAlertEmailActivated" => $isAlertEmailActivated);
+        array_push($settingsArr, $tmpArr);
+
+        return $settingsArr;
+    }
+
+    private function checkAndUpdate($deveui, $settingName, $settingValue)
+    {
+
+        if (SettingSensorManager::checkIfSettingExistForSensor($deveui, $settingName)) {
+            echo "Setting :" . $settingName . " Exist";
+            SettingSensorManager::updateSettingValueForSensor($deveui, $settingName, $settingValue);
+        } else {
+            echo "Setting :" . $settingName . " DON'T Exist";
+            SettingSensorManager::insertSettingValueForSensor($deveui, $settingName, $settingValue);
+        }
+    }
+    public function updateSettingsSensorAction()
+    {
+
+        $user = Auth::getUser();
+        if (isset($_GET['deveui'])) {
+            $deveui = $_GET['deveui'];
+        }
+
+        $firstInclinationThresh = $_POST["firstInclinationThresh"];
+        $secondInclinationThresh = $_POST["secondInclinationThresh"];
+        $thirdInclinationThresh = $_POST["thirdInclinationThresh"];
+        $shockThresh = $_POST["shockThresh"];
+
+        $settingsValuesArr = array(
+            "first_inclination_thresh" => $firstInclinationThresh,
+            "second_inclination_thresh" => $secondInclinationThresh,
+            "third_inclination_thresh" => $thirdInclinationThresh,
+            "shock_thresh" => $shockThresh,
+
+        );
+
+        foreach ($settingsValuesArr as $settingName => $SettingValue) {
+            var_dump($settingName);
+            $this->checkAndUpdate($deveui, $settingName, $SettingValue);
+        }
+
+        if (isset($_POST["activationAlertInclinationFirstLevel"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclination_thresh", True);
+        } else {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclination_thresh", False);
+        }
+        if (isset($_POST["activationAlertInclinationSecondLevel"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "second_inclination_thresh", True);
+        } else {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "second_inclination_thresh", False);
+        }
+        if (isset($_POST["activationAlertInclinationThirdLevel"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "third_inclination_thresh", True);
+        } else {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "third_inclination_thresh", False);
+        }
+        if (isset($_POST["activationAlertShock"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "shock_thresh", True);
+        } else {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "shock_thresh", False);
+        }
+
+        if (isset($_POST["activationEmailNotification"])) {
+            SettingSensorManager::updateAlertEmailNotification($user->email, True);
+        } else {
+            SettingSensorManager::updateAlertEmailNotification($user->email, False);
+        }
+
+        Flash::addMessage('Mise à jour réussie des paramètres');
+
+        $this->redirect(Auth::getReturnToPage());
     }
 
     /**

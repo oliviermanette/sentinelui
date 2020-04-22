@@ -30,7 +30,7 @@ class ControllerSetting extends Authenticated
 
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentUser();
-
+        var_dump($settingsArr);
         $first_inclination_thresh = Utilities::array_find_deep($settingsArr, "first_inclination_thresh");
         $second_inclination_thresh = Utilities::array_find_deep($settingsArr, "second_inclination_thresh");
         $third_inclination_thresh = Utilities::array_find_deep($settingsArr, "third_inclination_thresh");
@@ -74,6 +74,7 @@ class ControllerSetting extends Authenticated
     public function updateAction()
     {
         $user = Auth::getUser();
+
 
         $firstInclinationThresh = $_POST["firstInclinationThresh"];
         $secondInclinationThresh = $_POST["secondInclinationThresh"];

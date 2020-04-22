@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Utilities;
 use PDO;
+use App\Models\Settings\SettingGeneralManager;
 
 /*
 chocManager.php
