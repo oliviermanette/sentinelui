@@ -130,7 +130,7 @@ class RecordManager extends \Core\Model
 
           $inclinometreManager = new InclinometerManager();
           $group_id = SensorManager::getGroupOwnerCurrentUser($inclinometer->deveui);
-
+          $isAlert = False;
           $hasAlertArr = $inclinometreManager->check($inclinometer, $group_id);
           if (
             Utilities::is_key_in_array($hasAlertArr, "alertThirdThreshAxisY") &&
@@ -142,6 +142,7 @@ class RecordManager extends \Core\Model
             $thresh = $hasAlertArr["alertThirdThreshAxisY"]["thresh"];
             $type = $hasAlertArr["type"];
             $values = $hasAlertArr["alertThirdThreshAxisY"];
+            $isAlert = True;
           } else if (
             Utilities::is_key_in_array($hasAlertArr, "alertSecondThreshAxisY") &&
             SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'second_inclinationY_thresh')
@@ -152,6 +153,7 @@ class RecordManager extends \Core\Model
             $thresh = $hasAlertArr["alertSecondThreshAxisY"]["thresh"];
             $type = $hasAlertArr["type"];
             $values = $hasAlertArr["alertSecondThreshAxisY"];
+            $isAlert = True;
           } else if (
             Utilities::is_key_in_array($hasAlertArr, "alertFirstThreshAxisY") &&
             SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'first_inclinationY_thresh')
@@ -162,6 +164,7 @@ class RecordManager extends \Core\Model
             $thresh = $hasAlertArr["alertFirstThreshAxisY"]["thresh"];
             $type = $hasAlertArr["type"];
             $values =  $hasAlertArr["alertFirstThreshAxisY"];
+            $isAlert = True;
           }
           //Axis X
           if (
@@ -174,14 +177,16 @@ class RecordManager extends \Core\Model
             $thresh = $hasAlertArr["alertFirstThreshAxisX"]["thresh"];
             $type = $hasAlertArr["type"];
             $values = $hasAlertArr["alertFirstThreshAxisX"];
+            $isAlert = True;
           }
 
+          if ($isAlert == True) {
+            $alert = new Alert($type, $label, $inclinometer->deveui, $inclinometer->dateTime, $values);
 
-          $alert = new Alert($type, $label, $inclinometer->deveui, $inclinometer->dateTime, $values);
-
-          AlertManager::insertTypeEvent($label, $criticality);
-          AlertManager::insert($alert);
-          AlertManager::sendAlert($alert, $group_id);
+            AlertManager::insertTypeEvent($label, $criticality);
+            AlertManager::insert($alert);
+            AlertManager::sendAlert($alert, $group_id);
+          }
         }
       }
       //Subspectre data
