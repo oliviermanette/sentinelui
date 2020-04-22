@@ -48,11 +48,11 @@ class Alert extends Message
                 $this->criticality = "LOW";
                 break;
             case 'ChangeStatusError':
-                $this->msg = "Une erreur est survenu avec le capteur.";
+                $this->msg = "Une erreur est survenue avec le capteur.";
                 $this->criticality = "HIGH";
                 break;
             case 'ChangeStatusJoined':
-                $this->msg = "Le capteur just joined.";
+                $this->msg = "Le capteur vient de se joindre au réseau.";
                 $this->criticality = "LOW";
                 break;
             case 'high_choc':

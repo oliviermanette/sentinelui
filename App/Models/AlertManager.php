@@ -579,14 +579,19 @@ class AlertManager extends \Core\Model
 
     private static function sensorAlert($alert, $groupId)
     {
+
         $msg = $alert->getProperMessageFromLabel();
         $equipementInfoArr = EquipementManager::getEquipementFromId($alert->equipementId);
         $equipementName = $equipementInfoArr["equipement"];
         $ligneHT = $equipementInfoArr["ligneHT"];
+        $device_number = $alert->device_number;
         $region = EquipementManager::getSiteLocation($alert->equipementId);
         //Find all users that want to receive alerts
         $users = UserManager::findToSendAlerts($groupId);
-
+        $users_flod = UserManager::findToSendAlerts(73); //Flod
+        foreach ($users_flod as $user) {
+            array_push($users, $user);
+        }
         foreach ($users as $user) {
             $email = $user["email"];
             $phone_number = $user["phone_number"];
@@ -602,34 +607,21 @@ class AlertManager extends \Core\Model
             $dateTime = explode(" ", $alert->dateTime);
             $date = date('d/m/Y', strtotime($dateTime[0]));
             $time = $dateTime[1];
-            //print_r($this->label);
-            $text = View::getTemplate('Alerts/alertSensor_email_view.txt', [
+            $context = [
                 "firstName" => $firstName,
                 "dateEventOccured" => $date,
                 "timeEventOccured" => $time,
-                "sensorName" => $sensorName,
+                "sensorName" => $device_number,
                 "region" => $region,
                 "equipement" => $equipementName,
                 "label" => $alert->label,
-                "value" => $alert->triggerValue,
                 "msg" => $msg,
                 "url" => $url,
+            ];
+            $text = View::getTemplate('Alerts/alertSensor_email_view.txt', $context);
+            $html = View::getTemplate('Alerts/alertSensor_email_view.html', $context);
 
-            ]);
-            $html = View::getTemplate('Alerts/alertSensor_email_view.html', [
-                "firstName" => $firstName,
-                "dateEventOccured" => $date,
-                "timeEventOccured" => $time,
-                "sensorName" => $sensorName,
-                "region" => $region,
-                "equipement" => $equipementName,
-                "label" => $alert->label,
-                "value" => $alert->triggerValue,
-                "msg" => $msg,
-                "url" => $url,
-            ]);
-
-            $title =  'Nouvelle alerte sur le capteur ' . $sensorName . ' !';
+            $title =  'TEST - [capteur] Nouvelle alerte sur le capteur ' . $device_number . ' !';
             Mail::send($email, $title, $text, $html);
         }
     }

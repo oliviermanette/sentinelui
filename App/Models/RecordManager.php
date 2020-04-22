@@ -185,14 +185,14 @@ class RecordManager extends \Core\Model
 
   private static function handleEventMessage($message)
   {
+    $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
     $label = $message->type;
     $type = "event";
     $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
     $alert = new Alert($type, $label, $message->deveui, $message->dateTime);
     AlertManager::insertTypeEvent($label, $alert->criticality, $alert->msg);
     AlertManager::insert($alert, $message->status);
-    //TODO
-    //AlertManager::sendAlert($alert, $group);
+    AlertManager::sendAlert($alert, $group_id);
   }
 
   /**
