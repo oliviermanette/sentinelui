@@ -182,6 +182,9 @@ class SettingSensorManager extends \Core\Model
 
         if ($stmt->execute()) {
             $value = $stmt->fetch(PDO::FETCH_COLUMN);
+            if (empty($value)) {
+                return False;
+            }
             if ($value == 0) {
                 return False;
             }

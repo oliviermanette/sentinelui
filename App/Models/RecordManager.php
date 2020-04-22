@@ -22,6 +22,7 @@ use App\Models\Messages\Inclinometer;
 use App\Models\Messages\Battery;
 use App\Models\Messages\Spectre;
 use App\Models\Messages\Alert;
+use App\Models\Settings\SettingSensorManager;
 use PDO;
 
 
@@ -77,8 +78,8 @@ class RecordManager extends \Core\Model
         }
 
         $chocManager = new ChocManager();
-        //Check if the sensor is installed
-        if (SensorManager::isInstalled($choc->deveui)) {
+        //Check if the sensor is installed and the alert is activated 
+        if (SensorManager::isInstalled($choc->deveui) && SettingSensorManager::isSettingActivatedForSensor($choc->deveui, 'shock_thresh')) {
           $group_id = SensorManager::getGroupOwnerCurrentUser($choc->deveui);
 
           $hasAlert = $chocManager->check($choc, $group_id, $method = "VALUE");
@@ -127,24 +128,33 @@ class RecordManager extends \Core\Model
         if (SensorManager::isInstalled($inclinometer->deveui)) {
 
           $inclinometreManager = new InclinometerManager();
-          $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
+          $group_id = SensorManager::getGroupOwnerCurrentUser($inclinometer->deveui);
 
           $hasAlertArr = $inclinometreManager->check($inclinometer, $group_id);
-          if (Utilities::is_key_in_array($hasAlertArr, "alertThirdThresh")) {
+          if (
+            Utilities::is_key_in_array($hasAlertArr, "alertThirdThresh") &&
+            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'third_inclination_thresh')
+          ) {
 
             $label = "third_thresh_inclinometer_raised";
             $criticality = "HIGH";
             $thresh = $hasAlertArr["alertThirdThresh"]["thresh"];
             $type = $hasAlertArr["type"];
             $values = $hasAlertArr["alertThirdThresh"];
-          } else if (Utilities::is_key_in_array($hasAlertArr, "alertSecondThresh")) {
+          } else if (
+            Utilities::is_key_in_array($hasAlertArr, "alertSecondThresh") &&
+            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'second_inclination_thresh')
+          ) {
 
             $label = "second_thresh_inclinometer_raised";
             $criticality = "HIGH";
             $thresh = $hasAlertArr["alertSecondThresh"]["thresh"];
             $type = $hasAlertArr["type"];
             $values = $hasAlertArr["alertSecondThresh"];
-          } else if (Utilities::is_key_in_array($hasAlertArr, "alertFirstThresh")) {
+          } else if (
+            Utilities::is_key_in_array($hasAlertArr, "alertFirstThresh") &&
+            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'first_inclination_thresh')
+          ) {
 
             $label = "first_thresh_inclinometer_raised";
             $criticality = "HIGH";
@@ -368,16 +378,6 @@ class RecordManager extends \Core\Model
                         FROM   record
                         WHERE  date_time = :date_time)
       LIMIT  1 ";
-    /*
-    $data_record = 'INSERT INTO  record (`sensor_id`,  `structure_id`, `payload`, `date_time`,  `msg_type`,`longitude`, `latitude`)
-    SELECT * FROM
-    (SELECT (SELECT id FROM sensor WHERE deveui = :deveui_sensor),
-    (SELECT id FROM structure WHERE nom = :name_asset and structure.transmision_line_name = :transmission_line_name),
-    :payload_raw, :date_time, :type_msg, :longitude, :latitude) AS id_record
-    WHERE NOT EXISTS (
-      SELECT date_time FROM record WHERE date_time = :date_time
-    ) LIMIT 1';
-    */
 
     $db = static::getDB();
     $stmt = $db->prepare($data_record);
