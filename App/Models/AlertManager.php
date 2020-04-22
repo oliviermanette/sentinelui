@@ -256,7 +256,7 @@ class AlertManager extends \Core\Model
     {
         $db = static::getDB();
 
-        $query_alerts_data = "SELECT group_name.name, alerts.id AS alert_id, alerts.date_time AS date_time,
+        $query_alerts_data = "SELECT DISTINCT group_name.name, alerts.id AS alert_id, alerts.date_time AS date_time,
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
@@ -309,19 +309,17 @@ class AlertManager extends \Core\Model
     {
         $db = static::getDB();
 
-        $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time, sensor.device_number, sensor.deveui,
+        $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time, alerts.deveui,
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.msg AS message,
-        (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
-        LEFT JOIN sensor ON (sensor.structure_id = structure.id)
         WHERE alerts.status = 1
-        AND sensor.deveui = :deveui";
+        AND alerts.deveui = :deveui";
 
         if (isset($limit)) {
             $query_alerts_data .= "LIMIT :limit";
@@ -349,19 +347,17 @@ class AlertManager extends \Core\Model
     {
         $db = static::getDB();
 
-        $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time, sensor.device_number, sensor.deveui,
+        $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time, alerts.deveui,
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
         alerts.msg AS message,
-        (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
         FROM alerts
         LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
-        LEFT JOIN sensor ON (sensor.structure_id = structure.id)
-        WHERE alerts.status = 0
-        AND sensor.deveui = :deveui";
+        WHERE alerts.status = 1
+        AND alerts.deveui = :deveui ";
 
         $stmt = $db->prepare($query_alerts_data);
         $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
