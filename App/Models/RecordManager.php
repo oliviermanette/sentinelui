@@ -133,36 +133,49 @@ class RecordManager extends \Core\Model
 
           $hasAlertArr = $inclinometreManager->check($inclinometer, $group_id);
           if (
-            Utilities::is_key_in_array($hasAlertArr, "alertThirdThresh") &&
+            Utilities::is_key_in_array($hasAlertArr, "alertThirdThreshAxisY") &&
             SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'third_inclinationY_thresh')
           ) {
 
-            $label = "third_thresh_inclinometer_raised";
+            $label = "first_thresh_axisY_inclinometer_raised";
             $criticality = "HIGH";
-            $thresh = $hasAlertArr["alertThirdThresh"]["thresh"];
+            $thresh = $hasAlertArr["alertThirdThreshAxisY"]["thresh"];
             $type = $hasAlertArr["type"];
-            $values = $hasAlertArr["alertThirdThresh"];
+            $values = $hasAlertArr["alertThirdThreshAxisY"];
           } else if (
-            Utilities::is_key_in_array($hasAlertArr, "alertSecondThresh") &&
+            Utilities::is_key_in_array($hasAlertArr, "alertSecondThreshAxisY") &&
             SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'second_inclinationY_thresh')
           ) {
 
-            $label = "second_thresh_inclinometer_raised";
+            $label = "second_thresh_axisY_inclinometer_raised";
             $criticality = "HIGH";
-            $thresh = $hasAlertArr["alertSecondThresh"]["thresh"];
+            $thresh = $hasAlertArr["alertSecondThreshAxisY"]["thresh"];
             $type = $hasAlertArr["type"];
-            $values = $hasAlertArr["alertSecondThresh"];
+            $values = $hasAlertArr["alertSecondThreshAxisY"];
           } else if (
-            Utilities::is_key_in_array($hasAlertArr, "alertFirstThresh") &&
+            Utilities::is_key_in_array($hasAlertArr, "alertFirstThreshAxisY") &&
             SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'first_inclinationY_thresh')
           ) {
 
-            $label = "first_thresh_inclinometer_raised";
+            $label = "first_thresh_axisY_inclinometer_raised";
             $criticality = "HIGH";
-            $thresh = $hasAlertArr["alertFirstThresh"]["thresh"];
+            $thresh = $hasAlertArr["alertFirstThreshAxisY"]["thresh"];
             $type = $hasAlertArr["type"];
-            $values =  $hasAlertArr["alertFirstThresh"];
+            $values =  $hasAlertArr["alertFirstThreshAxisY"];
           }
+          //Axis X
+          if (
+            Utilities::is_key_in_array($hasAlertArr, "alertFirstThreshAxisX") &&
+            SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'third_inclinationX_thresh')
+          ) {
+
+            $label = "first_thresh_axisX_inclinometer_raised";
+            $criticality = "HIGH";
+            $thresh = $hasAlertArr["alertFirstThreshAxisX"]["thresh"];
+            $type = $hasAlertArr["type"];
+            $values = $hasAlertArr["alertFirstThreshAxisX"];
+          }
+
 
           $alert = new Alert($type, $label, $inclinometer->deveui, $inclinometer->dateTime, $values);
 
