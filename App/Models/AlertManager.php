@@ -26,15 +26,19 @@ class AlertManager extends \Core\Model
      * @param array $dataArr array which contain the data that will serve to add a new alert on the DB
      * @return void
      */
-    public static function insert($alert)
+    public static function insert($alert, $status = "ACTIVE")
     {
 
         if ($alert->type == "inclination") {
             AlertManager::insertInclinationAlert($alert);
         } else if ($alert->type == "shock") {
             AlertManager::insertShockAlert($alert);
+        } else if ($alert->type == "event") {
+            AlertManager::insertEventAlert($alert);
+            SensorManager::updateStatut($alert->deveui, $status);
         }
     }
+
 
     private static function insertInclinationAlert($alert)
     {
@@ -92,6 +96,34 @@ class AlertManager extends \Core\Model
             return false;
         }
     }
+
+    private static function insertEventAlert($alert)
+    {
+        $db = static::getDB();
+
+        $sql = "INSERT INTO alerts(id_type_event, deveui, msg, structure_id, status, date_time)
+        SELECT * FROM
+        (SELECT (SELECT id FROM type_alert WHERE type_alert.label LIKE :label),
+        :deveui AS deveui, :msg AS msg,:structure_id as structure_id, 1 as status, :date_time as date_time) AS alert_record
+        ";
+
+
+        $stmt = $db->prepare($sql);
+
+        $stmt->bindValue(':structure_id', $alert->equipementId, PDO::PARAM_INT);
+        $stmt->bindValue(':deveui', $alert->deveui, PDO::PARAM_STR);
+        $stmt->bindValue(':msg', $alert->msg, PDO::PARAM_STR);
+        $stmt->bindValue(':label', $alert->label, PDO::PARAM_STR);
+        $stmt->bindValue(':date_time', $alert->dateTime, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            echo "\n NEW ALERT EVENT CREATED \n";
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     /**
      * Insert type of event in the database

@@ -40,6 +40,9 @@ class Message
             $this->device_number = SensorManager::getDeviceNumberFromDeveui($this->deveui);
             $this->msgDecoded = $this->decodePayload();
             $this->extractExternalId();
+        } else if ($this->typeMsgFormat == "event") {
+
+            $this->status = $this->findStatusSensor($this->type);
         }
     }
 
@@ -70,12 +73,28 @@ class Message
         }
     }
 
+
+    private function findStatusSensor($eventType)
+    {
+        switch ($eventType) {
+            case "ChangeStatusActive":
+                return "ACTIVE";
+            case "ChangeStatusInactive":
+                return "INACTIVE";
+            case "ChangeStatusError":
+                return "ERROR";
+            case "ChangeStatusJoined":
+                return "JOINED";
+        }
+    }
+
     private function extractDeviceProperties()
     {
 
         $this->externalId = $this->device_properties['external_id'];
         $this->appeui =  $this->device_properties['appeui'];
         $this->deveui =  $this->device_properties['deveui'];
+
         if (array_key_exists('hardware', $this->device_properties)) {
             $this->hardware_version =  $this->device_properties['hardware'];
         }

@@ -46,6 +46,7 @@ class RecordManager extends \Core\Model
   {
 
     $message = new Message($data);
+
     //Check if the sensors is associated to an installation before dealing with a message
     if (SensorManager::isInstalled($message->deveui)) {
       if ($message->getFormatMessage() == "uplink") {
@@ -189,7 +190,7 @@ class RecordManager extends \Core\Model
     $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
     $alert = new Alert($type, $label, $message->deveui, $message->dateTime);
     AlertManager::insertTypeEvent($label, $alert->criticality, $alert->msg);
-    AlertManager::insert($alert);
+    AlertManager::insert($alert, $message->status);
     //TODO
     //AlertManager::sendAlert($alert, $group);
   }

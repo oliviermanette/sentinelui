@@ -35,6 +35,25 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function updateStatut($deveui, $status)
+  {
+    $db = static::getDB();
+
+    $sql = "UPDATE sensor
+          SET status = :status
+          WHERE sensor.deveui = :deveui";;
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      return True;
+    }
+    return False;
+  }
+
+
   public static function getGroupsOwner($deveui)
   {
     $db = static::getDB();
