@@ -55,25 +55,31 @@ class ControllerSensors extends Authenticated
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentSensor($deveui);
 
-        $first_inclination_thresh = Utilities::array_find_deep($settingsArr, "first_inclination_thresh");
-        $second_inclination_thresh = Utilities::array_find_deep($settingsArr, "second_inclination_thresh");
-        $third_inclination_thresh = Utilities::array_find_deep($settingsArr, "third_inclination_thresh");
+        $first_inclinationY_thresh = Utilities::array_find_deep($settingsArr, "first_inclinationY_thresh");
+        $second_inclinationY_thresh = Utilities::array_find_deep($settingsArr, "second_inclinationY_thresh");
+        $third_inclinationY_thresh = Utilities::array_find_deep($settingsArr, "third_inclinationY_thresh");
+        $first_inclinationX_thresh = Utilities::array_find_deep($settingsArr, "first_inclinationX_thresh");
         $shock_thresh = Utilities::array_find_deep($settingsArr, "shock_thresh");
         $isAlertEmailActivated = Utilities::array_find_deep($settingsArr, "isAlertEmailActivated");
-        if ($first_inclination_thresh) {
-            $first_inclination_thresh = $settingsArr[$first_inclination_thresh[0]];
+        if ($first_inclinationY_thresh) {
+            $first_inclinationY_thresh = $settingsArr[$first_inclinationY_thresh[0]];
         } else {
-            $first_inclination_thresh = 0;
+            $first_inclinationY_thresh = 0;
         }
-        if ($second_inclination_thresh) {
-            $second_inclination_thresh = $settingsArr[$second_inclination_thresh[0]];
+        if ($first_inclinationX_thresh) {
+            $first_inclinationX_thresh = $settingsArr[$first_inclinationX_thresh[0]];
         } else {
-            $second_inclination_thresh = 0;
+            $first_inclinationX_thresh = 0;
         }
-        if ($third_inclination_thresh) {
-            $third_inclination_thresh = $settingsArr[$third_inclination_thresh[0]];
+        if ($second_inclinationY_thresh) {
+            $second_inclinationY_thresh = $settingsArr[$second_inclinationY_thresh[0]];
         } else {
-            $third_inclination_thresh = 0;
+            $second_inclinationY_thresh = 0;
+        }
+        if ($third_inclinationY_thresh) {
+            $third_inclinationY_thresh = $settingsArr[$third_inclinationY_thresh[0]];
+        } else {
+            $third_inclinationY_thresh = 0;
         }
         if ($shock_thresh) {
             $shock_thresh = $settingsArr[$shock_thresh[0]];
@@ -88,9 +94,10 @@ class ControllerSensors extends Authenticated
         $context = [
             "device_number" => $label_device,
             "deveui" => $deveui,
-            'settingsFirstInclinationThresh' => $first_inclination_thresh,
-            'settingsSecondInclinationThresh' => $second_inclination_thresh,
-            'settingsThirdInclinationThresh' => $third_inclination_thresh,
+            'settingsFirstInclinationXThresh' => $first_inclinationX_thresh,
+            'settingsFirstInclinationYThresh' => $first_inclinationY_thresh,
+            'settingsSecondInclinationYThresh' => $second_inclinationY_thresh,
+            'settingsThirdInclinationYThresh' => $third_inclinationY_thresh,
             'settingsShockThresh' => $shock_thresh,
             'settingsAlertEmailActivated' => $isAlertEmailActivated,
         ];
@@ -128,15 +135,17 @@ class ControllerSensors extends Authenticated
             $deveui = $_GET['deveui'];
         }
 
-        $firstInclinationThresh = $_POST["firstInclinationThresh"];
-        $secondInclinationThresh = $_POST["secondInclinationThresh"];
-        $thirdInclinationThresh = $_POST["thirdInclinationThresh"];
+        $firstInclinationXThresh = $_POST["firstInclinationXThresh"];
+        $firstInclinationYThresh = $_POST["firstInclinationYThresh"];
+        $secondInclinationYThresh = $_POST["secondInclinationYThresh"];
+        $thirdInclinationYThresh = $_POST["thirdInclinationYThresh"];
         $shockThresh = $_POST["shockThresh"];
 
         $settingsValuesArr = array(
-            "first_inclination_thresh" => $firstInclinationThresh,
-            "second_inclination_thresh" => $secondInclinationThresh,
-            "third_inclination_thresh" => $thirdInclinationThresh,
+            "first_inclinationX_thresh" => $firstInclinationXThresh,
+            "first_inclinationY_thresh" => $firstInclinationYThresh,
+            "second_inclinationY_thresh" => $secondInclinationYThresh,
+            "third_inclinationY_thresh" => $thirdInclinationYThresh,
             "shock_thresh" => $shockThresh,
 
         );
@@ -145,21 +154,25 @@ class ControllerSensors extends Authenticated
             var_dump($settingName);
             $this->checkAndUpdate($deveui, $settingName, $SettingValue);
         }
-
-        if (isset($_POST["activationAlertInclinationFirstLevel"])) {
-            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclination_thresh", True);
+        if (isset($_POST["activationAlertInclinationFirstLevelX"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclinationX_thresh", True);
         } else {
-            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclination_thresh", False);
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclinationX_thresh", False);
         }
-        if (isset($_POST["activationAlertInclinationSecondLevel"])) {
-            SettingSensorManager::updateActivateSettingForSensor($deveui, "second_inclination_thresh", True);
+        if (isset($_POST["activationAlertInclinationFirstLevelY"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclinationY_thresh", True);
         } else {
-            SettingSensorManager::updateActivateSettingForSensor($deveui, "second_inclination_thresh", False);
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "first_inclinationY_thresh", False);
         }
-        if (isset($_POST["activationAlertInclinationThirdLevel"])) {
-            SettingSensorManager::updateActivateSettingForSensor($deveui, "third_inclination_thresh", True);
+        if (isset($_POST["activationAlertInclinationSecondLevelY"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "second_inclinationY_thresh", True);
         } else {
-            SettingSensorManager::updateActivateSettingForSensor($deveui, "third_inclination_thresh", False);
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "second_inclinationY_thresh", False);
+        }
+        if (isset($_POST["activationAlertInclinationThirdLevelY"])) {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "third_inclinationY_thresh", True);
+        } else {
+            SettingSensorManager::updateActivateSettingForSensor($deveui, "third_inclinationY_thresh", False);
         }
         if (isset($_POST["activationAlertShock"])) {
             SettingSensorManager::updateActivateSettingForSensor($deveui, "shock_thresh", True);
