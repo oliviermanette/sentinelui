@@ -132,12 +132,13 @@ class RecordManager extends \Core\Model
           $group_id = SensorManager::getGroupOwnerCurrentUser($inclinometer->deveui);
           $isAlert = False;
           $hasAlertArr = $inclinometreManager->check($inclinometer, $group_id);
+
           if (
             Utilities::is_key_in_array($hasAlertArr, "alertThirdThreshAxisY") &&
             SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'third_inclinationY_thresh')
           ) {
 
-            $label = "first_thresh_axisY_inclinometer_raised";
+            $label = "third_thresh_axisY_inclinometer_raised";
             $criticality = "HIGH";
             $thresh = $hasAlertArr["alertThirdThreshAxisY"]["thresh"];
             $type = $hasAlertArr["type"];
@@ -165,9 +166,8 @@ class RecordManager extends \Core\Model
             $type = $hasAlertArr["type"];
             $values =  $hasAlertArr["alertFirstThreshAxisY"];
             $isAlert = True;
-          }
-          //Axis X
-          if (
+          } //Axis X
+          else if (
             Utilities::is_key_in_array($hasAlertArr, "alertFirstThreshAxisX") &&
             SettingSensorManager::isSettingActivatedForSensor($inclinometer->deveui, 'third_inclinationX_thresh')
           ) {
@@ -179,6 +179,7 @@ class RecordManager extends \Core\Model
             $values = $hasAlertArr["alertFirstThreshAxisX"];
             $isAlert = True;
           }
+
 
           if ($isAlert == True) {
             $alert = new Alert($type, $label, $inclinometer->deveui, $inclinometer->dateTime, $values);

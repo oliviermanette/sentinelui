@@ -109,18 +109,21 @@
                                             Bonjour {{firstName}},
 
                                             <p>Dépassement du seuil fixé à <strong>{{thresh}}</strong> cm.Une alerte
-                                                vient d'être déclenché de type<strong
+                                                d'inclinaison vient d'être déclenché de type<strong
                                                     style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                     {{label}}</strong>
-                                                {% if label == 'first_thresh_inclinometer_raised' %}
+                                                {% if label == 'first_thresh_axisY_inclinometer_raised' %}
                                                 c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
-                                                le premier seuil défini de {{thresh}} cm
-                                                {% elseif label == 'second_thresh_inclinometer_raised' %}
+                                                le premier seuil défini de {{thresh}} cm sur l'axe des Y.
+                                                {% elseif label == 'second_thresh_axisY_inclinometer_raised' %}
                                                 c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
-                                                le second seuil défini de {{thresh}} cm
-                                                {% elseif label == 'third_thresh_inclinometer_raised' %}
+                                                le second seuil défini de {{thresh}} cm sur l'axe des Y.
+                                                {% elseif label == 'third_thresh_axisY_inclinometer_raised' %}
                                                 c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
-                                                le troisième seuil défini de {{thresh}} cm
+                                                le troisième seuil défini de {{thresh}} cm sur l'axe des Y.
+                                                {% elseif label == 'first_thresh_axisX_inclinometer_raised' %}
+                                                c'est à dire une variation du déplacement de l'inclinaison qui a dépassé
+                                                le premier seuil défini de {{thresh}} cm sur l'axe des X.
                                                 {% else %}
                                                 .
                                                 {% endif %}
