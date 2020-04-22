@@ -64,6 +64,8 @@ $router->add('alerts', ['controller' => 'ControllerAlert', 'action' => 'index'])
 $router->add('sensors', ['controller' => 'ControllerSensors', 'action' => 'index']);
 //device info display
 $router->add('device/{deviceid:[\da-f]+}/info', ['controller' => 'ControllerSensors', 'action' => 'info']);
+//device settings display
+$router->add('device/{deviceid:[\da-f]+}/settings', ['controller' => 'ControllerSensors', 'action' => 'settingsView']);
 
 
 

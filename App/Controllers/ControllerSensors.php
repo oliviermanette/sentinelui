@@ -39,6 +39,24 @@ class ControllerSensors extends Authenticated
         ]);
     }
 
+
+    /**
+     * Show the setting page for each sensor
+     *
+     * @return void
+     */
+    public function settingsViewAction()
+    {
+        $user = Auth::getUser();
+        $label_device = $this->route_params["deviceid"];
+        $deveui = SensorAPI::getDeveuiFromLabel($label_device);
+
+        $context = [
+            "device_number" => $label_device,
+        ];
+        View::renderTemplate('Sensors/viewSettings.html', $context);
+    }
+
     /**
      * Show the info page for each sensor
      *
@@ -84,26 +102,6 @@ class ControllerSensors extends Authenticated
 
         //Get inclinometer data
         $positionInstallation = SensorManager::getPositionInstallation($deveui);
-
-        //var_dump($inclinaisonRefArr);
-        /*
-        //1.Variation 1 month (30 days)
-        $variationMonthArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 30, $precision = 3);
-        //2.Variation 1 week (7 days)
-        $variationWeekArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 7, $precision = 3);
-        //3.Variation 1 day
-        $variationDayArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, false, 1, $precision = 3);
-
-        $totalVariationArr = array($variationDayArr, $variationWeekArr, $variationMonthArr);*/
-
-        //4. chart data
-        //Inclinometer raw data
-        /*$inclinometerDataMonthArr = InclinometerManager::getInclinometerDataForLast($deveui, 30);
-        $inclinometerDataMonthArr = json_encode($inclinometerDataMonthArr);
-        $inclinometerDataWeekArr = InclinometerManager::getInclinometerDataForLast($deveui, 7);
-        $inclinometerDataWeekArr = json_encode($inclinometerDataWeekArr);
-        $inclinometerDataDayArr = InclinometerManager::getInclinometerDataForLast($deveui, -1);
-        $inclinometerDataDayArr = json_encode($inclinometerDataDayArr);*/
 
         //Direction inclinometer
         $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, -1);

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Setting{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div class="row">
+            <div class="col">
+                <h1 class="h3 mb-0 text-gray-800">Paramètres du capteur {{device_number}}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <h3 class="card-title">Seuil de déplacement d'inclinaison</h3>
+            <form role="form" action="/ControllerSetting/update" method="post" name="settingform">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- Default switch -->
+                        <div class="custom-control custom-switch">
+                            <input name="alertSwitchNotification" type="checkbox" class="custom-control-input"
+                                id="customSwitches" {% if settingsAlertEmailActivated.isAlertEmailActivated == true %}
+                                checked {% endif %}>
+                            <label class="custom-control-label" for="customSwitches">Activer l'alerte
+                                d'inclinaison</label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label><strong>Premier niveau (cm)</strong></label>
+                        <input type="range" class="custom-range" name="firstInclinationThresh" min="1" max="10"
+                            value="{{ settingsFirstInclinationThresh.value }}"
+                            oninput="this.form.firstAmountInputInclination.value=this.value" />
+                        <input type="number" name="firstAmountInputInclination" min="1" max="10"
+                            value="{{ settingsFirstInclinationThresh.value }}"
+                            oninput="this.form.firstInclinationThresh.value=this.value" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label><strong>Deuxième niveau (cm)</strong></label>
+                        <input type="range" class="custom-range" name="secondInclinationThresh" min="1" max="10"
+                            value="{{ settingsSecondInclinationThresh.value }}"
+                            oninput="this.form.SecondAmountInputInclinometer.value=this.value" />
+                        <input type="number" name="SecondAmountInputInclinometer" min="1" max="10"
+                            value="{{ settingsSecondInclinationThresh.value }}"
+                            oninput="this.form.secondInclinationThresh.value=this.value" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label><strong>Troisième niveau (cm)</strong></label>
+                        <input type="range" class="custom-range" name="thirdInclinationThresh" min="1" max="10"
+                            value="{{ settingsThirdInclinationThresh.value }}"
+                            oninput="this.form.ThirdAmountInputInclination.value=this.value" />
+                        <input type="number" name="ThirdAmountInputInclination" min="1" max="10"
+                            value="{{ settingsThirdInclinationThresh.value }}"
+                            oninput="this.form.thirdInclinationThresh.value=this.value" />
+                    </div>
+                </div>
+                </br>
+                <h3 class="card-title">Seuil de choc</h3>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- Default switch -->
+                        <div class="custom-control custom-switch">
+                            <input name="alertSwitchNotification" type="checkbox" class="custom-control-input"
+                                id="customSwitches" {% if settingsAlertEmailActivated.isAlertEmailActivated == true %}
+                                checked {% endif %}>
+                            <label class="custom-control-label" for="customSwitches">Activer l'alerte
+                                de choc</label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label><strong>Valeur de déclenchement (G)</strong></label>
+                        <input type="range" class="custom-range" name="shockThresh" min="1" max="16"
+                            value="{{ settingsShockThresh.value }}"
+                            oninput="this.form.AmountInputShock.value=this.value" />
+                        <input type="number" name="AmountInputShock" min="1" max="16"
+                            value="{{ settingsShockThresh.value }}" oninput="this.form.shockThresh.value=this.value" />
+                    </div>
+                </div>
+                <h3 class="card-title">Alertes notification</h3>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <!-- Default switch -->
+                        <div class="custom-control custom-switch">
+                            <input name="alertSwitchNotification" type="checkbox" class="custom-control-input"
+                                id="customSwitches" {% if settingsAlertEmailActivated.isAlertEmailActivated == true %}
+                                checked {% endif %}>
+                            <label class="custom-control-label" for="customSwitches">Recevoir les alertes par
+                                mail</label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-primary">Mettre à jour les paramètres</button>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+
+    {% endblock %}
+
+    {% block script %}
+
+    <script>
+
+
+    </script>
+
+    {% endblock %}
