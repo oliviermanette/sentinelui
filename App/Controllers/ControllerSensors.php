@@ -13,7 +13,6 @@ use App\Models\API\TemperatureAPI;
 use App\Models\BatteryManager;
 use App\Models\ChocManager;
 use App\Models\SpectreManager;
-use App\Models\Settings\SettingGeneralManager;
 use App\Models\Settings\SettingSensorManager;
 use App\Models\TemperatureManager;
 use \App\Utilities;
@@ -280,7 +279,7 @@ class ControllerSensors extends Authenticated
 
 
         //Get settings
-        $settingArr = SettingGeneralManager::findByGroupId($user->group_id);
+        $settingArr = SettingSensorManager::findByDeveui($deveui);
         $settingArr = json_encode($settingArr);
         //var_dump($settingArr);
 
@@ -291,8 +290,7 @@ class ControllerSensors extends Authenticated
         //Image sensor
         $image_path = SensorManager::getPathImage($deveui);
 
-
-        View::renderTemplate('Sensors/infoDevice.html', [
+        $context = [
             //Sensor
             'deveui' => $deveui,
             'location' => $site,
@@ -334,7 +332,10 @@ class ControllerSensors extends Authenticated
 
             //Setings
             'settingArr' => $settingArr,
-        ]);
+        ];
+
+
+        View::renderTemplate('Sensors/infoDevice.html',$context);
     }
 
     public function getChartDataNbChocAction()

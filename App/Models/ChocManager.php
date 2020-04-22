@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Utilities;
 use PDO;
-use App\Models\Settings\SettingGeneralManager;
+use App\Models\Settings\SettingSensorManager;
 
 /*
 chocManager.php
@@ -31,7 +31,7 @@ class ChocManager extends \Core\Model
     //The value received is in G
     if ($method == "VALUE") {
 
-      $shockTresh = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "shock_thresh");
+      $shockTresh = SettingSensorManager::getSettingValueForSensorOrNull($choc->deveui, "shock_thresh");
 
       if (isset($choc->power)) {
         if ($choc->power > $shockTresh) {
@@ -42,8 +42,8 @@ class ChocManager extends \Core\Model
       }
     } else if ($method = "STD") {
       echo "METHOD STD ! \n";
-      $shockTreshSTD = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "shock_thresh_std");
-      $timePeriodCheck = SettingGeneralManager::getSettingValueForGroupOrNull($groupId, "time_period");
+      $shockTreshSTD = SettingSensorManager::getSettingValueForSensorOrNull($choc->deveui, "shock_thresh_std");
+      $timePeriodCheck = SettingSensorManager::getSettingValueForSensorOrNull($choc->deveui, "time_period");
       if (!isset($timePeriodCheck)) {
         $timePeriodCheck = -1;
       }

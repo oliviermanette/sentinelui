@@ -30,7 +30,7 @@ class ControllerSetting extends Authenticated
 
         //Get the settings of the current user
         $settingsArr = $this->getSettingsForCurrentUser();
-        var_dump($settingsArr);
+
         $first_inclination_thresh = Utilities::array_find_deep($settingsArr, "first_inclination_thresh");
         $second_inclination_thresh = Utilities::array_find_deep($settingsArr, "second_inclination_thresh");
         $third_inclination_thresh = Utilities::array_find_deep($settingsArr, "third_inclination_thresh");
@@ -71,59 +71,20 @@ class ControllerSetting extends Authenticated
         ]);
     }
 
-    public function updateAction()
+    /*
+    public function updateGeneralAction()
     {
         $user = Auth::getUser();
-
-
-        $firstInclinationThresh = $_POST["firstInclinationThresh"];
-        $secondInclinationThresh = $_POST["secondInclinationThresh"];
-        $thirdInclinationThresh = $_POST["thirdInclinationThresh"];
-        $shockThresh = $_POST["shockThresh"];
-
-        if (isset($_POST["alertSwitchNotification"])) {
-            $alertNotification = 1;
-        } else {
-            $alertNotification = 0;
-        }
-
-        $updateOk = True;
-        //Check if settings exist 
-        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "first_inclination_thresh")) {
-            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
-        } else {
-            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "first_inclination_thresh", $firstInclinationThresh);
-        }
-        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "second_inclination_thresh")) {
-            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
-        } else {
-            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "second_inclination_thresh", $secondInclinationThresh);
-        }
-        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "third_inclination_thresh")) {
-            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
-        } else {
-            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "third_inclination_thresh", $thirdInclinationThresh);
-        }
-        if (SettingGeneralManager::checkIfSettingExistForGroup($user->group_id, "shock_thresh")) {
-            SettingGeneralManager::updateSettingValueForGroup($user->group_id, "shock_thresh", $shockThresh);
-        } else {
-            SettingGeneralManager::insertSettingValueForGroup($user->group_id, "shock_thresh", $thirdInclinationThresh);
-        }
-
 
         Flash::addMessage('Mise à jour réussie des paramètres');
 
         $this->redirect(Auth::getReturnToPage());
     }
-
+*/
     public function getSettingsForCurrentUser()
     {
         $user = Auth::getUser();
-        //var_dump($user);
         $settingsArr = SettingGeneralManager::findByGroupId($user->group_id);
-        $isAlertEmailActivated = SettingGeneralManager::checkIfAlertActivated($user->email);
-        $tmpArr = array("isAlertEmailActivated" => $isAlertEmailActivated);
-        array_push($settingsArr, $tmpArr);
 
         return $settingsArr;
     }
