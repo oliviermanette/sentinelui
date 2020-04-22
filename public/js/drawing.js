@@ -132,12 +132,10 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
     //Create the dataset
     var chartdata = {
       labels: date,
-      datasets: [
-        {
-          labels: date,
-          data: nb_choc,
-        },
-      ],
+      datasets: [{
+        labels: date,
+        data: nb_choc,
+      }, ],
     };
 
     var canva_id = "#" + canvaID;
@@ -149,33 +147,29 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
       responsive: true,
       plugins: [ChartDataLabels],
       scales: {
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Date",
-            },
-            gridLines: {
-              display: false,
-            },
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: "Date",
           },
-        ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true,
-              stepSize: 1,
-            },
-            gridLines: {
-              display: false,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Nombre Choc",
-            },
-            //type: 'logarithmic',
+          gridLines: {
+            display: false,
           },
-        ],
+        }, ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 1,
+          },
+          gridLines: {
+            display: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Nombre Choc",
+          },
+          //type: 'logarithmic',
+        }, ],
       },
       legend: {
         display: false,
@@ -258,16 +252,14 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
     var timeFormat = "DD/MM/YYYY";
 
     var chartdata = {
-      datasets: [
-        {
-          label: "Puissance du choc (g)",
-          data: dataChartArr,
-          fill: false,
-          showLine: false,
-          backgroundColor: "#F5DEB3",
-          borderColor: "red",
-        },
-      ],
+      datasets: [{
+        label: "Puissance du choc (g)",
+        data: dataChartArr,
+        fill: false,
+        showLine: false,
+        backgroundColor: "#F5DEB3",
+        borderColor: "red",
+      }, ],
     };
     var options = {
       maintainAspectRatio: true,
@@ -277,33 +269,29 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
         text: "Chart.js Time Scale",
       },
       scales: {
-        xAxes: [
-          {
-            stacked: true,
-            type: "time",
-            ticks: {
-              source: "date",
-            },
-            time: {
-              format: timeFormat,
-              unit: "day",
-              tooltipFormat: "DD/MM/YYYY",
-              scaleLabel: {
-                display: true,
-                labelString: "Date",
-              },
-            },
+        xAxes: [{
+          stacked: true,
+          type: "time",
+          ticks: {
+            source: "date",
           },
-        ],
-        yAxes: [
-          {
-            stacked: false,
+          time: {
+            format: timeFormat,
+            unit: "day",
+            tooltipFormat: "DD/MM/YYYY",
             scaleLabel: {
               display: true,
-              labelString: "Puissance",
+              labelString: "Date",
             },
           },
-        ],
+        }, ],
+        yAxes: [{
+          stacked: false,
+          scaleLabel: {
+            display: true,
+            labelString: "Puissance",
+          },
+        }, ],
       },
       pan: {
         enabled: false,
@@ -344,11 +332,9 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
     // We will fill later the datasets
     var chartdata = {
       labels: [],
-      datasets: [
-        {
-          data: [],
-        },
-      ],
+      datasets: [{
+        data: [],
+      }, ],
     };
 
     var canva_id = "#" + canvaID;
@@ -384,35 +370,31 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
         displayColors: false,
       },
       scales: {
-        xAxes: [
-          {
-            stacked: true,
-            scaleLabel: {
-              display: true,
-              labelString: "Date",
-            },
-            gridLines: {
-              display: false,
-            },
+        xAxes: [{
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: "Date",
           },
-        ],
-        yAxes: [
-          {
-            stacked: true,
-            ticks: {
-              beginAtZero: true,
-              stepSize: 0.1,
-            },
-            gridLines: {
-              display: false,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Puissance du choc (g)",
-            },
-            //type: 'logarithmic',
+          gridLines: {
+            display: false,
           },
-        ],
+        }, ],
+        yAxes: [{
+          stacked: true,
+          ticks: {
+            beginAtZero: true,
+            stepSize: 0.1,
+          },
+          gridLines: {
+            display: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Puissance du choc (g)",
+          },
+          //type: 'logarithmic',
+        }, ],
       },
       legend: {
         display: false,
@@ -553,29 +535,27 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
 
     var chartdata = {
       labels: date,
-      datasets: [
-        {
-          labels: date,
-          lineTension: 0.1,
-          backgroundColor: "rgba(167,105,0,0.4)",
-          borderColor: "rgb(167, 105, 0)",
-          borderCapStyle: "butt",
-          borderDash: [],
-          borderDashOffset: 0.0,
-          borderJoinStyle: "miter",
-          pointBorderColor: "white",
-          //pointBackgroundColor: "black",
-          pointBorderWidth: 1,
-          pointHoverRadius: 8,
-          //pointHoverBackgroundColor: "brown",
-          pointHoverBorderColor: "yellow",
-          pointHoverBorderWidth: 2,
-          pointRadius: 4,
-          pointHitRadius: 10,
-          spanGaps: true,
-          data: temperature,
-        },
-      ],
+      datasets: [{
+        labels: date,
+        lineTension: 0.1,
+        backgroundColor: "rgba(167,105,0,0.4)",
+        borderColor: "rgb(167, 105, 0)",
+        borderCapStyle: "butt",
+        borderDash: [],
+        borderDashOffset: 0.0,
+        borderJoinStyle: "miter",
+        pointBorderColor: "white",
+        //pointBackgroundColor: "black",
+        pointBorderWidth: 1,
+        pointHoverRadius: 8,
+        //pointHoverBackgroundColor: "brown",
+        pointHoverBorderColor: "yellow",
+        pointHoverBorderWidth: 2,
+        pointRadius: 4,
+        pointHitRadius: 10,
+        spanGaps: true,
+        data: temperature,
+      }, ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -584,30 +564,26 @@ function drawChartTemperatureFromData(temperatureData, canvaID) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Date",
-            },
-            ticks: {
-              autoskip: true,
-              maxTicksLimit: 15,
-            },
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: "Date",
           },
-        ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: false,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Temeprature (°C)",
-            },
-            //type: 'logarithmic',
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 15,
           },
-        ],
+        }, ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Temeprature (°C)",
+          },
+          //type: 'logarithmic',
+        }, ],
       },
       legend: {
         display: false,
@@ -654,16 +630,14 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
 
     var chartdata = {
       labels: date,
-      datasets: [
-        {
-          labels: date,
-          backgroundColor: "rgba(79,117,180,0.4)",
-          borderColor: "rgba(49,85,144,1)",
-          borderWidth: 1,
-          lineTension: 0,
-          data: temperature,
-        },
-      ],
+      datasets: [{
+        labels: date,
+        backgroundColor: "rgba(79,117,180,0.4)",
+        borderColor: "rgba(49,85,144,1)",
+        borderWidth: 1,
+        lineTension: 0,
+        data: temperature,
+      }, ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -672,30 +646,26 @@ function drawChartHistoricalTemperature(temperatureData, canvaID) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Date",
-            },
-            ticks: {
-              autoskip: true,
-              maxTicksLimit: 20,
-            },
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: "Date",
           },
-        ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: false,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Temeprature (°C)",
-            },
-            //type: 'logarithmic',
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 20,
           },
-        ],
+        }, ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Temeprature (°C)",
+          },
+          //type: 'logarithmic',
+        }, ],
       },
       legend: {
         display: false,
@@ -759,8 +729,7 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
     console.log("Sensor temperature :", temperature);
     var chartdata = {
       labels: date,
-      datasets: [
-        {
+      datasets: [{
           fill: true,
           label: "Température de la station météo",
           lineTension: 0.1,
@@ -815,8 +784,7 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [
-          {
+        xAxes: [{
             id: "xAxis1",
             scaleLabel: {
               display: true,
@@ -833,18 +801,16 @@ function drawBothTemperature(temperatureSensors, temperatureWeather, canvaID) {
             maxTicksLimit: 20,
           },
         ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: false,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Temperature (°C)",
-            },
-            //type: 'logarithmic',
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
           },
-        ],
+          scaleLabel: {
+            display: true,
+            labelString: "Temperature (°C)",
+          },
+          //type: 'logarithmic',
+        }, ],
       },
       legend: {
         display: true,
@@ -898,8 +864,7 @@ function drawChartInclinometerFromData(
 
   var chartdata = {
     labels: date,
-    datasets: [
-      {
+    datasets: [{
         label: "X °",
         fill: false,
         backgroundColor: "blue",
@@ -930,25 +895,21 @@ function drawChartInclinometerFromData(
     maintainAspectRatio: true,
     scales: {
       scales: {
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Date",
-            },
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: "Date",
           },
-        ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: false,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Height (m)",
-            },
+        }, ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
           },
-        ],
+          scaleLabel: {
+            display: true,
+            labelString: "Height (m)",
+          },
+        }, ],
       },
       legend: {
         display: true,
@@ -1037,8 +998,7 @@ function drawChartAngleXYZFromData(
 
     var chartdata = {
       labels: date,
-      datasets: [
-        {
+      datasets: [{
           label: "X °",
           fill: false,
           backgroundColor: "#20324B",
@@ -1082,8 +1042,7 @@ function drawChartAngleXYZFromData(
         fontSize: 18,
       },
       scales: {
-        yAxes: [
-          {
+        yAxes: [{
             type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
             display: true,
             position: "left",
@@ -1126,14 +1085,12 @@ function drawChartAngleXYZFromData(
             },
           },
         ],
-        xAxes: [
-          {
-            ticks: {
-              autoskip: true,
-              maxTicksLimit: 15,
-            },
+        xAxes: [{
+          ticks: {
+            autoskip: true,
+            maxTicksLimit: 15,
           },
-        ],
+        }, ],
       },
       legend: {
         display: false, //This will do the task
@@ -1225,8 +1182,7 @@ function drawVariationChartAngleXYZFromData(
 
   var chartdata = {
     labels: date,
-    datasets: [
-      {
+    datasets: [{
         label: "X °",
         fill: false,
         backgroundColor: "#20324B",
@@ -1269,31 +1225,27 @@ function drawVariationChartAngleXYZFromData(
       fontSize: 18,
     },
     scales: {
-      yAxes: [
-        {
-          id: "y-axis-0",
-          gridLines: {
-            display: true,
-          },
-          ticks: {
-            beginAtZero: false,
-            min: rangeLowAxisX,
-            max: rangeHighAxisX,
-          },
-          scaleLabel: {
-            display: true,
-            labelString: label,
-          },
+      yAxes: [{
+        id: "y-axis-0",
+        gridLines: {
+          display: true,
         },
-      ],
-      xAxes: [
-        {
-          ticks: {
-            autoskip: true,
-            maxTicksLimit: 15,
-          },
+        ticks: {
+          beginAtZero: false,
+          min: rangeLowAxisX,
+          max: rangeHighAxisX,
         },
-      ],
+        scaleLabel: {
+          display: true,
+          labelString: label,
+        },
+      }, ],
+      xAxes: [{
+        ticks: {
+          autoskip: true,
+          maxTicksLimit: 15,
+        },
+      }, ],
     },
     legend: {
       display: false, //This will do the task
@@ -1393,51 +1345,45 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
   var title = "Spectre du " + dateTime;
 
   var chartdata = {
-    datasets: [
-      {
-        showLine: true,
-        borderColor: "#3e95cd",
-        backgroundColor: gradient,
-        pointBackgroundColor: "#3e95cd",
-        data: dataChartArr,
-      },
-    ],
+    datasets: [{
+      showLine: true,
+      borderColor: "#3e95cd",
+      backgroundColor: gradient,
+      pointBackgroundColor: "#3e95cd",
+      data: dataChartArr,
+    }, ],
   };
   var options = {
     responsive: true,
     maintainAspectRatio: true,
     scales: {
       display: true,
-      xAxes: [
-        {
-          gridLines: {
-            display: true,
-          },
-          ticks: {
-            beginAtZero: false,
-            min: min_freq_initial,
-            max: max_freq,
-          },
-          scaleLabel: {
-            display: true,
-            labelString: "Frequence (Hz)",
-          },
+      xAxes: [{
+        gridLines: {
+          display: true,
         },
-      ],
-      yAxes: [
-        {
-          gridLines: {
-            display: true,
-          },
-          ticks: {
-            beginAtZero: false,
-          },
-          scaleLabel: {
-            display: true,
-            labelString: "AmplitudeArr (mg)",
-          },
+        ticks: {
+          beginAtZero: false,
+          min: min_freq_initial,
+          max: max_freq,
         },
-      ],
+        scaleLabel: {
+          display: true,
+          labelString: "Frequence (Hz)",
+        },
+      }, ],
+      yAxes: [{
+        gridLines: {
+          display: true,
+        },
+        ticks: {
+          beginAtZero: false,
+        },
+        scaleLabel: {
+          display: true,
+          labelString: "AmplitudeArr (mg)",
+        },
+      }, ],
     },
     legend: {
       display: false,
@@ -1490,18 +1436,16 @@ function drawChartSpeedVariationFromData(
 
     var chartdata = {
       labels: date,
-      datasets: [
-        {
-          label: "Deplacement",
-          backgroundColor: "rgba(255,99,132,0.2)",
-          borderColor: "rgba(255,99,132,1)",
-          borderWidth: 2,
-          //showLine: true,
-          hoverBackgroundColor: "rgba(255,99,132,0.4)",
-          hoverBorderColor: "rgba(255,99,132,1)",
-          data: variation_speed_xy,
-        },
-      ],
+      datasets: [{
+        label: "Deplacement",
+        backgroundColor: "rgba(255,99,132,0.2)",
+        borderColor: "rgba(255,99,132,1)",
+        borderWidth: 2,
+        //showLine: true,
+        hoverBackgroundColor: "rgba(255,99,132,0.4)",
+        hoverBorderColor: "rgba(255,99,132,1)",
+        data: variation_speed_xy,
+      }, ],
     };
     var canva_id = "#" + canvaID;
     var ctx = $(canva_id);
@@ -1514,35 +1458,31 @@ function drawChartSpeedVariationFromData(
         text: "Vitesse de déplacement",
       },
       scales: {
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Date",
-            },
-            ticks: {
-              autoskip: true,
-              source: date,
-              maxTicksLimit: 20,
-            },
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: "Date",
           },
-        ],
-        yAxes: [
-          {
-            ticks: {
-              min: -1,
-              max: high_range_max,
-              beginAtZero: false,
-              stepSize: 0.5,
-              autoskip: true,
-              maxTicksLimit: 20,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Deplacement (cm)",
-            },
+          ticks: {
+            autoskip: true,
+            source: date,
+            maxTicksLimit: 20,
           },
-        ],
+        }, ],
+        yAxes: [{
+          ticks: {
+            min: -1,
+            max: high_range_max,
+            beginAtZero: false,
+            stepSize: 0.5,
+            autoskip: true,
+            maxTicksLimit: 20,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Deplacement (cm)",
+          },
+        }, ],
       },
       legend: {
         display: false,
@@ -1565,6 +1505,8 @@ function drawChartSpeedVariationFromData(
   }
 }
 
+
+
 function drawChartDirectionFromData(
   directionData,
   canvaID = "chartDirectionInclinometer",
@@ -1574,18 +1516,40 @@ function drawChartDirectionFromData(
     directionData = JSON.parse(directionData);
   }
 
-  //TODO better handle this : because an user may hot have this settings
-  var firstLevelThresh = settings[0].value;
-  var secondLevelThresh = settings[1].value;
-  var thirdLevelThresh = settings[2].value;
+
+  firstLevelThresh = searchJsonInArray(settings, "name_setting", "first_inclination_thresh");
+  secondLevelThresh = searchJsonInArray(settings, "name_setting", "second_inclination_thresh");
+  thirdLevelThresh = searchJsonInArray(settings, "name_setting", "third_inclination_thresh");
+
+  if (firstLevelThresh != null) {
+    if (firstLevelThresh.activated == 1) {
+      var firstLevelThresh = firstLevelThresh.value;
+    }
+
+  }
+  if (secondLevelThresh != null) {
+    if (secondLevelThresh.activated == 1) {
+      var secondLevelThresh = secondLevelThresh.value;
+    }
+  }
+  if (thirdLevelThresh != null) {
+    if (thirdLevelThresh.activated == 1) {
+      var thirdLevelThresh = thirdLevelThresh.value;
+    }
+  }
+
 
   if (isEmpty(directionData)) {
     drawNoDataAvailable(canvaID);
   } else {
     var dataChartArr = [];
+    var deltaXArr = [];
+    var deltaYArr = [];
     var mapDirectionDateTime = new Map();
     for (var i in directionData) {
       let date_time = directionData[i].date;
+      deltaXArr.push(directionData[i].delta_x)
+      deltaYArr.push(directionData[i].delta_y)
       var obj = {
         x: directionData[i].delta_x,
         y: directionData[i].delta_y,
@@ -1594,25 +1558,28 @@ function drawChartDirectionFromData(
       dataChartArr.push(obj);
       mapDirectionDateTime.set(key, date_time);
     }
+
+    ratioAxisX = computeRatioAxis(deltaXArr)
+    ratioAxisY = computeRatioAxis(deltaYArr)
+
+
     var ctx = document.getElementById(canvaID).getContext("2d");
     // Define the data
     var pointRadius = [];
     var pointBackgroundColors = [];
     var borderColor = [];
     var data = {
-      datasets: [
-        {
-          label: "Direction des déplacements",
-          pointBackgroundColor: pointBackgroundColors,
-          borderColor: borderColor,
-          borderWidth: 2,
-          //showLine: true,
-          hoverBackgroundColor: "rgba(255,99,132,0.4)",
-          hoverBorderColor: "rgba(255,99,132,1)",
-          pointRadius: pointRadius,
-          data: dataChartArr,
-        },
-      ],
+      datasets: [{
+        label: "Direction des déplacements",
+        pointBackgroundColor: pointBackgroundColors,
+        borderColor: borderColor,
+        borderWidth: 2,
+        //showLine: true,
+        hoverBackgroundColor: "rgba(255,99,132,0.4)",
+        hoverBorderColor: "rgba(255,99,132,1)",
+        pointRadius: pointRadius,
+        data: dataChartArr,
+      }, ],
     }; // Add data values to array
     // End Defining data
     var options = {
@@ -1652,48 +1619,44 @@ function drawChartDirectionFromData(
         display: false,
       },
       scales: {
-        yAxes: [
-          {
-            id: "y-axis-0",
-            gridLines: {
-              display: true,
-              color: "rgba(255,99,132,0.2)",
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Delta Y (cm)",
-              fontSize: 20,
-            },
-            ticks: {
-              min: -3,
-              max: 3,
-              beginAtZero: false,
-              stepSize: 0.5,
-              autoskip: true,
-            },
+        yAxes: [{
+          id: "y-axis-0",
+          gridLines: {
+            display: true,
+            color: "rgba(255,99,132,0.2)",
           },
-        ],
-        xAxes: [
-          {
-            id: "x-axis-0",
-            gridLines: {
-              display: true,
-              color: "rgba(255,99,132,0.2)",
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Delta X (cm)",
-              fontSize: 20,
-            },
-            ticks: {
-              min: -3,
-              max: 3,
-              beginAtZero: false,
-              stepSize: 0.5,
-              autoskip: true,
-            },
+          scaleLabel: {
+            display: true,
+            labelString: "Delta Y (cm)",
+            fontSize: 20,
           },
-        ],
+          ticks: {
+            min: ratioAxisY.rangeLow,
+            max: ratioAxisY.rangeHigh,
+            beginAtZero: false,
+            stepSize: 0.5,
+            autoskip: true,
+          },
+        }, ],
+        xAxes: [{
+          id: "x-axis-0",
+          gridLines: {
+            display: true,
+            color: "rgba(255,99,132,0.2)",
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Delta X (cm)",
+            fontSize: 20,
+          },
+          ticks: {
+            min: ratioAxisX.rangeLow,
+            max: ratioAxisX.rangeHigh,
+            beginAtZero: false,
+            stepSize: 0.5,
+            autoskip: true,
+          },
+        }, ],
       },
       pan: {
         enabled: true,
@@ -1743,7 +1706,7 @@ function drawChartDirectionFromData(
             type: "line",
             mode: "horizontal",
             scaleID: "y-axis-0",
-            value: settings[0].value,
+            value: firstLevelThresh,
             borderColor: "rgba(240, 52, 52, 0.8)",
             label: {
               backgroundColor: "rgba(240, 52, 52, 0.8)",
@@ -1751,9 +1714,7 @@ function drawChartDirectionFromData(
               position: "top",
               enabled: true,
             },
-            onClick: function (e) {
-              window.open("/settings");
-            },
+
           },
           //second level thresh
           {
@@ -1761,7 +1722,7 @@ function drawChartDirectionFromData(
             type: "line",
             mode: "horizontal",
             scaleID: "y-axis-0",
-            value: settings[1].value,
+            value: secondLevelThresh,
             borderColor: "rgba(240, 52, 52, 0.8)",
             label: {
               backgroundColor: "rgba(240, 52, 52, 0.8)",
@@ -1769,9 +1730,7 @@ function drawChartDirectionFromData(
               position: "top",
               enabled: true,
             },
-            onClick: function (e) {
-              window.open("/settings");
-            },
+
           },
           //third level thresh
           {
@@ -1779,16 +1738,13 @@ function drawChartDirectionFromData(
             type: "line",
             mode: "horizontal",
             scaleID: "y-axis-0",
-            value: settings[2].value,
+            value: thirdLevelThresh,
             borderColor: "rgba(240, 52, 52, 0.8)",
             label: {
               backgroundColor: "rgba(240, 52, 52, 0.8)",
               content: "Third level",
               position: "top",
               enabled: true,
-            },
-            onClick: function (e) {
-              window.open("/settings");
             },
           },
         ],
@@ -1912,12 +1868,10 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
   dataChartArr.push(obj_2);
 
   var chartdata = {
-    datasets: [
-      {
-        data: dataChartArr,
-        showLine: true,
-      },
-    ],
+    datasets: [{
+      data: dataChartArr,
+      showLine: true,
+    }, ],
   };
 
   var title = "Last choc which occur on " + chocData[0].date_d;
@@ -1930,33 +1884,29 @@ function drawChartChocFromData(chocData, canvaID = "canvas_choc") {
     options: {
       scales: {
         display: true,
-        xAxes: [
-          {
-            ticks: {
-              beginAtZero: true,
-              min: 0,
-              max: timeDataArr[0] + timeDataArr[1],
-              step: 0.01,
-            },
-            type: "linear",
-            scaleLabel: {
-              display: true,
+        xAxes: [{
+          ticks: {
+            beginAtZero: true,
+            min: 0,
+            max: timeDataArr[0] + timeDataArr[1],
+            step: 0.01,
+          },
+          type: "linear",
+          scaleLabel: {
+            display: true,
 
-              labelString: "Time (s)",
-            },
+            labelString: "Time (s)",
           },
-        ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "AmplitudeArr (g)",
-            },
+        }, ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
           },
-        ],
+          scaleLabel: {
+            display: true,
+            labelString: "AmplitudeArr (g)",
+          },
+        }, ],
       },
       legend: {
         display: false,
@@ -2021,12 +1971,10 @@ function drawChartSubSpectreFromData(
     String(subspectre_number);
 
   var chartdata = {
-    datasets: [
-      {
-        data: dataChartArr,
-        showLine: true,
-      },
-    ],
+    datasets: [{
+      data: dataChartArr,
+      showLine: true,
+    }, ],
   };
 
   var canva_id = "#" + canvaID;
@@ -2038,30 +1986,26 @@ function drawChartSubSpectreFromData(
     options: {
       scales: {
         display: true,
-        xAxes: [
-          {
-            ticks: {
-              beginAtZero: false,
-              min: min_freq_initial,
-              max: max_freq,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Frequence (Hz)",
-            },
+        xAxes: [{
+          ticks: {
+            beginAtZero: false,
+            min: min_freq_initial,
+            max: max_freq,
           },
-        ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: false,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "AmplitudeArr (mg)",
-            },
+          scaleLabel: {
+            display: true,
+            labelString: "Frequence (Hz)",
           },
-        ],
+        }, ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "AmplitudeArr (mg)",
+          },
+        }, ],
       },
       legend: {
         display: false,
@@ -2092,8 +2036,7 @@ function showMap(data) {
   }).setView([lat_france, long_france], 5.3);
 
   L.tileLayer(
-    "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibGlyb25lIiwiYSI6ImNrMmdrdmo1czAwOXozb29oc3NybXJqNTcifQ.sbQPrGi1n7lsCtlCvojTBA",
-    {
+    "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibGlyb25lIiwiYSI6ImNrMmdrdmo1czAwOXozb29oc3NybXJqNTcifQ.sbQPrGi1n7lsCtlCvojTBA", {
       maxZoom: 18,
       attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
       id: "mapbox.streets",
@@ -2103,8 +2046,7 @@ function showMap(data) {
   L.control
     .custom({
       position: "topright",
-      content:
-        '<button type="button" class="btn btn-default">' +
+      content: '<button type="button" class="btn btn-default">' +
         '    <i class="fa fa-crosshairs"></i>' +
         "</button>" +
         '<button type="button" class="btn btn-danger">' +
@@ -2159,13 +2101,13 @@ function showMap(data) {
         .addTo(map)
         .bindPopup(
           "<b>Capteur : " +
-            device_number +
-            "</b><br />" +
-            site +
-            " | " +
-            equipement +
-            " | " +
-            line_HT
+          device_number +
+          "</b><br />" +
+          site +
+          " | " +
+          equipement +
+          " | " +
+          line_HT
         )
         .openPopup();
     }

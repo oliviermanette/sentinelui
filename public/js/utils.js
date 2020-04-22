@@ -63,7 +63,7 @@ function showElement(parentId) {
 function hideElement(parentId) {
   var p = document.getElementById(parentId);
   p.style.display = "none";
-  
+
 }
 
 function addButton(parentId, text, link, className = "btn btn-sm btn-primary shadow-sm mx-auto d-block") {
@@ -82,7 +82,7 @@ function addButton(parentId, text, link, className = "btn btn-sm btn-primary sha
   }
 }
 
-function computeAverage(arrayData){
+function computeAverage(arrayData) {
   var sum = 0;
   for (var i = 0; i < arrayData.length; i++) {
     sum += parseFloat(arrayData[i]); //don't forget to add the base
@@ -142,4 +142,37 @@ function isEmpty(obj) {
       return false;
   }
   return true;
+}
+
+
+function searchJsonInArray(dataArr, searchField, searchVal) {
+  for (var i in dataArr) {
+    if (dataArr[i][searchField] == searchVal) {
+      return dataArr[i];
+    }
+  }
+  return null
+}
+
+function computeRatioAxis(dataArr) {
+  //Compute ratio display chart
+  var maxAxis = Math.round(Math.max.apply(Math, dataArr) * 2)
+  console.log("computeRatioAxis -> maxAxis", maxAxis);
+  var minAxis = Math.round(Math.min.apply(Math, dataArr) * 2)
+  console.log("computeRatioAxis -> minAxis", minAxis);
+
+  if (-maxAxis < minAxis) {
+    var rangeHighAxis = maxAxis * 2;
+    var rangeLowAxis = -maxAxis * 2;
+  } else if (-minAxis > maxAxis) {
+    var rangeHighAxis = -minAxis * 2;
+    var rangeLowAxis = minAxis * 2;
+  }
+
+  var obj = {
+    rangeLow: rangeLowAxis,
+    rangeHigh: rangeHighAxis,
+  };
+
+  return obj
 }

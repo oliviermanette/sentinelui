@@ -279,6 +279,7 @@ class ControllerSensors extends Authenticated
 
 
         //Get settings
+        //var_dump($deveui);
         $settingArr = SettingSensorManager::findByDeveui($deveui);
         $settingArr = json_encode($settingArr);
         //var_dump($settingArr);
@@ -335,7 +336,7 @@ class ControllerSensors extends Authenticated
         ];
 
 
-        View::renderTemplate('Sensors/infoDevice.html',$context);
+        View::renderTemplate('Sensors/infoDevice.html', $context);
     }
 
     public function getChartDataNbChocAction()

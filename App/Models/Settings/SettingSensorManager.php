@@ -30,14 +30,14 @@ class SettingSensorManager extends \Core\Model
     {
         $db = static::getDB();
 
-        $sql = "SELECT settings_sensors_name.name as name_setting, sensor_settings.value , sensor_settings.activated 
+        $sql = "SELECT DISTINCT settings_sensors_name.name as name_setting, sensor_settings.value , sensor_settings.activated 
         FROM sensor_settings
         LEFT JOIN settings_sensors_name ON settings_sensors_name.id = sensor_settings.setting_name_id
         LEFT JOIN sensor ON sensor.id = sensor_settings.sensor_id
         WHERE sensor.deveui = :deveui";
 
         $stmt = $db->prepare($sql);
-        $stmt->bindValue(':deveui', $deveui, PDO::PARAM_INT);
+        $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             $settingsArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
