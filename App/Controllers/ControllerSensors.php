@@ -40,7 +40,6 @@ class ControllerSensors extends Authenticated
         ]);
     }
 
-
     /**
      * Show the setting page for each sensor
      *

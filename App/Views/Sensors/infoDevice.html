@@ -13,142 +13,32 @@
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-body">
-            <h3 class="card-title">Information</h3>
-            <div class="d-flex justify-content-between">
-                <div>
-                    <div class="row">
-                        <div class="col">
-                            <h4 class="card-title mb-0">{{ infoArr.site }} | {{ infoArr.equipement }} |
-                                {{ infoArr.ligneHT }} | Capteur n°
-                                {{infoArr.device_number}} | ID : {{infoArr.id_device}}</h4>
-                            <div class="small text-muted">{{infoArr.toto}}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Widget sensors -->
-            <div class="row mt-5">
-                <!-- Statut s Card  -->
-                <div class="col-md-3 mb-4">
 
-                    <div class="card border-left-{% if infoArr.status == 'INACTIVE' %}danger
-                        {% elseif infoArr.status == 'ACTIVE' %}success{% endif %} shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Statut</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Start Summary Informations sensor -->
+    {% include "Sensors/viewSummaryInfoSensor.html" %}
+    <!-- End Summary Informations sensor -->
 
-                </div>
-                <!-- Capteurs inactifs Card  -->
-                <div class="col-md-3 mb-4">
-                    <div class="card shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">batterie
-                                    </div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.lastBatteryLevel}}
-                                        %</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Start Alerts description sensor -->
+    {% include "Sensors/viewSummaryAlertsSensor.html" %}
+    <!-- End Alerts description sensor -->
 
-                <!-- Alertes Card  -->
-                <div class="col-md-3 mb-4">
-                    <div class="card shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Dernier
-                                        message enregistré</div>
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col-auto">
-                                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                                {{infoArr.lastMsgReceived}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Start inclination charts sensor -->
+    {% include "Sensors/viewInclinationCharts.html" %}
+    <!-- End inclination charts sensor -->
 
-                <!-- Groupe Card  -->
-                <div class="col-md-3 mb-4">
-                    <div class="card shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        Nombre total de message</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                        {{infoArr.nbreTotMsg}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <h3 class="card-title">Paramètres</h3>
+    <!-- Start choc charts sensor -->
+    {% include "Sensors/viewChocsCharts.html" %}
+    <!-- End choc charts sensor -->
 
-            <div class="row">
-                <div class="col-md-3">
-                    <a class="btn btn-sm btn-primary shadow-sm" href="/device/{{infoArr.device_number}}/settings"
-                        alt="">Modifier les paramètres</a>
-                </div>
+    <!-- Start Temperature charts sensor -->
+    {% include "Sensors/viewTemperatureWidget.html" %}
+    <!-- End Temperature charts sensor -->
 
-            </div>
-        </div>
-    </div>
-    <!-- Informations sensors -->
-    <div class="card-body">
-
-        {% include "Sensors/viewInformationsSensor.html" %}
-    </div>
+    <!-- Start Activity raw sensor -->
+    {% include "Sensors/viewActivitiesRawSensor.html" %}
+    <!-- End Activity raw sensor -->
 
 
-    <!-- Alert sensors -->
-    <div id="alertsStructure" class="card-body">
-        <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi des alertes</h3>
-
-        <h4 class="card-title">Alertes relevées par le capteur</h4>
-        {% for message in flash_alerts %}
-        <div class="alert alert-{{ message.type }}" role="alert">
-            {{ message.body }}
-        </div>
-        {% endfor %}
-        {% include "Sensors/viewTableDataNewAlerts.html" %}
-    </div>
-    <!-- Alert historique sensors -->
-    <div class="card-body">
-        <h3 class="card-title">Historique des alertes</h3>
-        {% include "Sensors/viewTableDataOldAlerts.html" %}
-    </div>
-</div>
-
-{% include "Sensors/viewInclinometerWidgets.html" %}
-{% include "Sensors/viewChocsCharts.html" %}
-{% include "Sensors/viewTemperatureWidget.html" %}
-
-<!-- Activity sensors -->
-<div class="card-body">
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <h3 class="card-title">Activités du capteur</h3>
-        </div>
-    </div>
-    {% include "Sensors/viewTableActivityData.html" %}
-</div>
 </div>
 
 
@@ -169,157 +59,23 @@
         excludeAngle = "z";
     }
     $(document).ready(function () {
+        //Init datatables
+        init_DataTableActivities();
+        init_DataTableWeather();
+        init_DataTableNewAlerts();
+        init_DataTableProcessedAlerts();
+
+        //Init date picker
         init_daterangepickerNbChoc();
         init_daterangepickerPowerChoc();
 
-
+        //Init map
         let data_map_json = JSON.parse('{{ dataMapArray|raw}}');
+        init_Map(data_map_json);
 
-        var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json
-            .longitude_sensor
-        ],
-            13);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
-            id: 'mapbox.streets'
-        }).addTo(map);
-
-
-
-        if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
-            longitude_sensor = data_map_json.longitude_sensor;
-            latitude_sensor = data_map_json.latitude_sensor;
-
-
-            sensor_id = data_map_json.sensor_id;
-            site = data_map_json.site;
-            equipement = data_map_json.equipement;
-
-            L.marker([latitude_sensor, longitude_sensor]).addTo(map)
-                .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
-        }
-
-        $('#tableDataActivitySensor').DataTable({
-            responsive: {
-                details: {
-                    type: 'column',
-                    target: 'tr'
-                }
-            },
-            "lengthMenu": [
-                [10, 25, 50, -1],
-                [10, 25, 50, 'All']
-            ],
-            "iDisplayLength": 10
-        });
-
-        $('#tableDataWeather').DataTable({
-            responsive: {
-                details: {
-                    type: 'column',
-                    target: 'tr'
-                }
-            },
-            "lengthMenu": [
-                [10, 25, 50, -1],
-                [10, 25, 50, 'All']
-            ],
-            "iDisplayLength": 10,
-            "order": [[0, "desc"]]
-        });
-
-        $('#tableDataNewAlerts').DataTable({
-            responsive: true,
-            responsive: {
-                details: {
-                    type: 'column',
-                    target: 'tr'
-                }
-            },
-            "createdRow": function (row, data, dataIndex, cells) {
-                var type_raw_message = data[1];
-                var statut = data[8];
-                console.log("Statut coucou :", statut);
-                if (statut == "1") {
-                    cells[8].innerText = "En cours";
-                } else {
-                    cells[8].innerText = "Traité";
-                }
-                switch (type_raw_message) {
-                    case 'ChangeStatusInactive':
-                        cells[1].innerText = "Inactif";
-                        break;
-                    case 'ChangeStatusActive':
-                        cells[1].innerText = "Actif";
-                        break;
-                    case 'ChangeStatusError':
-                        cells[1].innerText = "Erreur";
-                        break;
-                    case 'high_choc':
-                        cells[1].innerText = "Choc important";
-                        break;
-                    default:
-                        break;
-                }
-            },
-            responsive: {
-                details: {
-                    type: 'column',
-                    target: 'tr'
-                }
-            },
-            "lengthMenu": [
-                [10, 25, 50, -1],
-                [10, 25, 50, 'All']
-            ],
-            "iDisplayLength": 20
-        });
-
-        $('#tableDataProcessedAlerts').DataTable({
-            responsive: true,
-            responsive: {
-                details: {
-                    type: 'column',
-                    target: 'tr'
-                }
-            },
-            "createdRow": function (row, data, dataIndex, cells) {
-                var type_raw_message = data[1];
-                var statut = data[8];
-                if (statut == "1") {
-                    cells[8].innerText = "En cours";
-                } else {
-                    cells[8].innerText = "Traité";
-                }
-                switch (type_raw_message) {
-                    case 'ChangeStatusInactive':
-                        cells[1].innerText = "Inactif";
-                        break;
-                    case 'ChangeStatusActive':
-                        cells[1].innerText = "Actif";
-                        break;
-                    case 'ChangeStatusError':
-                        cells[1].innerText = "Erreur";
-                        break;
-                    case 'high_choc':
-                        cells[1].innerText = "Choc important";
-                        break;
-                    default:
-                        break;
-                }
-            },
-            "lengthMenu": [
-                [10, 25, 50, -1],
-                [10, 25, 50, 'All']
-            ],
-            "iDisplayLength": 20
-        });
 
         //Settings
         let settingsArr = JSON.parse('{{ settingArr | raw }}');
-        console.log(settingsArr)
 
         //Draw direction inclinometer
         let variationDirection = '{{ variationDirectionArr|raw}}';
@@ -327,10 +83,6 @@
         //Draw speed variation
         let variationSpeed = '{{ variationSpeedDirectionArr|raw}}';
         drawChartSpeedVariationFromData(variationSpeed, "chartVitesseInclinometer");
-
-        //Draw chart inclinometer monthly
-        //let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
-        //drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);
 
         //Draw chart variation inclinometer absolute variation
         let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
@@ -347,47 +99,11 @@
         drawChartPowerChocPerDateBar(powerChocDataMonth, "chartPowerChoc");
 
         //Draw temperature
-        //let temperatureData = '{{ temperatureArr|raw}}';
         let historicalTemperatureData = '{{ historicalTemperatureDataArr|raw}}';
-        //drawChartTemperatureFromData(temperatureData, "chartTemperature");
         drawChartHistoricalTemperature(historicalTemperatureData, "chartHistoricalTemperature");
-        //drawBothTemperature(temperatureData, historicalTemperatureData, "chartHistoricalTemperature")
-
-        //Prevision
-        //let location= '{{ location|raw}}';
-        //console.log("Data map : ",location);
-        //drawPrevision(location);
-
-
 
     });
 
-    /*
-    //When the user want to change the date for displaying the chart concerning the power of choc
-    // Day, week or month
-    $(document).on("click", "#radioButtonInclinometer", function (e) {
-        e.preventDefault();
-        let deveui = '{{infoArr.deveui}}';
-        var lastXdays = $("input[name='options']:checked").val();
-
-        removeElement("canvasInclinometer");
-        addElement("canvasInclinometer", "canvas", "chartAngleInclinometer");
-        if (lastXdays === "-1") {
-            let inclinometerDataDay = '{{ inclinometerDataDayArr|raw}}';
-            console.log("Since installation date : ", inclinometerDataDay);
-            drawChartAngleXYZFromData(inclinometerDataDay, "chartAngleInclinometer", excludeAngle);
-        }
-        if (lastXdays === "7") {
-            let inclinometerDataWeek = '{{ inclinometerDataWeekArr|raw}}';
-            console.log("Last 7 days : ", inclinometerDataWeek);
-            drawChartAngleXYZFromData(inclinometerDataWeek, "chartAngleInclinometer", excludeAngle);
-        }
-        if (lastXdays === "30") {
-            let inclinometerDataMonth = '{{ inclinometerDataMonthArr|raw}}';
-            drawChartAngleXYZFromData(inclinometerDataMonth, "chartAngleInclinometer", excludeAngle);
-        }
-
-    });*/
 
     $(document).on("click", "#radioButtonNbChoc", function (e) {
         e.preventDefault();
@@ -435,7 +151,6 @@
         }
 
     });
-
     $(document).on("click", "#radioButtonPercentageVariationInclinometer", function (e) {
         e.preventDefault();
         let deveui = '{{infoArr.deveui}}';
@@ -513,8 +228,172 @@
         xhttp.open("POST", "/ControllerSensors/getChartDataPowerChoc", true);
         xhttp.send(formData);
     }
-    /* DATERANGEPICKER */
 
+
+    /* MAP  */
+    function init_Map(data_map_json) {
+
+        var map = L.map('deviceMap').setView([data_map_json.latitude_sensor, data_map_json
+            .longitude_sensor
+        ],
+            13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '<a href="https://flod.ai">Flod Sentiel</a>',
+            id: 'mapbox.streets'
+        }).addTo(map);
+
+
+        if (data_map_json.longitude_sensor != null || data_map_json.latitude_sensor != null) {
+            longitude_sensor = data_map_json.longitude_sensor;
+            latitude_sensor = data_map_json.latitude_sensor;
+
+
+            sensor_id = data_map_json.sensor_id;
+            site = data_map_json.site;
+            equipement = data_map_json.equipement;
+
+            L.marker([latitude_sensor, longitude_sensor]).addTo(map)
+                .bindPopup("<b>" + site + "</b><br />" + equipement).openPopup();
+        }
+
+    }
+
+    /* DATATABLE */
+
+    function init_DataTableActivities() {
+
+        $('#tableDataActivitySensor').DataTable({
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 10
+        });
+
+    }
+
+    function init_DataTableWeather() {
+
+        $('#tableDataWeather').DataTable({
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 10,
+            "order": [[0, "desc"]]
+        });
+
+
+    }
+
+    function init_DataTableNewAlerts() {
+        $('#tableDataNewAlerts').DataTable({
+            responsive: true,
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "createdRow": function (row, data, dataIndex, cells) {
+                var type_raw_message = data[1];
+                var statut = data[8];
+                console.log("Statut coucou :", statut);
+                if (statut == "1") {
+                    cells[8].innerText = "En cours";
+                } else {
+                    cells[8].innerText = "Traité";
+                }
+                switch (type_raw_message) {
+                    case 'ChangeStatusInactive':
+                        cells[1].innerText = "Inactif";
+                        break;
+                    case 'ChangeStatusActive':
+                        cells[1].innerText = "Actif";
+                        break;
+                    case 'ChangeStatusError':
+                        cells[1].innerText = "Erreur";
+                        break;
+                    case 'high_choc':
+                        cells[1].innerText = "Choc important";
+                        break;
+                    default:
+                        break;
+                }
+            },
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20
+        });
+
+    }
+
+    function init_DataTableProcessedAlerts() {
+        $('#tableDataProcessedAlerts').DataTable({
+            responsive: true,
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "createdRow": function (row, data, dataIndex, cells) {
+                var type_raw_message = data[1];
+                var statut = data[8];
+                if (statut == "1") {
+                    cells[8].innerText = "En cours";
+                } else {
+                    cells[8].innerText = "Traité";
+                }
+                switch (type_raw_message) {
+                    case 'ChangeStatusInactive':
+                        cells[1].innerText = "Inactif";
+                        break;
+                    case 'ChangeStatusActive':
+                        cells[1].innerText = "Actif";
+                        break;
+                    case 'ChangeStatusError':
+                        cells[1].innerText = "Erreur";
+                        break;
+                    case 'high_choc':
+                        cells[1].innerText = "Choc important";
+                        break;
+                    default:
+                        break;
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20
+        });
+
+    }
+
+    /* DATERANGEPICKER */
     function init_daterangepickerNbChoc() {
         moment.locale('fr');
         if (typeof ($.fn.daterangepicker) === 'undefined') {

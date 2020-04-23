@@ -3,61 +3,81 @@
 <div class="card">
 
     <div class="card-body">
-        <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi de la météo</h3>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="table-responsive">
-                    <table id="tableDataWeather" class="display compact" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Température °C</th>
-                                <th>Precipitation mm/h</th>
-                                <th>Vent m/s</th>
-                                <th>Rafale m/s</th>
-                                <th>Humidité</th>
-                                <th>Couverture nuageuse</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in allDataWeather %}
-                            <tr>
-                                <td>{{row.date_time}}</td>
-                                <td>{{row.temperature}}</td>
-                                <td>{{row.precipitation}}</td>
-                                <td>{{row.windSpeed}}</td>
-                                <td>{{row.windGust}}</td>
-                                <td>{{row.humidity}}</td>
-                                <td>{{row.cloudCover}}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <div class="card-header py-3 d-flex justify-content-center">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Suivi de la météo
+                    </h3>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div id="canvasHistoricalTemperature" class="chart-area">
-                    <canvas id="chartHistoricalTemperature"></canvas>
+        <!-- Weather chart and datatable -->
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table id="tableDataWeather" class="display compact" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Température °C</th>
+                                    <th>Precipitation mm/h</th>
+                                    <th>Vent m/s</th>
+                                    <th>Rafale m/s</th>
+                                    <th>Humidité</th>
+                                    <th>Couverture nuageuse</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in allDataWeather %}
+                                <tr>
+                                    <td>{{row.date_time}}</td>
+                                    <td>{{row.temperature}}</td>
+                                    <td>{{row.precipitation}}</td>
+                                    <td>{{row.windSpeed}}</td>
+                                    <td>{{row.windGust}}</td>
+                                    <td>{{row.humidity}}</td>
+                                    <td>{{row.cloudCover}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="canvasHistoricalTemperature" class="chart-area">
+                        <canvas id="chartHistoricalTemperature"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <!--<h3 class="m-0 font-weight-bold text-primary text-center mb-5">Prévision</h3>-->
-        <div class="row">
-            <div class="col-md-12">
-                <!-- the DIV that will contain the widget -->
-                <div class="meteogram">
-                    <img src="{{link}}" alt="meteogram">
+        <!-- End Weather chart and datatable -->
+
+        <!-- meteogram -->
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- the DIV that will contain the widget -->
+                    <div class="meteogram">
+                        <img src="{{link}}" alt="meteogram">
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col md-12">
-                <!-- the DIV that will contain the widget -->
-                <div class="weatherForecastWidget"></div>
+        <!-- end meteogram -->
+
+        <!-- weather forecast -->
+        <div class="card-body">
+            <div class="row">
+                <div class="col md-12">
+                    <!-- the DIV that will contain the widget -->
+                    <div class="weatherForecastWidget"></div>
+                </div>
             </div>
         </div>
+        <!-- end weather forecast -->
     </div>
 
 </div>
