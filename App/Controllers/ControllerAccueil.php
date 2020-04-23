@@ -81,4 +81,4 @@ class ControllerAccueil extends Authenticated
     $json_array = json_encode($arr);
     echo $json_array;
   }
-
+}
