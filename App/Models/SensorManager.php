@@ -153,7 +153,8 @@ class SensorManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_sensor_id = "SELECT DISTINCT *, attr_transmission_line.name AS transmission_line_name, site.nom AS site_name, st.nom AS structure_name FROM sensor
+    $sql_sensor_id = "SELECT DISTINCT *, attr_transmission_line.name AS transmission_line_name, 
+    st.id AS structure_id, site.nom AS site_name, st.nom AS structure_name FROM sensor
     LEFT JOIN structure as st ON st.id= sensor.structure_id
     LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
     LEFT JOIN site ON site.id = st.site_id

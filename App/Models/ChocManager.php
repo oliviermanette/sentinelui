@@ -729,10 +729,10 @@ class ChocManager extends \Core\Model
    * Get number of choc per day for a specific sensor
    *  date | number choc
    *
-   * @param int $sensor_id sensor id for which we want to retrieve the number of choc per day
+   * @param string $deveui sensor for which we want to retrieve the number of choc per day
    * @return array  results from the query
    */
-  public function getNbChocPerDayForSensor($sensor_id)
+  public static function getNbChocPerDayForSensor($deveui)
   {
     $db = static::getDB();
 
@@ -757,7 +757,7 @@ class ChocManager extends \Core\Model
       LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
       WHERE
       `msg_type` LIKE 'choc'
-      AND `sensor_id` LIKE :sensor_id
+      AND s.deveui = :deveui
       AND Date(r.date_time) >= Date(s.installation_date)
     ) AS choc_data
     GROUP BY
@@ -768,7 +768,7 @@ class ChocManager extends \Core\Model
 
     $stmt = $db->prepare($sql_nb_choc_per_day);
 
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
@@ -1041,10 +1041,10 @@ class ChocManager extends \Core\Model
   /**
    * Retrieve all the power of chocs since the beginning for a specific sensor
    *
-   * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
+   * @param string $deveui sensor for which we want to retrieve the power of chocs
    * @return array  results from the query
    */
-  public function getPowerChocPerDayForSensor($sensor_id)
+  public static function getPowerChocPerDayForSensor($deveui)
   {
     $db = static::getDB();
 
@@ -1057,13 +1057,13 @@ class ChocManager extends \Core\Model
     LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
     `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id
+    AND s.deveui = :deveui
     AND Date(r.date_time) >= Date(s.installation_date)
     ORDER BY `date_d` ASC";
 
     $stmt = $db->prepare($sql_power_choc);
 
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

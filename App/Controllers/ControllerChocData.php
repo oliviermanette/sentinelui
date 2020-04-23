@@ -62,7 +62,7 @@ class ControllerChocData extends Authenticated
         $device_number = $sensor["device_number"];
         $transmission_line_name = $sensor["transmission_line_name"];
         $structure_name = $sensor["structure_name"];
-
+        $structure_id = $sensor["structure_id"];
 
         $lastdate = SensorManager::getLastDataReceivedData($deveui);
         $status = SensorManager::getStatusDevice($deveui);
@@ -83,6 +83,7 @@ class ControllerChocData extends Authenticated
             'deveui' => $deveui,
             'status' => $status,
             'device_number' => $device_number,
+            'structure_id' => $structure_id,
             'ligneHT' => $transmission_line_name,
             'structure_name' => $structure_name,
             'lastDate' => $lastdate,
@@ -199,6 +200,35 @@ class ControllerChocData extends Authenticated
         print json_encode($nb_choc);
     }
 
+    private function getChocDataChart($deveui, $startDate = null, $endDate = null)
+    {
+        $sensor = SensorManager::getSensorInfo($deveui);
+        $device_number = $sensor["device_number"];
+        $transmission_line_name = $sensor["transmission_line_name"];
+        $structure_name = $sensor["structure_name"];
+        $structure_id = $sensor["structure_id"];
+
+        if (!empty($startDate) && !empty($endDate)) {
+            $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
+            $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
+            $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
+        } else {
+            $nb_choc_per_day = ChocManager::getNbChocPerDayForSensor($deveui);
+            $power_choc_per_day = ChocManager::getPowerChocPerDayForSensor($deveui);
+            $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
+        }
+
+        return array(
+
+            'deveui' => $deveui,
+            'device_number' => $device_number,
+            'structure_name' => $structure_name,
+            'structure_id' => $structure_id,
+            'nb_choc_per_day' => $nb_choc_per_day,
+            'angleXYZ_per_day' => $angleDataXYZ,
+            'power_choc_per_day' => $power_choc_per_day,
+        );
+    }
 
     /**
      * Get all the chart data corresponding to choc
@@ -210,93 +240,42 @@ class ControllerChocData extends Authenticated
      */
     public function getChartsChocAction()
     {
-        $group_name = $_SESSION['group_name'];
+        $user = Auth::getUser();
+        $allStructureData = array();
 
-        $equipementManager = new EquipementManager();
-        $inclinometerManager = new InclinometerManager();
-        $chocManager = new ChocManager();
-
-        $searchSpecificEquipement = false;
+        $searchSpecificEquipement = true;
         $searchByDate = false;
         if (!empty($_POST['siteID'])) {
-            $siteID = $_POST['siteID'];
+            $siteId = $_POST['siteID'];
         }
-        if (!empty($_POST['equipmentID'])) {
-            $equipement_id = $_POST['equipmentID'];
-            $searchSpecificEquipement = true;
+        if (empty($_POST['deveui'])) {
+            $searchSpecificEquipement = false;
         }
         if (!empty($_POST['startDate']) && !empty($_POST['endDate'])) {
             $startDate = $_POST['startDate'];
             $endDate = $_POST['endDate'];
             $searchByDate = true;
+        } else {
+            $startDate = '';
+            $endDate = '';
         }
 
-        //Attention à la date valide (inferieur data d'activité et installation)
-
         if ($searchSpecificEquipement) {
+            $deveui = $_POST['deveui'];
+            $sensor = SensorManager::getSensorInfo($deveui);
 
-            $equipementInfo = $equipementManager->getEquipementFromId($equipement_id);
+            $dataArr = $this->getChocDataChart($deveui, $startDate, $endDate);
 
-            $equipement_pylone = $equipementInfo['equipement'];
-            $equipement_name = $equipementInfo['ligneHT'];
-            #Retrieve the sensor id
-            $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-            $deveui = EquipementManager::getDeveuiSensorOnEquipement($equipement_id);
-            if ($searchByDate) {
-                $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
-                $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
-                $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
-            } else {
-                $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
-                $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
-                $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
-            }
-
-            $allStructureData["equipement_0"] = array(
-
-                'deveui' => $deveui,
-                'sensor_id' => $sensor_id,
-                'equipement_name' => $equipement_pylone,
-                'equipementId' => $equipement_id,
-                'nb_choc_per_day' => $nb_choc_per_day,
-                'angleXYZ_per_day' => $angleDataXYZ,
-                'power_choc_per_day' => $power_choc_per_day,
-            );
+            $allStructureData["equipement_0"] = $dataArr;
         } else {
-            $equipements_site = $equipementManager->getEquipementsBySiteId($siteID, $group_name);
-            $allStructureData = array();
+            $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSite($siteId, $user->group_id);
             $count = 0;
-            foreach ($equipements_site as $equipement) {
+            foreach ($sensorsInfoArr as $sensor) {
                 $index_array = "equipement_" . $count;
+                $deveui = $sensor["deveui"];
+                $dataArr = $this->getChocDataChart($deveui, $startDate, $endDate);
 
-                $equipement_id = $equipement['equipement_id'];
-                $equipement_pylone = $equipement['equipement'];
-                $equipement_name = $equipement['ligneHT'];
-
-                $equipement_id = $equipements_site[$count]['equipement_id'];
-                $deveui = EquipementManager::getDeveuiSensorOnEquipement($equipement_id);
-                #Retrieve the sensor id
-                $sensor_id = $equipementManager->getSensorIdOnEquipement($equipement_id);
-                //print_r($equipement_id);
-                if ($searchByDate) {
-                    $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
-                    $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
-                    $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
-                } else {
-                    $nb_choc_per_day = $chocManager->getNbChocPerDayForSensor($sensor_id);
-                    $power_choc_per_day = $chocManager->getPowerChocPerDayForSensor($sensor_id);
-                    //Get inclinometer data angle
-                    $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
-                }
-
-                $allStructureData[$index_array] = array(
-                    'sensor_id' => $sensor_id,
-                    'equipement_name' => $equipement_pylone,
-                    'equipementId' => $equipement_id,
-                    'nb_choc_per_day' => $nb_choc_per_day,
-                    'angleXYZ_per_day' => $angleDataXYZ,
-                    'power_choc_per_day' => $power_choc_per_day,
-                );
+                $allStructureData[$index_array] = $dataArr;
 
                 $count += 1;
             }

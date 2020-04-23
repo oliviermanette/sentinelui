@@ -3,11 +3,11 @@
     {% if all_structure_data is not empty %}
     <ul>
         {% for key, val in all_structure_data  %}
-        <!-- <pre>{{ dump(key) }}</pre> -->
-        {% set canvas_id_nbchoc = 'canvas_equipement_nbchoc_'~val.equipementId %}
-        {% set canvas_id_powerchoc = 'canvas_equipement_powerchoc_'~val.equipementId %}
-        {% set chart_area_id_nbchoc = 'chart_area_nbchoc_id_'~val.equipementId %}
-        {% set chart_area_id_powerchoc = 'chart_area_powerchoc_id_'~val.equipementId %}
+        <!-- <pre>{{ dump(val) }}</pre> -->
+        {% set canvas_id_nbchoc = 'canvas_equipement_nbchoc_'~val.deveui %}
+        {% set canvas_id_powerchoc = 'canvas_equipement_powerchoc_'~val.deveui %}
+        {% set chart_area_id_nbchoc = 'chart_area_nbchoc_id_'~val.deveui %}
+        {% set chart_area_id_powerchoc = 'chart_area_powerchoc_id_'~val.deveui %}
 
         <div class="card">
             <div class="card-body">
@@ -86,7 +86,7 @@
                     <div class="card-header py-3 d-flex justify-content-center">
                         <h6 class="m-0 font-weight-bold text-primary">Nombre de choc par jour</h6>
                         <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
-                            <div id="{{val.equipementId}}">
+                            <div id="{{val.deveui}}">
                                 <div id="radioButtonNbChoc" class="btn-group btn-group-toggle mx-3"
                                     data-toggle="buttons">
                                     <label class="btn btn-outline-secondary active">
@@ -110,7 +110,7 @@
                         <div class="row">
                             <div class="col">
                                 <div id="{{ chart_area_id_nbchoc }}" class="chart-area">
-                                    <canvas id="{{ canvas_id_nbchoc }}" width="400" height="400"></canvas>
+                                    <canvas id="{{ canvas_id_nbchoc }}"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -123,7 +123,7 @@
                         <h6 class="m-0 font-weight-bold text-primary">Puissance de choc
                             par jour</h6>
                         <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
-                            <div id="{{val.equipementId}}">
+                            <div id="{{val.deveui}}">
                                 <div id="radioButtonPowerChoc" class="btn-group btn-group-toggle mx-3"
                                     data-toggle="buttons">
                                     <label class="btn btn-outline-secondary active">
@@ -146,9 +146,8 @@
 
                     <div class="card-body">
                         <div id="{{chart_area_id_powerchoc}}" class="chart-area">
-                            <canvas id="{{ canvas_id_powerchoc }}" width="400" height="400"></canvas>
+                            <canvas id="{{ canvas_id_powerchoc }}" ></canvas>
                         </div>
-                        <hr>
                     </div>
 
 

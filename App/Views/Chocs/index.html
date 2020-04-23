@@ -143,10 +143,10 @@
         formData.append('endDate', endDate);
         formData.append('diffDays', diffDays);
 
-        console.log("Site selected :", $('#siteID option:selected').val());
+        /*console.log("Site selected :", $('#siteID option:selected').val());
         console.log("Deveui selected :", $('#equipmentField option:selected').val());
         console.log("Start date form :", startDate);
-        console.log("End date form :", endDate);
+        console.log("End date form :", endDate);*/
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -161,38 +161,34 @@
         xhttp.open("POST", "/ControllerChocData/getResultsFromChocForm", false);
         xhttp.send(formData);
 
-        /*
+
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var choc_data = this.responseText;
                 choc_data = JSON.parse(choc_data);
-                //console.log("Choc data chart : ", choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
+
 
                     var name_data = "equipement_" + i;
                     var name_canvas_nbchoc = "canvas_equipement_nbchoc_" + choc_data[name_data][
-                        'equipementId'
+                        'deveui'
                     ];
                     var name_canvas_powerchoc = "canvas_equipement_powerchoc_" + choc_data[name_data][
-                        'equipementId'
+
+                        'deveui'
                     ];
 
-                    //console.log("Length array nb choc : ",choc_data[name_data]['nb_choc_per_day'].length );
-                    if (choc_data[name_data]['nb_choc_per_day'].length > 0) {
-                        drawChartNbChocPerDate(choc_data[name_data]['nb_choc_per_day'], name_canvas_nbchoc);
-                    }
-                    if (choc_data[name_data]['power_choc_per_day'].length > 0) {
-                        drawChartPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'],
-                            name_canvas_powerchoc);
-                    }
+                    drawChartNbChocPerDate(choc_data[name_data]['nb_choc_per_day'], name_canvas_nbchoc);
+                    drawChartPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'], name_canvas_powerchoc);
+
 
                 }
             }
         };
         xhttp1.open("POST", "/ControllerChocData/getChartsChoc", false);
         xhttp1.send(formData);
-        */
+
     });
 
     function initChocDatatable() {
