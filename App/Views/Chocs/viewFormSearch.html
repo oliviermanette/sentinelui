@@ -1,0 +1,65 @@
+{# viewFormSearch.html #}
+
+<div class="card mb-4 border-bottom-primary">
+    <div class="card-header">
+        Données Chocs - Capteurs Flod
+    </div>
+    <!-- form -->
+    <div class="card-body">
+        <div class="container">
+            <form role="form" method="post" name="equipementrequest" id="equipementrequest">
+                <div class="ui form d-flex justify-content-center">
+                    <div class="row four fields ">
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Choisissez un site</label>
+                                <select class="browser-default custom-select" name="siteID" id="siteID">
+                                    <option value="" selected>Choisissez un site</option>
+                                    {% for site in all_site %}
+                                    <option value={{ site.site_id }}>{{ site.site }} </option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Choisissez un équipement</label>
+                                <select class="browser-default custom-select" name="equipmentField" id="equipmentField">
+                                    <option value="" selected>Choisissez un équipement associé</option>
+                                    {% for equipment in all_equipment %}
+                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Choisissez une date (optionnel)</label>
+                                <div id="reportrange" class="browser-default custom-select">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span></span>
+                                    <!-- <span>December 30, 2014 - January 28, 2015</span>-->
+                                </div>
+                            </div>
+                            <!-- 
+                                <input type="text" name="daterange" placeholder="" />-->
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col text-center">
+                                    <button type="submit" id="submit" class="btn btn-info">Montrer les
+                                        données</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </br>
+        <!-- Page Heading -->
+
+    </div>
+    <!-- end form -->
+</div>

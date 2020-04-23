@@ -22,7 +22,7 @@ class ControllerRegistration extends \Core\Controller
    */
   public function registerViewAction()
   {
-    View::renderTemplate('Signup/inscription.html');
+    View::renderTemplate('Signup/index.html');
   }
 
   public function createAction()
@@ -34,7 +34,7 @@ class ControllerRegistration extends \Core\Controller
       Flash::addMessage('Inscription réussie ! Vous pouvez vous connecter !');
       $this->redirect("/ControllerLogin/new");
     } else {
-      View::renderTemplate('Signup/inscription.html', [
+      View::renderTemplate('Signup/index.html', [
         'error_message' => $user->errors
       ]);
     }

@@ -462,29 +462,6 @@ class RecordManager extends \Core\Model
     }
   }
 
-  /**
-   * Get the date of the last message received on a specific structure
-   *
-   * @param int $structure_id id of the equipement
-   * @return string results of the query
-   *  date
-   *
-   */
-  public static function getDateLastReceivedData($structure_id)
-  {
-    $db = static::getDB();
-    $sql_last_date = "SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') as dateMaxReceived
-    FROM record as r
-    WHERE r.structure_id = :structure_id";
-
-    $stmt = $db->prepare($sql_last_date);
-    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $last_date = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $last_date[0];
-    }
-  }
 
   /**
    * Get the min and max date from table record

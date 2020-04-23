@@ -569,10 +569,10 @@ class ChocManager extends \Core\Model
    * Get the last choc received from a given sensor
    *
    *  date | power
-   * @param int $sensor_id the sensor we want to retrieve choc data
+   * @param string $deveui the sensor we want to retrieve choc data
    * @return array  results from the query
    */
-  public static function getLastChocPowerValueForSensor($sensor_id)
+  public static function getLastChocPowerValueForSensor($deveui)
   {
     $db = static::getDB();
 
@@ -584,16 +584,18 @@ class ChocManager extends \Core\Model
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     LEFT JOIN sensor ON (sensor.id = r.sensor_id)
     WHERE
-    sensor.id = :sensor_id
+    sensor.deveui = :deveui
     ORDER BY r.date_time DESC LIMIT 1
     ";
 
     $stmt = $db->prepare($sql_last_choc);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (empty($results)) {
+        return null;
+      }
       return $results;
     }
   }
@@ -603,10 +605,10 @@ class ChocManager extends \Core\Model
    * Get the number of choc received from a given sensor today
    *
    *  date | power
-   * @param int $sensor_id the sensor we want to retrieve choc data
+   * @param string $deveui the sensor we want to retrieve choc data
    * @return array  results from the query
    */
-  public function getNbChocReceivedTodayForSensor($sensor_id)
+  public static function getNbChocReceivedTodayForSensor($deveui)
   {
     $db = static::getDB();
 
@@ -617,18 +619,20 @@ class ChocManager extends \Core\Model
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     LEFT JOIN sensor ON (sensor.id = r.sensor_id)
     WHERE
-    sensor.id = :sensor_id
+    sensor.deveui = :deveui
     AND r.date_time >= CURDATE()
     AND r.date_time < CURDATE() + INTERVAL 1 DAY
     ";
 
     $stmt = $db->prepare($sql_last_choc);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-      return $results[0];
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (empty($results)) {
+        return null;
+      }
+      return $results;
     }
   }
 

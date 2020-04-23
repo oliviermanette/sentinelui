@@ -65,13 +65,13 @@ class ControllerChocData extends Authenticated
      *
      * @return void
      */
+    /*
     public function getResultsFromChocFormAction()
     {
         $user = Auth::getUser();
-        $group_name = $user->getGroupName();
+        $allStructureData = array();
 
         $recordManager = new RecordManager();
-        $scoreManager = new ScoreManager();
         $chocManager = new ChocManager();
         $siteManager = new SiteManager();
         $inclinometerManager = new InclinometerManager();
@@ -81,7 +81,8 @@ class ControllerChocData extends Authenticated
         if (isset($_POST['siteID'])) {
             $siteID = $_POST['siteID'];
         }
-        if (!empty($_POST['equipmentID'])) {
+
+        if (!isset($_POST['equipmentID'])) {
             $equipement_id = $_POST['equipmentID'];
             $searchSpecificEquipement = true;
         }
@@ -93,6 +94,8 @@ class ControllerChocData extends Authenticated
             $searchByDate = true;
         }
 
+        $searchSpecificEquipement = False;
+
         if ($searchSpecificEquipement) {
             $equipementInfo = EquipementManager::getEquipementFromId($equipement_id);
 
@@ -102,8 +105,7 @@ class ControllerChocData extends Authenticated
             $sensor_id = EquipementManager::getSensorIdOnEquipement($equipement_id);
             //Get the device number
             $device_number = SensorManager::getDeviceNumberFromSensorId($sensor_id);
-            //Get the latest temperature received
-            $temperature = InclinometerManager::getLatestTemperatureForSensor($sensor_id);
+
             //Get the last date where the sensor received
             $lastdate = RecordManager::getDateLastReceivedData($equipement_id);
             //Get the status of the device
@@ -129,14 +131,14 @@ class ControllerChocData extends Authenticated
                 'equipementId' => $equipement_id,
                 'lastDate' => $lastdate,
                 'nb_choc_received_today' => $nb_choc_received_today,
-                'lastChocPower' => $last_choc_power, 'temperature' => $temperature,
+                'lastChocPower' => $last_choc_power,
                 'startDate' => $startDate, 'endDate' => $endDate
             );
         } else {
-            $equipements_site = EquipementManager::getEquipementsBySiteId($siteID, $group_name);
-            $allStructureData = array();
-            $count = 0;
 
+            $equipements_site = EquipementManager::getEquipementsBySiteId($siteID, $user->group_id);
+
+            $count = 0;
             foreach ($equipements_site as $equipement) {
                 $index_array = "equipement_" . $count;
                 //Get equipement data
@@ -145,12 +147,10 @@ class ControllerChocData extends Authenticated
                 $equipement_name = $equipement['ligneHT'];
 
                 //Get the sensor ID on the associated structure
-                $sensor_id = EquipementManager::getSensorIdOnEquipement($equipement_id);
+                $sensorsDeveuiArr = SensorManager::getDeveuiFromEquipement($equipement_id);
                 //Get the device number
                 $device_number = $sensorManager->getDeviceNumberFromSensorId($sensor_id);
 
-                //Get the latest temperature received
-                $temperature = $inclinometerManager->getLatestTemperatureForSensor($sensor_id);
                 //Get the last date where the sensor received
                 $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
                 //Get the status of the device
@@ -176,7 +176,7 @@ class ControllerChocData extends Authenticated
                     'equipementId' => $equipement_id,
                     'lastDate' => $lastdate,
                     'nb_choc_received_today' => $nb_choc_received_today,
-                    'lastChocPower' => $last_choc_power, 'temperature' => $temperature,
+                    'lastChocPower' => $last_choc_power,
                     'startDate' => $startDate, 'endDate' => $endDate
                 );
 
@@ -184,8 +184,84 @@ class ControllerChocData extends Authenticated
             }
         }
 
-        View::renderTemplate('Chocs/viewDataChocArray.html', [
-            'all_structure_data' => $allStructureData
+        View::renderTemplate('Chocs/viewDataChocCards.html', [
+            'all_structure_data' => $allStructureData,
+            'user' => $user,
+            'site' => $siteID,
+        ]);
+    }
+*/
+    public function getResultsFromChocFormAction()
+    {
+        $user = Auth::getUser();
+        $allStructureData = array();
+
+        $searchSpecificSensor = false;
+        if (isset($_POST['siteID'])) {
+            $siteId = $_POST['siteID'];
+        }
+
+        if (!isset($_POST['deveui'])) {
+            $deveui = $_POST['deveui'];
+            $searchSpecificSensor = true;
+        }
+        $startDate = "";
+        $endDate = "";
+        if (!empty($_POST['startDate']) && !empty($_POST['endDate'])) {
+            $startDate = $_POST['startDate'];
+            $endDate = $_POST['endDate'];
+            $searchByDate = true;
+        }
+
+        if ($searchSpecificSensor) {
+            //TODO
+        } else {
+
+            //Loop over all sensors in a specific site
+            $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSite($siteId, $user->group_id);
+            $count = 0;
+            foreach ($sensorsInfoArr as $sensor) {
+
+                $index_array = "equipement_" . $count;
+                $deveui = $sensor["deveui"];
+                $device_number = $sensor["device_number"];
+                $transmission_line_name = $sensor["transmission_line_name"];
+                $structure_name = $sensor["structure_name"];
+
+
+                $lastdate = SensorManager::getLastDataReceivedData($deveui);
+                $status = SensorManager::getStatusDevice($deveui);
+
+                $choc_power_data = ChocManager::getLastChocPowerValueForSensor($deveui);
+
+                if (is_null($choc_power_data)) {
+                    $last_choc_power = 0;
+                } else {
+                    $last_choc_power = $choc_power_data['power'];
+                    $last_choc_date = $choc_power_data['date'];
+                }
+
+                $nb_choc_received_today = ChocManager::getNbChocReceivedTodayForSensor($deveui);
+                $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
+
+                $allStructureData[$index_array] = array(
+                    'deveui' => $deveui,
+                    'status' => $status,
+                    'device_number' => $device_number,
+                    'ligneHT' => $transmission_line_name,
+                    'structure_name' => $structure_name,
+                    'lastDate' => $lastdate,
+                    'nb_choc_received_today' => $nb_choc_received_today,
+                    'lastChocPower' => $last_choc_power,
+                    'startDate' => $startDate, 'endDate' => $endDate
+                );
+
+                $count += 1;
+            }
+        }
+
+        View::renderTemplate('Chocs/viewDataChocCards.html', [
+            'all_structure_data' => $allStructureData,
         ]);
     }
 
