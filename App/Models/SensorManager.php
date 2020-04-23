@@ -19,6 +19,13 @@ use PDO;
 class SensorManager extends \Core\Model
 {
 
+  /**
+   * Get the position (horizontal or vertical) of a specific sensor
+   *
+   * @param string $deveui
+   * @return string results of the query
+   *  VERTICAL or HORIZONTAL
+   */
   public static function getPositionInstallation($deveui)
   {
     $db = static::getDB();
@@ -35,6 +42,14 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /**
+   * Update the status of a specific sensor
+   *
+   * @param string $deveui
+   * @param string $status (ACTIVE / INACTIVE / JOINED / ERROR / WARNING)
+   * @return boolean true if update successfully
+   * 
+   */
   public static function updateStatut($deveui, $status)
   {
     $db = static::getDB();
@@ -54,6 +69,13 @@ class SensorManager extends \Core\Model
   }
 
 
+  /**
+   * Get all the groups that have a specfic sensor
+   *
+   * @param string $deveui
+   * @return array contains the groups
+   * 
+   */
   public static function getGroupsOwner($deveui)
   {
     $db = static::getDB();
@@ -72,6 +94,13 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /**
+   * Get the current group for a specfic sensor. Suppose that there is only one group of type USER for a sensor
+   *
+   * @param string $deveui
+   * @return string group
+   * 
+   */
   public static function getGroupOwnerCurrentUser($deveui)
   {
     $db = static::getDB();
@@ -91,7 +120,86 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /**
+   * Get the date of the last message received for a specific sensor
+   *
+   * @param string $deveui
+   * @return string results of the query
+   *  date
+   */
+  public static function getLastDataReceivedData($deveui)
+  {
+    $db = static::getDB();
+    $sql_last_date = "SELECT DATE_FORMAT(MAX(Date(date_time)), '%d/%m/%Y') as dateMaxReceived 
+    FROM record as r
+    LEFT JOIN sensor ON sensor.id = r.sensor_id
+    WHERE sensor.deveui = :deveui";
 
+    $stmt = $db->prepare($sql_last_date);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $last_date = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $last_date;
+    }
+  }
+
+
+  /**
+   * Get sensor deveui on a specific structure
+   *
+   * @param int $structure_id structure id to get the sensor id
+   * @return array  info from sensors
+   */
+  public static function getAllSensorsInfoFromSite($siteId, $groupId)
+  {
+    $db = static::getDB();
+
+    $sql_sensor_id = "SELECT DISTINCT *, attr_transmission_line.name AS transmission_line_name, site.nom AS site_name, st.nom AS structure_name FROM sensor
+    LEFT JOIN structure as st ON st.id= sensor.structure_id
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
+    LEFT JOIN site ON site.id = st.site_id
+    INNER JOIN sensor_group ON sensor_group.sensor_id = sensor.id
+    LEFT JOIN group_name ON group_name.group_id= sensor_group.groupe_id
+    WHERE site.id = :siteId AND group_name.group_id = :groupId";
+
+    $stmt = $db->prepare($sql_sensor_id);
+    $stmt->bindValue(':siteId', $siteId, PDO::PARAM_INT);
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $sensorsInfoArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $sensorsInfoArr;
+    }
+  }
+
+  public static function getSensorInfo($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_sensor_id = "SELECT DISTINCT *, attr_transmission_line.name AS transmission_line_name, 
+    st.id AS structure_id, site.nom AS site_name, st.nom AS structure_name FROM sensor
+    LEFT JOIN structure as st ON st.id= sensor.structure_id
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
+    LEFT JOIN site ON site.id = st.site_id
+    WHERE sensor.deveui = :deveui";
+
+    $stmt = $db->prepare($sql_sensor_id);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $sensorsInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $sensorsInfo;
+    }
+  }
+
+  /**
+   * Get the site where the sensor is installed
+   *
+   * @param string $deveui
+   * @return string site
+   *  
+   */
   public static function getSiteWhereIsInstalled($deveui)
   {
     $db = static::getDB();
@@ -111,6 +219,13 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /**
+   * Get the structure where the sensor is installed
+   *
+   * @param string $deveui
+   * @return string structure
+   *  
+   */
   public static function getStructureWhereIsInstalled($deveui)
   {
     $db = static::getDB();
@@ -130,65 +245,7 @@ class SensorManager extends \Core\Model
     }
   }
 
-  /**
-   * Get the deveui of a device given his id
-   *
-   * @param int $sensor_id
-   * @return string deveui of the sensor
-   *
-   */
-  public function getDeveuiFromSensorId($sensor_id)
-  {
-    $db = static::getDB();
 
-    $sql_deveui_sensor = "SELECT deveui FROM `sensor`
-      WHERE id = :sensor_id ";
-
-    $stmt = $db->prepare($sql_deveui_sensor);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $id_sensor[0];
-    }
-  }
-  public static function getDeveuiFromSensorLabel($device_number)
-  {
-    $db = static::getDB();
-
-    $sql_deveui_sensor = "SELECT deveui FROM `sensor`
-      WHERE device_number = :device_number ";
-
-    $stmt = $db->prepare($sql_deveui_sensor);
-    $stmt->bindValue(':device_number', $device_number, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $id_sensor[0];
-    }
-  }
-  /**
-   * Get the device number of a device given his id
-   *
-   * @param int $sensor_id
-   * @return string device number of the sensor
-   *
-   */
-  public static function getDeviceNumberFromSensorId($sensor_id)
-  {
-    $db = static::getDB();
-
-    $sql_deviceNb_sensor = "SELECT device_number FROM `sensor`
-      WHERE id = :sensor_id ";
-
-    $stmt = $db->prepare($sql_deviceNb_sensor);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $id_sensor[0];
-    }
-  }
 
   /**
    * Get the device number of a device given his id
@@ -212,68 +269,7 @@ class SensorManager extends \Core\Model
       return $device_number;
     }
   }
-  /**
-   * Get the sensor id of a device given his deveui
-   *
-   * @param string $deveui
-   * @return int sensor id
-   *
-   */
-  public static function getSensorIdFromDeveui($deveui)
-  {
-    $db = static::getDB();
 
-    $sql_id_sensor = "SELECT id FROM `sensor`
-      WHERE deveui = :deveui ";
-
-    $stmt = $db->prepare($sql_id_sensor);
-    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $id_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $id_sensor[0];
-    }
-  }
-
-  public static function getSensorIdUsingSiteAndEquipementID($site_id, $equipement_id)
-  {
-    $db = static::getDB();
-
-    $sql_query_id =  "SELECT DISTINCT(`sensor_id`) FROM `record` AS r
-    JOIN structure as st ON (st.id=r.structure_id)
-    JOIN site as s ON (s.id=st.site_id)
-    WHERE s.id = :site_id AND st.id = :equipement_id ";
-
-    $stmt = $db->prepare($sql_query_id);
-
-    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
-    $stmt->bindValue(':equipement_id', $equipement_id, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-      $sensor_id = $stmt->fetch(PDO::FETCH_COLUMN);
-      return $sensor_id;
-    }
-
-    $db = null;
-
-    return $sensor_id;
-  }
-
-  public static function getSensorLabelFromDeveui($deveui)
-  {
-    $db = static::getDB();
-
-    $sql_id_sensor = "SELECT device_number FROM `sensor`
-      WHERE deveui = :deveui ";
-
-    $stmt = $db->prepare($sql_id_sensor);
-    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $device_label = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $device_label[0];
-    }
-  }
 
   /**
    * Get last message received from a specific sensor
@@ -358,6 +354,13 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /**
+   * check while profile is the sensor 
+   *
+   * @param string $deveui
+   * @return int 2 if version firmware 2.0 or 1 if version firmware 1.45
+   *
+   */
   public static function checkProfileGenerationSensor($deveui)
   {
     $db = static::getDB();
@@ -410,6 +413,13 @@ class SensorManager extends \Core\Model
     }
   }
 
+  /**
+   * get the first and last activity of a specific sensor
+   *
+   * @param string $deveui
+   * @return array with first_activity and last_activity
+   *
+   */
   public static function getDateMinMaxActivity($deveui)
   {
     $db = static::getDB();
@@ -566,7 +576,7 @@ class SensorManager extends \Core\Model
 
 
   /**
-   * Get basic info of sensors given a group name
+   * Get basic info of sensors given a group 
    *
    * @param string $group_name the name of the group
    * @return array results of the query
@@ -605,47 +615,26 @@ class SensorManager extends \Core\Model
     }
   }
 
+
   /**
-   * Get the sensor id from a specific site and equipement
+   * Get the status of a specific sensor 
    *
-   * @param int $site_id if od the site
-   * @param int $structure_id id of the structure
-   * @return int id of the device
-   *
+   * @param deveui $deveui of the sensor
+   * @return string  current status of the sensor
    */
-  public static function getSensorIdFromEquipementAndSiteId($site_id, $structure_id)
-  {
-    $db = static::getDB();
-
-    $sql_id_sensor = "SELECT DISTINCT sensor.id FROM sensor
-    LEFT JOIN record AS r ON (r.sensor_id = sensor.id)
-    LEFT JOIN structure AS st ON (st.id = r.structure_id)
-    LEFT JOIN site AS s ON (st.site_id = s.id)
-    WHERE s.id = :site_id AND st.id = :structure_id";
-
-    $stmt = $db->prepare($sql_id_sensor);
-    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
-    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-      $id_sensor = $stmt->fetch(PDO::FETCH_COLUMN);
-      return $id_sensor;
-    }
-  }
-
-  public static function getStatusDevice($sensor_id)
+  public static function getStatusDevice($deveui)
   {
     $db = static::getDB();
 
     $sql_status_device = "SELECT sensor.status FROM sensor
-      WHERE sensor.id = :sensor_id";
+      WHERE sensor.deveui = :deveui";
 
     $stmt = $db->prepare($sql_status_device);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-      $nb_actif_sensor = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $nb_actif_sensor[0];
+      $status = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $status;
     }
   }
 

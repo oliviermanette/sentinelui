@@ -5,73 +5,21 @@
 {% block body %}
 
 <div class="container-fluid">
-    <div class="card mb-4 border-bottom-primary">
-        <div class="card-header">
-            Chocs
-        </div>
-        <div class="card-body">
-            <div class="container">
-                <form role="form" method="post" name="equipementrequest" id="equipementrequest">
-                    <div class="ui form d-flex justify-content-center">
-                        <div class="row four fields ">
-                            <div class="col-sm-6 col-md-4">
-                                <div class="mb-2">
-                                <label class="form-label">Choisissez un site</label>
-                                <select class="browser-default custom-select" name="siteID" id="siteID">
-                                    <option value="" selected>Choisissez un site</option>
-                                    {% for site in all_site %}
-                                    <option value={{ site.site_id }}>{{ site.site }} </option>
-                                    {% endfor %}
 
-                                </select>
-                            </div>
-                            </div>
-                            <div class="col-sm-6 col-md-4">
-                                <div class="mb-2">
-                                <label class="form-label">Choisissez un équipement</label>
-                                <select class="browser-default custom-select" name="equipmentField" id="equipmentField">
-                                    <option value="" selected>Choisissez un équipement associé</option>
-                                    {% for equipment in all_equipment %}
-                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-2">
-                                <label class="form-label">Choisissez une date (optionnel)</label>
-                                <div id="reportrange" class="browser-default custom-select">
-                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                    <span></span>
-                                    <!-- <span>December 30, 2014 - January 28, 2015</span>-->
-                                </div>
-                                </div>
-                                <!-- 
-                                <input type="text" name="daterange" placeholder="" />-->
-                            </div>
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col text-center">
-                                        <button type="submit" id="submit" class="btn btn-info">Montrer les
-                                            données</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            </br>
-            <!-- Page Heading -->
+    <!-- start form search choc -->
+    {% include "Chocs/viewFormSearch.html" %}
+    <!-- end  form search choc -->
 
-        </div>
-    </div>
+    <!-- start activities chocs datatable -->
+    {% include "Chocs/viewTableDataChocs.html" %}
+    <!-- end  activities chocs datatable -->
 
-    {% include "Chocs/tableDataChocs.html" %}
+    <!-- charts visualization -->
     <div id="containerCharts">
         <div id="containerResultsCharts">
         </div>
     </div>
+    <!-- End charts visualization -->
 </div>
 
 {% endblock %}
@@ -84,11 +32,12 @@
     let diffDays = "";
 
     $(document).ready(function () {
-        
-
-        init_daterangepicker();
 
         var date = Date();
+        init_daterangepicker();
+        initChocDatatable();
+
+
         // When the user select a site, the equipement associated is displayed
         $("#siteID").change(function () {
             var formData = new FormData();
@@ -106,18 +55,8 @@
             xhttp.send(formData);
         });
 
-        $('#tableDataChoc').DataTable({
-            "createdRow": function (row, data, dataIndex) {
-            },
-            "order": [[ 7, "desc" ]],
-            "lengthMenu": [
-                [10, 25, 50, -1],
-                [10, 25, 50, 'All']
-            ],
-            "iDisplayLength": 20
-        });
 
-
+        //AJAX
         var formData = new FormData();
         formData.append('siteID', 26);
         xhttp = new XMLHttpRequest();
@@ -155,7 +94,7 @@
 
             }
         };
-        xhttp.open("POST", "/ControllerData/getChartChocFrequencies");
+        xhttp.open("POST", "/ControllerChocData/getChartChocFrequencies");
         xhttp.send(formData);
     });
 
@@ -181,11 +120,9 @@
                 drawChartPowerChocPerDateBar(response, nameCanvas);
             }
         };
-        xhttp.open("POST", "/ControllerData/getChartPowerChocFrequencies");
+        xhttp.open("POST", "/ControllerChocData/getChartPowerChocFrequencies");
         xhttp.send(formData);
     });
-
-
 
 
     //When the user want to retrieve the data after submitting the form
@@ -201,65 +138,74 @@
         var formData = new FormData();
         //TODO the form used here is the one from Homepage - becareful and change later
         formData.append('siteID', $('#siteID option:selected').val());
-        formData.append('equipmentID', $('#equipmentField option:selected').val());
+        formData.append('deveui', $('#equipmentField option:selected').val());
         formData.append('startDate', startDate);
         formData.append('endDate', endDate);
         formData.append('diffDays', diffDays);
 
         /*console.log("Site selected :", $('#siteID option:selected').val());
-        console.log("Equipement selected :", $('#equipmentField option:selected').val());
+        console.log("Deveui selected :", $('#equipmentField option:selected').val());
         console.log("Start date form :", startDate);
         console.log("End date form :", endDate);*/
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var jsonData = this.responseText;
-                //console.log("Refresh data : ",jsonData);
+                //console.log("Refresh data : ", jsonData);
                 removeElementAndChilds("containerTableDataChoc");
                 removeElementAndChilds("containerResultsCharts");
                 addElement("containerCharts", "div", "containerResultsCharts");
                 $('#containerResultsCharts').html(jsonData);
             }
         };
-        xhttp.open("POST", "/ControllerData/getResultsFromChocForm", false);
+        xhttp.open("POST", "/ControllerChocData/getResultsFromChocForm", false);
         xhttp.send(formData);
 
-        
+
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var choc_data = this.responseText;
                 choc_data = JSON.parse(choc_data);
-                //console.log("Choc data chart : ", choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
+
 
                     var name_data = "equipement_" + i;
                     var name_canvas_nbchoc = "canvas_equipement_nbchoc_" + choc_data[name_data][
-                        'equipementId'
+                        'deveui'
                     ];
                     var name_canvas_powerchoc = "canvas_equipement_powerchoc_" + choc_data[name_data][
-                        'equipementId'
-                    ];
-                    var name_canvas_angle = "canvas_equipement_angle_" + choc_data[name_data][
-                        'equipementId'
-                    ];
-                    //console.log("Length array nb choc : ",choc_data[name_data]['nb_choc_per_day'].length );
-                    if (choc_data[name_data]['nb_choc_per_day'].length > 0) {
-                        drawChartNbChocPerDate(choc_data[name_data]['nb_choc_per_day'], name_canvas_nbchoc);
-                    }
-                    if (choc_data[name_data]['power_choc_per_day'].length > 0) {
-                        drawChartPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'],
-                            name_canvas_powerchoc);
-                    }
 
-                    drawChartAngleXYZFromData(choc_data[name_data]['angleXYZ_per_day'], name_canvas_angle);
+                        'deveui'
+                    ];
+
+                    drawChartNbChocPerDate(choc_data[name_data]['nb_choc_per_day'], name_canvas_nbchoc);
+                    drawChartPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'], name_canvas_powerchoc);
+
+
                 }
             }
         };
-        xhttp1.open("POST", "/ControllerData/getChartsChoc", false);
+        xhttp1.open("POST", "/ControllerChocData/getChartsChoc", false);
         xhttp1.send(formData);
+
     });
 
+    function initChocDatatable() {
+
+        $('#tableDataChoc').DataTable({
+            "createdRow": function (row, data, dataIndex) {
+            },
+            "order": [[7, "desc"]],
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 20
+        });
+
+
+    }
     function init_daterangepicker() {
         moment.locale('fr');
         if (typeof ($.fn.daterangepicker) === 'undefined') {
@@ -280,7 +226,7 @@
             timePickerIncrement: 1,
             timePicker12Hour: true,
             ranges: {
-                'Aucune Date':['09/01/2019',moment()],
+                'Aucune Date': ['09/01/2019', moment()],
                 'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
                 'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],

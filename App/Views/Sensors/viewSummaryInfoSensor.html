@@ -1,0 +1,211 @@
+{# viewSummaryInfoSensor.html #}
+
+<!-- Start Summary Informations sensors -->
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">Information</h3>
+        <div class="d-flex justify-content-between">
+            <div>
+                <div class="row">
+                    <div class="col">
+                        <h4 class="card-title mb-0">{{ infoArr.site }} | {{ infoArr.equipement }} |
+                            {{ infoArr.ligneHT }} | Capteur n°
+                            {{infoArr.device_number}} | ID : {{infoArr.id_device}}</h4>
+                        <div class="small text-muted">{{infoArr.toto}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Widgets basic sensors -->
+        <div class="row mt-5">
+            <!-- Statut s Card  -->
+            <div class="col-md-3 mb-4">
+
+                <div class="card border-left-{% if infoArr.status == 'INACTIVE' %}danger
+                        {% elseif infoArr.status == 'ACTIVE' %}success{% endif %} shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Statut</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.status}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Capteurs inactifs Card  -->
+            <div class="col-md-3 mb-4">
+                <div class="card shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">batterie
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{infoArr.lastBatteryLevel}}
+                                    %</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Alertes Card  -->
+            <div class="col-md-3 mb-4">
+                <div class="card shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Dernier
+                                    message enregistré</div>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                            {{infoArr.lastMsgReceived}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Groupe Card  -->
+            <div class="col-md-3 mb-4">
+                <div class="card shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Nombre total de message</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{infoArr.nbreTotMsg}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Widgets basic sensors -->
+
+        <!-- Start Parameters sections -->
+        <div>
+            <h3 class="card-title">Paramètres</h3>
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <a class="btn btn-sm btn-primary shadow-sm" href="/device/{{infoArr.device_number}}/settings"
+                        alt="">Modifier les paramètres</a>
+                </div>
+
+            </div>
+        </div>
+        <!-- End Parameters sections -->
+
+        <!-- Start brief descriptions sensors -->
+        <h3 class="card-title">Descriptions</h3>
+        <div class="row device-info-container">
+            <!-- brief description widget -->
+            <div class="col-md-5">
+                <div class="row card-row">
+                    <div class="col-md-5" title="groupe">Groupe
+                    </div>
+                    <div class="col-md-7" title="{{infoArr.groupe}}">
+                        {{infoArr.groupe}}
+                    </div>
+                </div>
+                <div class="row card-row">
+                    <div class="col-md-5" title="Date installation">Installé le
+                    </div>
+                    <div class="col-md-7" title="{{infoArr.date_installation}}">
+                        {{infoArr.date_installation}}</div>
+                </div>
+                <div class="row card-row">
+                    <div class="col-md-5" title="Device ID">
+                        Device ID
+                    </div>
+                    <div class="col-md-7" title="{{infoArr.id_device}}">
+                        {{infoArr.id_objenious}}</div>
+                </div>
+                <div class="row card-row">
+                    <div class="col-md-5" title="Deveui">Deveui
+                    </div>
+                    <div class="col-md-7" title="{{infoArr.deveui}}">
+                        {{infoArr.deveui}}</div>
+                </div>
+                <div class="row card-row">
+                    <div class="col-md-5" title="Firmware Version">Version
+                        firmware
+                    </div>
+                    <div class="col-md-7" title="{{infoArr.firmware}}">
+                        {{infoArr.firmware}}</div>
+                </div>
+                <div class="row card-row">
+                    <div class="col-md-5" title="Firmware Version">Version
+                        hardware
+                    </div>
+                    <div class="col-md-7" title="{{infoArr.firmware}}">
+                        {{infoArr.hardware}}</div>
+                </div>
+                <div class="row card-row">
+                    <div class="col-md-5" title="Constructor">Constructeur
+                    </div>
+                    <div class="col-md-7" title="RTE">{{infoArr.constructor}}
+                    </div>
+                </div>
+            </div>
+            <!-- map sensor widget -->
+            <div class="col-md-3">
+                <div align="center" id="deviceMap" style="height:200px;"></div>
+            </div>
+            <!-- weather widget -->
+            <div class="col-md-4">
+                <div class="weather-card">
+                    <div class="weather-icon
+                            {% if 'clear-day' in weatherDataArr.icon %}sun
+                            {% elseif  'rain' in weatherDataArr.icon  %}rain
+                            {% elseif  'cloudy' in weatherDataArr.icon  %}cloud
+                            {% else %}
+                            cloud
+                            {% endif %}"></div>
+                    <h1>{{weatherDataArr.temperature}}º</h1>
+                    <p id="site_weather">{{ infoArr.site }}</p>
+                    <p id="summaryText">{{weatherDataArr.summary}}</p>
+                    <p id="wind">Vent : {{weatherDataArr.windSpeed}} km/h </p>
+                </div>
+            </div>
+        </div>
+        <!-- End brief descriptions sensors -->
+
+        <!-- Start download data section -->
+        <h3 class="card-title">Téléchargement des données</h3>
+
+        <div class="row">
+            <div class="col-md-3">
+                <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                    onclick="window.open('/ControllerSensors/downloadData?exportDataFormat=csv&deveui={{infoArr.deveui}}&type=raw')"><i
+                        class="fas fa-download fa-sm text-white-50"></i> Données brutes </button>
+            </div>
+            <div class="col-md-3">
+                <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                    onclick="window.open('/ControllerSensors/downloadData?exportDataFormat=csv&deveui={{infoArr.deveui}}&type=inclination')"><i
+                        class="fas fa-download fa-sm text-white-50"></i> Données
+                    inclinaison</button>
+            </div>
+            <div class="col-md-3">
+                <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                    onclick="window.open('/ControllerSensors/downloadData?exportDataFormat=csv&deveui={{infoArr.deveui}}&type=shock')"><i
+                        class="fas fa-download fa-sm text-white-50"></i> Données choc</button>
+            </div>
+            <div class="col-md-3">
+                <button id="exportData" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                    onclick="window.open('/ControllerSensors/downloadData?exportDataFormat=excel&deveui={{infoArr.deveui}}&type=spectre')"><i
+                        class="fas fa-download fa-sm text-white-50"></i> Données
+                    spectre</button>
+            </div>
+        </div>
+        <!-- End download data section -->
+
+    </div>
+    <!-- end brief descriptions sensors -->
+</div>
+</div>
+<!-- End Summary Informations sensors -->

@@ -48,17 +48,16 @@ class TemperatureManager extends \Core\Model
     public static function insertDataWeather($dataArr, $site, $dateTime, $API_NAME = "VISUALCROSSING")
     {
 
-        if ($API_NAME == "VISUALCROSSING"){
+        if ($API_NAME == "VISUALCROSSING") {
             TemperatureManager::insertFromVisualCrossingAPI($dataArr, $site);
-
-        }
-        else if ($API_NAME == "DARKSKY"){
+        } else if ($API_NAME == "DARKSKY") {
 
             TemperatureManager::insertFromDarkskyAPI($dataArr, $site, $dateTime);
         }
     }
 
-    private static function insertFromDarkskyAPI($dataArr, $site, $dateTime){
+    private static function insertFromDarkskyAPI($dataArr, $site, $dateTime)
+    {
 
         $temperature = $dataArr["currently"]["temperature"];
         $precipitation = $dataArr["currently"]["precipIntensity"];
@@ -99,7 +98,7 @@ class TemperatureManager extends \Core\Model
         $stmt->bindValue(':site', $site, PDO::PARAM_STR);
         $stmt->bindValue(':temperature', $temperature, PDO::PARAM_STR);
         $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
-         $stmt->bindValue(':precipitation', $precipitation, PDO::PARAM_STR);
+        $stmt->bindValue(':precipitation', $precipitation, PDO::PARAM_STR);
         $stmt->bindValue(':summary', $summary, PDO::PARAM_STR);
         $stmt->bindValue(':icon', $icon, PDO::PARAM_STR);
         $stmt->bindValue(':humidity', $humidity, PDO::PARAM_STR);
@@ -122,11 +121,12 @@ class TemperatureManager extends \Core\Model
         }
     }
 
-    private static function insertFromVisualCrossingAPI($dataArr, $site){
+    private static function insertFromVisualCrossingAPI($dataArr, $site)
+    {
 
         $temperature = $dataArr["temp"];
         $precip = $dataArr["precip"];
-        if (!isset($precip)){
+        if (!isset($precip)) {
             $precip = 0;
         }
         $cloudcover = $dataArr["cloudcover"];
@@ -134,7 +134,7 @@ class TemperatureManager extends \Core\Model
         $windspeed = $dataArr["wspd"];
         $windgust = $dataArr["wgust"];
         $windirection = $dataArr["wdir"];
-        if (isset($dataArr["snow"])){
+        if (isset($dataArr["snow"])) {
             $snow = $dataArr["snow"];
         }
         $snowdepth = $dataArr["snowdepth"];
@@ -158,7 +158,7 @@ class TemperatureManager extends \Core\Model
         $stmt->bindValue(':site', $site, PDO::PARAM_STR);
         $stmt->bindValue(':temperature', $temperature, PDO::PARAM_STR);
         $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
-         $stmt->bindValue(':precip', $precip, PDO::PARAM_STR);
+        $stmt->bindValue(':precip', $precip, PDO::PARAM_STR);
         $stmt->bindValue(':humidity', $humidity, PDO::PARAM_STR);
         $stmt->bindValue(':windspeed', $windspeed, PDO::PARAM_STR);
         $stmt->bindValue(':windgust', $windgust, PDO::PARAM_STR);

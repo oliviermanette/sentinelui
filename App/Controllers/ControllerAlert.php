@@ -23,7 +23,7 @@ class ControllerAlert extends \Core\Controller
      *
      * @return void
      */
-    public function indexAction()
+    public function indexViewAction()
     {
         $user = Auth::getUser();
         $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($user->group_id);

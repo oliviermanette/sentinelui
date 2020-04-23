@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  {% if current_user %}
+  <h3 class="text-center">Bonjour {{ current_user.first_name }} </h3>
+  {% endif %}
+  </br>
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Vue d'ensemble</h1>
+  </div>
+
+  <!-- Widgets -->
+  {% include "Homepage/viewWidgets.html" %}
+  </br>
+
+  <!-- summary sensors info -->
+  {% include "Homepage/viewTableSensorsInfo.html" %}
+
+  <!-- map sensors -->
+  {% include "Homepage/ViewMapSensors.html" %}
+
+</div>
+{% endblock %}
+
+{% block script %}
+
+<script>
+  /* Formatting function for row details - modify as you need */
+  function format(d) {
+    // `d` is the original data object for the row
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+      '<tr>' +
+      '<td><b>Messages:</b></td>' +
+      '<td>' + d.nb_messages + '</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Nombre de choc reçus:</b></td>' +
+      '<td>' + d.nb_choc + '</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Variation X (depuis l\'installation):</b></td>' +
+      '<td>' + d.variationX + ' °</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Variation Y (depuis l\'installation):</b></td>' +
+      '<td>' + d.variationY + ' °</td>' +
+      '</tr>' +
+      '<tr>' +
+      '<td><b>Variation Z (depuis l\'installation)</b></td>' +
+      '<td>' + d.variationZ + ' °</td>' +
+      '</tr>' +
+      '</table>';
+  }
+  $(document).on("click", "a.showAll", function (e) {
+    e.preventDefault();
+    var drawAll = true;
+    // get the form data
+    var formData = {
+      'site_request': $(this).data('site'),
+      'equipement_request': $(this).data('equipement'),
+      'dateMin': '',
+      'dateMax': '',
+      'drawAll': drawAll
+    };
+  });
+
+
+  $(document).on("click", "a.download", function (e) {
+    e.preventDefault();
+    removeElement("container-chart");
+    var drawAll = false;
+    var id_sensor_request = $(this).data('idsensor');
+    var type_msg_request = $(this).data('typemsg');
+    var time_data_request = $(this).data('date');
+    var site_request = $(this).data('site');
+    var equipement_request = $(this).data('equipement');
+
+    var formData = new FormData();
+    formData.append('id_sensor_request', id_sensor_request);
+    formData.append('type_msg_request', type_msg_request);
+    formData.append('time_data_request', time_data_request);
+    formData.append('site_request', site_request);
+    formData.append('equipement_request', equipement_request);
+    formData.append('drawAll', drawAll);
+
+    xhttp1 = new XMLHttpRequest();
+    xhttp1.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var data = this.responseText;
+        //console.log("DATA :", data);
+        data = JSON.parse(data);
+        //console.log("DATA RESULT INDIVIDUAL : ", data);
+        addElement("chart-display-container", "div", "container-chart");
+        addElement("container-chart", "div", "row-chart");
+        addElement("row-chart", "canvas", "chart-specific");
+
+        //$('#canvas').html(data);
+        if (type_msg_request == "global") {
+          drawChartTemperatureFromData(data, "chart-specific");
+        } else if (type_msg_request == "inclinometre") {
+          drawChartInclinometerFromData(data, "chart-specific");
+        } else if (type_msg_request == "choc") {
+          drawChartChocFromData(data, "chart-specific");
+        } else if (type_msg_request == "spectre") {
+          drawChartSubSpectreFromData(data, "chart-specific");
+        }
+
+      }
+    };
+    xhttp1.open("POST", "/ControllerData/getAllCharts", true);
+    xhttp1.send(formData);
+
+  });
+
+
+  $(document).ready(function () {
+
+    var date = Date();
+    $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+    //Load the map
+    fetchDataMap(showMap);
+
+    //Init the datatabme
+    initDataTable();
+
+    /*
+        // Handle click on "Expand All" button
+        $('#btn-show-all-children').on('click', function () {
+          // Expand row details
+          table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
+        });
+    */
+    /* Handle click on "Collapse All" button
+    $('#btn-hide-all-children').on('click', function () {
+      // Collapse row details
+      table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
+    });
+
+    // Add event listener for opening and closing details
+    $('#tableData tbody').on('click', 'td.details-control', function () {
+      var tr = $(this).closest('tr');
+      var row = table.row(tr);
+
+      if (row.child.isShown()) {
+        // This row is already open - close it
+        row.child.hide();
+        tr.removeClass('shown');
+      } else {
+        // Open this row
+        row.child(format(row.data())).show();
+        tr.addClass('shown');
+      }
+    });
+*/
+  });
+
+  function initDataTable() {
+
+    var table = $('#sensorsInfotableData').DataTable({
+      responsive: true,
+      responsive: {
+        details: {
+          type: 'column',
+          target: 'tr'
+        }
+      },
+      "ajax": "../../public/data/HomepageBriefDataRecord.json",
+      "columns": [ /*{
+       "className": 'details-control',
+          "orderable": false,
+          "searchable": true,
+          "data": null,
+          "defaultContent": ''
+        },*/
+        {
+          "data": "sensor_id"
+        },
+        {
+          "data": "site"
+        },
+        {
+          "data": "equipement"
+        },
+        {
+          "data": "ligneHT"
+        },
+        {
+          "data": "last_message_received"
+        },
+        {
+          "data": "status"
+        },
+        {
+          "data": "date_installation"
+        },
+
+
+      ],
+      "columnDefs": [{
+        "targets": 7,
+        "visible": true,
+        "data": "download_link",
+        "render": function (data, type, row, meta) {
+          let sensor_id = row["sensor_id"];
+          let url = "/device/" + sensor_id + "/info";
+          return '<a href="' + url + '">En savoir plus</a>';
+        }
+      },
+      /*{
+      targets: 0,
+      //className: 'details-control',
+      orderable: false,
+      },*/
+      {
+        targets: 5,
+        "render": function (data, type, row, meta) {
+          let status = row["status"];
+          return '<b>' + status + '</b>';
+        }
+      }
+
+      ],
+      "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+        var status = aData["status"];
+        if (status == "ACTIVE") {
+          $('td', nRow).css({
+            //green
+            "background-color": "rgba(152,251,152, 0.15)"
+          })
+        } else {
+          $('td', nRow).css({
+            //Red
+            "background-color": "rgba(254, 16, 16, 0.15)"
+          })
+        }
+      },
+      "lengthMenu": [
+        [10, 25, 50, -1],
+        [10, 25, 50, 'All']
+      ],
+      "iDisplayLength": 20,
+      "order": [[4, "desc"]],
+
+    });
+
+  }
+
+  function fetchDataMap(functionToRun) {
+    var xhttp;
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var jsonData = this.responseText;
+        //console.log(jsonData);
+        return functionToRun(jsonData);
+
+      }
+    };
+    xhttp.open("GET", "/ControllerAccueil/loadDataMap", true);
+    xhttp.send();
+  }
+</script>
+
+{% endblock %}

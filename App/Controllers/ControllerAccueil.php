@@ -31,7 +31,7 @@ class ControllerAccueil extends Authenticated
    *
    * @return void
    */
-  public function indexAction()
+  public function indexViewAction()
   {
     $user = Auth::getUser();
 
@@ -43,7 +43,7 @@ class ControllerAccueil extends Authenticated
     //Create object txt that will contain the brief records
     Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
 
-    View::renderTemplate('Homepage/accueil.html', [
+    View::renderTemplate('Homepage/index.html', [
       'nb_active_sensors' => $nb_active_sensors,
       'nb_inactive_sensors' => $nb_inactive_sensors,
       'nb_active_alerts' => $nb_active_alerts,
@@ -80,35 +80,5 @@ class ControllerAccueil extends Authenticated
     }
     $json_array = json_encode($arr);
     echo $json_array;
-  }
-
-
-  /**
-   * Get all charts
-   *
-   * @return void
-   */
-  public function getAllChartsAction()
-  {
-    //$site_id = $_POST["site_request"];
-    $deveui = $_POST["sensor_deveui_request"];
-    $startDate = $_POST["startDate"];
-    $endDate = $_POST["endDate"];
-
-    $fullSpectreArr = array();
-    //Check if the sensor if generation 2 or 1 because the treatment of the spectres are differents
-    if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
-      //echo "\nProfile 2\n";
-      //Reconstruct spectres
-      $spectresArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-    } else {
-      //echo "\nProfile 1\n";
-      //Reconstruct spectres
-      $spectresArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
-    }
-    $fullSpectreArr["spectres"] = $spectresArr;
-    $fullSpectreArr["deveui"] = $deveui;
-    //$all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate);
-    print json_encode($fullSpectreArr);
   }
 }

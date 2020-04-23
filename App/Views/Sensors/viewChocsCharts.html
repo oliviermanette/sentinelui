@@ -1,23 +1,27 @@
 {# viewChocsCharts.html #}
 
 <div class="card">
-
     <div class="card-body">
-        <h3 class="m-0 font-weight-bold text-primary text-center mb-5">Suivi des chocs</h3>
-        <!-- CHART CHOC  -->
-        <div class="row  justify-content-center">
+        <div class="card-header py-3 d-flex justify-content-center">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Suivi des chocs
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <!--  Bar chart choc  -->
+        <div class="row justify-content-center mt-5">
+            <!-- Nombre de choc par jour Chart -->
             <div class="col-sm-6">
-                <!-- Nombre de choc par jour Chart -->
                 <div class="card mb-4">
                     <div class="card-header py-3 d-flex justify-content-center">
                         <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
                             <div class="row">
-
                                 <div class="col md-6 mb-3">
                                     <div id="reportrangeNbchoc" class="browser-default custom-select">
                                         <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                                         <span>Dates spécifiques</span>
-                                        <!-- <span>December 30, 2014 - January 28, 2015</span>-->
                                     </div>
                                 </div>
                                 <div class="col md-6">
@@ -28,8 +32,8 @@
                                                 autocomplete="off"> Dernier jour
                                         </label>
                                         <label class="btn btn-outline-secondary">
-                                            <input id="option2" type="radio" name="options" autocomplete="off" value="7"
-                                                > Dernière semaine
+                                            <input id="option2" type="radio" name="options" autocomplete="off"
+                                                value="7"> Dernière semaine
                                         </label>
                                         <label class="btn btn-outline-secondary active">
                                             <input id="option3" type="radio" name="options" autocomplete="off"
@@ -45,37 +49,41 @@
                     </div>
                 </div>
             </div>
+            <!-- End Nombre de choc par jour Chart -->
+
+            <!-- puissance choc par jour Chart -->
             <div class="col-sm-6">
                 <!-- Puissance de choc par jour Chart -->
                 <div class="card mb-4">
                     <div class="card-header py-3 d-flex justify-content-between">
                         <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
                             <div class="row">
-                            <div class="col md-6 mb-3">
-                                <div id="reportrangePowerchoc" class="browser-default custom-select">
+                                <div class="col md-6 mb-3">
+                                    <div id="reportrangePowerchoc" class="browser-default custom-select">
                                         <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                                         <span>Dates spécifiques</span>
                                         <!-- <span>December 30, 2014 - January 28, 2015</span>-->
                                     </div>
-                            </div>
-                            <div class="col md-6">
-                                <div id="radioButtonPowerChoc" class="btn-group btn-group-toggle mx-3"
-                                    data-toggle="buttons">
-                                    <label class="btn btn-outline-secondary">
-                                        <input id="option1" type="radio" name="options" value="1" autocomplete="off">
-                                        Dernier jour
-                                    </label>
-                                    <label class="btn btn-outline-secondary">
-                                        <input id="option2" type="radio" name="options" autocomplete="off" value="7"
-                                            > Dernière semaine
-                                    </label>
-                                    <label class="btn btn-outline-secondary active">
-                                        <input id="option3" type="radio" name="options" autocomplete="off" value="30"
-                                            checked="">
-                                        Dernier mois
-                                    </label>
                                 </div>
-                            </div>
+                                <div class="col md-6">
+                                    <div id="radioButtonPowerChoc" class="btn-group btn-group-toggle mx-3"
+                                        data-toggle="buttons">
+                                        <label class="btn btn-outline-secondary">
+                                            <input id="option1" type="radio" name="options" value="1"
+                                                autocomplete="off">
+                                            Dernier jour
+                                        </label>
+                                        <label class="btn btn-outline-secondary">
+                                            <input id="option2" type="radio" name="options" autocomplete="off"
+                                                value="7"> Dernière semaine
+                                        </label>
+                                        <label class="btn btn-outline-secondary active">
+                                            <input id="option3" type="radio" name="options" autocomplete="off"
+                                                value="30" checked="">
+                                            Dernier mois
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -85,8 +93,9 @@
 
                 </div>
             </div>
+            <!-- end puissance choc par jour Chart -->
         </div>
-
+        <!--  End Bar chart choc  -->
     </div>
 
 </div>

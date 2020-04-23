@@ -9,27 +9,27 @@ use \App\Flash;
 
 
 /**
-* Login controller
-*
-* PHP version 7.0
-*/
+ * Login controller
+ *
+ * PHP version 7.0
+ */
 class ControllerLogin extends \Core\Controller
 {
   /**
-  * Show the login page
-  *
-  * @return void
-  */
-  public function newAction()
+   * Show the login page
+   *
+   * @return void
+   */
+  public function loginViewAction()
   {
     View::renderTemplate('Login/index.html');
   }
 
   /**
-  * Log in a user
-  *
-  * @return void
-  */
+   * Log in a user
+   *
+   * @return void
+   */
   public function createAction()
   {
     $user = UserManager::authenticate($_POST['email'], $_POST['password']);
@@ -38,15 +38,14 @@ class ControllerLogin extends \Core\Controller
 
     $demo_account = isset($_POST['demo']);
 
-    if ($user){
+    if ($user) {
 
       Auth::login($user, $remember_me);
 
       Flash::addMessage('Vous êtes bien connecté !');
 
       $this->redirect(Auth::getReturnToPage());
-    }
-    else {
+    } else {
 
       Flash::addMessage('Problème de connexion, veuillez essayer !', Flash::WARNING);
 
@@ -55,14 +54,13 @@ class ControllerLogin extends \Core\Controller
         'remember_me' => $remember_me
       ]);
     }
-
   }
 
   /**
-  * Log out a user
-  *
-  * @return void
-  */
+   * Log out a user
+   *
+   * @return void
+   */
   public function destroyAction()
   {
     Auth::logout();
@@ -71,12 +69,12 @@ class ControllerLogin extends \Core\Controller
   }
 
   /**
-  * Show a "logged out" flash message and redirect to the homepage. Necessary to use the flash messages
-  * as they use the session and at the end of the logout method (destroyAction) the session is destroyed
-  * so a new action needs to be called in order to use the session.
-  *
-  * @return void
-  */
+   * Show a "logged out" flash message and redirect to the homepage. Necessary to use the flash messages
+   * as they use the session and at the end of the logout method (destroyAction) the session is destroyed
+   * so a new action needs to be called in order to use the session.
+   *
+   * @return void
+   */
   public function showLogoutMessageAction()
   {
     Flash::addMessage('Vous êtes bien déconnecté ! ');

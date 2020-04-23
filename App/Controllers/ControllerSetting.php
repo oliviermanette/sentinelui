@@ -23,7 +23,7 @@ class ControllerSetting extends Authenticated
      *
      * @return void
      */
-    public function indexAction()
+    public function settingsViewAction()
     {
         /*
         Auth::rememberRequestedPage();

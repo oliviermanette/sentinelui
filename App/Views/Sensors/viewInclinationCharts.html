@@ -1,0 +1,110 @@
+{# viewInclinationCharts.html #}
+
+<div class="card">
+    <div class="card-body">
+
+        <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Suivi de l'inclinaison</h3>
+        <h6 class="m-0 font-weight-bold text-primary text-center mb-5">Les données commencent à s'afficher à J+1 du jour
+            de l'installation</h6>
+
+        <!--  Scatter chart direction et inclination chart  -->
+        <div class="card-body">
+            <div class="card-header py-3 d-flex justify-content-center">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Direction et inclinaison</h3>
+                    </div>
+                </div>
+            </div>
+            {% if image_path %}
+            <div class="row justify-content-center mt-5 ">
+                <div class="col-md-3">
+                    <div class="img_sensor">
+                        <img src='{{image_path}}' style="width:80%;height:90%;">
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="canvasDirectionInclinometer">
+                        <canvas id="chartDirectionInclinometer" width="600" height="600"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% else%}
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-12">
+                    <div class="canvasDirectionInclinometer">
+                        <canvas id="chartDirectionInclinometer"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% endif%}
+        </div>
+        <!--  End Scatter chart direction et inclination chart  -->
+
+        <!--  line chart inclination speed  -->
+        <div class="card-body">
+            <div class="card-header py-3 d-flex justify-content-center">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Vitesse de déplacement (cm /
+                            jour)
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-12">
+                    <div class="canvasVitesseInclinometer">
+                        <canvas id="chartVitesseInclinometer"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--  End line chart inclination speed  -->
+
+        <!-- line chart absolute variation inclination -->
+        <div class="card-body">
+            <div class="card-header py-3 d-flex justify-content-center">
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Variation absolue d'inclinaison
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center mt-5">
+                <div class="col">
+                    <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+                        <div id="{{val.equipementId}}">
+                            <div id="radioButtonPercentageVariationInclinometer" class="btn-group btn-group-toggle mx-2"
+                                data-toggle="buttons">
+                                <label class="btn btn-outline-secondary active">
+                                    <input type="radio" name="options" autocomplete="off" value="1" checked="">
+                                    Journalier
+                                </label>
+                                <label class="btn btn-outline-secondary">
+                                    <input type="radio" name="options" autocomplete="off" value="7">
+                                    Hebdomadaire
+                                </label>
+                                <label class="btn btn-outline-secondary">
+                                    <input type="radio" name="options" autocomplete="off" value="30">
+                                    Mensuelle
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center mt-5 mb-5">
+                <div class="col-md-12">
+                    <div id="canvasVariationInclinometer">
+                        <canvas id="chartVariationAngleInclinometer"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End line chart absolute variation inclination -->
+
+    </div>
+</div>

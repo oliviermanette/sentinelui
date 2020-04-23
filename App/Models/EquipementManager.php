@@ -132,17 +132,18 @@ class EquipementManager extends \Core\Model
    * @param string $group_name the name of the group we want to retrieve equipment data
    * @return array  results from the query
    */
-  function getEquipementsBySiteId($siteID, $groupId)
+  public static function getEquipementsBySiteId($siteID, $groupId)
   {
     $db = static::getDB();
 
-    $sql_query_equipement_by_id = "SELECT s.device_number, s.deveui, site.nom AS site_name, st.nom AS equipement, st.id AS equipement_id 
+    $sql_query_equipement_by_id = "SELECT s.device_number, s.deveui, site.nom AS site_name,  attr_transmission_line.name AS ligneHT, st.nom AS equipement, st.id AS equipement_id 
     FROM structure AS st
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
     LEFT JOIN sensor AS s ON (s.structure_id = st.id)
     LEFT JOIN sensor_group AS gs ON (gs.sensor_id=s.id)
     LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
     LEFT JOIN site ON (site.id=st.site_id)
-    WHERE gn.group_id = :groupId AND site_id = :siteId";
+    WHERE gn.group_id = :groupId AND st.site_id = :siteId";
 
     $stmt = $db->prepare($sql_query_equipement_by_id);
     $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
@@ -180,6 +181,8 @@ class EquipementManager extends \Core\Model
       }
     }
   }
+
+
 
 
   /**

@@ -7,7 +7,6 @@ use App\Utilities;
 
 /*
 SpectreManager.php
-Handle the spectre data CRUD on the database
 author : Lirone Samoun
 
 */
@@ -16,6 +15,14 @@ class SpectreManager extends \Core\Model
 {
 
 
+  /**
+   * For a specific sensor of generation 1 (firmaware 1.45), reconstitute the whole spectre composed of generally 5 subspectres.
+   *  Search all the spectres received since the first day of installation
+   *
+   * @param string $deveui deveui of the snesor
+   * @return array double array which all spectre recevied from a sensor and each array contain
+   * array that contain the decomposed spectre
+   */
   public static function reconstituteAllSpectreForSensorFirstGeneration($deveui)
   {
     $fullSpectreArr = array();
@@ -65,7 +72,13 @@ class SpectreManager extends \Core\Model
 
     return $fullSpectreArr;
   }
-
+  /**
+   * For a specific sensor of generation 2 (firmaware 2.0), reconstitute the whole spectre composed of generally 5 subspectres
+   *  Search all the spectres received since the first day of installation
+   * @param string $deveui deveui of the snesor
+   * @return array double array which all spectre recevied from a sensor and each array contain
+   * array that contain the decomposed spectre
+   */
   public static function reconstituteAllSpectreForSensorSecondGeneration($deveui)
   {
     $fullSpectreArr = array();
@@ -124,6 +137,15 @@ class SpectreManager extends \Core\Model
     return $fullSpectreArr;
   }
 
+  /**
+   * For a specific sensor of generation 1 (firmaware 1.45), reconstitute the whole spectre composed of generally 5 subspectres.
+   *  Search only one spectre depending of the date
+   *
+   * @param string $deveui deveui of the snesor
+   * @param string $date_request the date we want to request
+   * @return array double array which all spectre recevied from a sensor and each array contain
+   * array that contain the decomposed spectre
+   */
   public static function reconstituteOneSpectreForSensorFirstGeneration($deveui, $date_request)
   {
 
@@ -173,7 +195,14 @@ class SpectreManager extends \Core\Model
     //var_dump($fullSpectreArr);
     return $fullSpectreArr;
   }
-
+  /**
+   * For a specific sensor of generation 2 (firmaware 2.0), reconstitute the whole spectre composed of generally 5 subspectres
+   *  Search only one spectre depending of the date
+   * @param string $deveui deveui of the snesor
+   * @param string $date_request the date we want to request
+   * @return array double array which all spectre recevied from a sensor and each array contain
+   * array that contain the decomposed spectre
+   */
   public static function reconstituteOneSpectreForSensorSecondGeneration($deveui, $date_request)
   {
 
@@ -224,6 +253,13 @@ class SpectreManager extends \Core\Model
     return $fullSpectreArr;
   }
 
+  /**
+   * Get all the subspectres of a sensor given the date of the first measurement of the spectre 
+   * @param string $deveui deveui of the snesor
+   * @param string $date_time_first_measure the date we want to request
+   * @return array double array which all spectre recevied from a sensor and each array contain
+   * array that contain the decomposed spectre
+   */
   public static function getAllSubspectres($deveui, $date_time_first_measure)
   {
     $db = static::getDB();
@@ -312,23 +348,6 @@ class SpectreManager extends \Core\Model
     }
 
     return $dataArr;
-  }
-
-  /**
-   * Get all the subspectre received on a specifc equipement from a specific site
-   *
-   * @param int $site_id
-   * @param int $structure_id
-   * @return array double array which all spectre recevied from a sensor and each array contain
-   * array that contain the decomposed spectre
-   */
-  public function reconstituteAllSpectreFromSpecificEquipement($site_id, $structure_id)
-  {
-    //Retrieve the sensor associated to the site_id and equipement_id
-    $sensor_id = SensorManager::getSensorIdFromEquipementAndSiteId($site_id, $structure_id);
-    $fullSpectreArr = $this->reconstituteAllSpectreForSensorFirstGeneration($sensor_id);
-
-    return $fullSpectreArr;
   }
 
 
@@ -493,37 +512,7 @@ class SpectreManager extends \Core\Model
     }
   }
 
-  //TODO CHECK not workign well : two subspectre 001
-  public static function getAllsubspectreForSensorId($deveui, $date_requested)
-  {
-    $db = static::getDB();
 
-    $sql_subspectre_data = "
-        SELECT s.nom, st.nom, r.sensor_id, r.date_time AS date_time,
-        `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
-        JOIN record AS r ON (r.id=sp.record_id)
-        JOIN sensor on sensor.id = r.sensor_id
-        JOIN structure as st ON (st.id=r.structure_id)
-        JOIN site as s ON (s.id=st.site_id)
-        WHERE sensor.deveui = :deveui AND r.date_time >= :date_requested
-        ORDER BY r.date_time ASC
-        LIMIT 5";
-
-    $stmt = $db->prepare($sql_subspectre_data);
-    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-    $stmt->bindValue(':date_requested', $date_requested, PDO::PARAM_STR);
-    if ($stmt->execute()) {
-      $subspectresTMPArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      $subspectresArr = array();
-      $subspectreID = 0;
-      foreach ($subspectresTMPArr as $subArr) {
-        $subspectre_name = 'subspectre_' . $subspectreID;
-        $subspectresArr[$subspectre_name] = $subArr;
-        $subspectreID += 1;
-      }
-      return $subspectresArr;
-    }
-  }
 
   /**
    * Get specific subspectre received from a sensor given a date
@@ -601,52 +590,6 @@ class SpectreManager extends \Core\Model
     } else {
       echo "\n[Spectre] 1 spectre inserted.\n";
       return true;
-    }
-  }
-
-
-  /**
-   * Get all the spectre messages received from the sensors, for a specific group (RTE for example)
-   *
-   * @param string $group_name the name of the group we want to retrieve spectre data
-   * @return array  results from the query
-   */
-  public function getAllSpectreData($group_name)
-  {
-    $db = static::getDB();
-
-    $sql_spectre_data = "SELECT
-    sensor.id,
-    sensor.deveui,
-    s.nom AS Site,
-    st.nom AS Equipement,
-    r.date_time,
-    r.payload,
-    r.msg_type AS 'Type message',
-    subspectre,
-    subspectre_number,
-    min_freq,
-    max_freq,
-    resolution
-    FROM
-    spectre AS sp
-    LEFT JOIN record AS r ON (r.id = sp.record_id)
-    INNER JOIN structure AS st ON st.id = r.structure_id
-    INNER JOIN site AS s ON s.id = st.site_id
-    INNER JOIN sensor ON (sensor.id = r.sensor_id)
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE
-    gn.name = :group_name
-    AND Date(r.date_time) >= Date(sensor.installation_date)
-
-    ";
-
-    $stmt = $db->prepare($sql_spectre_data);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-    if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      return $results;
     }
   }
 }

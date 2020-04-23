@@ -30,7 +30,7 @@ class ControllerSensors extends Authenticated
      *
      * @return void
      */
-    public function indexAction()
+    public function indexViewAction()
     {
         $user = Auth::getUser();
         //Get some info from the device
@@ -39,7 +39,6 @@ class ControllerSensors extends Authenticated
             'info_sensors_array' => $infoArr
         ]);
     }
-
 
     /**
      * Show the setting page for each sensor
@@ -196,7 +195,7 @@ class ControllerSensors extends Authenticated
      *
      * @return void
      */
-    public function infoAction()
+    public function infoViewAction()
     {
 
         $user = Auth::getUser();

@@ -74,12 +74,14 @@ class Choc extends Message
         $this->power = $totalAreaPower;
     }
 
-    public function getPowerValue()
-    {
-        return $this->power;
-    }
 
-
+    /**
+     * Get the power of a choc
+     *
+     * @param int $precision 
+     * @param string $unite g or mg
+     * @return float  power of the choc
+     */
     public function getPowerValueChoc($precision = 2, $unite = "mg")
     {
         if ($unite == "mg") {

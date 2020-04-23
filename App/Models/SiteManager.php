@@ -44,18 +44,23 @@ class SiteManager extends \Core\Model
     }
   }
 
-
-  public static function getGeoCoordinates($group_name)
+  /**
+   * Get the geo coordinate of a specific site
+   *
+   * @param int $siteId id of the site
+   * @return array  coordinate longitude,latitude
+   */
+  public static function getGeoCoordinates($siteId)
   {
     $db = static::getDB();
 
     $sql = "SELECT site.id, site.nom, site.latitude, site.longitude FROM site
       LEFT JOIN group_site AS gs ON (gs.site_id=site.id)
       LEFT JOIN group_name AS gn ON (gn.group_id=gs.group_id)
-      WHERE gn.name LIKE :group_name";
+      WHERE site.id = :siteId";
 
     $stmt = $db->prepare($sql);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':siteId', $siteId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
       $coordinateDataArr = $stmt->fetchAll(PDO::FETCH_ASSOC);

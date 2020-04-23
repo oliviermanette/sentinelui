@@ -1,0 +1,25 @@
+{# viewSummaryAlertsSensor.html #}
+
+<!-- Start Alerts description sensors -->
+<div id="alertsStructure" class="card-body">
+    <h3 class="m-0 font-weight-bold text-primary text-center mt-3 mb-5">Suivi des alertes</h3>
+    <!-- Alert news sensors -->
+    <div class="card-body">
+        <h4 class="card-title">Alertes relevées par le capteur</h4>
+        {% for message in flash_alerts %}
+        <div class="alert alert-{{ message.type }}" role="alert">
+            {{ message.body }}
+        </div>
+        {% endfor %}
+        {% include "Sensors/viewTableDataNewAlerts.html" %}
+    </div>
+
+    <!-- Alert historique sensors -->
+    <div class="card-body">
+        <h3 class="card-title">Historique des alertes</h3>
+        {% include "Sensors/viewTableDataOldAlerts.html" %}
+    </div>
+
+</div>
+
+<!-- End Alerts description sensors -->
