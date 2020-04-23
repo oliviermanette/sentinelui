@@ -62,12 +62,17 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /**
+   * handle uplink message received by the sensor
+
+   * @param message $message object that contain all the info received by the uplink
+   * @return void
+   */
   private static function handleUplinkMessage($message)
   {
 
     EquipementManager::insertStructureCategory($message->typeStructure);
-
-
+    //Add message received to the database
     $success = RecordManager::insertRecordData($message);
 
     if ($success) {
@@ -202,6 +207,12 @@ class RecordManager extends \Core\Model
     }
   }
 
+  /**
+   * handle event message received by the sensor
+
+   * @param message $message object that contain all the info received by the uplink
+   * @return void
+   */
   private static function handleEventMessage($message)
   {
     $group_id = SensorManager::getGroupOwnerCurrentUser($message->deveui);
@@ -212,142 +223,6 @@ class RecordManager extends \Core\Model
     AlertManager::insertTypeEvent($label, $alert->criticality, $alert->msg);
     AlertManager::insert($alert, $message->status);
     AlertManager::sendAlert($alert, $group_id);
-  }
-
-  /**
-   * Init Pool DB
-   * A pool is automatically created for each different pair (structure_Id, sensor_Id)
-   * found in the record table.
-   *
-   * @param string $group_name group to deal with (RTE)
-   * @return void
-   */
-  function initPool($group_name)
-  {
-
-    $resultsArr = RecordManager::getCoupleStructureIDSensorIDFromRecord($group_name);
-    //print_r($resultsArr);
-    echo "Add to POOL database : \n";
-    foreach ($resultsArr as $coupleArr) {
-      $structure_id = $coupleArr["structure_id"];
-      $sensor_id = $coupleArr["sensor_id"];
-      //Add to the DB
-      if (RecordManager::insertPoolData($structure_id, $sensor_id)) {
-        echo "(Structure_id : " . $structure_id . ", Sensor_id : " . $sensor_id . ") \n";
-      }
-    }
-    echo "\n DONE \n";
-  }
-
-  /**
-   *
-   * @param string $group_name group to deal with (RTE)
-   * @return void
-   */
-  public static function getCoupleStructureIDSensorIDFromRecord($group_name)
-  {
-    $db = static::getDB();
-
-    $sql = "
-    SELECT DISTINCT r.structure_id, r.sensor_id FROM record AS r
-    LEFT JOIN structure AS st ON (st.id=r.structure_id)
-    LEFT JOIN site AS s ON (s.id = st.site_id)
-    LEFT JOIN sensor ON (sensor.id=r.sensor_id)
-    LEFT JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
-    LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
-    WHERE gn.name = :group_name
-    ";
-
-    $stmt = $db->prepare($sql);
-
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
-    if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      return $results;
-    }
-  }
-
-  /**
-   * Get the pool id from a structure and a sensor
-   *
-   * @param int $structure_id id of the structure
-   * @param int $sensor_id id of the sensor
-   * @return int results of the query
-   *  id of the pool
-   *
-   */
-  public function getPoolId($structure_id, $sensor_id)
-  {
-    $db = static::getDB();
-
-    $sql_pool_id = "
-    SELECT DISTINCT id FROM pool
-    WHERE structure_id = :structure_id
-    AND sensor_id = :sensor_id
-    ";
-
-    $stmt = $db->prepare($sql_pool_id);
-
-    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $results[0];
-    }
-  }
-
-  /**
-   * Get all the sensor ID from all the pool
-   *
-   * @return array results of the query
-   *  sensor_id
-   *
-   */
-  public function getAllSensorIdFromPool()
-  {
-    $db = static::getDB();
-
-    $sql = "SELECT sensor_id FROM pool";
-
-    $stmt = $db->prepare($sql);
-
-    if ($stmt->execute()) {
-      $sensorIdArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      return $sensorIdArr;
-    }
-  }
-
-  /**
-   * Insert Pool Data to Database
-   * @param int $structure_id
-   * @param int $sensor_id
-   * @return void
-   */
-  public static function insertPoolData($structure_id, $sensor_id)
-  {
-
-    $db = static::getDB();
-
-    $sql = "INSERT INTO pool(structure_id, sensor_id)
-    SELECT :structure_id, :sensor_id
-    WHERE NOT EXISTS (SELECT * FROM pool
-          WHERE structure_id=:structure_id AND sensor_id=:sensor_id LIMIT 1)";
-
-    $db = static::getDB();
-    $stmt = $db->prepare($sql);
-
-    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
-
-
-    $ok = $stmt->execute();
-
-    $db = null;
-    if ($ok) {
-      return true;
-    }
-    return false;
   }
 
 
@@ -430,37 +305,6 @@ class RecordManager extends \Core\Model
     }
   }
 
-
-  /**
-   * Get the last date of the last message received by a specific sensor
-   *
-   * @param int $sensor_id if of a sensor
-   * @return array results of the query
-   *  date
-   *
-   */
-  public function getLastDateRecordForSensor($sensor_id = 0)
-  {
-    $db = static::getDB();
-    $sql_last_date = "SELECT s.device_number, MAX(DATE(r.date_time)) as dateMaxReceived
-      FROM record AS r
-      LEFT JOIN sensor AS s ON (s.id = r.sensor_id) ";
-    //All date
-    if ($sensor_id != 0) {
-      $sql_last_date .= "WHERE s.id = :sensor_id";
-    }
-    $sql_last_date .= " GROUP BY s.device_number, s.id";
-
-    $stmt = $db->prepare($sql_last_date);
-    if ($sensor_id != 0) {
-      $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    }
-
-    if ($stmt->execute()) {
-      $last_date = $stmt->fetchAll(PDO::FETCH_COLUMN);
-      return $last_date;
-    }
-  }
 
 
   /**
@@ -625,7 +469,7 @@ class RecordManager extends \Core\Model
     }
   }
 
-  function getAllRawRecord()
+  public static function getAllRawRecord()
   {
     $db = static::getDB();
 
@@ -688,45 +532,6 @@ class RecordManager extends \Core\Model
     }
   }
 
-  public function getAllSpecificMsgForSpecificId($site_id, $equipment_id, $typeMSG, $dateMin, $dateMax)
-  {
-
-    $db = static::getDB();
-
-    $sql =  "SELECT sensor.device_number AS `sensorID`,
-    DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') AS `dateTime`,
-    r.msg_type AS `typeMessage`, s.nom AS `site`, st.nom AS `equipement`
-    FROM record as r
-    LEFT JOIN sensor on sensor.id=r.sensor_id
-    LEFT JOIN structure AS st
-    on st.id=r.structure_id
-    LEFT JOIN site AS s
-    ON s.id = st.site_id
-    WHERE ";
-
-    if (!empty($dateMin) && !empty($dateMax)) {
-      $sql .= "date(r.date_time) BETWEEN date(:date_min) and date(:date_max) AND ";
-    }
-
-    $sql .= "Date(r.date_time) >= Date(sensor.installation_date)
-      AND s.id = :site_id AND st.id = :equipment_id order by r.date_time desc ";
-
-    $stmt = $db->prepare($sql);
-
-    if (!empty($dateMin) && !empty($dateMax)) {
-      $stmt->bindValue(':date_min', $dateMin, PDO::PARAM_STR);
-      $stmt->bindValue(':date_max', $dateMax, PDO::PARAM_STR);
-    }
-    //$stmt->bindValue(':type_msg', $typeMSG, PDO::PARAM_INT);
-    $stmt->bindValue(':site_id', $site_id, PDO::PARAM_INT);
-    $stmt->bindValue(':equipment_id', $equipment_id, PDO::PARAM_INT);
-
-    if ($stmt->execute()) {
-
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      return $results;
-    }
-  }
 
   public static function getAllSpecificMsgFromSensor($deveui, $dateMin, $dateMax)
   {
@@ -766,107 +571,141 @@ class RecordManager extends \Core\Model
   }
 
 
-  public function getDataForSpecificChart($time_data, $type_msg, $sensor_id)
+  /**
+   * Init Pool DB
+   * A pool is automatically created for each different pair (structure_Id, sensor_Id)
+   * found in the record table.
+   *
+   * @param string $group_name group to deal with (RTE)
+   * @return void
+   */
+  function initPool($groupId)
+  {
+
+    $resultsArr = RecordManager::getCoupleStructureIDSensorID($groupId);
+    echo "Add to POOL database : \n";
+    foreach ($resultsArr as $coupleArr) {
+      $structure_id = $coupleArr["structure_id"];
+      $sensor_id = $coupleArr["sensor_id"];
+      //Add to the DB
+      if (RecordManager::insertPoolData($structure_id, $sensor_id)) {
+        echo "(Structure_id : " . $structure_id . ", Sensor_id : " . $sensor_id . ") \n";
+      }
+    }
+    echo "\n DONE \n";
+  }
+
+  /**
+   *
+   * @param string $groupId group to deal with 
+   * @return void
+   */
+  public static function getCoupleStructureIDSensorID($groupId)
   {
     $db = static::getDB();
-    $useTimeData = True;
-    if ($type_msg == "global") {
-      //Temperature
-      $sql_query = "SELECT
-      `temperature`,
-      DATE(`date_time`) AS date_d
-      FROM
-      inclinometer AS inc
-      LEFT JOIN record AS r ON (r.id = inc.record_id)
-      WHERE
-      `msg_type` LIKE 'inclinometre'
-      AND `sensor_id` LIKE :sensor_id
-      ORDER BY
-      date_d ASC ";
-      $useTimeData = False;
-    } else if ($type_msg == "inclinometre") {
-      //Inclinometre
-      $sql_query = "SELECT
-      `sensor_id`,
-      DATE(`date_time`) AS date_d,
-      `nx`,
-      `ny`,
-      `nz`,
-      `temperature`,
-      inc.nx,
-      inc.ny,
-      inc.nz,
-      angle_x,
-      angle_y,
-      angle_z,
-      temperature
-      FROM
-      inclinometer AS inc
-      LEFT JOIN record AS r ON (r.id = inc.record_id)
-      WHERE
-      `msg_type` LIKE 'inclinometre'
-      AND `sensor_id` LIKE :sensor_id
-      AND r.date_time LIKE :time_data";
-    } else if ($type_msg == "choc") {
-      //Choc
-      $sql_query = "SELECT
-      `sensor_id`,
-      DATE(`date_time`) AS date_d,
-      amplitude_1,
-      amplitude_2,
-      time_1,
-      time_2,
-      freq_1,
-      freq_2,
-      power
-      FROM
-      choc
-      LEFT JOIN record AS r ON (r.id = choc.record_id)
-      WHERE
-      `msg_type` LIKE 'choc'
-      AND `sensor_id` LIKE :sensor_id
-      AND r.date_time LIKE :time_data
-      ";
-    } else if ($type_msg == "spectre") {
-      //Choc
-      //Sub Spectre
-      $sql_query = "SELECT
-      s.nom,
-      st.nom,
-      r.sensor_id,
-      r.payload,
-      r.date_time AS date_d,
-      subspectre,
-      subspectre_number,
-      min_freq,
-      max_freq,
-      resolution
-      FROM
-      spectre AS sp
-      LEFT JOIN record AS r ON (r.id = sp.record_id)
-      JOIN structure as st ON (st.id = r.structure_id)
-      JOIN site as s ON (s.id = st.site_id)
-      WHERE
-      r.date_time LIKE :time_data
-      AND r.sensor_id = :sensor_id ";
+
+    $sql = "
+    SELECT DISTINCT r.structure_id, r.sensor_id FROM record AS r
+    LEFT JOIN structure AS st ON (st.id=r.structure_id)
+    LEFT JOIN site AS s ON (s.id = st.site_id)
+    LEFT JOIN sensor ON (sensor.id=r.sensor_id)
+    LEFT JOIN sensor_group AS gs ON (gs.sensor_id=sensor.id)
+    LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+    WHERE gn.group_id = :groupId
+    ";
+
+    $stmt = $db->prepare($sql);
+
+    $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
     }
-
-
-    $data = array();
-
-    $stmt = $db->prepare($sql_query);
-
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    if ($useTimeData) {
-      $stmt->bindValue(':time_data', $time_data, PDO::PARAM_STR);
-    }
-
-
-    $stmt->execute();
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    return $data;
   }
+
+  /**
+   * Get the pool id from a structure and a sensor
+   *
+   * @param int $structure_id id of the structure
+   * @param int $sensor_id id of the sensor
+   * @return int results of the query
+   *  id of the pool
+   *
+   */
+  public function getPoolId($structure_id, $sensor_id)
+  {
+    $db = static::getDB();
+
+    $sql_pool_id = "
+    SELECT DISTINCT id FROM pool
+    WHERE structure_id = :structure_id
+    AND sensor_id = :sensor_id
+    ";
+
+    $stmt = $db->prepare($sql_pool_id);
+
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $poolId = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $poolId;
+    }
+  }
+
+  /**
+   * Get all the sensor ID from all the pool
+   *
+   * @return array results of the query
+   *  sensor_id
+   *
+   */
+  public function getAllSensorIdFromPool()
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT sensor_id FROM pool";
+
+    $stmt = $db->prepare($sql);
+
+    if ($stmt->execute()) {
+      $sensorIdArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $sensorIdArr;
+    }
+  }
+
+  /**
+   * Insert Pool Data to Database
+   * @param int $structure_id
+   * @param int $sensor_id
+   * @return void
+   */
+  public static function insertPoolData($structure_id, $sensor_id)
+  {
+
+    $db = static::getDB();
+
+    $sql = "INSERT INTO pool(structure_id, sensor_id)
+    SELECT :structure_id, :sensor_id
+    WHERE NOT EXISTS (SELECT * FROM pool
+          WHERE structure_id=:structure_id AND sensor_id=:sensor_id LIMIT 1)";
+
+    $db = static::getDB();
+    $stmt = $db->prepare($sql);
+
+    $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+
+
+    $ok = $stmt->execute();
+
+    $db = null;
+    if ($ok) {
+      return true;
+    }
+    return false;
+  }
+
 
 
   /**

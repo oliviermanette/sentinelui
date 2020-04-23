@@ -22,7 +22,14 @@ class Inclinometer extends Message
         $this->convertInclinometerDataToAngle($this->X, $this->Y, $this->Z);
     }
 
-
+    /**
+     * convert the raw data inclinometer received by the sensor to angle in degree
+     *
+     * @param float $nx inclination x
+     * @param float $ny inclination y
+     * @param float $nz inclination z
+     * @return void  assign object value of angles
+     */
     private function convertInclinometerDataToAngle($nx, $ny, $nz)
     {
         $xData_g = Utilities::mgToG($nx);

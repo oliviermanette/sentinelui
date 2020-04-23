@@ -47,12 +47,11 @@ class Message
     }
 
 
-
-    public function getFormatMessage()
-    {
-        return $this->typeMsgFormat;
-    }
-
+    /**
+     * Check the type of message received by the sensor
+     *
+     * @return string type of message
+     */
     private function checkTypeMessage($type_msg)
     {
         switch ($type_msg) {
@@ -73,7 +72,11 @@ class Message
         }
     }
 
-
+    /**
+     * Check what is the status of the sensor after receving an event message
+     *
+     * @return string status to add to database
+     */
     private function findStatusSensor($eventType)
     {
         switch ($eventType) {
@@ -88,6 +91,11 @@ class Message
         }
     }
 
+    /**
+     * extract protocole data attribute from Objenious 
+     *
+     * @return void extract and assign to object attribute of message
+     */
     private function extractDeviceProperties()
     {
 
@@ -106,6 +114,11 @@ class Message
         }
     }
 
+    /**
+     * extract protocole data attribute from Objenious 
+     *
+     * @return void extract and assign to object attribute of message
+     */
     private function extractProtocolData()
     {
         if (array_key_exists('port', $this->protocol_data)) {
@@ -114,10 +127,9 @@ class Message
     }
 
     /**
-     * extract external_id data from Objenious (which correspond to the label of a sensor in Objenious)
+     * extract external_id data attribute from Objenious (which correspond to the label of a sensor in Objenious)
      *
-     * @param string $external_id
-     * @return array
+     * @return void extract and assign to object attribute of message
      */
     private function extractExternalId()
     {
@@ -144,6 +156,14 @@ class Message
         }
     }
 
+    /**
+     * Convert timestamp received by the sensor to a date time format that can be added to the database
+     *
+     * @param string $datetimeFormat
+     * @param string $fromTimeZone
+     * @param string $toTimeZone
+     * @return void assign date time to object attribute
+     */
     private function convertTimestampToDateTime($datetimeFormat = 'Y-m-d H:i:s', $fromTimeZone = 'UTC', $toTimeZone = 'CET')
     {
         //At the end we want to have something like this : 2020-04-16T20:05:13
@@ -178,7 +198,7 @@ class Message
 
     /**
      * Decode Payload message in order to extract information. (Inclinometer, battery, choc...)
-     *
+     * Check which sensor if before the treatment because each profile of sensor has different wayt to deal with payload
      *
      * @param string $payload_cleartext uplink payload message
      * @return json  data decoded in json format
@@ -252,7 +272,7 @@ class Message
 
 
     /**
-     * Decode an inclinometer message
+     * Decode an inclinometer message for profile 1 of sensor
      *
      * @param string $payload_cleartext payload data
      * @return json  data decoded in json format which contain the inclinometer raw data
@@ -344,7 +364,7 @@ class Message
     }
 
     /**
-     * Decode a choc message
+     * Decode a choc message for profile 1 of sensor
      *
      * @param string $payload_cleartext payload data
      * @return json  data decoded in json format which contain the choc raw data
@@ -432,7 +452,7 @@ class Message
     }
 
     /**
-     * Decode a global message (battery data)
+     * Decode a global message (battery data) for profile 1 of sensor
      *
      * @param string $payload_cleartext payload data
      * @return json  data decoded in json format which contain the battery raw data
@@ -469,7 +489,7 @@ class Message
     }
 
     /**
-     * Decode a spectre message for sentinel new generation
+     * Decode a spectre message for sentinel new generation 
      *
      * @param string $payload_cleartext payload data
      * @return json  data decoded in json format which contain the spectre raw data
@@ -542,7 +562,7 @@ class Message
     }
 
     /**
-     * Decode a spectre message
+     * Decode a spectre message for profile 1 of sensor
      *
      * @param string $payload_cleartext payload data
      * @return json  data decoded in json format which contain the spectre raw data
@@ -657,5 +677,10 @@ class Message
     {
 
         return $this->software_version;
+    }
+
+    public function getFormatMessage()
+    {
+        return $this->typeMsgFormat;
     }
 }

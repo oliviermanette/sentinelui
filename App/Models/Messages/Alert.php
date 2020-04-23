@@ -36,6 +36,10 @@ class Alert extends Message
 
         $this->equipementId = EquipementManager::getEquipementIdBySensorDeveui($deveui);
     }
+
+    /**
+     * Check the label of an event received by the sensor
+     */
     private function analyseLabel()
     {
         switch ($this->label) {

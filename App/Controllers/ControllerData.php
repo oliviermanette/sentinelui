@@ -58,8 +58,8 @@ class ControllerData extends Authenticated
    */
   public function downloadRawDataAction()
   {
-    $recordManager = new RecordManager();
-    $data = $recordManager->getAllRawRecord();
+
+    $data = RecordManager::getAllRawRecord();
     //var_dump($raw_data);
 
     if ($_GET['exportData'] == "csv") {
@@ -137,8 +137,6 @@ class ControllerData extends Authenticated
     }
     $typeMSG = '';
     $all_specific_msg = RecordManager::getAllSpecificMsgFromSensor($deveui, $startDate, $endDate);
-    //$recordManager = new RecordManager();
-    //$all_specific_msg = $recordManager->getAllSpecificMsgForSpecificId($site_id, $equipement_id, $typeMSG, $startDate, $endDate);
 
     View::renderTemplate('Homepage/viewTableDataSpecific.html', [
       'all_specific_msg'    => $all_specific_msg,

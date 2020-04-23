@@ -149,11 +149,6 @@ class UserManager extends \Core\Model
     $stmt->execute();
 
     $user = $stmt->fetch();
-    //$group = UserManager::findGroupById($id);
-
-    //$user->setGroupName($group["name"]);
-    //$user->setGroupId($group["group_id"]);
-
     return $user;
   }
 
@@ -430,6 +425,12 @@ class UserManager extends \Core\Model
     return false;
   }
 
+  /**
+   * find all the users of a specific group who want to receive alers
+   *
+   * @param int $groupId The id of the group
+   * @return arrays  list of users
+   */
   public static function findToSendAlerts($groupId)
   {
     $db = static::getDB();
