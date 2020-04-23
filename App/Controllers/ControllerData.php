@@ -484,7 +484,7 @@ class ControllerData extends Authenticated
 
           $dateTime = $spectreArr['date_time'];
           $timestamp = strtotime($dateTime);
-          $structure_name = $spectreArr['structure_name'];
+          $structure_name = str_replace(' ', '_', $spectreArr['structure_name']);
 
           //tower225kv_3_spectre_data_19010011_2020-02-12 21_21_22.
           $filename_csv = $structure_name . '_spectre_data_' . $device_number . '_' . $timestamp . '.csv';
