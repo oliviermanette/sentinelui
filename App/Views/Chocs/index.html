@@ -16,35 +16,36 @@
                         <div class="row four fields ">
                             <div class="col-sm-6 col-md-4">
                                 <div class="mb-2">
-                                <label class="form-label">Choisissez un site</label>
-                                <select class="browser-default custom-select" name="siteID" id="siteID">
-                                    <option value="" selected>Choisissez un site</option>
-                                    {% for site in all_site %}
-                                    <option value={{ site.site_id }}>{{ site.site }} </option>
-                                    {% endfor %}
+                                    <label class="form-label">Choisissez un site</label>
+                                    <select class="browser-default custom-select" name="siteID" id="siteID">
+                                        <option value="" selected>Choisissez un site</option>
+                                        {% for site in all_site %}
+                                        <option value={{ site.site_id }}>{{ site.site }} </option>
+                                        {% endfor %}
 
-                                </select>
-                            </div>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-sm-6 col-md-4">
                                 <div class="mb-2">
-                                <label class="form-label">Choisissez un équipement</label>
-                                <select class="browser-default custom-select" name="equipmentField" id="equipmentField">
-                                    <option value="" selected>Choisissez un équipement associé</option>
-                                    {% for equipment in all_equipment %}
-                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                                    <label class="form-label">Choisissez un équipement</label>
+                                    <select class="browser-default custom-select" name="equipmentField"
+                                        id="equipmentField">
+                                        <option value="" selected>Choisissez un équipement associé</option>
+                                        {% for equipment in all_equipment %}
+                                        <option value={{ equipment.equipement_id }}>{{ equipment.equipement }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-2">
-                                <label class="form-label">Choisissez une date (optionnel)</label>
-                                <div id="reportrange" class="browser-default custom-select">
-                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                    <span></span>
-                                    <!-- <span>December 30, 2014 - January 28, 2015</span>-->
-                                </div>
+                                    <label class="form-label">Choisissez une date (optionnel)</label>
+                                    <div id="reportrange" class="browser-default custom-select">
+                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                        <span></span>
+                                        <!-- <span>December 30, 2014 - January 28, 2015</span>-->
+                                    </div>
                                 </div>
                                 <!-- 
                                 <input type="text" name="daterange" placeholder="" />-->
@@ -84,7 +85,7 @@
     let diffDays = "";
 
     $(document).ready(function () {
-        
+
 
         init_daterangepicker();
 
@@ -109,7 +110,7 @@
         $('#tableDataChoc').DataTable({
             "createdRow": function (row, data, dataIndex) {
             },
-            "order": [[ 7, "desc" ]],
+            "order": [[7, "desc"]],
             "lengthMenu": [
                 [10, 25, 50, -1],
                 [10, 25, 50, 'All']
@@ -155,7 +156,7 @@
 
             }
         };
-        xhttp.open("POST", "/ControllerData/getChartChocFrequencies");
+        xhttp.open("POST", "/ControllerChocData/getChartChocFrequencies");
         xhttp.send(formData);
     });
 
@@ -181,7 +182,7 @@
                 drawChartPowerChocPerDateBar(response, nameCanvas);
             }
         };
-        xhttp.open("POST", "/ControllerData/getChartPowerChocFrequencies");
+        xhttp.open("POST", "/ControllerChocData/getChartPowerChocFrequencies");
         xhttp.send(formData);
     });
 
@@ -221,10 +222,10 @@
                 $('#containerResultsCharts').html(jsonData);
             }
         };
-        xhttp.open("POST", "/ControllerData/getResultsFromChocForm", false);
+        xhttp.open("POST", "/ControllerChocData/getResultsFromChocForm", false);
         xhttp.send(formData);
 
-        
+
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -256,7 +257,7 @@
                 }
             }
         };
-        xhttp1.open("POST", "/ControllerData/getChartsChoc", false);
+        xhttp1.open("POST", "/ControllerChocData/getChartsChoc", false);
         xhttp1.send(formData);
     });
 
@@ -280,7 +281,7 @@
             timePickerIncrement: 1,
             timePicker12Hour: true,
             ranges: {
-                'Aucune Date':['09/01/2019',moment()],
+                'Aucune Date': ['09/01/2019', moment()],
                 'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
                 'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],

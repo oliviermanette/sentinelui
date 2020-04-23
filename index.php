@@ -52,7 +52,7 @@ $router->add('support', ['controller' => 'ControllerProfile', 'action' => 'suppo
 //Search data form
 $router->add('search-spectre', ['controller' => 'ControllerSpectreData', 'action' => 'searchSpectreView']);
 //Choc data display
-$router->add('search-choc', ['controller' => 'ControllerData', 'action' => 'searchChoc']);
+$router->add('search-choc', ['controller' => 'ControllerChocData', 'action' => 'searchChocView']);
 //alerts data visualization
 $router->add('alerts', ['controller' => 'ControllerAlert', 'action' => 'indexView']);
 //sensors visualization
