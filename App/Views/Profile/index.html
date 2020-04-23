@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Setting{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <div class="card">
+        <form role="form" action="/ControllerProfile/update" method="post" name="profileform" id="formProfil">
+            <div class="card-body">
+                <h3 class="card-title">Editer le profil</h3>
+
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="mb-2">
+                            <label class="form-label">Entreprise</label>
+                            <input type="text" name="company" class="form-control" placeholder="Entreprise"
+                                value="{{ user.company }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="mb-2">
+                            <label class="form-label">Pseudo</label>
+                            <input type="text" name="username" class="form-control" placeholder="Pseudo"
+                                value="{{ user.username }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="mb-2">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="Email"
+                                value="{{ user.email }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                        <div class="mb-2">
+                            <label class="form-label">Prenom</label>
+                            <input type="text" name="first_name" class="form-control" placeholder="Prenom"
+                                value="{{ user.first_name }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                        <div class="mb-2">
+                            <label class="form-label">Nom de famille</label>
+                            <input type="text" name="last_name" class="form-control" placeholder="Nom de famille"
+                                value="{{ user.last_name }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                        <div class="mb-2">
+                            <label class="form-label">Numero de téléphone</label>
+                            <input type="text" name="phone_number" class="form-control" placeholder="Numéro de téléphone"
+                                value="{{ user.phone_number }}">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="form-label">Addresse</label>
+                            <input type="text" name="adress" class="form-control" placeholder="Adresse"
+                                value="{{ user.adress }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="mb-2">
+                            <label class="form-label">Ville</label>
+                            <input type="text" name="city" class="form-control" placeholder="Ville"
+                                value="{{ user.city }}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="mb-2">
+                            <label class="form-label">Code postal</label>
+                            <input type="number" name="zip_code" class="form-control" placeholder="Code postal"
+                                value="{{ user.zip_code }}">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-2">
+                            <label class="form-label">Pays</label>
+                            <select name="country" class="browser-default custom-select">
+                                <option value="France">France</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-right">
+                <button type="submit" class="btn btn-primary">Mettre à jour le profil</button>
+            </div>
+        </form>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    $(document).ready(function () {
+        /**
+         * Validate the form
+         */
+        
+    });
+</script>
+</script>
+
+{% endblock %}
