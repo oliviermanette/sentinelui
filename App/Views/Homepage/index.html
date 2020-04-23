@@ -16,100 +16,17 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Vue d'ensemble</h1>
   </div>
-  <!-- Content Row -->
-  <div class="row">
-    <!-- Capteurs actifs Card  -->
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-primary shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Capteurs actifs</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{nb_active_sensors}}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Capteurs inactifs Card  -->
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-danger shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Capteurs inactifs</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{nb_inactive_sensors}}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Alertes Card  -->
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-warning shadow h-100 py-2">
-        <a href="/alerts">
-          <div class="card-body">
-            <div class="row no-gutters align-items-center">
-              <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Alertes</div>
-                <div class="row no-gutters align-items-center">
-                  <div class="col-auto">
-                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{nb_active_alerts}}</div>
-                  </div>
-
-                </div>
-              </div>
-              <div class="col-auto">
-                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-              </div>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <!-- Groupe Card  -->
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-info shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Company</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">RTE</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-building fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <!-- Widgets -->
+  {% include "Homepage/viewWidgets.html" %}
   </br>
 
-  {% include "Homepage/tableData.html" %}
-  <div class="card shadow mb-4">
-    <div class="card-header py-3">
-      <h6 class="m-0 font-weight-bold text-primary">Carte des équipements</h6>
-    </div>
-    <div class="card-body">
-      <!-- Container for displaying the map data -->
-      <div class="container">
-        <div align="center" id="map" style="height:500px;"></div>
-      </div>
-    </div>
-  </div>
+  <!-- summary sensors info -->
+  {% include "Homepage/viewTableSensorsInfo.html" %}
 
-  </br>
+  <!-- map sensors -->
+  {% include "Homepage/ViewMapSensors.html" %}
+
 </div>
 {% endblock %}
 
@@ -207,10 +124,48 @@
   $(document).ready(function () {
 
     var date = Date();
+    $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+    //Load the map
     fetchDataMap(showMap);
 
-    $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
-    var table = $('#tableData').DataTable({
+    //Init the datatabme
+    initDataTable();
+
+    /*
+        // Handle click on "Expand All" button
+        $('#btn-show-all-children').on('click', function () {
+          // Expand row details
+          table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
+        });
+    */
+    /* Handle click on "Collapse All" button
+    $('#btn-hide-all-children').on('click', function () {
+      // Collapse row details
+      table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
+    });
+
+    // Add event listener for opening and closing details
+    $('#tableData tbody').on('click', 'td.details-control', function () {
+      var tr = $(this).closest('tr');
+      var row = table.row(tr);
+
+      if (row.child.isShown()) {
+        // This row is already open - close it
+        row.child.hide();
+        tr.removeClass('shown');
+      } else {
+        // Open this row
+        row.child(format(row.data())).show();
+        tr.addClass('shown');
+      }
+    });
+*/
+  });
+
+  function initDataTable() {
+
+    var table = $('#sensorsInfotableData').DataTable({
       responsive: true,
       responsive: {
         details: {
@@ -297,36 +252,7 @@
 
     });
 
-    // Handle click on "Expand All" button
-    $('#btn-show-all-children').on('click', function () {
-      // Expand row details
-      table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
-    });
-
-    /* Handle click on "Collapse All" button
-    $('#btn-hide-all-children').on('click', function () {
-      // Collapse row details
-      table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
-    });*/
-
-    // Add event listener for opening and closing details
-    $('#tableData tbody').on('click', 'td.details-control', function () {
-      var tr = $(this).closest('tr');
-      var row = table.row(tr);
-
-      if (row.child.isShown()) {
-        // This row is already open - close it
-        row.child.hide();
-        tr.removeClass('shown');
-      } else {
-        // Open this row
-        row.child(format(row.data())).show();
-        tr.addClass('shown');
-      }
-    });
-
-  });
-
+  }
 
   function fetchDataMap(functionToRun) {
     var xhttp;

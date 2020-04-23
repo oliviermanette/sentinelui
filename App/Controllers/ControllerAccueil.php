@@ -43,7 +43,7 @@ class ControllerAccueil extends Authenticated
     //Create object txt that will contain the brief records
     Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
 
-    View::renderTemplate('Homepage/accueil.html', [
+    View::renderTemplate('Homepage/index.html', [
       'nb_active_sensors' => $nb_active_sensors,
       'nb_inactive_sensors' => $nb_inactive_sensors,
       'nb_active_alerts' => $nb_active_alerts,
