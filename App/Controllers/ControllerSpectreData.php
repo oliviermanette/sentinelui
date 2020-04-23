@@ -82,7 +82,7 @@ class ControllerSpectreData extends Authenticated
         }
         $fullSpectreArr["spectres"] = $spectresArr;
         $fullSpectreArr["deveui"] = $deveui;
-        //$all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate);
+
         print json_encode($fullSpectreArr);
     }
 

@@ -601,7 +601,7 @@ class AlertManager extends \Core\Model
             echo "\n Envoie du mail à " . $firstName . "\n";
 
             $deveui = $alert->deveui;
-            $sensorName = SensorManager::getSensorLabelFromDeveui($deveui);
+            $sensorName = SensorManager::getDeviceNumberFromDeveui($deveui);
             $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $sensorName . '/info#alertsStructure';
 
             $dateTime = explode(" ", $alert->dateTime);

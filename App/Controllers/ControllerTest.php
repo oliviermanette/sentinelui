@@ -156,34 +156,6 @@ class ControllerTest extends \Core\Controller
 
 
 
-    public static function getTimeSerie($site_id, $equipement_id, $date_ask)
-    {
-        $spectreManager = new SpectreManager();
-        $allSpectreArr = $spectreManager->reconstituteAllSpectreFromSpecificEquipement($site_id, $equipement_id);
-        //print_r($allSpectreArr);
-        //exit();
-        foreach ($allSpectreArr as $spectreArr) {
-
-            //echo "\n==> NEW SPECTRE <== \n";
-            $dateTime = $spectreArr["date_time"];
-            //echo $dateTime;
-            //echo "\n";
-            $dateTime = explode(" ", $dateTime);
-            $date = $dateTime[0];
-            //echo "DATE ASK : ".$date_ask ."\n";
-            //echo "DATE : " . $date . "\n";
-            if ($date === $date_ask) {
-                //print_r($spectreArr);
-                //echo "\nDate Asked : ". $date ."\n";
-                $timeSerie = new TimeSeries();
-                $timeSerie->createFromSpectreArr($spectreArr);
-
-                //print_r($timeSerie->getTimeSerieData());
-                ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $date);
-            }
-        }
-    }
-
     public static function downloadCSV($data, $date)
     {
         $timestamp = time();
@@ -217,7 +189,7 @@ class ControllerTest extends \Core\Controller
         exit();
     }
 
-
+    /*
     public function fillTemperatureDataForSiteAction()
     {
         //Get all latitude and longitude of all the site in the DB
@@ -239,4 +211,5 @@ class ControllerTest extends \Core\Controller
             }
         }
     }
+    */
 }

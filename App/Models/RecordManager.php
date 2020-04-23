@@ -765,64 +765,6 @@ class RecordManager extends \Core\Model
     }
   }
 
-  public static function getAllDataForChart($site_id, $equipment_id, $dateMin, $dateMax)
-  {
-
-    $db = static::getDB();
-    //All
-    $data = array();
-    $data["site_id"] = $site_id;
-    $data["equipment_id"] = $equipment_id;
-    //Find ID sensor from site ID and equipement ID
-    $sensor_id = SensorManager::getSensorIdUsingSiteAndEquipementID($site_id, $equipment_id);
-
-    $query_all_dates = "SELECT r.date_time as date_d FROM
-    `spectre` AS sp
-    JOIN record AS r ON (r.id=sp.record_id)
-    JOIN sensor ON (sensor.id=r.sensor_id)
-    JOIN structure as st ON (st.id=r.structure_id)
-    JOIN site as s ON (s.id=st.site_id)
-    WHERE sp.subspectre_number = '001' AND r.sensor_id = :sensor_id
-    AND Date(r.date_time) >= Date(sensor.installation_date) ";
-    if (!empty($dateMin) && !empty($dateMax)) {
-      $query_all_dates .= "AND (date(r.date_time) BETWEEN date('$dateMin%') and date('$dateMax%')) ";
-    }
-    $query_all_dates .= "ORDER BY r.date_time DESC";
-
-    //echo "</br>";
-    $stmt = $db->prepare($query_all_dates);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $spectrenumber = 0;
-    if ($stmt->execute()) {
-      $row_date_ = $stmt->fetchAll();
-
-      foreach ($row_date_ as $row_date) {
-        $spectre_name = 'spectre_' . $spectrenumber;
-        $current_date = $row_date['date_d'];
-        //Reconstruct the all spectre for the current date
-        $query_all_spectre_i = "SELECT s.nom, st.nom, r.sensor_id, r.date_time AS date,
-        `subspectre`,`subspectre_number`,`min_freq`,`max_freq`,`resolution` FROM `spectre` AS sp
-        JOIN record AS r ON (r.id=sp.record_id)
-        JOIN structure as st ON (st.id=r.structure_id)
-        JOIN site as s ON (s.id=st.site_id)
-        WHERE r.sensor_id = :sensor_id AND r.date_time >= '$current_date'
-        ORDER BY r.date_time ASC
-        LIMIT 5";
-
-        $stmt = $db->prepare($query_all_spectre_i);
-        $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-
-        if ($stmt->execute()) {
-          while ($row_spectre = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $data["spectre_data"][$spectre_name][] = $row_spectre;
-          }
-        }
-        $spectrenumber++;
-      }
-    }
-    return $data;
-    //
-  }
 
   public function getDataForSpecificChart($time_data, $type_msg, $sensor_id)
   {
