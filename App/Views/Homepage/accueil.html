@@ -122,23 +122,23 @@
     return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
       '<tr>' +
       '<td><b>Messages:</b></td>' +
-      '<td>' + d.nb_messages +'</td>' +
+      '<td>' + d.nb_messages + '</td>' +
       '</tr>' +
       '<tr>' +
       '<td><b>Nombre de choc reçus:</b></td>' +
-      '<td>' + d.nb_choc +'</td>' +
+      '<td>' + d.nb_choc + '</td>' +
       '</tr>' +
       '<tr>' +
       '<td><b>Variation X (depuis l\'installation):</b></td>' +
-      '<td>' + d.variationX +' °</td>' +
+      '<td>' + d.variationX + ' °</td>' +
       '</tr>' +
       '<tr>' +
       '<td><b>Variation Y (depuis l\'installation):</b></td>' +
-      '<td>' + d.variationY +' °</td>' +
+      '<td>' + d.variationY + ' °</td>' +
       '</tr>' +
       '<tr>' +
       '<td><b>Variation Z (depuis l\'installation)</b></td>' +
-      '<td>' + d.variationZ +' °</td>' +
+      '<td>' + d.variationZ + ' °</td>' +
       '</tr>' +
       '</table>';
   }
@@ -198,7 +198,7 @@
 
       }
     };
-    xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
+    xhttp1.open("POST", "/ControllerData/getAllCharts", true);
     xhttp1.send(formData);
 
   });
@@ -209,7 +209,7 @@
     var date = Date();
     fetchDataMap(showMap);
 
-    $.fn.dataTable.moment( 'DD/MM/YYYY HH:mm:ss' );
+    $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
     var table = $('#tableData').DataTable({
       responsive: true,
       responsive: {
@@ -245,7 +245,7 @@
           "data": "status"
         },
         {
-        "data": "date_installation"
+          "data": "date_installation"
         },
 
 
@@ -258,23 +258,23 @@
           let sensor_id = row["sensor_id"];
           let url = "/device/" + sensor_id + "/info";
           return '<a href="' + url + '">En savoir plus</a>';
-          }
-        },
-        /*{
-        targets: 0,
-        //className: 'details-control',
-        orderable: false,
-        },*/
-        {
+        }
+      },
+      /*{
+      targets: 0,
+      //className: 'details-control',
+      orderable: false,
+      },*/
+      {
         targets: 5,
         "render": function (data, type, row, meta) {
-            let status = row["status"];
-            return '<b>' + status +'</b>';
+          let status = row["status"];
+          return '<b>' + status + '</b>';
         }
-        }
+      }
 
       ],
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         var status = aData["status"];
         if (status == "ACTIVE") {
           $('td', nRow).css({
@@ -293,7 +293,7 @@
         [10, 25, 50, 'All']
       ],
       "iDisplayLength": 20,
-      "order": [[ 4, "desc" ]],
+      "order": [[4, "desc"]],
 
     });
 

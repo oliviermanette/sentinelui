@@ -203,7 +203,7 @@
                 removeElement("row-button-download");
 
                 addElement("chart-display-container", "div", "row-button-download");
-                var link = "/ControllerData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
+                var link = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
                 //console.log("xhttp1.onreadystatechange -> link", link);
 
                 addButton("row-button-download", "Telecharger toutes les données (zip)", link);
@@ -223,7 +223,7 @@
                     //console.log("xhttp1.onreadystatechange -> date_time", date_time);
 
                     var link =
-                        "/ControllerData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
+                        "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
                     addButton("row-chart", "Telecharger le spectre", link);
                 }
 
@@ -237,7 +237,7 @@
 
             }
         };
-        xhttp1.open("POST", "/ControllerAccueil/getAllCharts", true);
+        xhttp1.open("POST", "/ControllerSpectreData/getAllCharts", true);
         xhttp1.send(formData);
 
     });

@@ -1,30 +1,34 @@
 <?php
 
+
 namespace App\Controllers;
 
 use \Core\View;
-use \App\Auth;
-use \App\Models\SensorManager;
-use \App\Models\API\SensorAPI;
+use \App\Utilities;
 use \App\Models\RecordManager;
-use \App\Models\SiteManager;
+use \App\Models\InclinometerManager;
+use \App\Models\EquipementManager;
 use \App\Models\SpectreManager;
-use \App\Models\TemperatureManager;
-use \App\Models\TimeSeriesManager;
-use \App\Models\TimeSeries;
-use \App\Models\API\TemperatureAPI;
-use \App\Models\NetworkAI\NeuralNetwork;
-use \App\Models\NetworkAI\NeuralNetworkManager;
-use \App\Flash;
-use App\Utilities;
-use Core\Controller;
+use \App\Models\SensorManager;
+use App\Models\API\TemperatureAPI;
+use App\Models\TemperatureManager;
+use \App\Models\API\SensorAPI;
 
-/**
- * Time Series controller
- * PHP version 7.0
- */
+ini_set('error_reporting', E_ALL);
+error_reporting(-1); // reports all errors
+ini_set("display_errors", "1"); // shows all errors
+ini_set("log_errors", 1);
+ini_set("error_log", "./log/error.log");
+/*
+ControllerDataObjenious.php
+author : Lirone Samoun
 
-class ControllerInit extends \Core\Controller
+Briefly : for testing purpose
+
+/data
+
+*/
+class ControllerTest extends \Core\Controller
 {
 
     public function testApiAction()
@@ -33,27 +37,24 @@ class ControllerInit extends \Core\Controller
         SensorAPI::getNbStatutsSensorsFromApi("RTE");
     }
 
-    public function fillTemperatureDataForSiteAction()
+
+    public function testSQLAction()
     {
-        //Get all latitude and longitude of all the site in the DB
-        $coordinateDataArr = SiteManager::getGeoCoordinates("RTE");
 
-        foreach ($coordinateDataArr as $coordinateData) {
+        $deveui = '0004A30B00E7D410';
+        $date_time_first_measure = '2020-03-29 20:49:36';
+        //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
+        //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+        $dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
 
-            $latitude = $coordinateData["latitude"];
-            $longitude = $coordinateData["longitude"];
-            $site = $coordinateData["nom"];
-            $startDate = "2019-09-01";
-            $endDate = "2020-02-25";
-            $temperatureDataArr = TemperatureAPI::getHistoricalTemperatureData($latitude, $longitude, $startDate, $endDate);
-            //print_r($temperatureDataArr);
-            foreach ($temperatureDataArr as $temperatureData) {
-                $date = $temperatureData["date"];
-                $temperature = $temperatureData["temperature"];
-                TemperatureManager::insert($temperature, $site, $date);
-            }
-        }
+        $fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+        var_dump($fullSpectreArr);
+        $spectreManager = new SpectreManager();
+        //$spectreManager->getActivityData($deveui);
+        //$spectreManager->reconstituteAllSpectreForSensorFirstGeneration($deveui);
+        //$spectreManager->getAllSubspectres($deveui, $date_time_first_measure);
     }
+
 
     /**
      * TESTING PURPOSE
@@ -214,5 +215,28 @@ class ControllerInit extends \Core\Controller
         //Close the file pointer.
         fclose($output);
         exit();
+    }
+
+
+    public function fillTemperatureDataForSiteAction()
+    {
+        //Get all latitude and longitude of all the site in the DB
+        $coordinateDataArr = SiteManager::getGeoCoordinates("RTE");
+
+        foreach ($coordinateDataArr as $coordinateData) {
+
+            $latitude = $coordinateData["latitude"];
+            $longitude = $coordinateData["longitude"];
+            $site = $coordinateData["nom"];
+            $startDate = "2019-09-01";
+            $endDate = "2020-02-25";
+            $temperatureDataArr = TemperatureAPI::getHistoricalTemperatureData($latitude, $longitude, $startDate, $endDate);
+            //print_r($temperatureDataArr);
+            foreach ($temperatureDataArr as $temperatureData) {
+                $date = $temperatureData["date"];
+                $temperature = $temperatureData["temperature"];
+                TemperatureManager::insert($temperature, $site, $date);
+            }
+        }
     }
 }

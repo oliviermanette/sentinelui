@@ -31,7 +31,7 @@ class ControllerAccueil extends Authenticated
    *
    * @return void
    */
-  public function indexAction()
+  public function indexViewAction()
   {
     $user = Auth::getUser();
 
@@ -82,33 +82,3 @@ class ControllerAccueil extends Authenticated
     echo $json_array;
   }
 
-
-  /**
-   * Get all charts
-   *
-   * @return void
-   */
-  public function getAllChartsAction()
-  {
-    //$site_id = $_POST["site_request"];
-    $deveui = $_POST["sensor_deveui_request"];
-    $startDate = $_POST["startDate"];
-    $endDate = $_POST["endDate"];
-
-    $fullSpectreArr = array();
-    //Check if the sensor if generation 2 or 1 because the treatment of the spectres are differents
-    if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
-      //echo "\nProfile 2\n";
-      //Reconstruct spectres
-      $spectresArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-    } else {
-      //echo "\nProfile 1\n";
-      //Reconstruct spectres
-      $spectresArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
-    }
-    $fullSpectreArr["spectres"] = $spectresArr;
-    $fullSpectreArr["deveui"] = $deveui;
-    //$all_charts_data = RecordManager::getAllDataForChart($site_id, $equipement_id, $startDate, $endDate);
-    print json_encode($fullSpectreArr);
-  }
-}

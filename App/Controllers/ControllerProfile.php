@@ -21,7 +21,7 @@ class ControllerProfile extends Authenticated
      *
      * @return void
      */
-    public function indexAction()
+    public function profileViewAction()
     {
         Auth::rememberRequestedPage();
 
@@ -37,7 +37,8 @@ class ControllerProfile extends Authenticated
      *
      * @return void
      */
-    public function supportAction(){
+    public function supportViewAction()
+    {
         View::renderTemplate('Support/index.html', []);
     }
 
@@ -46,16 +47,17 @@ class ControllerProfile extends Authenticated
      *
      * @return void
      */
-    public function updateAction(){
+    public function updateAction()
+    {
         //Get data from form
         $dataProfil = $_POST;
         //Get the current user
         $user = Auth::getUser();
         $user_id = $user->id;
         //Edit account by updating the DB
-        if(UserManager::editAccount($user_id, $dataProfil)){
+        if (UserManager::editAccount($user_id, $dataProfil)) {
             Flash::addMessage('Mise à jour réussie du profil');
-        }else{
+        } else {
             Flash::addMessage('Erreur avec la mise à jour du profil', Flash::WARNING);
         }
 
