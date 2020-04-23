@@ -56,154 +56,53 @@ class ControllerChocData extends Authenticated
     }
 
 
-
-    /**
-     * When the user perform the search through the form, display basic infos
-     * sensor_id, device_number ,ligneHT, equipement, equipementId
-     * last message received date, lastScore, nb_choc_received_today,
-     * lastChocPower, temperature
-     *
-     * @return void
-     */
-    /*
-    public function getResultsFromChocFormAction()
+    private function getChocData($deveui)
     {
-        $user = Auth::getUser();
-        $allStructureData = array();
+        $sensor = SensorManager::getSensorInfo($deveui);
+        $device_number = $sensor["device_number"];
+        $transmission_line_name = $sensor["transmission_line_name"];
+        $structure_name = $sensor["structure_name"];
 
-        $recordManager = new RecordManager();
-        $chocManager = new ChocManager();
-        $siteManager = new SiteManager();
-        $inclinometerManager = new InclinometerManager();
-        $sensorManager = new SensorManager();
 
-        $searchSpecificEquipement = false;
-        if (isset($_POST['siteID'])) {
-            $siteID = $_POST['siteID'];
-        }
+        $lastdate = SensorManager::getLastDataReceivedData($deveui);
+        $status = SensorManager::getStatusDevice($deveui);
 
-        if (!isset($_POST['equipmentID'])) {
-            $equipement_id = $_POST['equipmentID'];
-            $searchSpecificEquipement = true;
-        }
-        $startDate = "";
-        $endDate = "";
-        if (!empty($_POST['startDate']) && !empty($_POST['endDate'])) {
-            $startDate = $_POST['startDate'];
-            $endDate = $_POST['endDate'];
-            $searchByDate = true;
-        }
+        $choc_power_data = ChocManager::getLastChocPowerValueForSensor($deveui);
 
-        $searchSpecificEquipement = False;
-
-        if ($searchSpecificEquipement) {
-            $equipementInfo = EquipementManager::getEquipementFromId($equipement_id);
-
-            $equipement_pylone = $equipementInfo['equipement'];
-            $equipement_name = $equipementInfo['ligneHT'];
-            //Get the sensor ID on the associated structure
-            $sensor_id = EquipementManager::getSensorIdOnEquipement($equipement_id);
-            //Get the device number
-            $device_number = SensorManager::getDeviceNumberFromSensorId($sensor_id);
-
-            //Get the last date where the sensor received
-            $lastdate = RecordManager::getDateLastReceivedData($equipement_id);
-            //Get the status of the device
-            $status = SensorManager::getStatusDevice($sensor_id);
-            //Get the choc data
-            $choc_power_data = ChocManager::getLastChocPowerValueForSensor($sensor_id);
-            if (!empty($choc_power_data)) {
-                $last_choc_power = $choc_power_data[0]['power'];
-                $last_choc_date = $choc_power_data[0]['date'];
-            } else {
-                $last_choc_power = 0;
-            }
-
-            $nb_choc_received_today = $chocManager->getNbChocReceivedTodayForSensor($sensor_id);
-            $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
-
-            $allStructureData[0] = array(
-                'sensor_id' => $sensor_id,
-                'status' => $status,
-                'device_number' => $device_number,
-                'ligneHT' => $equipement_name,
-                'equipement' => $equipement_pylone,
-                'equipementId' => $equipement_id,
-                'lastDate' => $lastdate,
-                'nb_choc_received_today' => $nb_choc_received_today,
-                'lastChocPower' => $last_choc_power,
-                'startDate' => $startDate, 'endDate' => $endDate
-            );
+        if (is_null($choc_power_data)) {
+            $last_choc_power = 0;
         } else {
-
-            $equipements_site = EquipementManager::getEquipementsBySiteId($siteID, $user->group_id);
-
-            $count = 0;
-            foreach ($equipements_site as $equipement) {
-                $index_array = "equipement_" . $count;
-                //Get equipement data
-                $equipement_id = $equipement['equipement_id'];
-                $equipement_pylone = $equipement['equipement'];
-                $equipement_name = $equipement['ligneHT'];
-
-                //Get the sensor ID on the associated structure
-                $sensorsDeveuiArr = SensorManager::getDeveuiFromEquipement($equipement_id);
-                //Get the device number
-                $device_number = $sensorManager->getDeviceNumberFromSensorId($sensor_id);
-
-                //Get the last date where the sensor received
-                $lastdate = $recordManager->getDateLastReceivedData($equipement_id);
-                //Get the status of the device
-                $status = $sensorManager->getStatusDevice($sensor_id);
-                //Get the choc data
-                $choc_power_data = $chocManager->getLastChocPowerValueForSensor($sensor_id);
-                if (!empty($choc_power_data)) {
-                    $last_choc_power = $choc_power_data[0]['power'];
-                    $last_choc_date = $choc_power_data[0]['date'];
-                } else {
-                    $last_choc_power = 0;
-                }
-
-                $nb_choc_received_today = $chocManager->getNbChocReceivedTodayForSensor($sensor_id);
-                $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
-
-                $allStructureData[$index_array] = array(
-                    'sensor_id' => $sensor_id,
-                    'status' => $status,
-                    'device_number' => $device_number,
-                    'ligneHT' => $equipement_name,
-                    'equipement' => $equipement_pylone,
-                    'equipementId' => $equipement_id,
-                    'lastDate' => $lastdate,
-                    'nb_choc_received_today' => $nb_choc_received_today,
-                    'lastChocPower' => $last_choc_power,
-                    'startDate' => $startDate, 'endDate' => $endDate
-                );
-
-                $count += 1;
-            }
+            $last_choc_power = $choc_power_data['power'];
+            $last_choc_date = $choc_power_data['date'];
         }
 
-        View::renderTemplate('Chocs/viewDataChocCards.html', [
-            'all_structure_data' => $allStructureData,
-            'user' => $user,
-            'site' => $siteID,
-        ]);
+        $nb_choc_received_today = ChocManager::getNbChocReceivedTodayForSensor($deveui);
+        $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
+
+        return array(
+            'deveui' => $deveui,
+            'status' => $status,
+            'device_number' => $device_number,
+            'ligneHT' => $transmission_line_name,
+            'structure_name' => $structure_name,
+            'lastDate' => $lastdate,
+            'nb_choc_received_today' => $nb_choc_received_today,
+            'lastChocPower' => $last_choc_power,
+            //'startDate' => $startDate, 'endDate' => $endDate
+        );
     }
-*/
     public function getResultsFromChocFormAction()
     {
         $user = Auth::getUser();
         $allStructureData = array();
 
-        $searchSpecificSensor = false;
+        $searchSpecificSensor = true;
         if (isset($_POST['siteID'])) {
             $siteId = $_POST['siteID'];
         }
 
-        if (!isset($_POST['deveui'])) {
-            $deveui = $_POST['deveui'];
-            $searchSpecificSensor = true;
+        if (empty($_POST['deveui'])) {
+            $searchSpecificSensor = false;
         }
         $startDate = "";
         $endDate = "";
@@ -214,7 +113,11 @@ class ControllerChocData extends Authenticated
         }
 
         if ($searchSpecificSensor) {
-            //TODO
+            $deveui = $_POST['deveui'];
+
+            $dataArr = $this->getChocData($deveui);
+
+            $allStructureData[0] = $dataArr;
         } else {
 
             //Loop over all sensors in a specific site
@@ -224,37 +127,8 @@ class ControllerChocData extends Authenticated
 
                 $index_array = "equipement_" . $count;
                 $deveui = $sensor["deveui"];
-                $device_number = $sensor["device_number"];
-                $transmission_line_name = $sensor["transmission_line_name"];
-                $structure_name = $sensor["structure_name"];
-
-
-                $lastdate = SensorManager::getLastDataReceivedData($deveui);
-                $status = SensorManager::getStatusDevice($deveui);
-
-                $choc_power_data = ChocManager::getLastChocPowerValueForSensor($deveui);
-
-                if (is_null($choc_power_data)) {
-                    $last_choc_power = 0;
-                } else {
-                    $last_choc_power = $choc_power_data['power'];
-                    $last_choc_date = $choc_power_data['date'];
-                }
-
-                $nb_choc_received_today = ChocManager::getNbChocReceivedTodayForSensor($deveui);
-                $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
-
-                $allStructureData[$index_array] = array(
-                    'deveui' => $deveui,
-                    'status' => $status,
-                    'device_number' => $device_number,
-                    'ligneHT' => $transmission_line_name,
-                    'structure_name' => $structure_name,
-                    'lastDate' => $lastdate,
-                    'nb_choc_received_today' => $nb_choc_received_today,
-                    'lastChocPower' => $last_choc_power,
-                    'startDate' => $startDate, 'endDate' => $endDate
-                );
+                $dataArr = $this->getChocData($deveui);
+                $allStructureData[$index_array] = $dataArr;
 
                 $count += 1;
             }

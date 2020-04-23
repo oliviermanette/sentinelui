@@ -149,6 +149,25 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getSensorInfo($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_sensor_id = "SELECT DISTINCT *, attr_transmission_line.name AS transmission_line_name, site.nom AS site_name, st.nom AS structure_name FROM sensor
+    LEFT JOIN structure as st ON st.id= sensor.structure_id
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
+    LEFT JOIN site ON site.id = st.site_id
+    WHERE sensor.deveui = :deveui";
+
+    $stmt = $db->prepare($sql_sensor_id);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $sensorsInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $sensorsInfo;
+    }
+  }
+
   public static function getGroupOwnerCurrentUser($deveui)
   {
     $db = static::getDB();
