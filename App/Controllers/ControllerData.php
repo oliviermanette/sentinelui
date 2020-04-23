@@ -495,7 +495,7 @@ class ControllerData extends Authenticated
             //in order to collate the column names.
             $firstRow = $dataArr[0];
             foreach ($firstRow as $colName => $val) {
-              $columnNames[] = $colName;
+              $columnNames[] = strtoupper($colName);
             }
           }
           $output = fopen("php://temp/maxmemory:1048576", "w");
