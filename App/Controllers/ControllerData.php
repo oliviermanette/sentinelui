@@ -458,6 +458,8 @@ class ControllerData extends Authenticated
       $deveui = $_GET['deveui'];
       $type =  $_GET['type'];
       $device_number = SensorManager::getDeviceNumberFromDeveui($deveui);
+      $structure_info = SensorManager::getStructureWhereIsInstalled($deveui);
+
 
       if ($type == "spectre") {
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
@@ -471,8 +473,8 @@ class ControllerData extends Authenticated
         $options->setSendHttpHeaders(true);
 
         # create a new zipstream object
-        $timestamp = time();
-        $filename_zip = 'Export_data_' . $device_number . '_' . $timestamp . '.zip';
+        $timestamp_now = time();
+        $filename_zip = 'Export_data_spectres_' . $device_number . '_' . $timestamp_now . '.zip';
         $zip = new ZipStream\ZipStream($filename_zip, $options);
 
         foreach ($dataArr as $spectreArr) {
@@ -481,10 +483,11 @@ class ControllerData extends Authenticated
           $dataArr = $timeSerie->getTimeSerieData();
 
           $dateTime = $spectreArr['date_time'];
+          $timestamp = strtotime($dateTime);
           $structure_name = $spectreArr['structure_name'];
 
-
-          $filename_csv = 'spectre_data_' . $device_number . '_' . $dateTime . '_' . $structure_name . '.csv';
+          //tower225kv_3_spectre_data_19010011_2020-02-12 21_21_22.
+          $filename_csv = $structure_name . '_spectre_data_' . $device_number . '_' . $timestamp . '.csv';
 
           $columnNames = array();
           if (!empty($dataArr)) {
