@@ -592,3 +592,4 @@ class SpectreManager extends \Core\Model
       return true;
     }
   }
+}
