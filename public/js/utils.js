@@ -176,3 +176,118 @@ function computeRatioAxis(dataArr) {
 
   return obj
 }
+
+
+function accumulatedTable32(decimal) {
+  var numb = parseInt(decimal)
+  if (numb > 255 || numb < -255) {
+    return null;
+  }
+
+  if (numb / 255 == 1) {
+    res = 32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + 32 * 4 + 32 * 8 + 32 * 16
+    return res
+  }
+
+  if (numb / 224 > 1) {
+    res = 32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + 32 * 4 + 32 * 8 + (numb - 224) * 16
+    return res
+  }
+
+  if (numb / 192 > 1) {
+    res = 32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + 32 * 4 + (numb - 192) * 8
+    return res
+  }
+
+  if (numb / 160 > 1) {
+    res = 32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + (numb - 160) * 4
+    return res
+  }
+
+  if (numb / 128 > 1) {
+    res = 32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + (numb - 128) * 2
+    return res
+  }
+
+  if (numb / 96 > 1) {
+    res = 32 * 0.125 + 32 * 0.25 + 32 * 0.5 + (numb - 96) * 1
+    return res
+  }
+
+  if (numb / 64 > 1) {
+    res = 32 * 0.125 + 32 * 0.25 + (numb - 64) * 0.5
+    return res
+  }
+
+  if (numb / 32 > 1) {
+    res = 32 * 0.125 + (numb - 32) * 0.25
+    return res
+  }
+
+  if (numb / 32 == 1) {
+    res = 32 * 0.125
+    return res
+  }
+
+  if (numb < 32 && numb > 0) {
+    res = numb * 0.125
+    return res
+  }
+
+  if (numb == 0) {
+    res = 0
+    return res
+  }
+  //NEGATIF PART
+  if (numb / 255 == -1) {
+    res = -(32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + 32 * 4 + 32 * 8 + 32 * 16)
+    return res
+  }
+
+  if (numb / 224 < -1) {
+    res = -(32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + 32 * 4 + 32 * 8 + (-numb - 224) * 16)
+    return res
+  }
+
+  if (numb / 192 < -1) {
+    res = -(32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + 32 * 4 + (-numb - 192) * 8)
+    return res
+  }
+
+  if (numb / 160 < -1) {
+    res = -(32 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + 32 * 2 + (-numb - 160) * 4)
+    return res
+  }
+
+  if (numb / 128 < -1) {
+    res = -(132 * 0.125 + 32 * 0.25 + 32 * 0.5 + 32 * 1 + (-numb - 128) * 2)
+    return res
+  }
+
+  if (numb / 96 < -1) {
+    res = -(32 * 0.125 + 32 * 0.25 + 32 * 0.5 + (-numb - 96) * 1)
+    return res
+  }
+
+  if (numb / 64 < -1) {
+    res = -(32 * 0.125 + 32 * 0.25 + (-numb - 64) * 0.5)
+    return res
+  }
+
+  if (numb / 32 < -1) {
+    res = -(32 * 0.125 + (-numb - 32) * 0.25)
+    return res
+  }
+
+  if (numb / 32 == -1) {
+    res = -32 * 0.125
+    return res
+  }
+
+  if (numb > -32 && numb < 0) {
+    res = numb * 0.125
+    return res
+  }
+
+
+}

@@ -1309,9 +1309,9 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
       //console.log("nouveau sub");
       //Loop over data of each subspectre
       for (var j = 0; j < spectreData[nameSub]["data"].length / 2; j++) {
-        var y_data_amplitudeArr = hex2dec(
+        var y_data_amplitudeArr = accumulatedTable32(hex2dec(
           spectreData[nameSub]["data"].substring(index_start, index_stop)
-        );
+        ));
 
         //because we need the first value of min_freq
         if (j > 0) {
@@ -1325,7 +1325,7 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
 
           dataChartArr.push(obj);
         }
-        //console.log("drawChartSpectreFromData -> min_freq", min_freq);
+
         index_start += 2;
         index_stop += 2;
       }
