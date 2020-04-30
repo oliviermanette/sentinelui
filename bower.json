@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "chart.js": "^2.9.3",
-    "chartjs-plugin-datalabels":"0.7.0",
+    "chartjs-plugin-datalabels": "0.7.0",
     "chartjs-plugin-zoom": "0.7.5",
     "chartjs-plugin-annotation": "0.5.7",
     "bootstrap": "^4.4.1",
@@ -36,7 +36,7 @@
     "datatables.net-scroller": "^1.4.1",
     "datatables.net-scroller-bs": "^1.4.1",
     "jquery-validation": "^1.19.1",
-    "jquery": "^3.4.1",
+    "jquery": ">=3.5.0",
     "validator": "https://github.com/yairEO/validator.git#^3.3.5",
     "jquery-knob": "^1.2.13",
     "ion.rangeSlider": "ionrangeslider#^2.1.3",
