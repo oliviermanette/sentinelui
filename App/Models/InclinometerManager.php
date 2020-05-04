@@ -49,7 +49,7 @@ class InclinometerManager extends \Core\Model
     }
     if (isset($first_inclinationY_thresh)) {
       if ($newDeltaY > $first_inclinationY_thresh) {
-        $alertFirstTmpArr = array("thresh" => $first_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
+        $alertFirstTmpArr = array("thresh" => $first_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaY);
         $alertsArr["alertFirstThreshAxisY"] = $alertFirstTmpArr;
 
         echo "\n ALERT first level AxisY! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
@@ -57,14 +57,14 @@ class InclinometerManager extends \Core\Model
     }
     if (isset($second_inclinationY_thresh)) {
       if ($newDeltaY > $second_inclinationY_thresh) {
-        $alertSecondTmpArr = array("thresh" => $second_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
+        $alertSecondTmpArr = array("thresh" => $second_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaY);
         $alertsArr["alertSecondThreshAxisY"] = $alertSecondTmpArr;
         echo "\n ALERT second level AxisY! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
     }
     if (isset($third_inclinationY_thresh)) {
       if ($newDeltaY > $third_inclinationY_thresh) {
-        $alertThirdTmpArr = array("thresh" => $third_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
+        $alertThirdTmpArr = array("thresh" => $third_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaY);
         $alertsArr["alertThirdThreshAxisY"] = $alertThirdTmpArr;
         echo "\n ALERT third level AxisY! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
