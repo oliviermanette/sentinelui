@@ -56,6 +56,21 @@ class ControllerSpectreData extends Authenticated
         ]);
     }
 
+    /**
+     * Get the number of spectres
+     *
+     * @return void
+     */
+    public function getNumberSpectresAction()
+    {
+        $deveui = $_POST["sensor_deveui_request"];
+        if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
+            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorSecondGeneration($deveui);
+        } else {
+            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorFirstGeneration($deveui);
+        }
+        print $total_spectres;
+    }
 
     /**
      * Get all charts
@@ -68,17 +83,25 @@ class ControllerSpectreData extends Authenticated
         $deveui = $_POST["sensor_deveui_request"];
         $startDate = $_POST["startDate"];
         $endDate = $_POST["endDate"];
+        $page_start = null;
+        $total_per_page = null;
+        if (isset($_POST["page_num"])) {
+            $page_start = $_POST["page_num"];
+        }
+        if (isset($_POST["rows_per_page"])) {
+            $total_per_page = $_POST["rows_per_page"];
+        }
 
         $fullSpectreArr = array();
         //Check if the sensor if generation 2 or 1 because the treatment of the spectres are differents
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
             //echo "\nProfile 2\n";
             //Reconstruct spectres
-            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui, $page_start, $total_per_page);
         } else {
             //echo "\nProfile 1\n";
             //Reconstruct spectres
-            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
+            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui, $page_start, $total_per_page);
         }
         $fullSpectreArr["spectres"] = $spectresArr;
         $fullSpectreArr["deveui"] = $deveui;

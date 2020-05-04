@@ -70,6 +70,9 @@
         </div>
     </div>
 
+    <ul id="rows"></ul>
+    <ul id="page-numbers"></ul>
+
     <!-- Container for displaying the chart data -->
     <div id="chart-display-container" class="container">
     </div>
@@ -95,10 +98,150 @@
     var startDate = "";
     var endDate = "";
     let diffDays = "";
+    var rows_per_page = 3;
+    var total_rows;
+
+    function initPageNumbers(deveui) {
+        var formData = new FormData();
+        formData.append('sensor_deveui_request', deveui);
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var total_rows = parseInt(this.responseText);
+                //Loop through every available page and output a page link
+                var count = 1;
+                for (var x = 0; x < total_rows; x += rows_per_page) {
+                    $('#page-numbers').append('<li><a href="#' + count + '" onclick="getPage(' + count + ');">' + count + '</a></li>');
+                    count++;
+                }
+            }
+        };
+        xhttp.open("POST", "/ControllerSpectreData/getNumberSpectres", true);
+        xhttp.send(formData);
+    }
+
+    function getPage(page_num) {
+        //Clear the existing data view
+        /*$('#rows').html('');
+
+        var formData = new FormData();
+        formData.append('sensor_deveui_request', '0004A30B00E7D410');
+        formData.append('page_num', page_num);
+        formData.append('rows_per_page', rows_per_page);
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var spectres = this.responseText;
+                console.logs("SPECTRE page num :", spectres);
+            }
+        };
+        xhttp.open("POST", "/ControllerSpectreData/getAllCharts", true);
+        xhttp.send(formData);*/
+
+        /*//Get subset of data
+        $.get('data/page/' + page_num + '/' + rows_per_page, function (data) {
+            //Loop through each row and output the data
+            $(data).each(function () {
+                $('#rows').append('<li>' + this.name + '</li>');
+            });
+        });*/
+    }
+
+    function getDatatableSpectres(formData) {
+        //For displaying the table data
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var jsonData = this.responseText;
+                $('#resultcontainer').html(jsonData);
+                // Call the dataTables jQuery plugin
+                $('#tableData').DataTable({
+                    "destroy": true, //use for reinitialize datatable
+                    responsive: true,
+                    responsive: {
+                        details: {
+                            type: 'column',
+                            target: 'tr'
+                        }
+                    },
+                    orderCellsTop: true,
+                    fixedHeader: true,
+                });
+                $('.dataTables_length').addClass('bs-select');
+
+                $('#dataTable').DataTable({
+                    'lengthMenu': [
+                        [10, 25, 50, -1],
+                        [10, 25, 50, 'All']
+                    ],
+                    'iDisplayLength': 50
+                });
+
+            }
+        };
+        xhttp.open("POST", "/ControllerData/getDataTableAfterSubmit", true);
+        xhttp.send(formData);
+    }
+
+    function getChats(formData) {
+        //For displaying the charts
+        xhttp1 = new XMLHttpRequest();
+        xhttp1.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+
+                var data = this.responseText;
+                spectres_data = JSON.parse(data);
+
+                var deveui = spectres_data["deveui"];
+                initPageNumbers(deveui);
+
+                console.log("Data spectre : ", spectres_data);
+
+                removeElement("container-chart");
+                removeElement("row-button-download");
+                addElement("chart-display-container", "div", "row-button-download");
+                var link = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
+
+                addButton("row-button-download", "Telecharger toutes les données (zip)", link);
+
+                addElement("chart-display-container", "div", "container-chart");
+                addElement("container-chart", "div", "row-chart");
+                var spectresArr = spectres_data["spectres"];
+                var numberOfSpectres = Object.keys(spectresArr).length;
+                document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
+
+                for (i = 1; i <= numberOfSpectres; i++) {
+                    var name_canva = "canva_" + String(i);
+                    addElement("row-chart", "canvas", name_canva);
+                    var name_spectre_data = "spectre_" + String(i);
+
+                    var date_time = spectresArr[name_spectre_data]["date_time"];
+                    var deveui = spectresArr[name_spectre_data]["deveui"];
+                    //console.log("xhttp1.onreadystatechange -> date_time", date_time);
+
+                    var link =
+                        "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
+                    addButton("row-chart", "Telecharger le spectre", link);
+                }
+
+                for (i = 1; i <= numberOfSpectres; i++) {
+                    var name_canva = "canva_" + String(i);
+                    var name_spectre_data = "spectre_" + String(i);
+                    var spectre_i = spectresArr[name_spectre_data];
+
+                    drawChartSpectreFromData(spectre_i, name_canva);
+                }
+
+            }
+        };
+        xhttp1.open("POST", "/ControllerSpectreData/getAllCharts", true);
+        xhttp1.send(formData);
+    }
 
     $(document).ready(function () {
         init_daterangepicker();
         var date = Date();
+
 
         $("#siteSpectre").change(function () {
             var formData = new FormData();
@@ -139,91 +282,9 @@
         console.log("Start date: ", startDate);
         console.log("endDate date: ", endDate);
 
-        //For displaying the table data
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                var jsonData = this.responseText;
-                $('#resultcontainer').html(jsonData);
-                // Call the dataTables jQuery plugin
-                $('#tableData').DataTable({
-                    "destroy": true, //use for reinitialize datatable
-                    responsive: true,
-                    responsive: {
-                        details: {
-                            type: 'column',
-                            target: 'tr'
-                        }
-                    },
-                    orderCellsTop: true,
-                    fixedHeader: true,
-                });
-                $('.dataTables_length').addClass('bs-select');
+        getDatatableSpectres(formData);
 
-                $('#dataTable').DataTable({
-                    'lengthMenu': [
-                        [10, 25, 50, -1],
-                        [10, 25, 50, 'All']
-                    ],
-                    'iDisplayLength': 50
-                });
-
-            }
-        };
-        xhttp.open("POST", "/ControllerData/getDataTableAfterSubmit", true);
-        xhttp.send(formData);
-
-        //For displaying the charts
-        xhttp1 = new XMLHttpRequest();
-        xhttp1.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                var data = this.responseText;
-                spectres_data = JSON.parse(data);
-
-                var deveui = spectres_data["deveui"];
-
-                console.log("Data spectre : ", spectres_data);
-
-                removeElement("container-chart");
-                removeElement("row-button-download");
-
-                addElement("chart-display-container", "div", "row-button-download");
-                var link = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
-
-                addButton("row-button-download", "Telecharger toutes les données (zip)", link);
-
-                addElement("chart-display-container", "div", "container-chart");
-                addElement("container-chart", "div", "row-chart");
-                var spectresArr = spectres_data["spectres"];
-                var numberOfSpectres = Object.keys(spectresArr).length;
-                document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
-
-                for (i = 1; i <= numberOfSpectres; i++) {
-                    var name_canva = "canva_" + String(i);
-                    addElement("row-chart", "canvas", name_canva);
-                    var name_spectre_data = "spectre_" + String(i);
-
-                    var date_time = spectresArr[name_spectre_data]["date_time"];
-                    var deveui = spectresArr[name_spectre_data]["deveui"];
-                    //console.log("xhttp1.onreadystatechange -> date_time", date_time);
-
-                    var link =
-                        "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
-                    addButton("row-chart", "Telecharger le spectre", link);
-                }
-
-                for (i = 1; i <= numberOfSpectres; i++) {
-                    var name_canva = "canva_" + String(i);
-                    var name_spectre_data = "spectre_" + String(i);
-                    var spectre_i = spectresArr[name_spectre_data];
-
-                    drawChartSpectreFromData(spectre_i, name_canva);
-                }
-
-            }
-        };
-        xhttp1.open("POST", "/ControllerSpectreData/getAllCharts", true);
-        xhttp1.send(formData);
+        getChats(formData);
 
     });
 

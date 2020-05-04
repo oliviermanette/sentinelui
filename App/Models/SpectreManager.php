@@ -20,14 +20,16 @@ class SpectreManager extends \Core\Model
    *  Search all the spectres received since the first day of installation
    *
    * @param string $deveui deveui of the snesor
+   * @param int $start this is the fist limit i.e starting at which row (for exemple start = 2 will display results from row 2)
+   * @param int $offset this is the number of rows to return in total from $start. (Ex: $offset = 3 so it will return 3 rows)
    * @return array double array which all spectre recevied from a sensor and each array contain
    * array that contain the decomposed spectre
    */
-  public static function reconstituteAllSpectreForSensorFirstGeneration($deveui)
+  public static function reconstituteAllSpectreForSensorFirstGeneration($deveui, $start = null, $offset = null)
   {
     $fullSpectreArr = array();
 
-    $allSubspectresArr = SpectreManager::getAllFirstSubspectreForSensorFirstGeneration($deveui);
+    $allSubspectresArr = SpectreManager::getAllFirstSubspectreForSensorFirstGeneration($deveui, $start, $offset);
 
     $spectreID = 1;
 
@@ -79,11 +81,11 @@ class SpectreManager extends \Core\Model
    * @return array double array which all spectre recevied from a sensor and each array contain
    * array that contain the decomposed spectre
    */
-  public static function reconstituteAllSpectreForSensorSecondGeneration($deveui)
+  public static function reconstituteAllSpectreForSensorSecondGeneration($deveui, $start = null, $offset = null)
   {
     $fullSpectreArr = array();
 
-    $allSubspectresArr = SpectreManager::getAllFirstSubspectreForSensorSecondGeneration($deveui);
+    $allSubspectresArr = SpectreManager::getAllFirstSubspectreForSensorSecondGeneration($deveui, $start, $offset);
 
     $spectreID = 1;
 
@@ -147,7 +149,7 @@ class SpectreManager extends \Core\Model
    * @return array double array which all spectre recevied from a sensor and each array contain
    * array that contain the decomposed spectre
    */
-  public static function reconstituteOneSpectreForSensorFirstGeneration($deveui, $date_request)
+  public static function reconstituteOneSpectreForSensorFirstGeneration($deveui, $start, $offset, $date_request)
   {
 
     $fullSpectreArr = array();
@@ -352,15 +354,105 @@ class SpectreManager extends \Core\Model
   }
 
 
+  public static function countTotalNumberSpectresForForSensorFirstGeneration($deveui)
+  {
+    $db = static::getDB();
 
+    $sql_subspectre_data = "
+          SELECT count(record_id) as total_row FROM
+      (SELECT
+      sensor.device_number as device_number,
+      sensor.deveui as deveui,
+      sensor_type.name as type_sensor,
+        s.nom AS site_name,
+        st.id AS structure_id,
+        st.nom AS structure_name,
+        st.transmision_line_name as transmission_name,
+        r.id as record_id,
+        r.sensor_id,
+        r.date_time as date_time,
+        subspectre,
+        subspectre_number,
+        min_freq,
+        max_freq,
+        resolution
+      FROM
+        spectre AS sp
+        LEFT JOIN record AS r ON (r.id = sp.record_id)
+        JOIN sensor on sensor.id = r.sensor_id
+      JOIN sensor_type ON sensor_type.id = sensor.type_id
+        JOIN structure as st ON (st.id = r.structure_id)
+        JOIN site as s ON (s.id = st.site_id)
+      WHERE
+        sp.subspectre_number = '001'
+        AND sensor.deveui = :deveui
+        AND Date(r.date_time) >= Date(sensor.installation_date) ) AS first_subpsectre_sensor
+      ORDER BY date_time DESC ";
+
+
+    $stmt = $db->prepare($sql_subspectre_data);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $total_rows = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $total_rows;
+    }
+  }
+
+  public static function countTotalNumberSpectresForForSensorSecondGeneration($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_subspectre_data = "
+          SELECT count(record_id) as total_row FROM
+      (SELECT
+      sensor.device_number as device_number,
+      sensor.deveui as deveui,
+      sensor_type.name as type_sensor,
+        s.nom AS site_name,
+        st.id AS structure_id,
+        st.nom AS structure_name,
+        st.transmision_line_name as transmission_name,
+        r.id as record_id,
+        r.sensor_id,
+        r.date_time as date_time,
+        subspectre,
+        subspectre_number,
+        min_freq,
+        max_freq,
+        resolution
+      FROM
+        spectre AS sp
+        LEFT JOIN record AS r ON (r.id = sp.record_id)
+        JOIN sensor on sensor.id = r.sensor_id
+      JOIN sensor_type ON sensor_type.id = sensor.type_id
+        JOIN structure as st ON (st.id = r.structure_id)
+        JOIN site as s ON (s.id = st.site_id)
+      WHERE
+        sp.subspectre_number = '000'
+        AND sensor.deveui = :deveui
+        AND Date(r.date_time) >= Date(sensor.installation_date) ) AS first_subpsectre_sensor
+      ORDER BY date_time DESC ";
+
+
+    $stmt = $db->prepare($sql_subspectre_data);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $total_rows = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $total_rows;
+    }
+  }
 
   /**
    * Get all the first subspectre (001) received from a sensor
    * date | subspectre
    * @param string $deveui
+   * @param int $start this is the fist limit i.e starting at which row (for exemple start = 2 will display results from row 2)
+   * @param int $offset this is the number of rows to return in total from $start. (Ex: $offset = 3 so it will return 3 rows)
    * @return array  results from the query
    */
-  public static function getAllFirstSubspectreForSensorFirstGeneration($deveui, $dateTime = null)
+  public static function getAllFirstSubspectreForSensorFirstGeneration($deveui, $start = null, $offset = null, $dateTime = null)
   {
     $db = static::getDB();
 
@@ -394,17 +486,26 @@ class SpectreManager extends \Core\Model
         AND sensor.deveui = :deveui
         AND Date(r.date_time) >= Date(sensor.installation_date) ";
 
+
     if (isset($dateTime)) {
       $sql_subspectre_data .= "AND r.date_time = :dateTime ";
     }
 
     $sql_subspectre_data .= ") AS first_subpsectre_sensor
-      ORDER BY date_time DESC";
+      ORDER BY date_time DESC ";
+
+    if (isset($start) && isset($offset)) {
+      $sql_subspectre_data .= " LIMIT :start,:offset";
+    }
 
     $stmt = $db->prepare($sql_subspectre_data);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if (isset($dateTime)) {
       $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
+    }
+    if (isset($start) && isset($offset)) {
+      $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     }
 
     if ($stmt->execute()) {
@@ -417,9 +518,11 @@ class SpectreManager extends \Core\Model
    * Get all the first subspectre (000) received from a sensor
    * date | subspectre
    * @param string $deveui
+   * @param int $start this is the fist limit i.e starting at which row (for exemple start = 2 will display results from row 2)
+   * @param int $offset this is the number of rows to return in total from $start. (Ex: $offset = 3 so it will return 3 rows)
    * @return array  results from the query
    */
-  public static function getAllFirstSubspectreForSensorSecondGeneration($deveui, $dateTime = null)
+  public static function getAllFirstSubspectreForSensorSecondGeneration($deveui, $start = null, $offset = null, $dateTime = null)
   {
     $db = static::getDB();
 
@@ -458,12 +561,20 @@ class SpectreManager extends \Core\Model
     }
 
     $sql_subspectre_data .= ") AS first_subpsectre_sensor_second_generation
-      ORDER BY date_time DESC";
+      ORDER BY date_time DESC ";
+
+    if (isset($start) && isset($offset)) {
+      $sql_subspectre_data .= " LIMIT :start,:offset";
+    }
 
     $stmt = $db->prepare($sql_subspectre_data);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if (isset($dateTime)) {
       $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
+    }
+    if (isset($start) && isset($offset)) {
+      $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     }
 
     if ($stmt->execute()) {
