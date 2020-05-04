@@ -105,12 +105,13 @@ class SpectreManager extends \Core\Model
 
       $full_spectre_decomposed = SpectreManager::getAllSubspectres($deveui, $date_time);
       $already_first_resolution = false;
+
       for ($i = 0; $i < count($full_spectre_decomposed); $i++) {
         $subspectre_name = 'subspectre_' . $subspectreID;
         //Check if we get in the array the beginning of a new spectre because it's possible that we get not 5 subspectres but less depending of the 
         //configuration of the sensor
         if ($full_spectre_decomposed[$i]["resolution"] == 1 && $already_first_resolution == True) {
-          return $fullSpectreArr;
+          continue;
         }
         if ($full_spectre_decomposed[$i]["resolution"] == 1) {
           $already_first_resolution = true;

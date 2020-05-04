@@ -62,28 +62,13 @@
                 </form>
             </div>
             </br>
-            <!-- Page Heading -->
-            <!--
-            <div class="container">
-                <div class="col">
-                    <div class="row-md-2 col-md-offset-4 text-center">
-                        <button id="exportData" type="button"
-                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                            onclick="window.open('/ControllerData/downloadRawData?exportData=excel')"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Exporter données (Excel)</button>
-                        <button id="exportData" type="button"
-                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                            onclick="window.open('/ControllerData/downloadRawData?exportData=csv')"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Exporter données (CSV)</button>
-                    </div>
-                    </br>
-                </div>
-            </div>
-            -->
         </div>
     </div>
-
-    </br>
+    <div class="row">
+        <div class="col text-center">
+            <b>Nombre de spectres disponible: <p id="numberSpectres"></p> </b>
+        </div>
+    </div>
 
     <!-- Container for displaying the chart data -->
     <div id="chart-display-container" class="container">
@@ -197,14 +182,13 @@
 
                 var deveui = spectres_data["deveui"];
 
-                //console.log("Data spectre : ", spectres_data);
+                console.log("Data spectre : ", spectres_data);
 
                 removeElement("container-chart");
                 removeElement("row-button-download");
 
                 addElement("chart-display-container", "div", "row-button-download");
                 var link = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
-                //console.log("xhttp1.onreadystatechange -> link", link);
 
                 addButton("row-button-download", "Telecharger toutes les données (zip)", link);
 
@@ -212,6 +196,7 @@
                 addElement("container-chart", "div", "row-chart");
                 var spectresArr = spectres_data["spectres"];
                 var numberOfSpectres = Object.keys(spectresArr).length;
+                document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
 
                 for (i = 1; i <= numberOfSpectres; i++) {
                     var name_canva = "canva_" + String(i);
