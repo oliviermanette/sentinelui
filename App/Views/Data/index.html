@@ -101,16 +101,15 @@
     var rows_per_page = 3;
     var total_rows;
 
+    //Whe we click on a specfic page
     $(document).on('click', '.page', function (e) {
-        // do something
         e.preventDefault();
         var url = $("a", this).attr('href');
         page_num = url.split("=")[1]
-        //alert(h);
         getPage(page_num);
     });
 
-
+    //Init the number of total page
     function initPageNumbers(deveui) {
         var parameters = "?sensor_deveui_request=" + deveui;
         var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
@@ -122,8 +121,6 @@
             var base = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
             for (var x = 0; x < total_rows; x += rows_per_page) {
                 var url = base + "search-spectre?page=" + count;
-                var id = "page" + count;
-                // data-site={{ row.site }}
                 $('#page-numbers').append('<li class="page" ><a href="' + url + '">' + count + '</a></li>');
                 count++;
             }
@@ -131,16 +128,13 @@
 
     }
 
+
     function getNumberTotalSpectre(deveui) {
         var parameters = "?sensor_deveui_request=" + deveui;
         var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
-        console.log("getNumberTotalSpectre -> link", link);
 
         $.get(link, function (data) {
             var numberOfSpectres = data;
-            console.log("Response : ", numberOfSpectres);
-            document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
-
             return numberOfSpectres;
         });
 
@@ -357,6 +351,7 @@
         console.log("endDate date: ", endDate);
 
         numberOfSpectres = getNumberTotalSpectre($('#equipmentField option:selected').val());
+        document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
 
         var parameters = "?site_request=" + $('#siteSpectre option:selected').val() +
             "&sensor_deveui_request=" + $('#equipmentField option:selected').val() +
