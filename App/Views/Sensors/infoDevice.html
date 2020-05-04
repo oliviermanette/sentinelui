@@ -61,6 +61,7 @@
     $(document).ready(function () {
         //Init datatables
         init_DataTableActivities();
+        init_DataTableInclinometerActivities();
         init_DataTableWeather();
         init_DataTableNewAlerts();
         init_DataTableProcessedAlerts();
@@ -78,11 +79,11 @@
         let settingsArr = JSON.parse('{{ settingArr | raw }}');
 
         //Draw direction inclinometer
-        let variationDirection = '{{ variationDirectionArr|raw}}';
-        drawChartDirectionFromData(variationDirection, "chartDirectionInclinometer", settingsArr);
+        let variationAverageDirection = '{{ variationAverageDirectionArr|raw}}';
+        drawChartDirectionFromData(variationAverageDirection, "chartDirectionInclinometer", settingsArr);
         //Draw speed variation
-        let variationSpeed = '{{ variationSpeedDirectionArr|raw}}';
-        drawChartSpeedVariationFromData(variationSpeed, "chartVitesseInclinometer");
+        let variationAverageSpeed = '{{ variationAverageSpeedDirectionArr|raw}}';
+        drawChartSpeedVariationFromData(variationAverageSpeed, "chartVitesseInclinometer");
 
         //Draw chart variation inclinometer absolute variation
         let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';
@@ -100,7 +101,7 @@
 
         //Draw temperature
         let historicalTemperatureData = '{{ historicalTemperatureDataArr|raw}}';
-        drawChartHistoricalTemperature(historicalTemperatureData, "chartHistoricalTemperature");
+        //drawChartHistoricalTemperature(historicalTemperatureData, "chartHistoricalTemperature");
 
     });
 
@@ -280,6 +281,23 @@
 
     }
 
+    function init_DataTableInclinometerActivities() {
+        $('#tableDataInclinometerSensor').DataTable({
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            "lengthMenu": [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            "iDisplayLength": 10,
+            "order": [[0, "desc"]]
+        });
+
+    }
     function init_DataTableWeather() {
 
         $('#tableDataWeather').DataTable({
@@ -312,7 +330,7 @@
             "createdRow": function (row, data, dataIndex, cells) {
                 var type_raw_message = data[1];
                 var statut = data[8];
-                console.log("Statut coucou :", statut);
+                //console.log("Statut coucou :", statut);
                 if (statut == "1") {
                     cells[8].innerText = "En cours";
                 } else {

@@ -1,0 +1,32 @@
+{# viewTableActivityInclinometer.html #}
+
+<div class="table-responsive">
+    <table id="tableDataInclinometerSensor" class="display compact" style="width:100%">
+        <thead>
+            <tr>
+                <th>Date mesure</th>
+                <th>Angle X °</th>
+                <th>Angle Y °</th>
+                <th>Variation absX °</th>
+                <th>Variation abs Y °</th>
+                <th>Direction X</th>
+                <th>Direction Y</th>
+                <th>Vitesse cm/j</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in directionAndSpeedArr %}
+            <tr>
+                <td>{{row.date}}</td>
+                <td>{{row.angle_x}}</td>
+                <td>{{row.angle_y}}</td>
+                <td>{{row.variationAngleX}}</td>
+                <td>{{row.variationAngleY}}</td>
+                <td>{{row.delta_x}}</td>
+                <td>{{row.delta_y}}</td>
+                <td>{{row.delta_xy_cm}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

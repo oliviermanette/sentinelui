@@ -41,18 +41,16 @@ class ControllerTest extends \Core\Controller
     public function testSQLAction()
     {
 
-        $deveui = '0004A30B00E7D410';
+        $deveui = '0004A30B00E829A7';
         $date_time_first_measure = '2020-03-29 20:49:36';
         //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
         //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-        $dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
+        //$dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
 
-        $fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        var_dump($fullSpectreArr);
-        $spectreManager = new SpectreManager();
-        //$spectreManager->getActivityData($deveui);
-        //$spectreManager->reconstituteAllSpectreForSensorFirstGeneration($deveui);
-        //$spectreManager->getAllSubspectres($deveui, $date_time_first_measure);
+        //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+        $results = InclinometerManager::combineDirectionAndSpeedVariation($deveui, $time_period = -1);
+        //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
+        var_dump($results);
     }
 
 

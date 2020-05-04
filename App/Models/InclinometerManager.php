@@ -34,7 +34,7 @@ class InclinometerManager extends \Core\Model
 
     $alertsArr = array("type" => "inclination");
 
-    $dataDirectionVariationArr = InclinometerManager::computeDirectionVariationForLast($inclinometer->deveui, $time_period = -1);
+    $dataDirectionVariationArr = InclinometerManager::computeAverageDirectionVariationForLast($inclinometer->deveui, $time_period = -1);
     //Check if the last value is above the trhesh
     $newDeltaY = $dataDirectionVariationArr[count($dataDirectionVariationArr) - 1]["delta_y"];
     $newDeltaX = $dataDirectionVariationArr[count($dataDirectionVariationArr) - 1]["delta_x"];
@@ -659,7 +659,7 @@ class InclinometerManager extends \Core\Model
     return $references_values;
   }
 
-  public static function computeDerivativeSpeedVariation($deveui, $time_period = -1)
+  public static function computeAverageDerivativeSpeedVariation($deveui, $time_period = -1)
   {
     //$variation = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
     $variation = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, $time_period);
@@ -694,7 +694,42 @@ class InclinometerManager extends \Core\Model
     return $variationSpeedDerivateArr;
   }
 
-  public static function computeDirectionVariationForLast($deveui, $time_period = -1)
+  public static function computeDerivativeSpeedVariation($deveui, $time_period = -1)
+  {
+    //$variation = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
+    $variation = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
+    $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+    $variationSpeedDerivateArr = array();
+    $variationSpeedNormalArr = array();
+    for ($i = 0; $i < count($variation); $i++) {
+      $date = $variation[$i]["date"];
+      $x_deg = $variation[$i]["variationAngleX"];
+      $y_deg = $variation[$i]["variationAngleY"];
+      $distanceXY_deg = sqrt(pow($x_deg, 2) + pow($y_deg, 2));
+
+      $distanceXY_rad = (pi() / 180) * $distanceXY_deg;
+      $delta_xy_cm = (tan($distanceXY_rad) * $equipment_height) * 100;
+
+      if ($i == 0) {
+        $delta_xy_cm_diff = 0;
+      } else {
+        $delta_xy_cm_diff = abs($delta_xy_cm - $variationSpeedNormalArr[$i - 1]["delta_xy_cm"]);
+      }
+
+      $tmpArr = array(
+        "date" => $date, "delta_xy_cm" => $delta_xy_cm_diff
+      );
+      $tmpArr1 = array(
+        "date" => $date, "delta_xy_cm" => $delta_xy_cm
+      );
+      array_push($variationSpeedDerivateArr, $tmpArr);
+      array_push($variationSpeedNormalArr, $tmpArr1);
+    }
+
+    return $variationSpeedDerivateArr;
+  }
+
+  public static function computeAverageDirectionVariationForLast($deveui, $time_period = -1)
   {
     //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
     $percentageVariationDayArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, $time_period);
@@ -720,6 +755,54 @@ class InclinometerManager extends \Core\Model
       array_push($variationDirectionArr, $tmpArr);
     }
     return $variationDirectionArr;
+  }
+
+  public static function computeDirectionVariationForLast($deveui, $time_period = -1)
+  {
+    //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
+    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
+
+    $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+    $variationDirectionArr = array();
+
+    foreach ($percentageVariationDayArr as $array) {
+      $date = $array["date"];
+      $x_deg = $array["variationAngleX"];
+      $y_deg = $array["variationAngleY"];
+      #echo "(", $x_deg . ", " . $y_deg . ")\n";
+      $x_rad = (pi() / 180) * $x_deg;
+      $y_rad = (pi() / 180) * $y_deg;
+
+      $delta_x_cm = (tan($x_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
+      $delta_y_cm = (tan($y_rad) * $equipment_height) * 100;
+
+      $tmpArr = array(
+        "date" => $date, "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
+      );
+      array_push($variationDirectionArr, $tmpArr);
+    }
+    return $variationDirectionArr;
+  }
+
+  public static function combineDirectionAndSpeedVariation($deveui, $time_period = -1)
+  {
+    $dataDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period);
+    $dataDerivativeArr = InclinometerManager::computeDerivativeSpeedVariation($deveui, $time_period);
+    $percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
+    $angleDataArr = InclinometerManager::getAngleDegreeInclination($deveui, $time_period);
+
+    $count = 0;
+    $combinationArr = array();
+    foreach ($percentageVariationDayArr as $dataArr) {
+
+      $mergeResCurrent = array_merge($dataArr, $dataDirectionArr[$count]);
+      $mergeResCurrent = array_merge($mergeResCurrent, $dataDerivativeArr[$count]);
+      $mergeResCurrent = array_merge($mergeResCurrent, $angleDataArr[$count]);
+      array_push($combinationArr, $mergeResCurrent);
+      $count += 1;
+    }
+    //var_dump($combinationArr);
+    return $combinationArr;
   }
 
   public static function getActivityData($deveui, $time_period = -1)
@@ -1031,6 +1114,121 @@ class InclinometerManager extends \Core\Model
     $db = null;
     return $variationsArr;
   }
+
+  public static function getAngleDegreeInclination($deveui, $time_period = -1)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT
+        r.date_time AS date,
+        angle_x AS angle_x,
+        angle_y AS angle_y,
+        angle_z AS angle_z,
+        temperature AS temperature
+      FROM
+        inclinometer AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+        LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE
+        `msg_type` = 'inclinometre'
+        AND s.deveui = :deveui
+        AND Date(r.date_time) > s.installation_date  ";
+
+    if ($time_period != -1) {
+      $sql .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    }
+
+    $sql .= "ORDER BY
+        r.date_time ASC";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
+
+    $stmt->execute();
+    $anglesDataArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $anglesDataArr;
+  }
+
+  public static function computeDailyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
+  {
+    $db = static::getDB();
+
+    $references_values = InclinometerManager::getValuesReference($deveui, $time_period);
+
+    $date_ref = $references_values["date"];
+    $angleX_ref = $references_values["angle_x"];
+    $angleY_ref = $references_values["angle_y"];
+    $angleZ_ref = $references_values["angle_z"];
+    $temperature_ref = $references_values["temperature"];
+
+    $sql_all_values = "SELECT
+        r.date_time AS date_time,
+        angle_x AS angle_x,
+        angle_y AS angle_y,
+        angle_z AS angle_z,
+        temperature AS temperature
+      FROM
+        inclinometer AS inc
+        LEFT JOIN record AS r ON (r.id = inc.record_id)
+        LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+      WHERE
+        `msg_type` = 'inclinometre'
+        AND s.deveui = :deveui
+        AND Date(r.date_time) > s.installation_date  ";
+
+    if ($time_period != -1) {
+      $sql_all_values .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
+    }
+
+    $sql_all_values .= "ORDER BY
+        r.date_time ASC";
+
+    $stmt = $db->prepare($sql_all_values);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if ($time_period != -1) {
+      $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
+    }
+
+    $stmt->execute();
+    $all_values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $nbResults = count($all_values);
+
+    $variationsArr = array();
+    foreach ($all_values as $values) {
+
+      $date_time = $values["date_time"];
+      $angleX = $values["angle_x"];
+      $angleY = $values["angle_y"];
+      $angleZ = $values["angle_z"];
+      if ($percentage) {
+        $temperature = $values["temperature"];
+        $variationAngleX = (($angleX - $angleX_ref) / $angleX_ref) * 100;
+        $variationAngleY = (($angleY - $angleY_ref) / $angleY_ref) * 100;
+        $variationAngleZ = (($angleZ - $angleZ_ref) / $angleZ_ref) * 100;
+        $variationTemperature = (($temperature - $temperature_ref) / $temperature_ref) * 100;
+      } else {
+        $temperature = $values["temperature"];
+        $variationAngleX = $angleX - $angleX_ref;
+        $variationAngleY = $angleY - $angleY_ref;
+        $variationAngleZ = $angleZ - $angleZ_ref;
+        $variationTemperature = $temperature - $temperature_ref;
+      }
+
+      $tmpArr = array(
+        "date" => $date_time, "variationAngleX" => $variationAngleX, "variationAngleY" => $variationAngleY,
+        "variationAngleZ" => $variationAngleZ, "variationTemperature" => $variationTemperature
+      );
+      array_push($variationsArr, $tmpArr);
+    }
+
+    $db = null;
+    return $variationsArr;
+  }
+
 
   /**
    * Compute monthly variation of inclinometer data from today until the last X days. To compute the

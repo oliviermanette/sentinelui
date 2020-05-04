@@ -236,12 +236,16 @@ class ControllerSensors extends Authenticated
         //Get inclinometer data
         $positionInstallation = SensorManager::getPositionInstallation($deveui);
 
-        //Direction inclinometer
-        $variationDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, -1);
-        $variationDirectionArr = json_encode($variationDirectionArr);
-        //Speed variation
-        $variationSpeedDirectionArr = InclinometerManager::computeDerivativeSpeedVariation($deveui, -1);
-        $variationSpeedDirectionArr = json_encode($variationSpeedDirectionArr);
+        //Direction average inclinometer
+        $variationAverageDirectionArr = InclinometerManager::computeAverageDirectionVariationForLast($deveui, -1);
+        $variationAverageDirectionArr = json_encode($variationAverageDirectionArr);
+        //Speed average variation
+        $variationAverageSpeedDirectionArr = InclinometerManager::computeAverageDerivativeSpeedVariation($deveui, -1);
+        $variationAverageSpeedDirectionArr = json_encode($variationAverageSpeedDirectionArr);
+
+        //Daily variation speed and direction 
+        $directionAndSpeedArr = InclinometerManager::combineDirectionAndSpeedVariation($deveui, $time_period = -1);
+        //$directionAndSpeedArr = json_encode($directionAndSpeedArr);
 
         //absolute variation
         $percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
@@ -302,7 +306,7 @@ class ControllerSensors extends Authenticated
 
         //Image sensor
         $image_path = SensorManager::getPathImage($deveui);
-
+        //var_dump($directionAndSpeedArr);
         $context = [
             //Sensor
             'deveui' => $deveui,
@@ -318,8 +322,9 @@ class ControllerSensors extends Authenticated
             'percentageVariationDayArr' => $percentageVariationDayArr,
             'percentageVariationWeekArr' => $percentageVariationWeekArr,
             'percentageVariationMonthArr' => $percentageVariationMonthArr,
-            'variationDirectionArr' => $variationDirectionArr,
-            'variationSpeedDirectionArr' => $variationSpeedDirectionArr,
+            'variationAverageDirectionArr' => $variationAverageDirectionArr,
+            'variationAverageSpeedDirectionArr' => $variationAverageSpeedDirectionArr,
+            'directionAndSpeedArr' => $directionAndSpeedArr,
 
             //Choc
             'nbChocDataMonthArr' => $nbChocDataMonthArr,

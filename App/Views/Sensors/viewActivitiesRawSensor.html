@@ -5,10 +5,13 @@
     <div class="card-header py-3 d-flex justify-content-center">
         <div class="row justify-content-center">
             <div class="col">
-                <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Activités brutes du capteur
+                <h3 class="m-0 font-weight-bold text-primary text-center mb-3">Activités du capteur
                 </h3>
             </div>
         </div>
     </div>
+    <h3 class="card-title">Activité Inclinomètre</h3>
+    {% include "Sensors/viewTableActivityInclinometer.html" %}
+    <h3 class="card-title">Activité brutes</h3>
     {% include "Sensors/viewTableActivityData.html" %}
 </div>
