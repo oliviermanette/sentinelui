@@ -621,7 +621,7 @@ class AlertManager extends \Core\Model
             $text = View::getTemplate('Alerts/alertSensor_email_view.txt', $context);
             $html = View::getTemplate('Alerts/alertSensor_email_view.html', $context);
 
-            $title =  'TEST - [capteur] Nouvelle alerte sur le capteur ' . $device_number . ' !';
+            $title =  '[capteur] Nouvelle alerte sur le capteur ' . $device_number . ' !';
             Mail::send($email, $title, $text, $html);
         }
     }
@@ -653,7 +653,7 @@ class AlertManager extends \Core\Model
             $company = $user["company"];
             echo "\n Envoie du mail à " . $firstName . "\n";
             $device_number = $alert->device_number;
-            $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $device_number . '/info#alertsStructure';
+            $url = "https://" . $_SERVER['HTTP_HOST'] . "/device/" . $device_number . "/info#alertsStructure";
 
             $dateTime = explode(" ", $alert->dateTime);
             $date = date('d/m/Y', strtotime($dateTime[0]));
@@ -693,9 +693,7 @@ class AlertManager extends \Core\Model
                 $html = View::getTemplate('Alerts/alertStructureShock_email_view.html', $context);
             }
 
-
-
-            $title =  'Capteur' . $device_number . ' - Nouvelle alerte sur la structure ' . $equipementName . ' !';
+            $title =  'Capteur ' . $device_number . ' - Nouvelle alerte sur la structure ' . $equipementName . ' !';
             Mail::send($email, $title, $text, $html);
         }
     }

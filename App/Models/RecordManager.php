@@ -188,7 +188,6 @@ class RecordManager extends \Core\Model
 
           if ($isAlert == True) {
             $alert = new Alert($type, $label, $inclinometer->deveui, $inclinometer->dateTime, $values);
-
             AlertManager::insertTypeEvent($label, $criticality);
             AlertManager::insert($alert);
             AlertManager::sendAlert($alert, $group_id);
