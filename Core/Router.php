@@ -115,7 +115,7 @@ class Router
     public function dispatch($url)
     {
         $url = $this->removeQueryStringVariables($url);
-        
+
         if ($this->match($url)) {
             $controller = $this->params['controller'];
             $controller = $this->convertToStudlyCaps($controller);
@@ -130,9 +130,8 @@ class Router
                 $action = $this->params['action'];
                 $action = $this->convertToCamelCase($action);
 
-               if (preg_match('/action$/i', $action) == 0) {
+                if (preg_match('/action$/i', $action) == 0) {
                     $controller_object->$action();
-
                 } else {
                     throw new \Exception("Method $action in controller $controller cannot be called directly - remove the Action suffix to call this method");
                 }
@@ -209,19 +208,19 @@ class Router
     }
 
     /**
-    * Get the namespace for the controller class. The namespace defined in the
-    * route parameters is added if present.
-    *
-    * @return string The request URL
-    */
-   protected function getNamespace()
-   {
-       $namespace = 'App\Controllers\\';
+     * Get the namespace for the controller class. The namespace defined in the
+     * route parameters is added if present.
+     *
+     * @return string The request URL
+     */
+    protected function getNamespace()
+    {
+        $namespace = 'App\Controllers\\';
 
-       if (array_key_exists('namespace', $this->params)) {
-           $namespace .= $this->params['namespace'] . '\\';
-       }
+        if (array_key_exists('namespace', $this->params)) {
+            $namespace .= $this->params['namespace'] . '\\';
+        }
 
-       return $namespace;
-   }
+        return $namespace;
+    }
 }

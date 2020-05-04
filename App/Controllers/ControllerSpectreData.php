@@ -63,7 +63,7 @@ class ControllerSpectreData extends Authenticated
      */
     public function getNumberSpectresAction()
     {
-        $deveui = $_POST["sensor_deveui_request"];
+        $deveui = $_GET["sensor_deveui_request"];
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
             $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorSecondGeneration($deveui);
         } else {
@@ -80,16 +80,17 @@ class ControllerSpectreData extends Authenticated
     public function getAllChartsAction()
     {
         //$site_id = $_POST["site_request"];
-        $deveui = $_POST["sensor_deveui_request"];
-        $startDate = $_POST["startDate"];
-        $endDate = $_POST["endDate"];
-        $page_start = null;
-        $total_per_page = null;
-        if (isset($_POST["page_num"])) {
-            $page_start = $_POST["page_num"];
+        $deveui = $_GET["sensor_deveui_request"];
+        $startDate = $_GET["startDate"];
+        $endDate = $_GET["endDate"];
+        $page_num = null;
+        $rows_per_page = null;
+
+        if (isset($_GET["rows_per_page"])) {
+            $rows_per_page = intval($_GET["rows_per_page"]);
         }
-        if (isset($_POST["rows_per_page"])) {
-            $total_per_page = $_POST["rows_per_page"];
+        if (isset($_GET["page_num"])) {
+            $page_num = (intval($_GET["page_num"]) - 1) * $rows_per_page;
         }
 
         $fullSpectreArr = array();
@@ -97,11 +98,11 @@ class ControllerSpectreData extends Authenticated
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
             //echo "\nProfile 2\n";
             //Reconstruct spectres
-            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui, $page_start, $total_per_page);
+            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui, $page_num, $rows_per_page);
         } else {
             //echo "\nProfile 1\n";
             //Reconstruct spectres
-            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui, $page_start, $total_per_page);
+            $spectresArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui, $page_num, $rows_per_page);
         }
         $fullSpectreArr["spectres"] = $spectresArr;
         $fullSpectreArr["deveui"] = $deveui;
@@ -116,9 +117,9 @@ class ControllerSpectreData extends Authenticated
         $requestedDate = $_GET['requestedDate'];
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
             //$allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
-            $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorSecondGeneration($deveui, $requestedDate);
+            $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorSecondGeneration($deveui, $start = null, $offset = null, $requestedDate);
         } else {
-            $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $requestedDate);
+            $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($deveui, $start = null, $offset = null, $requestedDate);
         }
 
         //var_dump($allSubSpectresArr);

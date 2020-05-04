@@ -101,53 +101,108 @@
     var rows_per_page = 3;
     var total_rows;
 
+    $(document).on('click', '.page', function (e) {
+        // do something
+        e.preventDefault();
+        var url = $("a", this).attr('href');
+        page_num = url.split("=")[1]
+        //alert(h);
+        getPage(page_num);
+    });
+
+
     function initPageNumbers(deveui) {
-        var formData = new FormData();
-        formData.append('sensor_deveui_request', deveui);
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                var total_rows = parseInt(this.responseText);
-                //Loop through every available page and output a page link
-                var count = 1;
-                for (var x = 0; x < total_rows; x += rows_per_page) {
-                    $('#page-numbers').append('<li><a href="#' + count + '" onclick="getPage(' + count + ');">' + count + '</a></li>');
-                    count++;
-                }
+        var parameters = "?sensor_deveui_request=" + deveui;
+        var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
+
+        $.get(link, function (data) {
+            var total_rows = parseInt(data);
+            //Loop through every available page and output a page link
+            var count = 1;
+            var base = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            for (var x = 0; x < total_rows; x += rows_per_page) {
+                var url = base + "search-spectre?page=" + count;
+                var id = "page" + count;
+                // data-site={{ row.site }}
+                $('#page-numbers').append('<li class="page" ><a href="' + url + '">' + count + '</a></li>');
+                count++;
             }
-        };
-        xhttp.open("POST", "/ControllerSpectreData/getNumberSpectres", true);
-        xhttp.send(formData);
+        });
+
+    }
+
+    function getNumberTotalSpectre(deveui) {
+        var parameters = "?sensor_deveui_request=" + deveui;
+        var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
+        console.log("getNumberTotalSpectre -> link", link);
+
+        $.get(link, function (data) {
+            var numberOfSpectres = data;
+            console.log("Response : ", numberOfSpectres);
+            document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
+
+            return numberOfSpectres;
+        });
+
     }
 
     function getPage(page_num) {
+        deveui = $('#equipmentField option:selected').val();
+        var parameters = "?sensor_deveui_request=" + deveui +
+            "&startDate=" + startDate +
+            "&endDate=" + endDate +
+            "&rows_per_page=" + rows_per_page +
+            "&page_num=" + page_num
+            ;
         //Clear the existing data view
-        /*$('#rows').html('');
+        removeElement("container-chart");
+        removeElement("row-button-download");
+        addElement("chart-display-container", "div", "row-button-download");
+        var linkDownload = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
 
-        var formData = new FormData();
-        formData.append('sensor_deveui_request', '0004A30B00E7D410');
-        formData.append('page_num', page_num);
-        formData.append('rows_per_page', rows_per_page);
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                var spectres = this.responseText;
-                console.logs("SPECTRE page num :", spectres);
-            }
-        };
-        xhttp.open("POST", "/ControllerSpectreData/getAllCharts", true);
-        xhttp.send(formData);*/
+        addButton("row-button-download", "Telecharger toutes les données (zip)", linkDownload);
 
-        /*//Get subset of data
-        $.get('data/page/' + page_num + '/' + rows_per_page, function (data) {
+        addElement("chart-display-container", "div", "container-chart");
+        addElement("container-chart", "div", "row-chart");
+
+        var link = "/ControllerSpectreData/getAllCharts" + parameters;
+        console.log(link)
+        $.get(link, function (data) {
             //Loop through each row and output the data
-            $(data).each(function () {
-                $('#rows').append('<li>' + this.name + '</li>');
-            });
-        });*/
+            //console.log("DATAA : ", data);
+            spectres_data = JSON.parse(data);
+            var spectresArr = spectres_data["spectres"];
+            var numberOfSpectres = Object.keys(spectresArr).length;
+
+
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                addElement("row-chart", "canvas", name_canva);
+                var name_spectre_data = "spectre_" + String(i);
+
+                var date_time = spectresArr[name_spectre_data]["date_time"];
+                var deveui = spectresArr[name_spectre_data]["deveui"];
+                //console.log("xhttp1.onreadystatechange -> date_time", date_time);
+
+                var linkDownloadSpectre =
+                    "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
+                addButton("row-chart", "Telecharger le spectre", linkDownloadSpectre);
+            }
+
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                var name_spectre_data = "spectre_" + String(i);
+                var spectre_i = spectresArr[name_spectre_data];
+
+                drawChartSpectreFromData(spectre_i, name_canva);
+            }
+        });
+
     }
 
-    function getDatatableSpectres(formData) {
+    function getDatatableSpectres(formData, page_num) {
+        formData.append('page_num', page_num);
+        formData.append('rows_per_page', rows_per_page);
         //For displaying the table data
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
@@ -183,7 +238,15 @@
         xhttp.send(formData);
     }
 
-    function getChats(formData) {
+    function getChats(formData, parameters, page_num) {
+
+        formData.append('page_num', page_num);
+        formData.append('rows_per_page', rows_per_page);
+        parameters += "&page_num=" + page_num + "&rows_per_page=" + rows_per_page;
+        var link = "/ControllerSpectreData/getAllCharts" + parameters;
+        console.log(link);
+        console.log("page_num: ", page_num);
+        console.log("rows_per_page: ", rows_per_page);
         //For displaying the charts
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
@@ -200,15 +263,15 @@
                 removeElement("container-chart");
                 removeElement("row-button-download");
                 addElement("chart-display-container", "div", "row-button-download");
-                var link = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
+                var linkDownload = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
 
-                addButton("row-button-download", "Telecharger toutes les données (zip)", link);
+                addButton("row-button-download", "Telecharger toutes les données (zip)", linkDownload);
 
                 addElement("chart-display-container", "div", "container-chart");
                 addElement("container-chart", "div", "row-chart");
                 var spectresArr = spectres_data["spectres"];
                 var numberOfSpectres = Object.keys(spectresArr).length;
-                document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
+                //document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
 
                 for (i = 1; i <= numberOfSpectres; i++) {
                     var name_canva = "canva_" + String(i);
@@ -219,9 +282,9 @@
                     var deveui = spectresArr[name_spectre_data]["deveui"];
                     //console.log("xhttp1.onreadystatechange -> date_time", date_time);
 
-                    var link =
+                    var linkDownloadSpectre =
                         "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
-                    addButton("row-chart", "Telecharger le spectre", link);
+                    addButton("row-chart", "Telecharger le spectre", linkDownloadSpectre);
                 }
 
                 for (i = 1; i <= numberOfSpectres; i++) {
@@ -234,13 +297,19 @@
 
             }
         };
-        xhttp1.open("POST", "/ControllerSpectreData/getAllCharts", true);
+
+        xhttp1.open("GET", link, true);
         xhttp1.send(formData);
+
+        return false;
     }
+
 
     $(document).ready(function () {
         init_daterangepicker();
         var date = Date();
+
+
 
 
         $("#siteSpectre").change(function () {
@@ -271,20 +340,32 @@
             alert("Selectionner un équipement");
             return;
         }
+        var base = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        var url = base + "search-spectre?page=1";
+        window.history.replaceState({}, null, url);
+        page_num = url.split("=")[1];
 
         var formData = new FormData();
         formData.append('site_request', $('#siteSpectre option:selected').val());
         formData.append('sensor_deveui_request', $('#equipmentField option:selected').val());
         formData.append('startDate', startDate);
         formData.append('endDate', endDate);
+
         console.log("Site request : ", $('#siteSpectre option:selected').val());
         console.log("sensor request : ", $('#equipmentField option:selected').val());
         console.log("Start date: ", startDate);
         console.log("endDate date: ", endDate);
 
-        getDatatableSpectres(formData);
+        numberOfSpectres = getNumberTotalSpectre($('#equipmentField option:selected').val());
 
-        getChats(formData);
+        var parameters = "?site_request=" + $('#siteSpectre option:selected').val() +
+            "&sensor_deveui_request=" + $('#equipmentField option:selected').val() +
+            "&startDate=" + startDate +
+            "&endDate=" + endDate
+            ;
+        console.log(parameters);
+        getDatatableSpectres(formData, page_num);
+        getChats(formData, parameters, page_num);
 
     });
 

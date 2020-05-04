@@ -452,7 +452,7 @@ class SpectreManager extends \Core\Model
    * @param int $offset this is the number of rows to return in total from $start. (Ex: $offset = 3 so it will return 3 rows)
    * @return array  results from the query
    */
-  public static function getAllFirstSubspectreForSensorFirstGeneration($deveui, $start = null, $offset = null, $dateTime = null)
+  public static function getAllFirstSubspectreForSensorFirstGeneration($deveui, $page_num = null, $rows_per_page = null, $dateTime = null)
   {
     $db = static::getDB();
 
@@ -494,8 +494,8 @@ class SpectreManager extends \Core\Model
     $sql_subspectre_data .= ") AS first_subpsectre_sensor
       ORDER BY date_time DESC ";
 
-    if (isset($start) && isset($offset)) {
-      $sql_subspectre_data .= " LIMIT :start,:offset";
+    if (isset($page_num) && isset($rows_per_page)) {
+      $sql_subspectre_data .= " LIMIT :page_num,:rows_per_page";
     }
 
     $stmt = $db->prepare($sql_subspectre_data);
@@ -503,9 +503,9 @@ class SpectreManager extends \Core\Model
     if (isset($dateTime)) {
       $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
     }
-    if (isset($start) && isset($offset)) {
-      $stmt->bindValue(':start', $start, PDO::PARAM_INT);
-      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    if (isset($page_num) && isset($rows_per_page)) {
+      $stmt->bindValue(':page_num', $page_num, PDO::PARAM_INT);
+      $stmt->bindValue(':rows_per_page', $rows_per_page, PDO::PARAM_INT);
     }
 
     if ($stmt->execute()) {
@@ -522,7 +522,7 @@ class SpectreManager extends \Core\Model
    * @param int $offset this is the number of rows to return in total from $start. (Ex: $offset = 3 so it will return 3 rows)
    * @return array  results from the query
    */
-  public static function getAllFirstSubspectreForSensorSecondGeneration($deveui, $start = null, $offset = null, $dateTime = null)
+  public static function getAllFirstSubspectreForSensorSecondGeneration($deveui, $page_num = null, $rows_per_page = null, $dateTime = null)
   {
     $db = static::getDB();
 
@@ -563,8 +563,8 @@ class SpectreManager extends \Core\Model
     $sql_subspectre_data .= ") AS first_subpsectre_sensor_second_generation
       ORDER BY date_time DESC ";
 
-    if (isset($start) && isset($offset)) {
-      $sql_subspectre_data .= " LIMIT :start,:offset";
+    if (isset($page_num) && isset($rows_per_page)) {
+      $sql_subspectre_data .= " LIMIT :page_num,:rows_per_page";
     }
 
     $stmt = $db->prepare($sql_subspectre_data);
@@ -572,9 +572,9 @@ class SpectreManager extends \Core\Model
     if (isset($dateTime)) {
       $stmt->bindValue(':dateTime', $dateTime, PDO::PARAM_STR);
     }
-    if (isset($start) && isset($offset)) {
-      $stmt->bindValue(':start', $start, PDO::PARAM_INT);
-      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    if (isset($page_num) && isset($rows_per_page)) {
+      $stmt->bindValue(':page_num', $page_num, PDO::PARAM_INT);
+      $stmt->bindValue(':rows_per_page', $rows_per_page, PDO::PARAM_INT);
     }
 
     if ($stmt->execute()) {
