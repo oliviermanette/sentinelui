@@ -390,7 +390,6 @@ class RecordManager extends \Core\Model
         LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
       WHERE
         gn.group_id = :groupId
-
       GROUP BY
         sensor.deveui,
         sensor.device_number,
