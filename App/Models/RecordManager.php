@@ -371,7 +371,7 @@ class RecordManager extends \Core\Model
         sensor.installation_date AS 'date_installation',
         s.nom AS `site`,
         sensor.status AS status,
-        st.transmision_line_name AS `LigneHT`,
+        attr_transmission_line.name AS `LigneHT`,
         st.nom AS `equipement`,
         sum(
           case when msg_type = 'choc' then 1 else 0 end
@@ -384,6 +384,7 @@ class RecordManager extends \Core\Model
         sensor
         LEFT JOIN record AS r ON (r.sensor_id = sensor.id)
         LEFT JOIN structure AS st ON st.id = sensor.structure_id
+        LEFT JOIN attr_transmission_line ON attr_transmission_line.id=st.attr_transmission_id
         LEFT JOIN site AS s ON s.id = st.site_id
         LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
         LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)

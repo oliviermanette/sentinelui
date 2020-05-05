@@ -473,7 +473,7 @@ class AlertManager extends \Core\Model
     {
         $db = static::getDB();
 
-        $sql_nb_active_alert = "SELECT count(*) as nb_active_alerts
+        $sql_nb_active_alert = "SELECT DISTINCT count(*) as nb_active_alerts
         FROM alerts
         LEFT JOIN structure ON (structure.id = alerts.structure_id)
         LEFT JOIN site ON (site.id = structure.site_id)
@@ -481,7 +481,8 @@ class AlertManager extends \Core\Model
         LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
         LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
         WHERE alerts.status = 1
-        AND group_name.group_id = :groupId";
+        AND group_name.group_id = :groupId
+        GROUP BY alerts.id";
 
         $stmt = $db->prepare($sql_nb_active_alert);
         $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
