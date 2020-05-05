@@ -955,7 +955,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_nb_choc_per_week = "SELECT
-          YEARWEEK(date_time) as date_d,
+          CONCAT('semaine ', DATE_FORMAT(date_time, '%V, %M')) AS date_d,
           count(*) AS nb_choc
           FROM
           (
@@ -1001,7 +1001,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_nb_choc_per_month = "SELECT
-          MONTH(date_time) as date_d,
+          DATE_FORMAT(date_time, '%M') as date_d,
           count(*) AS nb_choc
           FROM
           (
@@ -1114,7 +1114,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-    YEARWEEK(`date_time`) AS date_d,
+    CONCAT('semaine ', DATE_FORMAT(date_time, '%V, %M')) AS date_d,
     `power`
     FROM
     choc
@@ -1147,7 +1147,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-    MONTH(`date_time`) AS date_d,
+    DATE_FORMAT(date_time, '%M') AS date_d,
     `power`
     FROM
     choc
