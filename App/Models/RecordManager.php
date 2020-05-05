@@ -398,7 +398,7 @@ class RecordManager extends \Core\Model
         r.sensor_id,
         st.nom,
         s.nom,
-        st.transmision_line_name
+        attr_transmission_line.name
     ) AS all_message_rte_sensor";
     //  AND Date(r.date_time) >= Date(sensor.installation_date)
     $stmt = $db->prepare($query_get_number_record);
