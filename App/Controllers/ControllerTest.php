@@ -72,13 +72,13 @@ class ControllerTest extends \Core\Controller
         $spectreManager = new SpectreManager();
         //Get all the sensor ID from Pool ID
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
-        $coupleArr = $recordManager->getCoupleStructureIDSensorIDFromRecord($group_name);
+        //$coupleArr = $recordManager->getCoupleStructureIDSensorIDFromRecord($group_name);
 
         ControllerInit::getTimeSerie(28, 3, "2019-10-24");
         exit();
 
 
-        //Pour chaque couple (structure/sensor) de la table pool
+        /*Pour chaque couple (structure/sensor) de la table pool
         foreach ($coupleArr as $couple) {
             $sensor_id = $couple["sensor_id"];
             $structure_id = $couple["structure_id"];
@@ -110,6 +110,7 @@ class ControllerTest extends \Core\Controller
                 exit();
             }
         }
+        */
     }
 
     public function goTestTimeSeriesAction()
@@ -117,12 +118,12 @@ class ControllerTest extends \Core\Controller
         $structure_id = 2;
         $site_id = 26;
         $date_request = '2020-01-10 15:39:02';
-        $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $structure_id, $date_request);
+        $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($site_id, $structure_id, $date_request);
         //var_dump($allSubSpectresArr);
-        $timeSerie = new TimeSeries();
-        $timeSerie->createFromSpectreArr($allSubSpectresArr);
+        //$timeSerie = new TimeSeries();
+        //$timeSerie->createFromSpectreArr($allSubSpectresArr);
         //print_r($timeSerie->getTimeSerieData());
-        ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $date_request);
+        //ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $date_request);
         /*
         //Example1
         $allSpectreArr = array();
