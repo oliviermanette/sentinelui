@@ -70,17 +70,27 @@
         </div>
     </div>
 
-    <ul id="rows"></ul>
-    <ul id="page-numbers"></ul>
+    <div align="center">
+        <nav id="navigation-page-top">
+            <ul class="pagination">
+
+            </ul>
+        </nav>
+    </div>
+
 
     <!-- Container for displaying the chart data -->
     <div id="chart-display-container" class="container">
     </div>
 
-    <!-- Container for displaying the table data -->
-    <div class="container">
-        <div id="resultcontainer"></div>
+    <div align="center">
+        <nav id="navigation-page-bottom">
+            <ul class="pagination">
+
+            </ul>
+        </nav>
     </div>
+
 
     <!-- Container for displaying the chart data -->
     <div id="containerChartsSpectre">
@@ -98,18 +108,83 @@
     var startDate = "";
     var endDate = "";
     let diffDays = "";
-    var rows_per_page = 3;
+    var rows_per_page = 10;
     var total_rows;
 
-    //Whe we click on a specfic page
-    $(document).on('click', '.page', function (e) {
-        e.preventDefault();
-        var url = $("a", this).attr('href');
-        page_num = url.split("=")[1]
-        getPage(page_num);
-    });
+    function getURL() {
+        return window.location.href;
+    }
+    function getCurrentPage() {
+        var current_url = getURL();
+        base = current_url.split("=")[0]
+        page_num = current_url.split("=")[1];
 
-    //Init the number of total page
+        return page_num
+    }
+    //Replace the current url with the current page number
+    //Ex. http://sentive.fr/search-spectre?page=page_num
+    function updateUrlPage(page_num) {
+        var current_url = getURL();
+        base = current_url.split("=")[0]
+        var current_url = base + "=" + page_num
+        window.history.replaceState({}, null, current_url);
+    }
+
+    /** Pagination function **/
+
+    //Function to delete the current pagination table if we want to reload other data
+    function deleteCurrentPagination(navigationPageId) {
+        var parentDOM = document.getElementById(navigationPageId);
+        var pagination = parentDOM.getElementsByClassName("pagination")[0];
+        if (pagination) {
+            while (pagination.firstChild) {
+                pagination.removeChild(pagination.firstChild);
+            }
+        }
+    }
+
+    //Create the basic pagination UI (with bootstrap class)
+    function generatePageItemForPagination(navigationPageId, numberItem, link) {
+        //Get the parent attribute where we will create the <li></li> items
+        var parentDOM = document.getElementById(navigationPageId);
+        var pagination = parentDOM.getElementsByClassName("pagination")[0];
+
+        //Create liste attribute
+        var li = document.createElement("li");
+        li.classList.add("page-item");
+
+        //Create link attribute
+        var a = document.createElement("a");
+        var textLink = document.createTextNode(numberItem);
+        // Set the href property. 
+        a.href = link;
+        a.appendChild(textLink);
+        a.classList.add("page-link");
+        //Add link to the list item
+        li.appendChild(a);
+
+        //Finally add the list item to the parent div
+        pagination.appendChild(li);
+    }
+
+    //Add the class active for highliting the current page
+    function addActiveItem(navigationPageId, page_num) {
+        var parentDOM = document.getElementById(navigationPageId);
+        var pagination = parentDOM.getElementsByClassName("pagination")[0];
+        var li = pagination.getElementsByClassName("page-item")[page_num - 1];
+        var a = li.getElementsByClassName("page-link")[0];
+        li.classList.add("active");
+    }
+
+    //Inside the UL list, find if we have an active class (meaning that it is highlight) and delete
+    function removeAllActive() {
+        let elements = document.querySelectorAll('.active');
+        for (let elem of elements) {
+            elem.classList.remove("active");
+        }
+    }
+
+    //Init the number of total page that will be display to the users
     function initPageNumbers(deveui) {
         var parameters = "?sensor_deveui_request=" + deveui;
         var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
@@ -119,28 +194,56 @@
             //Loop through every available page and output a page link
             var count = 1;
             var base = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+
             for (var x = 0; x < total_rows; x += rows_per_page) {
+                //Generate the link
                 var url = base + "search-spectre?page=" + count;
-                $('#page-numbers').append('<li class="page" ><a href="' + url + '">' + count + '</a></li>');
+                //Generate the basic pagination UI
+                generatePageItemForPagination("navigation-page-top", count, url)
+                generatePageItemForPagination("navigation-page-bottom", count, url)
                 count++;
             }
+
+            //Highligh the first page
+            addActiveItem("navigation-page-top", 1)
+            addActiveItem("navigation-page-bottom", 1)
         });
 
     }
 
 
+    //Whe we click on a specfic page on the pagination UI tab
+    $(document).on('click', '.page-item', function (e) {
+        e.preventDefault();
+        var url = $("a", this).attr('href');
+        page_num = url.split("=")[1]
+        //Remove the hightlight 
+        removeAllActive();
+        //update the current url with the new page
+        updateUrlPage(page_num)
+
+        //Update active tab with the new number page
+        addActiveItem("navigation-page-top", page_num)
+        addActiveItem("navigation-page-bottom", page_num)
+
+        //Get content for the new page
+        getPageData(page_num);
+    });
+
+    //Display the number of spectres available
     function getNumberTotalSpectre(deveui) {
         var parameters = "?sensor_deveui_request=" + deveui;
         var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
 
         $.get(link, function (data) {
             var numberOfSpectres = data;
+            document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
             return numberOfSpectres;
         });
 
     }
 
-    function getPage(page_num) {
+    function getPageData(page_num) {
         deveui = $('#equipmentField option:selected').val();
         var parameters = "?sensor_deveui_request=" + deveui +
             "&startDate=" + startDate +
@@ -155,19 +258,15 @@
         var linkDownload = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
 
         addButton("row-button-download", "Telecharger toutes les données (zip)", linkDownload);
-
         addElement("chart-display-container", "div", "container-chart");
         addElement("container-chart", "div", "row-chart");
 
         var link = "/ControllerSpectreData/getAllCharts" + parameters;
-        console.log(link)
         $.get(link, function (data) {
             //Loop through each row and output the data
-            //console.log("DATAA : ", data);
             spectres_data = JSON.parse(data);
             var spectresArr = spectres_data["spectres"];
             var numberOfSpectres = Object.keys(spectresArr).length;
-
 
             for (i = 1; i <= numberOfSpectres; i++) {
                 var name_canva = "canva_" + String(i);
@@ -176,8 +275,6 @@
 
                 var date_time = spectresArr[name_spectre_data]["date_time"];
                 var deveui = spectresArr[name_spectre_data]["deveui"];
-                //console.log("xhttp1.onreadystatechange -> date_time", date_time);
-
                 var linkDownloadSpectre =
                     "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
                 addButton("row-chart", "Telecharger le spectre", linkDownloadSpectre);
@@ -232,79 +329,59 @@
         xhttp.send(formData);
     }
 
-    function getChats(formData, parameters, page_num) {
+    //Get the spectrum charts to displays
+    function getCharts(parameters, page_num) {
 
-        formData.append('page_num', page_num);
-        formData.append('rows_per_page', rows_per_page);
         parameters += "&page_num=" + page_num + "&rows_per_page=" + rows_per_page;
         var link = "/ControllerSpectreData/getAllCharts" + parameters;
-        console.log(link);
-        console.log("page_num: ", page_num);
-        console.log("rows_per_page: ", rows_per_page);
+
         //For displaying the charts
-        xhttp1 = new XMLHttpRequest();
-        xhttp1.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
+        $.get(link, function (data) {
+            //var data = this.responseText;
+            spectres_data = JSON.parse(data);
 
-                var data = this.responseText;
-                spectres_data = JSON.parse(data);
+            var deveui = spectres_data["deveui"];
+            initPageNumbers(deveui);
 
-                var deveui = spectres_data["deveui"];
-                initPageNumbers(deveui);
+            removeElement("container-chart");
+            removeElement("row-button-download");
+            addElement("chart-display-container", "div", "row-button-download");
+            var linkDownload = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
 
-                console.log("Data spectre : ", spectres_data);
+            addButton("row-button-download", "Telecharger toutes les données (zip)", linkDownload);
+            addElement("chart-display-container", "div", "container-chart");
+            addElement("container-chart", "div", "row-chart");
+            var spectresArr = spectres_data["spectres"];
+            var numberOfSpectres = Object.keys(spectresArr).length;
 
-                removeElement("container-chart");
-                removeElement("row-button-download");
-                addElement("chart-display-container", "div", "row-button-download");
-                var linkDownload = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                addElement("row-chart", "canvas", name_canva);
+                var name_spectre_data = "spectre_" + String(i);
 
-                addButton("row-button-download", "Telecharger toutes les données (zip)", linkDownload);
+                var date_time = spectresArr[name_spectre_data]["date_time"];
+                var deveui = spectresArr[name_spectre_data]["deveui"];
 
-                addElement("chart-display-container", "div", "container-chart");
-                addElement("container-chart", "div", "row-chart");
-                var spectresArr = spectres_data["spectres"];
-                var numberOfSpectres = Object.keys(spectresArr).length;
-                //document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
-
-                for (i = 1; i <= numberOfSpectres; i++) {
-                    var name_canva = "canva_" + String(i);
-                    addElement("row-chart", "canvas", name_canva);
-                    var name_spectre_data = "spectre_" + String(i);
-
-                    var date_time = spectresArr[name_spectre_data]["date_time"];
-                    var deveui = spectresArr[name_spectre_data]["deveui"];
-                    //console.log("xhttp1.onreadystatechange -> date_time", date_time);
-
-                    var linkDownloadSpectre =
-                        "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
-                    addButton("row-chart", "Telecharger le spectre", linkDownloadSpectre);
-                }
-
-                for (i = 1; i <= numberOfSpectres; i++) {
-                    var name_canva = "canva_" + String(i);
-                    var name_spectre_data = "spectre_" + String(i);
-                    var spectre_i = spectresArr[name_spectre_data];
-
-                    drawChartSpectreFromData(spectre_i, name_canva);
-                }
-
+                var linkDownloadSpectre =
+                    "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
+                addButton("row-chart", "Telecharger le spectre", linkDownloadSpectre);
             }
-        };
 
-        xhttp1.open("GET", link, true);
-        xhttp1.send(formData);
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                var name_spectre_data = "spectre_" + String(i);
+                var spectre_i = spectresArr[name_spectre_data];
 
-        return false;
+                drawChartSpectreFromData(spectre_i, name_canva);
+            }
+        });
+
     }
 
 
     $(document).ready(function () {
         init_daterangepicker();
         var date = Date();
-
-
-
 
         $("#siteSpectre").change(function () {
             var formData = new FormData();
@@ -334,10 +411,10 @@
             alert("Selectionner un équipement");
             return;
         }
-        var base = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-        var url = base + "search-spectre?page=1";
-        window.history.replaceState({}, null, url);
-        page_num = url.split("=")[1];
+
+        deleteCurrentPagination("navigation-page-top");
+        deleteCurrentPagination("navigation-page-bottom");
+        page_num = getCurrentPage();
 
         var formData = new FormData();
         formData.append('site_request', $('#siteSpectre option:selected').val());
@@ -345,22 +422,20 @@
         formData.append('startDate', startDate);
         formData.append('endDate', endDate);
 
-        console.log("Site request : ", $('#siteSpectre option:selected').val());
+        /*console.log("Site request : ", $('#siteSpectre option:selected').val());
         console.log("sensor request : ", $('#equipmentField option:selected').val());
         console.log("Start date: ", startDate);
-        console.log("endDate date: ", endDate);
+        console.log("endDate date: ", endDate);*/
 
-        numberOfSpectres = getNumberTotalSpectre($('#equipmentField option:selected').val());
-        document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
+        getNumberTotalSpectre($('#equipmentField option:selected').val());
 
         var parameters = "?site_request=" + $('#siteSpectre option:selected').val() +
             "&sensor_deveui_request=" + $('#equipmentField option:selected').val() +
             "&startDate=" + startDate +
             "&endDate=" + endDate
             ;
-        console.log(parameters);
-        getDatatableSpectres(formData, page_num);
-        getChats(formData, parameters, page_num);
+        //getDatatableSpectres(formData, page_num);
+        getCharts(parameters, page_num);
 
     });
 
