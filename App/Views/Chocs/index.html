@@ -161,12 +161,13 @@
         xhttp.open("POST", "/ControllerChocData/getResultsFromChocForm", false);
         xhttp.send(formData);
 
-
+        //Charts
         xhttp1 = new XMLHttpRequest();
         xhttp1.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var choc_data = this.responseText;
                 choc_data = JSON.parse(choc_data);
+                //console.log("xhttp1.onreadystatechange -> choc_data", choc_data);
                 for (var i = 0; i < Object.keys(choc_data).length; i++) {
 
 
@@ -178,7 +179,7 @@
 
                         'deveui'
                     ];
-
+                    //console.log(choc_data[name_data]['nb_choc_per_day'])
                     drawChartNbChocPerDate(choc_data[name_data]['nb_choc_per_day'], name_canvas_nbchoc);
                     drawChartPowerChocPerDateBar(choc_data[name_data]['power_choc_per_day'], name_canvas_powerchoc);
 

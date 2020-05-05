@@ -118,7 +118,7 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
   if (typeof data != "object") {
     data = JSON.parse(data);
   }
-
+  //console.log("drawChartNbChocPerDate -> data", data);
   if (isEmpty(data)) {
     drawNoDataAvailable(canvaID);
   } else {

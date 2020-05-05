@@ -737,13 +737,13 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_nb_choc_per_day = "SELECT
-    date_d,
-    count(*) AS nb_choc
-    FROM
+        DATE_FORMAT(date_time, '%d/%m/%Y') as date_d,
+        count(*) AS nb_choc
+        FROM
     (
       SELECT
       `sensor_id`,
-      DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
+      r.date_time,
       `amplitude_1`,
       `amplitude_2`,
       `time_1`,
@@ -759,18 +759,64 @@ class ChocManager extends \Core\Model
       `msg_type` LIKE 'choc'
       AND s.deveui = :deveui
       AND Date(r.date_time) >= Date(s.installation_date)
-    ) AS choc_data
-    GROUP BY
-    date_d
-    ORDER BY
-    date_d ASC
-    ";
+      ORDER BY r.date_time DESC) AS choc_data
+      GROUP BY Date(date_time)
+      ORDER BY date_time ASC 
+      ";
 
     $stmt = $db->prepare($sql_nb_choc_per_day);
 
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+
+  public static function getNbChocPerDayForDates($deveui, $startDate, $endDate)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc = "SELECT
+          DATE_FORMAT(date_time, '%d/%m/%Y') as date_d,
+          count(*) AS nb_choc
+          FROM
+          (
+          SELECT
+            `sensor_id`,
+            r.date_time,
+            `amplitude_1`,
+            `amplitude_2`,
+            `time_1`,
+            `time_2`,
+            `freq_1`,
+            `freq_2`,
+            `power`
+            FROM
+            choc
+            LEFT JOIN record AS r ON (r.id = choc.record_id)
+            LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+            WHERE
+            `msg_type` = 'choc'
+            AND s.deveui = :deveui
+            AND Date(r.date_time) BETWEEN :startDate AND :endDate) AS choc_data
+          GROUP BY Date(date_time)
+          ORDER BY date_time ASC 
+        ";
+
+    $stmt = $db->prepare($sql_nb_choc);
+
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+    $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count = $stmt->rowCount();
+    if ($count == '0') {
+      return array();
+    } else {
       return $results;
     }
   }
@@ -830,54 +876,7 @@ class ChocManager extends \Core\Model
     }
   }
 
-  public static function getNbChocPerDayForDates($deveui, $startDate, $endDate)
-  {
-    $db = static::getDB();
 
-    $sql_nb_choc = "SELECT
-        date_d,
-        count(*) AS nb_choc
-        FROM
-        (
-          SELECT
-          `sensor_id`,
-          DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-          `amplitude_1`,
-          `amplitude_2`,
-          `time_1`,
-          `time_2`,
-          `freq_1`,
-          `freq_2`,
-          `power`
-          FROM
-          choc
-          LEFT JOIN record AS r ON (r.id = choc.record_id)
-          LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
-          WHERE
-          `msg_type` LIKE 'choc'
-          AND s.deveui = :deveui
-          AND Date(r.date_time) BETWEEN :startDate AND :endDate) AS choc_data
-        GROUP BY
-        date_d
-        ORDER BY
-        date_d ASC
-        ";
-
-    $stmt = $db->prepare($sql_nb_choc);
-
-    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-    $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
-    $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
-
-    $stmt->execute();
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $count = $stmt->rowCount();
-    if ($count == '0') {
-      return array();
-    } else {
-      return $results;
-    }
-  }
   public static function getPowerChocPerDayForDates($deveui, $startDate, $endDate)
   {
     $db = static::getDB();
@@ -1049,17 +1048,17 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_power_choc = "SELECT
-    DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s')  AS date_d,
+    DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') as date_d,
     `power`
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
     LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
-    `msg_type` LIKE 'choc'
+    `msg_type` = 'choc'
     AND s.deveui = :deveui
     AND Date(r.date_time) >= Date(s.installation_date)
-    ORDER BY `date_d` ASC";
+    ORDER BY r.date_time ASC";
 
     $stmt = $db->prepare($sql_power_choc);
 

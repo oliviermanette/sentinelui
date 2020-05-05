@@ -9,6 +9,7 @@ use \App\Models\RecordManager;
 use \App\Models\InclinometerManager;
 use \App\Models\EquipementManager;
 use \App\Models\SpectreManager;
+use \App\Models\ChocManager;
 use \App\Models\SensorManager;
 use App\Models\API\TemperatureAPI;
 use App\Models\TemperatureManager;
@@ -41,16 +42,17 @@ class ControllerTest extends \Core\Controller
     public function testSQLAction()
     {
 
-        $deveui = '0004A30B00E829A7';
+        $deveui = '0004A30B00E7D50F';
         $date_time_first_measure = '2020-03-29 20:49:36';
         //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
         //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
         //$dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
 
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1);
+        //$results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1);
+        $nb_choc_per_day = ChocManager::getNbChocPerDayForSensor($deveui);
         //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        var_dump($results);
+        var_dump($nb_choc_per_day);
     }
 
 

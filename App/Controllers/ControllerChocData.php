@@ -211,11 +211,11 @@ class ControllerChocData extends Authenticated
         if (!empty($startDate) && !empty($endDate)) {
             $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
             $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
-            $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
+            //$angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
         } else {
             $nb_choc_per_day = ChocManager::getNbChocPerDayForSensor($deveui);
             $power_choc_per_day = ChocManager::getPowerChocPerDayForSensor($deveui);
-            $angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
+            //$angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
         }
 
         return array(
@@ -225,7 +225,7 @@ class ControllerChocData extends Authenticated
             'structure_name' => $structure_name,
             'structure_id' => $structure_id,
             'nb_choc_per_day' => $nb_choc_per_day,
-            'angleXYZ_per_day' => $angleDataXYZ,
+            //'angleXYZ_per_day' => $angleDataXYZ,
             'power_choc_per_day' => $power_choc_per_day,
         );
     }
@@ -256,8 +256,8 @@ class ControllerChocData extends Authenticated
             $endDate = $_POST['endDate'];
             $searchByDate = true;
         } else {
-            $startDate = '';
-            $endDate = '';
+            $startDate = null;
+            $endDate = null;
         }
 
         if ($searchSpecificEquipement) {
