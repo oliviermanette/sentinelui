@@ -243,6 +243,7 @@
 
     }
 
+    //Get the charts data for a specific page number
     function getPageData(page_num) {
         deveui = $('#equipmentField option:selected').val();
         var parameters = "?sensor_deveui_request=" + deveui +
@@ -329,8 +330,8 @@
         xhttp.send(formData);
     }
 
-    //Get the spectrum charts to displays
-    function getCharts(parameters, page_num) {
+    //Get the spectrum charts to displays for a specific page
+    function getChartsInit(parameters, page_num) {
 
         parameters += "&page_num=" + page_num + "&rows_per_page=" + rows_per_page;
         var link = "/ControllerSpectreData/getAllCharts" + parameters;
@@ -435,7 +436,7 @@
             "&endDate=" + endDate
             ;
         //getDatatableSpectres(formData, page_num);
-        getCharts(parameters, page_num);
+        getChartsInit(parameters, 1);
 
     });
 
