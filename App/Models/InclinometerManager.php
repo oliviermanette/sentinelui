@@ -22,9 +22,11 @@ class InclinometerManager extends \Core\Model
    * is inside a specific range ( 1SD, 2SD , 3SD) to trigger an alert
    * @param int $sensor_id sensor id to target
    * @param int $time_period check for the last X days
+   * @param boolean $threshAverage true if we want to check and compare the current value with the average of measurement in a day or 
+   * compared to the last value
    * @return true if an alert is triggered
    */
-  public function check($inclinometer, $groupId, $method = "RANGE")
+  public function check($inclinometer, $groupId, $method = "RANGE", $threshAverage = False)
   {
 
     $first_inclinationX_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "first_inclinationX_thresh");
@@ -33,18 +35,23 @@ class InclinometerManager extends \Core\Model
     $third_inclinationY_thresh = SettingSensorManager::getSettingValueForSensorOrNull($inclinometer->deveui, "third_inclinationY_thresh");
 
     $alertsArr = array("type" => "inclination");
+    if ($threshAverage) {
+      $dataDirectionVariationArr = InclinometerManager::computeAverageDirectionVariationForLast($inclinometer->deveui, $time_period = -1);
+    } else {
+      $dataDirectionVariationArr = InclinometerManager::computeDirectionVariationForLast($inclinometer->deveui, $time_period = -1);
+    }
 
-    $dataDirectionVariationArr = InclinometerManager::computeAverageDirectionVariationForLast($inclinometer->deveui, $time_period = -1);
     //Check if the last value is above the trhesh
     $newDeltaY = $dataDirectionVariationArr[count($dataDirectionVariationArr) - 1]["delta_y"];
     $newDeltaX = $dataDirectionVariationArr[count($dataDirectionVariationArr) - 1]["delta_x"];
-
+    echo "New delta X :" . $newDeltaX . "\n";
+    echo "New delta Y :" . $newDeltaY . "\n";
     if (isset($first_inclinationX_thresh)) {
       if ($newDeltaX > $first_inclinationX_thresh) {
         $alertFirstTmpArr = array("thresh" => $first_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
         $alertsArr["alertFirstThreshAxisX"] = $alertFirstTmpArr;
 
-        echo "\n ALERT first level AxisX! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
+        echo "\n ALERT Niveau 1 dépassé Axe des X. Values (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
     }
     if (isset($first_inclinationY_thresh)) {
@@ -52,21 +59,21 @@ class InclinometerManager extends \Core\Model
         $alertFirstTmpArr = array("thresh" => $first_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaY);
         $alertsArr["alertFirstThreshAxisY"] = $alertFirstTmpArr;
 
-        echo "\n ALERT first level AxisY! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
+        echo "\n ALERT Niveau 1 dépassé Axe des Y. Values (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
     }
     if (isset($second_inclinationY_thresh)) {
       if ($newDeltaY > $second_inclinationY_thresh) {
         $alertSecondTmpArr = array("thresh" => $second_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaY);
         $alertsArr["alertSecondThreshAxisY"] = $alertSecondTmpArr;
-        echo "\n ALERT second level AxisY! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
+        echo "\n ALERT Niveau 2 dépassé Axe des Y. Values (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
     }
     if (isset($third_inclinationY_thresh)) {
       if ($newDeltaY > $third_inclinationY_thresh) {
         $alertThirdTmpArr = array("thresh" => $third_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaY);
         $alertsArr["alertThirdThreshAxisY"] = $alertThirdTmpArr;
-        echo "\n ALERT third level AxisY! Value : (" . $newDeltaX . ',' . $newDeltaY . ")\n";
+        echo "\n ALERT Niveau 3 dépassé Axe des Y. Values (" . $newDeltaX . ',' . $newDeltaY . ")\n";
       }
     }
 

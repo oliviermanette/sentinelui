@@ -622,7 +622,7 @@ class AlertManager extends \Core\Model
             $text = View::getTemplate('Alerts/alertSensor_email_view.txt', $context);
             $html = View::getTemplate('Alerts/alertSensor_email_view.html', $context);
 
-            $title =  'TEST - [capteur] Nouvelle alerte sur le capteur ' . $device_number . ' !';
+            $title =  '[capteur] Nouvelle alerte sur le capteur ' . $device_number . ' !';
             Mail::send($email, $title, $text, $html);
         }
     }
@@ -693,8 +693,6 @@ class AlertManager extends \Core\Model
                 $text = View::getTemplate('Alerts/alertStructureShock_email_view.txt', $context);
                 $html = View::getTemplate('Alerts/alertStructureShock_email_view.html', $context);
             }
-
-
 
             $title =  'Capteur' . $device_number . ' - Nouvelle alerte sur la structure ' . $equipementName . ' !';
             Mail::send($email, $title, $text, $html);
