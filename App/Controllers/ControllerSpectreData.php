@@ -48,7 +48,7 @@ class ControllerSpectreData extends Authenticated
         $min_date = $date_min_max[0];
         $max_date = $date_min_max[1];
 
-        View::renderTemplate('Data/index.html', [
+        View::renderTemplate('Spectres/index.html', [
             'all_site'    => $sites,
             'all_equipment' => $all_equipment,
             'min_date' => $min_date,
