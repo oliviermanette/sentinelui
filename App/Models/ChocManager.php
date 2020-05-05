@@ -947,44 +947,43 @@ class ChocManager extends \Core\Model
    * Get number of choc per week for a specific sensor
    *
    * date | number choc
-   * @param int $sensor_id sensor id for which we want to retrieve the number of choc per week
+   * @param string $deveui sensor deveui for which we want to retrieve the number of choc per week
    * @return array  results from the query
    */
-  public function getNbChocPerWeekForSensor($sensor_id)
+  public static function getNbChocPerWeekForSensor($deveui)
   {
     $db = static::getDB();
 
     $sql_nb_choc_per_week = "SELECT
-    date_d,
-    count(*) AS nb_choc
-    FROM
-    (
-      SELECT
-      `sensor_id`,
-      YEARWEEK(`date_time`) AS date_d,
-      `amplitude_1`,
-      `amplitude_2`,
-      `time_1`,
-      `time_2`,
-      `freq_1`,
-      `freq_2`,
-      `power`
-      FROM
-      choc
-      LEFT JOIN record AS r ON (r.id = choc.record_id)
-      WHERE
-      `msg_type` LIKE 'choc'
-      AND `sensor_id` LIKE :sensor_id
-    ) AS choc_data
-    group by
-    date_d
-    ORDER BY
-    date_d ASC
-    ";
+          YEARWEEK(date_time) as date_d,
+          count(*) AS nb_choc
+          FROM
+          (
+          SELECT
+            `sensor_id`,
+            r.date_time,
+            `amplitude_1`,
+            `amplitude_2`,
+            `time_1`,
+            `time_2`,
+            `freq_1`,
+            `freq_2`,
+            `power`
+            FROM
+            choc
+            LEFT JOIN record AS r ON (r.id = choc.record_id)
+            LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+            WHERE
+            `msg_type` = 'choc'
+            AND s.deveui = :deveui
+          ) AS choc_data
+          GROUP BY date_d
+          ORDER BY date_time ASC 
+        ";
 
     $stmt = $db->prepare($sql_nb_choc_per_week);
 
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
@@ -997,41 +996,41 @@ class ChocManager extends \Core\Model
    * @param int $sensor_id sensor id for which we want to retrieve the number of choc per month
    * @return array  results from the query
    */
-  public function getNbChocPerMonthForSensor($sensor_id)
+  public static function getNbChocPerMonthForSensor($deveui)
   {
     $db = static::getDB();
 
     $sql_nb_choc_per_month = "SELECT
-    date_d,
-    count(*) AS nb_choc
-    FROM
-    (
-      SELECT
-      `sensor_id`,
-      MONTH(`date_time`) AS date_d,
-      `amplitude_1`,
-      `amplitude_2`,
-      `time_1`,
-      `time_2`,
-      `freq_1`,
-      `freq_2`,
-      `power`
-      FROM
-      choc
-      LEFT JOIN record AS r ON (r.id = choc.record_id)
-      WHERE
-      `msg_type` LIKE 'choc'
-      AND `sensor_id` LIKE :sensor_id
-    ) AS choc_data
-    group by
-    date_d
-    ORDER BY
-    date_d ASC
+          MONTH(date_time) as date_d,
+          count(*) AS nb_choc
+          FROM
+          (
+          SELECT
+            `sensor_id`,
+            r.date_time,
+            `amplitude_1`,
+            `amplitude_2`,
+            `time_1`,
+            `time_2`,
+            `freq_1`,
+            `freq_2`,
+            `power`
+            FROM
+            choc
+            LEFT JOIN record AS r ON (r.id = choc.record_id)
+            LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
+            WHERE
+            `msg_type` = 'choc'
+            AND s.deveui = :deveui
+          ) AS choc_data
+          GROUP BY date_d
+          ORDER BY date_time ASC 
+        
     ";
 
     $stmt = $db->prepare($sql_nb_choc_per_month);
 
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
@@ -1107,10 +1106,10 @@ class ChocManager extends \Core\Model
   /**
    * Retrieve all the power of chocs since the beginning for a specific sensor and for week
    *
-   * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
+   * @param string $deveui sensor deveui for which we want to retrieve the power of chocs
    * @return array  results from the query
    */
-  public function getPowerChocPerWeekForSensor($sensor_id)
+  public static function getPowerChocPerWeekForSensor($deveui)
   {
     $db = static::getDB();
 
@@ -1120,14 +1119,16 @@ class ChocManager extends \Core\Model
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
-    `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id
-    ORDER BY `date_d` ASC";
+    `msg_type` = 'choc'
+    AND s.deveui = :deveui
+    AND Date(r.date_time) >= Date(s.installation_date)
+    ORDER BY date_time ASC";
 
     $stmt = $db->prepare($sql_power_choc);
 
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1138,10 +1139,10 @@ class ChocManager extends \Core\Model
   /**
    * Retrieve all the power of chocs since the beginning for a specific sensor and for week
    *
-   * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
+   * @param string $deveui sensor deveui  for which we want to retrieve the power of chocs
    * @return array  results from the query
    */
-  public function getPowerChocPerMonthForSensor($sensor_id)
+  public static function getPowerChocPerMonthForSensor($deveui)
   {
     $db = static::getDB();
 
@@ -1151,14 +1152,16 @@ class ChocManager extends \Core\Model
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
+    LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
     WHERE
-    `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id
-    ORDER BY `date_d` ASC";
+    `msg_type` = 'choc'
+    AND s.deveui = :deveui
+    AND Date(r.date_time) >= Date(s.installation_date)
+    ORDER BY date_time ASC";
 
     $stmt = $db->prepare($sql_power_choc);
 
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

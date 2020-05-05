@@ -50,9 +50,9 @@ class ControllerTest extends \Core\Controller
 
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
         //$results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1);
-        $nb_choc_per_day = ChocManager::getNbChocPerDayForSensor($deveui);
+        $nb_choc = ChocManager::getNbChocPerMonthForSensor($deveui);
         //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        var_dump($nb_choc_per_day);
+        var_dump($nb_choc);
     }
 
 

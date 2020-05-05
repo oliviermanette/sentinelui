@@ -147,24 +147,20 @@ class ControllerChocData extends Authenticated
      */
     public function getChartChocFrequenciesAction()
     {
-        $equipementManager = new EquipementManager();
-        $chocManager = new ChocManager();
 
-        if (isset($_POST['equipementID'])) {
-            $equipementID = $_POST['equipementID'];
+        if (isset($_POST['deveui'])) {
+            $deveui = $_POST['deveui'];
         }
         if (isset($_POST['time_data'])) {
             $timeDisplayData = $_POST['time_data'];
         }
 
-        $sensor_id = $equipementManager->getSensorIdOnEquipement($equipementID);
-
         if ($timeDisplayData == "day") {
-            $nb_choc = $chocManager->getNbChocPerDayForSensor($sensor_id);
+            $nb_choc = ChocManager::getNbChocPerDayForSensor($deveui);
         } else if ($timeDisplayData == "week") {
-            $nb_choc = $chocManager->getNbChocPerWeekForSensor($sensor_id);
+            $nb_choc = ChocManager::getNbChocPerWeekForSensor($deveui);
         } else if ($timeDisplayData == "month") {
-            $nb_choc = $chocManager->getNbChocPerMonthForSensor($sensor_id);
+            $nb_choc = ChocManager::getNbChocPerMonthForSensor($deveui);
         }
 
         print json_encode($nb_choc);
@@ -177,24 +173,20 @@ class ControllerChocData extends Authenticated
      */
     public function getChartPowerChocFrequenciesAction()
     {
-        $equipementManager = new EquipementManager();
-        $chocManager = new ChocManager();
 
-        if (isset($_POST['equipementID'])) {
-            $equipementID = $_POST['equipementID'];
+        if (isset($_POST['deveui'])) {
+            $deveui = $_POST['deveui'];
         }
         if (isset($_POST['time_data'])) {
             $timeDisplayData = $_POST['time_data'];
         }
 
-        $sensor_id = $equipementManager->getSensorIdOnEquipement($equipementID);
-
         if ($timeDisplayData == "day") {
-            $nb_choc = $chocManager->getPowerChocPerDayForSensor($sensor_id);
+            $nb_choc = ChocManager::getPowerChocPerDayForSensor($deveui);
         } else if ($timeDisplayData == "week") {
-            $nb_choc = $chocManager->getPowerChocPerWeekForSensor($sensor_id);
+            $nb_choc = ChocManager::getPowerChocPerWeekForSensor($deveui);
         } else if ($timeDisplayData == "month") {
-            $nb_choc = $chocManager->getPowerChocPerMonthForSensor($sensor_id);
+            $nb_choc = ChocManager::getPowerChocPerMonthForSensor($deveui);
         }
 
         print json_encode($nb_choc);

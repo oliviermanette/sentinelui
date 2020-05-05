@@ -76,18 +76,19 @@
     $(document).on("click", "#radioButtonNbChoc", function (e) {
         e.preventDefault();
 
-        var equipementID = $(this).parent('div').attr('id');
+        var deveui = $(this).parent('div').attr('id');
         var radioValueTime = $("input[name='options']:checked").val();
         var formData = new FormData();
         formData.append('time_data', radioValueTime);
-        formData.append('equipementID', equipementID);
+        formData.append('deveui', deveui);
 
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var response = this.responseText;
-                var nameCanvas = "canvas_equipement_nbchoc_" + equipementID;
-                var nameChartAreaCanvas = "chart_area_nbchoc_id_" + equipementID;
+                //console.log("xhttp.onreadystatechange -> response", response);
+                var nameCanvas = "canvas_equipement_nbchoc_" + deveui;
+                var nameChartAreaCanvas = "chart_area_nbchoc_id_" + deveui;
                 removeElement(nameCanvas);
                 addElement(nameChartAreaCanvas, "canvas", nameCanvas);
                 drawChartNbChocPerDate(response, nameCanvas);
@@ -103,18 +104,20 @@
     $(document).on("click", "#radioButtonPowerChoc", function (e) {
         e.preventDefault();
 
-        var equipementID = $(this).parent('div').attr('id');
+        var deveui = $(this).parent('div').attr('id');
         var radioValueTime = $("input[name='options']:checked").val();
 
         var formData = new FormData();
         formData.append('time_data', radioValueTime);
-        formData.append('equipementID', equipementID);
+        formData.append('deveui', deveui);
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var response = this.responseText;
-                var nameCanvas = "canvas_equipement_powerchoc_" + equipementID;
-                var nameChartAreaCanvas = "chart_area_powerchoc_id_" + equipementID;
+                //console.log("xhttp.onreadystatechange -> response", response);
+
+                var nameCanvas = "canvas_equipement_powerchoc_" + deveui;
+                var nameChartAreaCanvas = "chart_area_powerchoc_id_" + deveui;
                 removeElement(nameCanvas);
                 addElement(nameChartAreaCanvas, "canvas", nameCanvas);
                 drawChartPowerChocPerDateBar(response, nameCanvas);
