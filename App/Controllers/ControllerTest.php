@@ -49,12 +49,10 @@ class ControllerTest extends \Core\Controller
         //$dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
 
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        //$results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1);
-        $nb_choc = ChocManager::getNbChocPerMonthForSensor($deveui);
-        $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSite(30, 75);
-        $sensor = SensorManager::getSensorInfo($deveui);
+        $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1);
+
         //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        var_dump($sensor);
+        var_dump($results);
     }
 
 

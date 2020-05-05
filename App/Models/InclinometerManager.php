@@ -800,16 +800,20 @@ class InclinometerManager extends \Core\Model
 
     $count = 0;
     $combinationArr = array();
-    foreach ($percentageVariationDayArr as $dataArr) {
 
-      $mergeResCurrent = array_merge($dataArr, $dataDirectionArr[$count]);
-      $mergeResCurrent = array_merge($mergeResCurrent, $dataDerivativeArr[$count]);
-      $mergeResCurrent = array_merge($mergeResCurrent, $angleDataArr[$count]);
-      array_push($combinationArr, $mergeResCurrent);
-      $count += 1;
+    $nbData = count($percentageVariationDayArr);
+    if ($nbData > 1) {
+      foreach ($percentageVariationDayArr as $dataArr) {
+
+        $mergeResCurrent = array_merge($dataArr, $dataDirectionArr[$count]);
+        $mergeResCurrent = array_merge($mergeResCurrent, $dataDerivativeArr[$count]);
+        $mergeResCurrent = array_merge($mergeResCurrent, $angleDataArr[$count]);
+        array_push($combinationArr, $mergeResCurrent);
+        $count += 1;
+      }
+      //var_dump($combinationArr);
+      return $combinationArr;
     }
-    //var_dump($combinationArr);
-    return $combinationArr;
   }
 
   public static function getActivityData($deveui, $time_period = -1)

@@ -204,6 +204,7 @@ class ControllerSensors extends Authenticated
         $deveui = SensorAPI::getDeveuiFromLabel($label_device);
         $id_objenious = SensorAPI::getDeviceIdObjeniousFromLabel($label_device);
         //Get brief info from sensors
+
         $infoArr = SensorManager::getBriefInfoForSensor($deveui);
         $lastMsgReceived = SensorManager::getLastMessageReceivedFromDeveui($deveui);
         $lastBatteryLevel = SensorManager::getLastBatteryStateFromDeveui($deveui);
@@ -292,7 +293,6 @@ class ControllerSensors extends Authenticated
         } else {
             $link = "";
         }
-
 
         //Get settings
         //var_dump($deveui);
