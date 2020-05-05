@@ -654,7 +654,7 @@ class AlertManager extends \Core\Model
             $company = $user["company"];
             echo "\n Envoie du mail à " . $firstName . "\n";
             $device_number = $alert->device_number;
-            $url = 'https://' . $_SERVER['HTTP_HOST'] . '/device/' . $device_number . '/info#alertsStructure';
+            $url = "https://" . $_SERVER['HTTP_HOST'] . "/device/" . $device_number . "/info#alertsStructure";
 
             $dateTime = explode(" ", $alert->dateTime);
             $date = date('d/m/Y', strtotime($dateTime[0]));

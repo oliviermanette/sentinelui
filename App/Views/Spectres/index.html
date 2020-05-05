@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+
+{% block title %}Presentation donnée{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="card mb-4 border-bottom-primary">
+        <div class="card-header">
+            Données Spectres - Capteurs Flod
+        </div>
+        <div class="card-body">
+            <div class="container">
+                <form name="contact-form" class="ui form" action="" method="post" id="getData">
+                    <div class="ui form d-flex justify-content-center">
+                        <div class="row four fields ">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                    <label class="form-label">Choisissez un site</label>
+                                    <select class="browser-default custom-select" name="siteSpectre" id="siteSpectre">
+                                        <option value="" selected>Choisissez un site</option>
+
+                                        {% for site in all_site %}
+                                        <option value={{ site.site_id }}>{{ site.site }} </option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="mb-2">
+                                    <label class="form-label">Choisissez un équipement</label>
+                                    <select class="browser-default custom-select" name="equipmentField"
+                                        id="equipmentField">
+                                        <option value="" selected>Choisissez un équipement associé</option>
+                                        {% for equipment in all_equipment %}
+                                        <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <label class="form-label">Choisissez une date (optionnel)</label>
+                                    <div id="reportrange" class="browser-default custom-select">
+                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                        <span></span>
+                                        <!-- <span>December 30, 2014 - January 28, 2015</span>-->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col text-center">
+                                        <button type="submit" id="submit" class="btn btn-info">Montrer les
+                                            spectres</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            </br>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col text-center">
+            <b>Nombre de spectres disponible: <p id="numberSpectres"></p> </b>
+        </div>
+    </div>
+
+    <div align="center">
+        <nav id="navigation-page-top">
+            <ul class="pagination">
+
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Container for displaying the chart data -->
+    <div id="chart-display-container" class="container">
+    </div>
+
+    <div align="center">
+        <nav id="navigation-page-bottom">
+            <ul class="pagination">
+
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Container for displaying the chart data -->
+    <div id="containerChartsSpectre">
+        <div id="chartsSpectreData">
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    var startDate = "";
+    var endDate = "";
+    let diffDays = "";
+    var rows_per_page = 10;
+    var total_rows;
+
+    function getURL() {
+        return window.location.href;
+    }
+    function getCurrentPage() {
+        var current_url = getURL();
+        base = current_url.split("=")[0]
+        page_num = current_url.split("=")[1];
+
+        return page_num
+    }
+    //Replace the current url with the current page number
+    //Ex. http://sentive.fr/search-spectre?page=page_num
+    function updateUrlPage(page_num) {
+        var current_url = getURL();
+        base = current_url.split("=")[0]
+        var current_url = base + "=" + page_num
+        window.history.replaceState({}, null, current_url);
+    }
+
+    /** Pagination function **/
+
+    //Function to delete the current pagination table if we want to reload other data
+    function deleteCurrentPagination(navigationPageId) {
+        var parentDOM = document.getElementById(navigationPageId);
+        var pagination = parentDOM.getElementsByClassName("pagination")[0];
+        if (pagination) {
+            while (pagination.firstChild) {
+                pagination.removeChild(pagination.firstChild);
+            }
+        }
+    }
+
+    //Create the basic pagination UI (with bootstrap class)
+    function generatePageItemForPagination(navigationPageId, numberItem, link) {
+        //Get the parent attribute where we will create the <li></li> items
+        var parentDOM = document.getElementById(navigationPageId);
+        var pagination = parentDOM.getElementsByClassName("pagination")[0];
+
+        //Create liste attribute
+        var li = document.createElement("li");
+        li.classList.add("page-item");
+
+        //Create link attribute
+        var a = document.createElement("a");
+        var textLink = document.createTextNode(numberItem);
+        // Set the href property. 
+        a.href = link;
+        a.appendChild(textLink);
+        a.classList.add("page-link");
+        //Add link to the list item
+        li.appendChild(a);
+
+        //Finally add the list item to the parent div
+        pagination.appendChild(li);
+    }
+
+    //Add the class active for highliting the current page
+    function addActiveItem(navigationPageId, page_num) {
+        var parentDOM = document.getElementById(navigationPageId);
+        var pagination = parentDOM.getElementsByClassName("pagination")[0];
+        var li = pagination.getElementsByClassName("page-item")[page_num - 1];
+        var a = li.getElementsByClassName("page-link")[0];
+        li.classList.add("active");
+    }
+
+    //Inside the UL list, find if we have an active class (meaning that it is highlight) and delete
+    function removeAllActive() {
+        let elements = document.querySelectorAll('.active');
+        for (let elem of elements) {
+            elem.classList.remove("active");
+        }
+    }
+
+    //Init the number of total page that will be display to the users
+    function initPageNumbers(deveui) {
+        var parameters = "?sensor_deveui_request=" + deveui;
+        var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
+
+        $.get(link, function (data) {
+            var total_rows = parseInt(data);
+            //Loop through every available page and output a page link
+            var count = 1;
+            var base = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+
+            for (var x = 0; x < total_rows; x += rows_per_page) {
+                //Generate the link
+                var url = base + "search-spectre?page=" + count;
+                //Generate the basic pagination UI
+                generatePageItemForPagination("navigation-page-top", count, url)
+                generatePageItemForPagination("navigation-page-bottom", count, url)
+                count++;
+            }
+
+            //Highligh the first page
+            addActiveItem("navigation-page-top", 1)
+            addActiveItem("navigation-page-bottom", 1)
+        });
+
+    }
+
+
+    //Whe we click on a specfic page on the pagination UI tab
+    $(document).on('click', '.page-item', function (e) {
+        e.preventDefault();
+        var url = $("a", this).attr('href');
+        page_num = url.split("=")[1]
+        //Remove the hightlight 
+        removeAllActive();
+        //update the current url with the new page
+        updateUrlPage(page_num)
+
+        //Update active tab with the new number page
+        addActiveItem("navigation-page-top", page_num)
+        addActiveItem("navigation-page-bottom", page_num)
+
+        //Get content for the new page
+        getPageData(page_num);
+    });
+
+    //Display the number of spectres available
+    function getNumberTotalSpectre(deveui) {
+        var parameters = "?sensor_deveui_request=" + deveui;
+        var link = "/ControllerSpectreData/getNumberSpectres" + parameters;
+
+        $.get(link, function (data) {
+            var numberOfSpectres = data;
+            document.getElementById("numberSpectres").innerHTML = numberOfSpectres;
+            return numberOfSpectres;
+        });
+
+    }
+
+    //Get the charts data for a specific page number
+    function getPageData(page_num) {
+        deveui = $('#equipmentField option:selected').val();
+        var parameters = "?sensor_deveui_request=" + deveui +
+            "&startDate=" + startDate +
+            "&endDate=" + endDate +
+            "&rows_per_page=" + rows_per_page +
+            "&page_num=" + page_num
+            ;
+        //Clear the existing data view
+        removeElement("container-chart");
+        removeElement("row-button-download");
+        addElement("chart-display-container", "div", "row-button-download");
+        var linkDownload = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
+
+        addButton("row-button-download", "Telecharger toutes les données (zip)", linkDownload);
+        addElement("chart-display-container", "div", "container-chart");
+        addElement("container-chart", "div", "row-chart");
+
+        var link = "/ControllerSpectreData/getAllCharts" + parameters;
+        $.get(link, function (data) {
+            //Loop through each row and output the data
+            spectres_data = JSON.parse(data);
+            var spectresArr = spectres_data["spectres"];
+            var numberOfSpectres = Object.keys(spectresArr).length;
+
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                addElement("row-chart", "canvas", name_canva);
+                var name_spectre_data = "spectre_" + String(i);
+
+                var date_time = spectresArr[name_spectre_data]["date_time"];
+                var deveui = spectresArr[name_spectre_data]["deveui"];
+                var linkDownloadSpectre =
+                    "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
+                addButton("row-chart", "Telecharger le spectre", linkDownloadSpectre);
+            }
+
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                var name_spectre_data = "spectre_" + String(i);
+                var spectre_i = spectresArr[name_spectre_data];
+
+                drawChartSpectreFromData(spectre_i, name_canva);
+            }
+        });
+
+    }
+
+    function getDatatableSpectres(formData, page_num) {
+        formData.append('page_num', page_num);
+        formData.append('rows_per_page', rows_per_page);
+        //For displaying the table data
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var jsonData = this.responseText;
+                $('#resultcontainer').html(jsonData);
+                // Call the dataTables jQuery plugin
+                $('#tableData').DataTable({
+                    "destroy": true, //use for reinitialize datatable
+                    responsive: true,
+                    responsive: {
+                        details: {
+                            type: 'column',
+                            target: 'tr'
+                        }
+                    },
+                    orderCellsTop: true,
+                    fixedHeader: true,
+                });
+                $('.dataTables_length').addClass('bs-select');
+
+                $('#dataTable').DataTable({
+                    'lengthMenu': [
+                        [10, 25, 50, -1],
+                        [10, 25, 50, 'All']
+                    ],
+                    'iDisplayLength': 50
+                });
+
+            }
+        };
+        xhttp.open("POST", "/ControllerData/getDataTableAfterSubmit", true);
+        xhttp.send(formData);
+    }
+
+    //Get the spectrum charts to displays for a specific page
+    function getChartsInit(parameters, page_num) {
+
+        parameters += "&page_num=" + page_num + "&rows_per_page=" + rows_per_page;
+        var link = "/ControllerSpectreData/getAllCharts" + parameters;
+
+        //For displaying the charts
+        $.get(link, function (data) {
+            //var data = this.responseText;
+            spectres_data = JSON.parse(data);
+
+            var deveui = spectres_data["deveui"];
+            initPageNumbers(deveui);
+
+            removeElement("container-chart");
+            removeElement("row-button-download");
+            addElement("chart-display-container", "div", "row-button-download");
+            var linkDownload = "/ControllerSpectreData/downloadAllSpectresZip?exportDataFormat=csv&type=spectre&deveui=" + deveui;
+
+            addButton("row-button-download", "Telecharger toutes les données (zip)", linkDownload);
+            addElement("chart-display-container", "div", "container-chart");
+            addElement("container-chart", "div", "row-chart");
+            var spectresArr = spectres_data["spectres"];
+            var numberOfSpectres = Object.keys(spectresArr).length;
+
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                addElement("row-chart", "canvas", name_canva);
+                var name_spectre_data = "spectre_" + String(i);
+
+                var date_time = spectresArr[name_spectre_data]["date_time"];
+                var deveui = spectresArr[name_spectre_data]["deveui"];
+
+                var linkDownloadSpectre =
+                    "/ControllerSpectreData/downloadSpectre?deveui=" + deveui + "&requestedDate=" + date_time;
+                addButton("row-chart", "Telecharger le spectre", linkDownloadSpectre);
+            }
+
+            for (i = 1; i <= numberOfSpectres; i++) {
+                var name_canva = "canva_" + String(i);
+                var name_spectre_data = "spectre_" + String(i);
+                var spectre_i = spectresArr[name_spectre_data];
+
+                drawChartSpectreFromData(spectre_i, name_canva);
+            }
+        });
+
+    }
+
+
+    $(document).ready(function () {
+        init_daterangepicker();
+        var date = Date();
+
+        $("#siteSpectre").change(function () {
+            var formData = new FormData();
+            formData.append('site_id', $(this).children("option:selected").val());
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = this.responseText;
+                    //console.log(posts);
+                    $('#equipmentField').html(response);
+                }
+            };
+            xhttp.open("POST", "/ControllerData/changeEquipement");
+            //Send the proper header information along with the request
+            xhttp.send(formData);
+        });
+
+    });
+
+    $("#getData").submit(function (event) {
+        event.preventDefault();
+        if (!$('#siteSpectre option:selected').val()) {
+            alert("Selectionnez un site");
+            return;
+        }
+        if (!$('#equipmentField option:selected').val()) {
+            alert("Selectionner un équipement");
+            return;
+        }
+
+        deleteCurrentPagination("navigation-page-top");
+        deleteCurrentPagination("navigation-page-bottom");
+        page_num = getCurrentPage();
+
+        var formData = new FormData();
+        formData.append('site_request', $('#siteSpectre option:selected').val());
+        formData.append('sensor_deveui_request', $('#equipmentField option:selected').val());
+        formData.append('startDate', startDate);
+        formData.append('endDate', endDate);
+
+        /*console.log("Site request : ", $('#siteSpectre option:selected').val());
+        console.log("sensor request : ", $('#equipmentField option:selected').val());
+        console.log("Start date: ", startDate);
+        console.log("endDate date: ", endDate);*/
+
+        getNumberTotalSpectre($('#equipmentField option:selected').val());
+
+        var parameters = "?site_request=" + $('#siteSpectre option:selected').val() +
+            "&sensor_deveui_request=" + $('#equipmentField option:selected').val() +
+            "&startDate=" + startDate +
+            "&endDate=" + endDate
+            ;
+        //getDatatableSpectres(formData, page_num);
+        getChartsInit(parameters, 1);
+
+    });
+
+    function init_daterangepicker() {
+        moment.locale('fr');
+        if (typeof ($.fn.daterangepicker) === 'undefined') {
+            return;
+        }
+
+        var cb = function (start, end, label) {
+            //console.log(start.toISOString(), end.toISOString(), label);
+            $('#reportrange span').html(start.format('L') + ' - ' + end.format('L'));
+        };
+
+        var optionSet = {
+            minDate: '09/01/2019',
+            maxDate: moment(),
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1,
+            timePicker12Hour: true,
+            ranges: {
+                'Aucune Date': ['09/01/2019', moment()],
+                'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Dernier 7 jours': [moment().subtract(6, 'days'), moment()],
+                'Dernier 30 Jours': [moment().subtract(29, 'days'), moment()],
+                'Ce mois': [moment().startOf('month'), moment().endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
+            locale: {
+                applyLabel: 'Appliquer',
+                cancelLabel: 'Annuler',
+                fromLabel: 'De',
+                toLabel: 'à',
+                customRangeLabel: 'Specifique',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'juin', 'Juillet', 'Août',
+                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ],
+                firstDay: 1
+            }
+        }
+
+        $('#reportrange').daterangepicker(optionSet, cb);
+
+        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD');
+            endDate = picker.endDate.format('YYYY-MM-DD');;
+            let diffDays = picker.endDate.diff(picker.startDate, 'days');
+            console.log("start/end dates are " + startDate + " to " + endDate);
+
+            console.log(`Difference in days: ${diffDays}`);
+        });
+        $('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
+            startDate = '';
+            endDate = '';
+            $('#reportrange span').html(startDate + ' - ' + endDate);
+        });
+
+    };
+</script>
+
+{% endblock %}

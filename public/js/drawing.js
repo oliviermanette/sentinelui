@@ -1384,7 +1384,7 @@ function drawChartSpectreFromData(spectreData, canvaID = "canvas_spectre") {
       index_stop = 4;
     }
   }
-  console.log(dataChartArr);
+  //console.log(dataChartArr);
 
   var canva_id = "#" + canvaID;
   var ctx = document.getElementById(canvaID).getContext("2d");

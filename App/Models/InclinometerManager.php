@@ -48,7 +48,7 @@ class InclinometerManager extends \Core\Model
     echo "New delta Y :" . $newDeltaY . "\n";
     if (isset($first_inclinationX_thresh)) {
       if ($newDeltaX > $first_inclinationX_thresh) {
-        $alertFirstTmpArr = array("thresh" => $first_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaX);
+        $alertFirstTmpArr = array("thresh" => $first_inclinationY_thresh, "valueX" => $newDeltaX, "valueY" => $newDeltaY);
         $alertsArr["alertFirstThreshAxisX"] = $alertFirstTmpArr;
 
         echo "\n ALERT Niveau 1 dépassé Axe des X. Values (" . $newDeltaX . ',' . $newDeltaY . ")\n";
