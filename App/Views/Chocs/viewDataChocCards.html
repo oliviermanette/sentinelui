@@ -22,7 +22,7 @@
                 <!-- Content Row -->
                 <div class="row">
                     <!-- statut Card  -->
-                    <div class="col-xl-4 col-md-4 mb-4">
+                    <div class="col-xl-3 col-md-3 mb-3">
                         <div class="card shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
@@ -38,7 +38,7 @@
                     </div>
 
                     <!-- Number choc received Card  -->
-                    <div class="col-xl-4 col-md-4 mb-4">
+                    <div class="col-xl-3 col-md-3 mb-3">
                         <div class="card shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
@@ -55,18 +55,18 @@
                         </div>
                     </div>
 
-                    <!-- Last Power choc Card  -->
-                    <div class="col-xl-4 col-md-4 mb-4">
+                    <!-- Last date choc Card  -->
+                    <div class="col-xl-3 col-md-3 mb-3">
                         <div class="card shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            Puissance du dernier choc</div>
+                                            Date du dernier choc</div>
                                         <div class="row no-gutters align-items-center">
                                             <div class="col-auto">
                                                 <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                                    {{val.lastChocPower}} g
+                                                    {{val.last_choc_date}}
                                                 </div>
                                             </div>
 
@@ -76,6 +76,28 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Last Power choc Card  -->
+                    <div class="col-xl-3 col-md-3 mb-3">
+                        <div class="card shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Puissance du dernier choc</div>
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-auto">
+                                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                                    {{val.lastChocPower}} G
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
 
@@ -146,7 +168,7 @@
 
                     <div class="card-body">
                         <div id="{{chart_area_id_powerchoc}}" class="chart-area">
-                            <canvas id="{{ canvas_id_powerchoc }}" ></canvas>
+                            <canvas id="{{ canvas_id_powerchoc }}"></canvas>
                         </div>
                     </div>
 

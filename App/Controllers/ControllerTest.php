@@ -42,7 +42,7 @@ class ControllerTest extends \Core\Controller
     public function testSQLAction()
     {
 
-        $deveui = '0004A30B00E7D50F';
+        $deveui = '0004A30B00EB0FB6';
         $date_time_first_measure = '2020-03-29 20:49:36';
         //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
         //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
@@ -51,8 +51,10 @@ class ControllerTest extends \Core\Controller
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
         //$results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1);
         $nb_choc = ChocManager::getNbChocPerMonthForSensor($deveui);
+        $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSite(30, 75);
+        $sensor = SensorManager::getSensorInfo($deveui);
         //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        var_dump($nb_choc);
+        var_dump($sensor);
     }
 
 

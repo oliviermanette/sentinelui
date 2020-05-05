@@ -71,6 +71,7 @@ class ControllerChocData extends Authenticated
 
         if (is_null($choc_power_data)) {
             $last_choc_power = 0;
+            $last_choc_date = '';
         } else {
             $last_choc_power = $choc_power_data['power'];
             $last_choc_date = $choc_power_data['date'];
@@ -79,7 +80,7 @@ class ControllerChocData extends Authenticated
         $nb_choc_received_today = ChocManager::getNbChocReceivedTodayForSensor($deveui);
         $nb_choc_received_today = $nb_choc_received_today['nb_choc_today'];
 
-        return array(
+        $dataArr = array(
             'deveui' => $deveui,
             'status' => $status,
             'device_number' => $device_number,
@@ -89,8 +90,10 @@ class ControllerChocData extends Authenticated
             'lastDate' => $lastdate,
             'nb_choc_received_today' => $nb_choc_received_today,
             'lastChocPower' => $last_choc_power,
-            //'startDate' => $startDate, 'endDate' => $endDate
+            'last_choc_date' => $last_choc_date,
         );
+
+        return $dataArr;
     }
     public function getResultsFromChocFormAction()
     {
@@ -128,6 +131,7 @@ class ControllerChocData extends Authenticated
 
                 $index_array = "equipement_" . $count;
                 $deveui = $sensor["deveui"];
+
                 $dataArr = $this->getChocData($deveui);
                 $allStructureData[$index_array] = $dataArr;
 
@@ -201,13 +205,11 @@ class ControllerChocData extends Authenticated
         $structure_id = $sensor["structure_id"];
 
         if (!empty($startDate) && !empty($endDate)) {
-            $nb_choc_per_day = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
-            $power_choc_per_day = ChocManager::getPowerChocPerDayForDates($deveui, $startDate, $endDate);
-            //$angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui, $startDate, $endDate);
+            $nb_choc_per_day = ChocManager::getNbChocPerDayForSensor($deveui, $startDate, $endDate);
+            $power_choc_per_day = ChocManager::getPowerChocPerDayForSensor($deveui, $startDate, $endDate);
         } else {
             $nb_choc_per_day = ChocManager::getNbChocPerDayForSensor($deveui);
             $power_choc_per_day = ChocManager::getPowerChocPerDayForSensor($deveui);
-            //$angleDataXYZ = InclinometerManager::getAngleXYZPerDayForSensor($deveui);
         }
 
         return array(

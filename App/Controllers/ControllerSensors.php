@@ -363,7 +363,7 @@ class ControllerSensors extends Authenticated
             $startDate = $_POST["startDate"];
             $endDate = $_POST["endDate"];
             $deveui = $_POST["deveui"];
-            $nbChocData = ChocManager::getNbChocPerDayForDates($deveui, $startDate, $endDate);
+            $nbChocData = ChocManager::getNbChocPerDayForSensor($deveui, $startDate, $endDate);
 
 
             print json_encode($nbChocData);

@@ -694,45 +694,13 @@ class ChocManager extends \Core\Model
   }
 
   /**
-   * Get the number of choc received from a given sensor today
-   *  date | power
-   *
-   * @param int $sensor_id the sensor we want to retrieve choc data
-   * @return array  results from the query
-   */
-  public function getNbChocReceivedPerDateForSensor($sensor_id, $date)
-  {
-    $db = static::getDB();
-
-    $sql_nb_choc_date = "SELECT
-    COUNT(*) AS nb_choc
-    FROM
-    choc
-    LEFT JOIN record AS r ON (r.id = choc.record_id)
-    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
-    WHERE
-    sensor.id = :sensor_id
-    AND DATE(r.date_time) LIKE :date_data
-    ";
-
-    $stmt = $db->prepare($sql_nb_choc_date);
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
-    $stmt->bindValue(':date_data', $date, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-      return $results[0];
-    }
-  }
-  /**
    * Get number of choc per day for a specific sensor
    *  date | number choc
    *
    * @param string $deveui sensor for which we want to retrieve the number of choc per day
    * @return array  results from the query
    */
-  public static function getNbChocPerDayForSensor($deveui)
+  public static function getNbChocPerDayForSensor($deveui, $startDate = null, $endDate = null)
   {
     $db = static::getDB();
 
@@ -759,7 +727,14 @@ class ChocManager extends \Core\Model
       `msg_type` LIKE 'choc'
       AND s.deveui = :deveui
       AND Date(r.date_time) >= Date(s.installation_date)
-      ORDER BY r.date_time DESC) AS choc_data
+      ORDER BY r.date_time DESC ";
+
+    if (isset($startDate) && isset($endDate)) {
+      $sql_nb_choc_per_day .= "AND Date(r.date_time) BETWEEN :startDate AND :endDate";
+    }
+
+
+    $sql_nb_choc_per_day .= ") AS choc_data
       GROUP BY Date(date_time)
       ORDER BY date_time ASC 
       ";
@@ -767,59 +742,16 @@ class ChocManager extends \Core\Model
     $stmt = $db->prepare($sql_nb_choc_per_day);
 
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if (isset($startDate) && isset($endDate)) {
+      $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+      $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+    }
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
     }
   }
 
-
-  public static function getNbChocPerDayForDates($deveui, $startDate, $endDate)
-  {
-    $db = static::getDB();
-
-    $sql_nb_choc = "SELECT
-          DATE_FORMAT(date_time, '%d/%m/%Y') as date_d,
-          count(*) AS nb_choc
-          FROM
-          (
-          SELECT
-            `sensor_id`,
-            r.date_time,
-            `amplitude_1`,
-            `amplitude_2`,
-            `time_1`,
-            `time_2`,
-            `freq_1`,
-            `freq_2`,
-            `power`
-            FROM
-            choc
-            LEFT JOIN record AS r ON (r.id = choc.record_id)
-            LEFT JOIN sensor AS s ON (s.id = r.sensor_id)
-            WHERE
-            `msg_type` = 'choc'
-            AND s.deveui = :deveui
-            AND Date(r.date_time) BETWEEN :startDate AND :endDate) AS choc_data
-          GROUP BY Date(date_time)
-          ORDER BY date_time ASC 
-        ";
-
-    $stmt = $db->prepare($sql_nb_choc);
-
-    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
-    $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
-    $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
-
-    $stmt->execute();
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $count = $stmt->rowCount();
-    if ($count == '0') {
-      return array();
-    } else {
-      return $results;
-    }
-  }
 
   /**
    *
@@ -1042,7 +974,7 @@ class ChocManager extends \Core\Model
    * @param string $deveui sensor for which we want to retrieve the power of chocs
    * @return array  results from the query
    */
-  public static function getPowerChocPerDayForSensor($deveui)
+  public static function getPowerChocPerDayForSensor($deveui, $startDate = null, $endDate = null)
   {
     $db = static::getDB();
 
@@ -1056,12 +988,21 @@ class ChocManager extends \Core\Model
     WHERE
     `msg_type` = 'choc'
     AND s.deveui = :deveui
-    AND Date(r.date_time) >= Date(s.installation_date)
-    ORDER BY r.date_time ASC";
+    AND Date(r.date_time) >= Date(s.installation_date) ";
+
+    if (isset($startDate) && isset($endDate)) {
+      $sql_nb_choc_per_day .= "AND Date(r.date_time) BETWEEN :startDate AND :endDate";
+    }
+
+    $sql_power_choc .= " ORDER BY r.date_time ASC";
 
     $stmt = $db->prepare($sql_power_choc);
 
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    if (isset($startDate) && isset($endDate)) {
+      $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+      $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+    }
 
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1069,39 +1010,7 @@ class ChocManager extends \Core\Model
     }
   }
 
-  /**
-   * Retrieve all the power of chocs since the beginning for a specific sensor for a specific date
-   *
-   * @param int $sensor_id sensor id for which we want to retrieve the power of chocs
-   * @param date $date where we want to retrieve the data
-   * @return array  results from the query
-   */
-  public function getPowerChocPerDateForSensor($sensor_id, $date)
-  {
-    $db = static::getDB();
 
-    $sql_power_choc = "SELECT
-    DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date_d,
-    `power`
-    FROM
-    choc
-    LEFT JOIN record AS r ON (r.id = choc.record_id)
-    WHERE
-    `msg_type` LIKE 'choc'
-    AND `sensor_id` LIKE :sensor_id
-    AND DATE(r.date_time) LIKE :date_data
-    ORDER BY `date_d` ASC";
-
-    $stmt = $db->prepare($sql_power_choc);
-
-    $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_STR);
-    $stmt->bindValue(':date_data', $date, PDO::PARAM_STR);
-
-    if ($stmt->execute()) {
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      return $results;
-    }
-  }
 
   /**
    * Retrieve all the power of chocs since the beginning for a specific sensor and for week
