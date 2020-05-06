@@ -701,10 +701,10 @@ class InclinometerManager extends \Core\Model
     return $variationSpeedDerivateArr;
   }
 
-  public static function computeDerivativeSpeedVariation($deveui, $time_period = -1)
+  public static function computeDerivativeSpeedVariation($deveui, $time_period = -1, $limit = 30)
   {
     //$variation = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-    $variation = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
+    $variation = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period, $limit);
     $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
     $variationSpeedDerivateArr = array();
     $variationSpeedNormalArr = array();
@@ -764,10 +764,10 @@ class InclinometerManager extends \Core\Model
     return $variationDirectionArr;
   }
 
-  public static function computeDirectionVariationForLast($deveui, $time_period = -1)
+  public static function computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30)
   {
     //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
-    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period);
+    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period, $limit);
 
     $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
     $variationDirectionArr = array();
@@ -791,12 +791,12 @@ class InclinometerManager extends \Core\Model
     return $variationDirectionArr;
   }
 
-  public static function combineDirectionAndSpeedVariation($deveui, $time_period = -1)
+  public static function combineDirectionAndSpeedVariation($deveui, $time_period = -1, $limit = 30)
   {
-    $dataDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period);
-    $dataDerivativeArr = InclinometerManager::computeDerivativeSpeedVariation($deveui, $time_period);
-    $percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
-    $angleDataArr = InclinometerManager::getAngleDegreeInclination($deveui, $time_period);
+    $dataDirectionArr = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period, $limit);
+    $dataDerivativeArr = InclinometerManager::computeDerivativeSpeedVariation($deveui, $time_period, $limit);
+    $percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period, $limit);
+    $angleDataArr = InclinometerManager::getAngleDegreeInclination($deveui, $time_period, $limit);
 
     $count = 0;
     $combinationArr = array();
@@ -954,7 +954,7 @@ class InclinometerManager extends \Core\Model
    * all records in account
    * @return array which contain daily variation (date, variationAngleX, variationAngleY, variationAngleZ, variationTemperature)
    */
-  public static function computeVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
+  public static function computeVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1, $limit = 30)
   {
     $db = static::getDB();
 
@@ -985,14 +985,15 @@ class InclinometerManager extends \Core\Model
       $sql_all_values .= "AND Date(r.date_time) BETWEEN CURDATE() - INTERVAL :time_period DAY AND CURDATE() ";
     }
 
-    $sql_all_values .= "ORDER BY r.date_time ASC";
+    $sql_all_values .= "ORDER BY r.date_time DESC
+    LIMIT :limit";
 
     $stmt = $db->prepare($sql_all_values);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
-
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
     $all_values = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $nbResults = count($all_values);
@@ -1027,6 +1028,12 @@ class InclinometerManager extends \Core\Model
       array_push($variationsArr, $tmpArr);
       //echo "\n Date : ".$date." | Angle Referent X : ".$angleX_ref ." |Angle courant X : ".$angleX." | Variation X :". $variationAngleX . "<br/>\n";
       //echo "\n Angle Referent Y : " . $angleY_ref . " |Angle courant Y : " . $angleY . " | Variation Y :" . $variationAngleY . "<br/>\n";
+    }
+    $first_date = $variationsArr[0]["date"];
+    $last_date = $variationsArr[count($variationsArr) - 1]["date"];
+    $isSuperior = print_r(Utilities::isFirstDateSuperiorToSecondDate($first_date, $last_date));
+    if ($isSuperior) {
+      $variationsArr = array_reverse($variationsArr);
     }
 
     //print_r($variationsArr);
@@ -1126,7 +1133,7 @@ class InclinometerManager extends \Core\Model
     return $variationsArr;
   }
 
-  public static function getAngleDegreeInclination($deveui, $time_period = -1)
+  public static function getAngleDegreeInclination($deveui, $time_period = -1, $limit = 30)
   {
     $db = static::getDB();
 
@@ -1150,10 +1157,12 @@ class InclinometerManager extends \Core\Model
     }
 
     $sql .= "ORDER BY
-        r.date_time ASC";
+        r.date_time DESC
+        LIMIT :limit";
 
     $stmt = $db->prepare($sql);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
@@ -1164,7 +1173,7 @@ class InclinometerManager extends \Core\Model
     return $anglesDataArr;
   }
 
-  public static function computeDailyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1)
+  public static function computeDailyVariationPercentageAngleForLast($deveui, $percentage = false, $time_period = -1, $limit = 30)
   {
     $db = static::getDB();
 
@@ -1196,13 +1205,15 @@ class InclinometerManager extends \Core\Model
     }
 
     $sql_all_values .= "ORDER BY
-        r.date_time ASC";
+        r.date_time DESC
+        LIMIT :limit";
 
     $stmt = $db->prepare($sql_all_values);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
     if ($time_period != -1) {
       $stmt->bindValue(':time_period', $time_period, PDO::PARAM_STR);
     }
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 
     $stmt->execute();
     $all_values = $stmt->fetchAll(PDO::FETCH_ASSOC);

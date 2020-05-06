@@ -251,7 +251,7 @@ class ControllerSensors extends Authenticated
         $variationAverageSpeedDirectionArr = json_encode($variationAverageSpeedDirectionArr);
 
         //Daily variation speed and direction 
-        $directionAndSpeedArr = InclinometerManager::combineDirectionAndSpeedVariation($deveui, $time_period = -1);
+        $directionAndSpeedArr = InclinometerManager::combineDirectionAndSpeedVariation($deveui, $time_period = -1, $limit = 30);
         //$directionAndSpeedArr = json_encode($directionAndSpeedArr);
 
         //absolute variation

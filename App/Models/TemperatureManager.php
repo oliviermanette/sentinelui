@@ -203,19 +203,48 @@ class TemperatureManager extends \Core\Model
     {
         $db = static::getDB();
 
-        $sql = "SELECT DISTINCT `temperature`, `summary`, `icon`,  `precipitation`, `humidity`,
-        `windSpeed`, `windGust`, `cloudCover`, `alert_description`, `alert_severity`, weather_associated.dateTime as date_time FROM `weather_associated`
-        LEFT JOIN site ON (site.id = weather_associated.site_id)
-        LEFT join structure ON (structure.site_id = site.id)
-        LEFT JOIN record ON (record.structure_id = structure.id)
-        LEFT JOIN sensor ON (sensor.id = record.sensor_id)
-        WHERE sensor.deveui =  :deveui
-        AND site.nom LIKE  :site AND weather_associated.dateTime > sensor.installation_date
-        ORDER BY `date_time` DESC LIMIT $limit";
+        $sql = "SELECT * FROM (
+                    SELECT 
+                    DISTINCT `temperature`, 
+                    `summary`, 
+                    `icon`, 
+                    `precipitation`, 
+                    `humidity`, 
+                    `windSpeed`, 
+                    `windGust`, 
+                    `cloudCover`, 
+                    `alert_description`, 
+                    `alert_severity`, 
+                    weather_associated.dateTime as date_time 
+                    FROM 
+                    `weather_associated` 
+                    LEFT JOIN site ON (
+                        site.id = weather_associated.site_id
+                    ) 
+                    LEFT join structure ON (structure.site_id = site.id) 
+                    LEFT JOIN record ON (
+                        record.structure_id = structure.id
+                    ) 
+                    LEFT JOIN sensor ON (sensor.id = record.sensor_id) 
+                    WHERE 
+                    sensor.deveui =  :deveui
+                    AND site.nom LIKE :site
+                    AND weather_associated.dateTime > sensor.installation_date 
+                    ORDER BY 
+                    `date_time` DESC
+                ) AS data_weather 
+                GROUP BY 
+                Date(date_time) 
+                ORDER BY 
+                `data_weather`.`date_time` DESC 
+                LIMIT 
+                :limit
+                ";
 
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':site', $site, PDO::PARAM_STR);
         $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $temperatureDataArr = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -1172,6 +1172,16 @@ function drawChartAngleXYZFromData(
   }
 }
 
+var isFirstDateSuperiorToSecondDate = function (date1, date2) {
+  date1 = moment(date1, "DD/MM/YYYY HH:mm:ss").format("ll");
+  console.log("isFirstDateSuperiorToSecondDate -> date1", date1);
+  date2 = moment(date2, "DD/MM/YYYY HH:mm:ss").format("ll");
+  console.log("isFirstDateSuperiorToSecondDate -> date2", date2);
+
+  var greater = moment(date1).isSameOrAfter(date2, "day");
+  return greater;
+};
+
 function drawVariationChartAngleXYZFromData(
   inclinometerData,
   canvaID,
@@ -1218,6 +1228,19 @@ function drawVariationChartAngleXYZFromData(
     variation_angle_z.push(inclinometerData[i].variationAngleZ);
     date.push(inclinometerData[i].date);
   }
+
+  //check if the date is in DESC order
+  /*var superior = isFirstDateSuperiorToSecondDate(
+    inclinometerData[0].date,
+    inclinometerData[inclinometerData.length - 1].date
+  );
+  console.log("Before inclinometerData", inclinometerData);
+  if (superior) {
+    inclinometerData = inclinometerData.reverse();
+    var test = inclinometerData.info.reverse();
+    console.log("After ReverseinclinometerData", test);
+  }*/
+
   const avgX = computeAverage(variation_angle_x);
   const avgY = computeAverage(variation_angle_y);
 

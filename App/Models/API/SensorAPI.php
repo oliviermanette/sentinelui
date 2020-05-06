@@ -101,6 +101,7 @@ class SensorAPI
     public static function getDeveuiFromLabel($labelAsked)
     {
         $listDeviceArr = SensorAPI::getListOfDevicesFromAPI();
+        //var_dump($listDeviceArr);
         foreach ($listDeviceArr as $deviceArr) {
             $label = $deviceArr["label"];
             if (strcmp($label, $labelAsked) == 0) {
@@ -269,6 +270,4 @@ class SensorAPI
 
         return $results_api;
     }
-
-
 }

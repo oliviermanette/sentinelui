@@ -17,6 +17,14 @@ class Utilities
     fclose($fp);
   }
 
+  public static function isFirstDateSuperiorToSecondDate($date1, $date2)
+  {
+    if ($date1 > $date2) {
+      return true;
+    }
+    return false;
+  }
+
   // Find the number of combinaison K among n
   public static function nbreCombinaison($k, $n)
   {
