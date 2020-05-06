@@ -39,6 +39,12 @@ class ControllerTest extends \Core\Controller
         SensorAPI::getNbStatutsSensorsFromApi("RTE");
     }
 
+    public function debugAction()
+    {
+
+        View::render('debug.php', []);
+    }
+
 
     public function testSQLAction()
     {
@@ -125,7 +131,7 @@ class ControllerTest extends \Core\Controller
         $structure_id = 2;
         $site_id = 26;
         $date_request = '2020-01-10 15:39:02';
-        $allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($site_id, $structure_id, $date_request);
+        //$allSubSpectresArr = SpectreManager::reconstituteOneSpectreForSensorFirstGeneration($site_id, $structure_id, $date_request);
         //var_dump($allSubSpectresArr);
         //$timeSerie = new TimeSeries();
         //$timeSerie->createFromSpectreArr($allSubSpectresArr);

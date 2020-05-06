@@ -85,6 +85,7 @@ $router->add('go', ['controller' => 'ControllerTest', 'action' => 'goTimeSeries'
 $router->add('go2', ['controller' => 'ControllerTest', 'action' => 'goTestTimeSeries']);
 $router->add('api-test', ['controller' => 'ControllerTest', 'action' => 'testApi']);
 $router->add('fill-weather', ['controller' => 'ControllerTest', 'action' => 'fillTemperatureDataForSite']);
+$router->add('debug', ['controller' => 'ControllerTest', 'action' => 'debug']);
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);
