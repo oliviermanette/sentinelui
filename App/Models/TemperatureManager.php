@@ -223,7 +223,7 @@ class TemperatureManager extends \Core\Model
         }
     }
 
-    public static function getHistoricalDataForSite($deveui, $site)
+    public static function getHistoricalDataForSite($deveui, $site, $limit = 30)
     {
         $db = static::getDB();
 
@@ -234,11 +234,13 @@ class TemperatureManager extends \Core\Model
         LEFT JOIN sensor ON (sensor.id = record.sensor_id)
         WHERE sensor.deveui = :deveui
         AND site.nom LIKE :site AND weather_associated.dateTime > sensor.installation_date
-        ORDER BY `date_d`  ASC";
+        ORDER BY `date_d` ASC
+        LIMIT :limit";
 
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':site', $site, PDO::PARAM_STR);
         $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $temperatureDataArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
