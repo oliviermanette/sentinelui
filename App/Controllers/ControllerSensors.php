@@ -225,7 +225,7 @@ class ControllerSensors extends Authenticated
         $dataMapArr = json_encode($infoArr);
 
         //get activity of sensors
-        $recordRawArr = SensorManager::getRecordsFromDeveui($deveui);
+        $recordRawArr = SensorManager::getRecordsFromDeveui($deveui, 30);
         $date_min_max = SensorManager::getDateMinMaxActivity($deveui);
         $firstActivity = $date_min_max[0];
         $lastActivity = $date_min_max[1];

@@ -453,7 +453,7 @@ class SensorManager extends \Core\Model
 
    *
    */
-  public static function getRecordsFromDeveui($deveui)
+  public static function getRecordsFromDeveui($deveui, $limit = 30)
   {
     $db = static::getDB();
 
@@ -482,10 +482,12 @@ class SensorManager extends \Core\Model
         WHERE
           sensor.deveui LIKE :deveui
           AND Date(r.date_time) >= Date(sensor.installation_date)
-          ORDER BY r.date_time DESC";
+          ORDER BY r.date_time DESC
+          LIMIT :limit";
 
     $stmt = $db->prepare($sql_record_sensor);
     $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
       $recordArr = $stmt->fetchAll(PDO::FETCH_ASSOC);

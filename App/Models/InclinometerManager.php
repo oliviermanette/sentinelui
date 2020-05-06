@@ -811,7 +811,6 @@ class InclinometerManager extends \Core\Model
         array_push($combinationArr, $mergeResCurrent);
         $count += 1;
       }
-      //var_dump($combinationArr);
       return $combinationArr;
     }
   }
