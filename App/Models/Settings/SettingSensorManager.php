@@ -58,9 +58,9 @@ class SettingSensorManager extends \Core\Model
         if ($stmt->execute()) {
             $isAlertEmailActivated = $stmt->fetch(PDO::FETCH_COLUMN);
             if ($isAlertEmailActivated == 1) {
-                return true;
+                return 1;
             }
-            return false;
+            return 0;
         }
     }
 

@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Utilities;
+use \App\Models\Settings\SettingSensorManager;
 use \App\Models\RecordManager;
 use \App\Models\InclinometerManager;
 use \App\Models\EquipementManager;
@@ -50,9 +51,11 @@ class ControllerTest extends \Core\Controller
 
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
         $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1);
+        $isAlertEmailActivated = SettingSensorManager::checkIfAlertByEmailActivatedForUser("sebastien.lacaze@rte-france.com");
+
 
         //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        var_dump($results);
+        var_dump($isAlertEmailActivated);
     }
 
 

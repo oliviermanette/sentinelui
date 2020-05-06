@@ -134,8 +134,8 @@
                         <!-- Default switch -->
                         <div class="custom-control custom-switch">
                             <input name="activationEmailNotification" type="checkbox" class="custom-control-input"
-                                id="emailNotificationSwitche"
-                                {% if settingsAlertEmailActivated.isAlertEmailActivated == true %} checked {% endif %}>
+                                id="emailNotificationSwitche" {% if settingsAlertEmailActivated.value == 1 %} checked
+                                {% endif %}>
                             <label class="custom-control-label" for="emailNotificationSwitche">Recevoir les alertes par
                                 mail</label>
                         </div>

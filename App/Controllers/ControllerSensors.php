@@ -25,6 +25,7 @@ use \App\Utilities;
 class ControllerSensors extends Authenticated
 {
 
+
     /**
      * Show the index page for /sensors
      *
@@ -60,6 +61,7 @@ class ControllerSensors extends Authenticated
         $first_inclinationX_thresh = Utilities::array_find_deep($settingsArr, "first_inclinationX_thresh");
         $shock_thresh = Utilities::array_find_deep($settingsArr, "shock_thresh");
         $isAlertEmailActivated = Utilities::array_find_deep($settingsArr, "isAlertEmailActivated");
+
         if ($first_inclinationY_thresh) {
             $first_inclinationY_thresh = $settingsArr[$first_inclinationY_thresh[0]];
         } else {
@@ -109,9 +111,9 @@ class ControllerSensors extends Authenticated
         $user = Auth::getUser();
         $settingsArr = SettingSensorManager::findByDeveui($deveui);
         $isAlertEmailActivated = SettingSensorManager::checkIfAlertByEmailActivatedForUser($user->email);
-        $tmpArr = array("isAlertEmailActivated" => $isAlertEmailActivated);
-        array_push($settingsArr, $tmpArr);
+        $tmpArr = array("name_setting" => "isAlertEmailActivated", "value" => $isAlertEmailActivated);
 
+        array_push($settingsArr, $tmpArr);
         return $settingsArr;
     }
 
@@ -132,7 +134,9 @@ class ControllerSensors extends Authenticated
         $user = Auth::getUser();
         if (isset($_GET['deveui'])) {
             $deveui = $_GET['deveui'];
+            $device_number = SensorManager::getDeviceNumberFromDeveui($deveui);
         }
+
 
         $firstInclinationXThresh = $_POST["firstInclinationXThresh"];
         $firstInclinationYThresh = $_POST["firstInclinationYThresh"];
@@ -187,7 +191,9 @@ class ControllerSensors extends Authenticated
 
         Flash::addMessage('Mise à jour réussie des paramètres');
 
-        $this->redirect(Auth::getReturnToPage());
+        $link_redirect = "/device/" . $device_number . "/info";
+        $this->redirect($link_redirect);
+        //$this->redirect(Auth::getReturnToPage());
     }
 
     /**
