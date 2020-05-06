@@ -1577,7 +1577,7 @@ function drawChartDirectionFromData(
   if (typeof directionData != "object") {
     directionData = JSON.parse(directionData);
   }
-  console.log("Setting :", settings);
+  //console.log("Setting :", settings);
   firstLevelXThresh = searchJsonInArray(
     settings,
     "name_setting",
@@ -1858,15 +1858,23 @@ function drawChartDirectionFromData(
     });
     //console.log(myChart);
     //Change color and size of last point
-    for (i = 0; i < myChart.data.datasets[0].data.length; i++) {
+    for (i = 0; i < myChart.data.datasets[0].data.length - 4; i++) {
+      pointBackgroundColors.push("rgba(103, 128, 159, 0.7)");
+      borderColor.push("rgba(103, 128, 159, 1)");
+      pointRadius.push(i * 0.01);
+    }
+    for (
+      i = myChart.data.datasets[0].data.length - 4;
+      i < myChart.data.datasets[0].data.length;
+      i++
+    ) {
       if (i < myChart.data.datasets[0].data.length - 1) {
         pointBackgroundColors.push("rgba(103, 128, 159, 0.7)");
         borderColor.push("rgba(103, 128, 159, 1)");
-        pointRadius.push(2);
+        pointRadius.push(i * 0.05);
       } else {
         pointBackgroundColors.push("rgba(255,99,132,1)");
-        pointRadius.push(5);
-        //console.log(myChart.data.datasets[0].data[0])
+        pointRadius.push(7);
       }
     }
 
