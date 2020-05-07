@@ -331,6 +331,49 @@ class AlertManager extends \Core\Model
         }
     }
 
+    public static function getAllActiveAlertsInfoTable($deveui = null, $limit = null)
+    {
+        $db = static::getDB();
+
+        $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time,
+        type_alert.label AS label,
+        type_alert.criticality AS criticality,
+        structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
+        site.nom as site,
+        alerts.msg AS message,
+        (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
+        FROM alerts
+        LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
+        LEFT JOIN structure ON (structure.id = alerts.structure_id)
+        LEFT JOIN sensor ON sensor.structure_id = structure.id
+        LEFT JOIN site ON (site.id = structure.site_id) ";
+
+        if (isset($deveui)) {
+            $query_alerts_data .= " WHERE sensor.deveui = :deveui AND group_name.group_id = :groupId
+            AND alerts.status = 1";
+        } else {
+            $query_alerts_data .= "WHERE alerts.status = 1 ";
+        }
+
+        if (isset($limit)) {
+            $query_alerts_data .= "LIMIT :limit";
+        }
+
+        $stmt = $db->prepare($query_alerts_data);
+        if (isset($limit)) {
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        }
+        if (isset($deveui)) {
+            $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+        }
+
+        if ($stmt->execute()) {
+            $resArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $resArr;
+        }
+    }
+
     /**
      * Get all the active alert from the database for a specific sensor
      * alert_id | date_time | label | criticality | name equipement | Ligne HT | Cause | Deveui | Valeur
@@ -428,6 +471,33 @@ class AlertManager extends \Core\Model
 
         $stmt = $db->prepare($query_alerts_data);
         $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            $resArr = $stmt->fetchAll();
+            return $resArr;
+        }
+    }
+
+    public static function getAllProcessedAlertsInfoTable()
+    {
+        $db = static::getDB();
+
+        $query_alerts_data = "SELECT DISTINCT alerts.id AS alert_id, alerts.date_time AS date_time,
+        type_alert.label AS label,
+        type_alert.criticality AS criticality,
+        structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
+        site.nom as site,
+        alerts.msg AS message,
+        (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
+        alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
+        FROM alerts
+        LEFT JOIN type_alert ON (type_alert.id = alerts.id_type_event)
+        LEFT JOIN structure ON (structure.id = alerts.structure_id)
+        LEFT JOIN sensor ON sensor.structure_id = structure.id
+        LEFT JOIN site ON (site.id = structure.site_id)
+        WHERE alerts.status = 0";
+
+        $stmt = $db->prepare($query_alerts_data);
 
         if ($stmt->execute()) {
             $resArr = $stmt->fetchAll();

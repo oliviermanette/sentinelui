@@ -26,13 +26,21 @@ class ControllerAlert extends \Core\Controller
     public function indexViewAction()
     {
         $user = Auth::getUser();
-        $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($user->group_id);
-        $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($user->group_id);
+        //If part of superadmin, display all alerts
+        if ($user->isSuperAdmin()) {
+            $alertsActiveDataArr = AlertManager::getAllActiveAlertsInfoTable();
+            $alertsProcessedDataArr = AlertManager::getAllProcessedAlertsInfoTable();
+        } else {
+            $alertsActiveDataArr = AlertManager::getActiveAlertsInfoTable($user->group_id);
+            $alertsProcessedDataArr = AlertManager::getProcessedAlertsInfoTable($user->group_id);
+        }
 
-        View::renderTemplate('Alerts/index.html', [
+        $context = [
             'alerts_active_info_arr' => $alertsActiveDataArr,
             'alerts_processed_info_arr' => $alertsProcessedDataArr
-        ]);
+        ];
+
+        View::renderTemplate('Alerts/index.html', $context);
     }
 
 
