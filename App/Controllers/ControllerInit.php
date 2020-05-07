@@ -54,6 +54,7 @@ class ControllerInit extends \Core\Controller
      * TESTING PURPOSE
      * @return void
      */
+    /*
     public function goTimeSeriesAction()
     {
         ini_set('max_execution_time', 0);
@@ -107,18 +108,19 @@ class ControllerInit extends \Core\Controller
             }
         }
     }
+*/
 
     public function goTestTimeSeriesAction()
     {
         $structure_id = 2;
         $site_id = 26;
         $date_request = '2020-01-10 15:39:02';
-        $allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $structure_id, $date_request);
+        //$allSubSpectresArr = SpectreManager::reconstituteSpectre($site_id, $structure_id, $date_request);
         //var_dump($allSubSpectresArr);
         $timeSerie = new TimeSeries();
-        $timeSerie->createFromSpectreArr($allSubSpectresArr);
+        // $timeSerie->createFromSpectreArr($allSubSpectresArr);
         //print_r($timeSerie->getTimeSerieData());
-        ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $date_request);
+        //ControllerInit::downloadCSV($timeSerie->getTimeSerieData(), $date_request);
         /*
         //Example1
         $allSpectreArr = array();
@@ -149,7 +151,7 @@ class ControllerInit extends \Core\Controller
 
 
 
-
+    /*
     public static function getTimeSerie($site_id, $equipement_id, $date_ask)
     {
         $spectreManager = new SpectreManager();
@@ -177,7 +179,7 @@ class ControllerInit extends \Core\Controller
             }
         }
     }
-
+*/
     public static function downloadCSV($data, $date)
     {
         $timestamp = time();
