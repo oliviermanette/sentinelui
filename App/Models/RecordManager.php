@@ -437,6 +437,98 @@ class RecordManager extends \Core\Model
     }
   }
 
+  public static function getBriefInfoFromAllRecords()
+  {
+
+    $db = static::getDB();
+
+    $query_get_number_record = "
+    SELECT
+    sensor_id,
+    deveui,
+    site,
+    ligneHT,
+    equipement,
+    nb_messages,
+    nb_choc,
+    DATE_FORMAT(
+      last_message_received, '%d/%m/%Y %H:%i:%s'
+    ) AS `last_message_received` ,
+    DATE_FORMAT(date_installation, '%d/%m/%Y') AS 'date_installation',
+    status
+   FROM
+    (
+      SELECT
+        sensor.device_number AS 'sensor_id',
+        sensor.deveui AS 'deveui',
+        sensor.installation_date AS 'date_installation',
+        s.nom AS `site`,
+        sensor.status AS status,
+        attr_transmission_line.name AS `LigneHT`,
+        st.nom AS `equipement`,
+        sum(
+          case when msg_type = 'choc' then 1 else 0 end
+        ) AS 'nb_choc',
+        count(*) AS 'nb_messages',
+        Max(
+          r.date_time
+        ) AS `last_message_received`
+      FROM
+        sensor
+        LEFT JOIN record AS r ON (r.sensor_id = sensor.id)
+        LEFT JOIN structure AS st ON st.id = sensor.structure_id
+        LEFT JOIN attr_transmission_line ON attr_transmission_line.id=st.attr_transmission_id
+        LEFT JOIN site AS s ON s.id = st.site_id
+        LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
+        LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+      GROUP BY
+        sensor.deveui,
+        sensor.device_number,
+        sensor.installation_date,
+        sensor.status,
+        r.sensor_id,
+        st.nom,
+        s.nom,
+        attr_transmission_line.name
+    ) AS all_messages";
+    //  AND Date(r.date_time) >= Date(sensor.installation_date)
+    $stmt = $db->prepare($query_get_number_record);
+
+    if ($stmt->execute()) {
+      $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      //Get variation inclinometer
+      $newDataArr = array();
+      foreach ($res as $data) {
+        $deveui = $data["deveui"];
+
+        $variationArr = InclinometerManager::computePercentageVariationAngleValueForLast($deveui, -1, 3);
+        $variationX = $variationArr["pourcentage_variation_angleX"];
+        $variationY = $variationArr["pourcentage_variation_angleY"];
+        $variationZ = $variationArr["pourcentage_variation_angleZ"];
+        //echo $variationX . "</br>\n";
+        if (empty($variationX)) {
+          $variationX = 0;
+        }
+        if (empty($variationY)) {
+          $variationY = 0;
+        }
+        if (empty($variationZ)) {
+          $variationZ = 0;
+        }
+        $data["variationX"] = $variationX;
+        $data["variationY"] = $variationY;
+        $data["variationZ"] = $variationZ;
+        array_push($newDataArr, $data);
+      }
+
+      $tmpArr = array();
+      $obj = new \stdClass();
+      $obj->data = $newDataArr;
+      return $obj;
+    }
+  }
+
+
 
   /**
    * Get the data for displaying the map

@@ -670,6 +670,26 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getNumberAllActiveSensors()
+  {
+    $db = static::getDB();
+
+    $sql_nb_actif_sensor = "SELECT
+     count(*) AS nb_active
+    FROM
+      sensor
+    WHERE
+      sensor.status LIKE 'active'";
+
+    $stmt = $db->prepare($sql_nb_actif_sensor);
+
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor;
+    }
+  }
+
+
   /**
    * Get the number of inactif sensor for a specific group
    *
@@ -692,6 +712,26 @@ class SensorManager extends \Core\Model
 
     $stmt = $db->prepare($sql_nb_actif_sensor);
     $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+
+    if ($stmt->execute()) {
+      $nb_actif_sensor = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $nb_actif_sensor;
+    }
+  }
+
+
+  public static function getNumberAllInactiveSensors()
+  {
+    $db = static::getDB();
+
+    $sql_nb_inactif_sensor = "SELECT
+     count(*) AS nb_inactive
+    FROM
+      sensor
+    WHERE
+      sensor.status LIKE 'inactive'";
+
+    $stmt = $db->prepare($sql_nb_inactif_sensor);
 
     if ($stmt->execute()) {
       $nb_actif_sensor = $stmt->fetch(PDO::FETCH_COLUMN);

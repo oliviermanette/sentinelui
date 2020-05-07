@@ -499,6 +499,34 @@ class AlertManager extends \Core\Model
         }
     }
 
+    public static function getNumberAllActiveAlerts()
+    {
+        $db = static::getDB();
+
+        $sql_nb_active_alert = "SELECT DISTINCT count(*) as nb_active_alerts
+        FROM alerts
+        LEFT JOIN structure ON (structure.id = alerts.structure_id)
+        LEFT JOIN site ON (site.id = structure.site_id)
+        LEFT JOIN sensor ON sensor.structure_id = structure.id
+        LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
+        LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
+        WHERE alerts.status = 1
+        GROUP BY alerts.id";
+
+        $stmt = $db->prepare($sql_nb_active_alert);
+
+        if ($stmt->execute()) {
+            $results = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (isset($results)) {
+                $nb_active_alerts = $results["nb_active_alerts"];
+
+                return $nb_active_alerts;
+            } else {
+                return null;
+            }
+        }
+    }
+
     /**
      * Get the number of inactive alerts for a specific group
      * @param int $group_name group to check

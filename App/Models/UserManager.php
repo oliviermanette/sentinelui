@@ -26,6 +26,8 @@ class UserManager extends \Core\Model
     $this->role = "ROLE_ADMIN";
   }
 
+
+
   public function save()
   {
 
@@ -135,7 +137,7 @@ class UserManager extends \Core\Model
    */
   public static function findByID($id)
   {
-    $sql = "SELECT * , group_name.name AS group_name FROM user 
+    $sql = "SELECT * , user.id as user_id,group_name.name AS group_name FROM user 
     LEFT JOIN group_users ON user.id = group_users.user_id
     LEFT JOIN group_name ON group_name.group_id =group_users.group_id
     WHERE user.id = :id";
@@ -495,5 +497,28 @@ class UserManager extends \Core\Model
       return true;
     }
     return false;
+  }
+
+  public function isSuperAdmin()
+  {
+
+    $db = static::getDB();
+
+    $sql = "SELECT first_name FROM user
+    LEFT JOIN group_users ON group_users.user_id=user.id
+    LEFT JOIN group_name ON group_name.group_id=group_users.group_id
+    LEFT JOIN group_parent ON group_parent.parent_id=group_name.parent_id
+    LEFT JOIN group_roles ON group_roles.id = group_parent.group_role
+    WHERE user.id=:user_id AND group_roles.name='SuperAdmin'";
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':user_id', $this->user_id, PDO::PARAM_INT);
+
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_COLUMN);
+    if (empty($user)) {
+      return false;
+    }
+    return true;
   }
 }

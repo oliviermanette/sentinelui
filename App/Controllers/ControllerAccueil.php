@@ -35,20 +35,30 @@ class ControllerAccueil extends Authenticated
   {
     $user = Auth::getUser();
 
-    $brief_data_record = RecordManager::getBriefInfoFromRecord($user->group_id);
-    $nb_active_sensors = SensorManager::getNumberActiveSensor($user->group_id);
-    $nb_inactive_sensors =  SensorManager::getNumberInactiveSensor($user->group_id);
-    $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($user->group_id);
+    //If part of superadmin, display all sensors
+    if ($user->isSuperAdmin()) {
+      $brief_data_record = RecordManager::getBriefInfoFromAllRecords();
+      $nb_active_sensors = SensorManager::getNumberAllActiveSensors();
+      $nb_inactive_sensors =  SensorManager::getNumberAllInactiveSensors();
+      $nb_active_alerts = AlertManager::getNumberAllActiveAlerts();
+    } else {
+      $brief_data_record = RecordManager::getBriefInfoFromRecord($user->group_id);
+      $nb_active_sensors = SensorManager::getNumberActiveSensor($user->group_id);
+      $nb_inactive_sensors =  SensorManager::getNumberInactiveSensor($user->group_id);
+      $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($user->group_id);
+    }
 
     //Create object txt that will contain the brief records
     Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
 
-    View::renderTemplate('Homepage/index.html', [
+    $context = [
       'nb_active_sensors' => $nb_active_sensors,
       'nb_inactive_sensors' => $nb_inactive_sensors,
       'nb_active_alerts' => $nb_active_alerts,
       'brief_data_record' => $brief_data_record,
-    ]);
+    ];
+
+    View::renderTemplate('Homepage/index.html', $context);
   }
 
 

@@ -58,6 +58,7 @@ class ControllerTest extends \Core\Controller
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
         $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30);
         $percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
+        var_dump(RecordManager::getBriefInfoFromAllRecords());
 
         $x = array_reverse($percentageVariationDayArr);
 
