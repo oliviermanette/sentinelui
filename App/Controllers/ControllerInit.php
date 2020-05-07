@@ -27,12 +27,7 @@ use Core\Controller;
 class ControllerInit extends \Core\Controller
 {
 
-    public function testApiAction()
-    {
-
-        SensorAPI::getNbStatutsSensorsFromApi("RTE");
-    }
-
+    /*
     public function fillTemperatureDataForSiteAction()
     {
         //Get all latitude and longitude of all the site in the DB
@@ -53,7 +48,7 @@ class ControllerInit extends \Core\Controller
                 TemperatureManager::insert($temperature, $site, $date);
             }
         }
-    }
+    }*/
 
     /**
      * TESTING PURPOSE

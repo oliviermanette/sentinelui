@@ -292,6 +292,7 @@ class AlertManager extends \Core\Model
         type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
+        site.nom as site,
         alerts.msg AS message,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
@@ -301,8 +302,7 @@ class AlertManager extends \Core\Model
         LEFT JOIN sensor ON sensor.structure_id = structure.id
         LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
         LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
-        LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN group_site ON (group_site.site_id = site.id) ";
+        LEFT JOIN site ON (site.id = structure.site_id) ";
 
         if (isset($deveui)) {
             $query_alerts_data .= " WHERE sensor.deveui = :deveui AND group_name.group_id = :groupId
@@ -412,6 +412,7 @@ class AlertManager extends \Core\Model
         $query_alerts_data = "SELECT alerts.id AS alert_id, alerts.date_time AS date_time, type_alert.label AS label,
         type_alert.criticality AS criticality,
         structure.nom AS equipement_name, structure.transmision_line_name AS ligneHT,
+        site.nom as site,
         alerts.msg AS message,
         (SELECT sensor.device_number FROM sensor WHERE sensor.deveui = alerts.deveui) AS device_number,
         alerts.deveui AS deveui, alerts.status AS status, alerts.valueX as valueX, alerts.valueY as valueY, alerts.valueShock as valueShock
@@ -422,7 +423,6 @@ class AlertManager extends \Core\Model
         LEFT JOIN sensor_group ON sensor_group.sensor_id = sensor.id
         LEFT JOIN group_name ON (group_name.group_id = sensor_group.groupe_id) 
         LEFT JOIN site ON (site.id = structure.site_id)
-        LEFT JOIN group_site ON (group_site.site_id = site.id) 
         WHERE group_name.group_id = :groupId
         AND alerts.status = 0";
 
