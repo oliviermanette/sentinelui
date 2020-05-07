@@ -48,6 +48,7 @@ class ControllerAccueil extends Authenticated
       $nb_active_alerts = AlertManager::getNumberActiveAlertsForGroup($user->group_id);
     }
 
+
     //Create object txt that will contain the brief records
     Utilities::saveJsonObject($brief_data_record, "public/data/HomepageBriefDataRecord.json");
 
@@ -56,6 +57,7 @@ class ControllerAccueil extends Authenticated
       'nb_inactive_sensors' => $nb_inactive_sensors,
       'nb_active_alerts' => $nb_active_alerts,
       'brief_data_record' => $brief_data_record,
+      'group_parent' => $user->group_parent,
     ];
 
     View::renderTemplate('Homepage/index.html', $context);
