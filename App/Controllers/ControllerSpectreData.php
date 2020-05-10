@@ -41,8 +41,14 @@ class ControllerSpectreData extends Authenticated
         $user = Auth::getUser();
         $group_name = $user->getGroupName();
 
-        $sites = SiteManager::getSites($user->group_id);
-        $all_equipment = EquipementManager::getEquipements($user->group_id);
+        if ($user->isSuperAdmin()) {
+            $sites = SiteManager::getAllSites();
+            $all_equipment = EquipementManager::getAllEquipements();
+        } else {
+            $sites = SiteManager::getSites($user->group_id);
+            $all_equipment = EquipementManager::getEquipements($user->group_id);
+        }
+
         $date_min_max = RecordManager::getDateMinMaxFromRecord();
 
         $min_date = $date_min_max[0];

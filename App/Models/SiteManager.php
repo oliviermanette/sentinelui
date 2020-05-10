@@ -44,6 +44,22 @@ class SiteManager extends \Core\Model
     }
   }
 
+  public static function getAllSites(){
+    $db = static::getDB();
+
+    $sql_query_get_site = "SELECT DISTINCT site.id AS site_id, site.nom AS site 
+      FROM structure AS st
+      LEFT JOIN site ON (st.site_id=site.id)
+      ";
+
+    $stmt = $db->prepare($sql_query_get_site);
+    if ($stmt->execute()) {
+      $all_site = $stmt->fetchAll();
+
+      return $all_site;
+    }
+  }
+
   /**
    * Get the geo coordinate of a specific site
    *

@@ -88,7 +88,7 @@ class ControllerTest extends \Core\Controller
         $sensorIdArr = $recordManager->getAllSensorIdFromPool();
         //$coupleArr = $recordManager->getCoupleStructureIDSensorIDFromRecord($group_name);
 
-        ControllerInit::getTimeSerie(28, 3, "2019-10-24");
+        //ControllerInit::getTimeSerie(28, 3, "2019-10-24");
         exit();
 
 

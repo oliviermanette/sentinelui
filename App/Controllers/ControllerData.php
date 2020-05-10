@@ -45,7 +45,12 @@ class ControllerData extends Authenticated
     $siteID = $_POST['site_id'];
     $equipementManager = new EquipementManager();
 
-    $all_equipment = $equipementManager->getEquipementsBySiteId($siteID, $user->group_id);
+    if ($user->isSuperAdmin()) {
+      $all_equipment = EquipementManager::getAllEquipementsBySiteId($siteID);
+    } else {
+      $all_equipment = EquipementManager::getEquipementsBySiteId($siteID, $user->group_id);
+    }
+
     View::renderTemplate('Others/changeEquipementForm.html', [
       'all_equipment' => $all_equipment,
     ]);
