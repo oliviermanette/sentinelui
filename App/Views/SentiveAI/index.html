@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Sentive AI{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div class="row">
+            <div class="col">
+                <h1 class="h3 mb-0 text-gray-800">Sentive AI</h1>
+            </div>
+        </div>
+
+    </div>
+    <form class="card">
+        <div class="card-body">
+            <h3 class="card-title">{{version}}</h3>
+            <form id="sentiveForm" class="ui form" method="post" action="#">
+                <div class="ui form d-flex justify-content-center">
+                    <div class="row four fields ">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-2">
+                                <label class="form-label">Choisissez un site</label>
+                                <select class="browser-default custom-select" name="siteSentive" id="siteSentive">
+                                    <option value="" selected>Choisissez un site</option>
+
+                                    {% for site in all_site %}
+                                    <option value={{ site.site_id }}>{{ site.site }} </option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-2">
+                                <label class="form-label">Choisissez un équipement</label>
+                                <select class="browser-default custom-select" name="equipmentField" id="equipmentField">
+                                    <option value="" selected>Choisissez un équipement associé</option>
+                                    {% for equipment in all_equipment %}
+                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col text-center">
+                                    <input type="button" id="buttonSentive" value="Submit">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </form>
+
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    $(document).ready(function () {
+        $("#siteSentive").change(function () {
+            var formData = new FormData();
+            formData.append('site_id', $(this).children("option:selected").val());
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = this.responseText;
+                    //console.log(posts);
+                    $('#equipmentField').html(response);
+                }
+            };
+            xhttp.open("POST", "/ControllerData/changeEquipement");
+            //Send the proper header information along with the request
+            xhttp.send(formData);
+        });
+
+        $("#buttonSentive").click(function () {
+            $("#sentiveForm").submit();
+            event.preventDefault();
+            if (!$('#siteSentive option:selected').val()) {
+                alert("Selectionnez un site");
+                return;
+            }
+            if (!$('#equipmentField option:selected').val()) {
+                alert("Selectionner un équipement");
+                return;
+            }
+        });
+
+
+
+    });
+
+
+
+
+
+</script>
+
+{% endblock %}
