@@ -39,7 +39,6 @@ class ControllerSpectreData extends Authenticated
     public function searchSpectreViewAction()
     {
         $user = Auth::getUser();
-        $group_name = $user->getGroupName();
 
         if ($user->isSuperAdmin()) {
             $sites = SiteManager::getAllSites();

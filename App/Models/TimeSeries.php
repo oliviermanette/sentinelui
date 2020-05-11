@@ -288,8 +288,46 @@ class TimeSeries extends \Core\Model
         return false;
     }
 
+    public function setNetworkId($networkId)
+    {
+        $this->networkId = $networkId;
+    }
+
+    public function setTimestamp($timestamp)
+    {
+        $this->timestamp = $timestamp;
+    }
+    public function setDateTime($dateTime)
+    {
+        $this->date_time = $dateTime;
+    }
     public function getDateTime()
     {
         return $this->date_time;
+    }
+
+    public function parseForSentiveAi()
+    {
+        $X_arr = array();
+        $Y_arr = array();
+        $dataArr = array();
+        if (!empty($this->timeSerieArr)) {
+            foreach ($this->timeSerieArr as $timeserieArr) {
+                $X = $timeserieArr['x'];
+                $Y = $timeserieArr['y'];
+                array_push($X_arr, intval($X));
+                array_push($Y_arr, intval($Y));
+            }
+        }
+        //Set datetime attribute
+        $dataArr["datetime"] = $this->timestamp;
+        //Set ValueX attribute
+        $dataArr["ValueX"] = $X_arr;
+        //Set ValueY attribute
+        $dataArr["ValueY"] = $Y_arr;
+        //Set networkId attribute
+        $dataArr["FKNetworkID"] = intval($this->networkId);
+
+        return json_encode($dataArr);
     }
 }

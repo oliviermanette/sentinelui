@@ -62,7 +62,8 @@ $router->add('sensors', ['controller' => 'ControllerSensors', 'action' => 'index
 $router->add('device/{deviceid:[\da-f]+}/info', ['controller' => 'ControllerSensors', 'action' => 'infoView']);
 //device settings display
 $router->add('device/{deviceid:[\da-f]+}/settings', ['controller' => 'ControllerSensors', 'action' => 'settingsView']);
-
+//sentive AI
+$router->add('sentive', ['controller' => 'ControllerSentiveAI', 'action' => 'indexView']);
 // ### Actions ###
 //Reset password
 $router->add('password/reset/{token:[\da-f]+}', ['controller' => 'Password', 'action' => 'reset']);
@@ -86,6 +87,7 @@ $router->add('go2', ['controller' => 'ControllerTest', 'action' => 'goTestTimeSe
 $router->add('api-test', ['controller' => 'ControllerTest', 'action' => 'testApi']);
 $router->add('fill-weather', ['controller' => 'ControllerTest', 'action' => 'fillTemperatureDataForSite']);
 $router->add('debug', ['controller' => 'ControllerTest', 'action' => 'debug']);
+$router->add('sentiveai', ['controller' => 'ControllerTest', 'action' => 'testSentiveAI']);
 
 
 $router->dispatch($_SERVER['QUERY_STRING']);
