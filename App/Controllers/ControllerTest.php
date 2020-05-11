@@ -15,6 +15,8 @@ use \App\Models\SensorManager;
 use App\Models\API\TemperatureAPI;
 use App\Models\TemperatureManager;
 use \App\Models\API\SensorAPI;
+use \App\Models\API\SentiveAPI;
+use \App\Models\TimeSeries;
 
 ini_set('error_reporting', E_ALL);
 error_reporting(-1); // reports all errors
@@ -36,9 +38,10 @@ class ControllerTest extends \Core\Controller
     public function testApiAction()
     {
 
-        SensorAPI::getNbStatutsSensorsFromApi("RTE");
+        //print_r(SentiveAPI::reset());
+        $deveui = '0004A30B00EB6979';
+        $this->initNetwork($deveui);
     }
-
     public function debugAction()
     {
 
@@ -49,22 +52,72 @@ class ControllerTest extends \Core\Controller
     public function testSQLAction()
     {
 
-        $deveui = '0004A30B00E829A7';
+        $deveui = '0004A30B00EB6979';
         $date_time_first_measure = '2020-03-29 20:49:36';
         //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
         //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
         //$dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
 
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30);
-        $percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        var_dump(RecordManager::getBriefInfoFromAllRecords());
+        //$results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30);
+        //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
+        //var_dump(RecordManager::getBriefInfoFromAllRecords());
 
-        $x = array_reverse($percentageVariationDayArr);
+        //$x = array_reverse($percentageVariationDayArr);
 
         //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
         //var_dump($x);
         //var_dump($percentageVariationDayArr);
+
+    }
+
+    public function initNetwork($deveui, $reset = True)
+    {
+        $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
+        $networkId = $deviceNumber;
+        if ($reset) {
+            SentiveAPI::reset($networkId);
+            exit();
+        }
+
+        if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
+            $dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+        } else {
+            $dataArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
+        }
+
+        foreach ($dataArr as $spectreArr) {
+            $timeSerie = new TimeSeries();
+            $timeSerie->createFromSpectreArr($spectreArr);
+            $dataArr = $timeSerie->getTimeSerieData();
+
+            $dateTime = $spectreArr['date_time'];
+            $timestamp = strtotime($dateTime);
+            $timeSerie->setNetworkId($networkId);
+            $timeSerie->setTimestamp($timestamp);
+            $dataPayloadJson = $timeSerie->parseForSentiveAi();
+            SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
+            exit();
+        }
+    }
+
+    public function runUnsupervisedLearning($networkId)
+    {
+        SentiveAPI::runUnsupervised($networkId);
+    }
+
+    public function addData($networkId, $dataPayloadJson)
+    {
+        SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
+    }
+
+    public function testSentiveAIAction()
+    {
+        $deveui = '0004A30B00EB6979';
+        $sensorId = SensorManager::getDeviceNumberFromDeveui($deveui);
+        $networkId = $sensorId;
+        print_r($this->initNetwork($deveui, $reset = True));
+        print_r($this->runUnsupervisedLearning($networkId));
     }
 
 

@@ -30,7 +30,7 @@ All updates to this library are documented in our [CHANGELOG](https://github.com
 
 ## Prerequisites
 
-- PHP version 5.6 or higher
+- PHP version 5.6, 7.0, 7.1, 7.2, 7.3, or 7.4
 
 ## Install with Composer
 
@@ -39,7 +39,7 @@ Add php-http-client to your `composer.json` file. If you are not using [Composer
 ```json
 {
   "require": {
-    "sendgrid/php-http-client": "^3.10.2"
+    "sendgrid/php-http-client": "^3.10.6"
   }
 }
 ```
@@ -58,7 +58,7 @@ composer install
 
 ## Install without Composer
 
-You should create directory `lib` in directory of your application and clone to `lib` repositories [php-http-client](https://github.com/sendgrid/php-http-client.git) and [sendgrid-php](https://github.com/sendgrid/sendgrid-php.git):
+You should create a `lib` directory in the directory of your application and clone to `lib` repositories [php-http-client](https://github.com/sendgrid/php-http-client.git) and [sendgrid-php](https://github.com/sendgrid/sendgrid-php.git):
 
 ```
 $ cd /path/to/your/app
@@ -74,7 +74,7 @@ $ cd /path/to/your/app
 $ touch loader.php
 ```
 
-And add to `loader.php` code below:
+And add the code below to the `loader.php`:
 
 ```php
 <?php
@@ -83,7 +83,7 @@ require_once __DIR__ . '/lib/php-http-client/lib/Client.php';
 require_once __DIR__ . '/lib/php-http-client/lib/Response.php';
 ```
 
-After it you can use `php-http-client` library in your project:
+After it you can use the `php-http-client` library in your project:
 
 ```php
 <?php
@@ -189,9 +189,11 @@ We were inspired by the work done on [birdy](https://github.com/inueni/birdy) an
 <a name="about"></a>
 # About
 
-php-http-client is guided and supported by the SendGrid [Developer Experience Team](mailto:dx@sendgrid.com).
+php-http-client is maintained and funded by Twilio SendGrid, Inc. The names and logos for php-http-client are trademarks of Twilio SendGrid, Inc.
 
-php-http-client is maintained and funded by SendGrid, Inc. The names and logos for php-http-client are trademarks of SendGrid, Inc.
+If you need help installing or using the library, please check the [Twilio SendGrid Support Help Center](https://support.sendgrid.com).
+
+If you've instead found a bug in the library or would like new features added, go ahead and open issues or pull requests against this repo!
 
 <a name="license"></a>
 # License

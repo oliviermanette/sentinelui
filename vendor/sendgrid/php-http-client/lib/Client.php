@@ -2,13 +2,6 @@
 
 /**
  * HTTP Client library
- *
- * @author    Matt Bernier <dx@sendgrid.com>
- * @author    Elmer Thomas <dx@sendgrid.com>
- * @copyright 2018 SendGrid
- * @license   https://opensource.org/licenses/MIT The MIT License
- * @version   GIT: <git_id>
- * @link      http://packagist.org/packages/sendgrid/php-http-client
  */
 
 namespace SendGrid;
@@ -20,7 +13,7 @@ use SendGrid\Exception\InvalidRequest;
  * Class Client
  * @package SendGrid
  * @version 3.9.5
- * 
+ *
  * Quickly and easily access any REST or REST-like API.
  *
  * @method Response get($body = null, $query = null, $headers = null)
@@ -56,6 +49,7 @@ use SendGrid\Exception\InvalidRequest;
  * ASM
  * @method Client asm()
  * @method Client groups()
+ * @method Client suppressions()
  *
  * Browsers
  * @method Client browsers()
@@ -71,15 +65,17 @@ use SendGrid\Exception\InvalidRequest;
  * Clients
  * @method Client clients()
  *
- * ContactDB
- * @method Client contactdb()
- * @method Client custom_fields()
- * @method Client lists()
- * @method Client recipients()
- * @method Client billable_count()
+ * Marketing
+ * @method Client marketing()
+ * @method Client contacts()
  * @method Client count()
- * @method Client reserved_fields()
+ * @method Client exports()
+ * @method Client imports()
+ * @method Client lists()
+ * @method Client field_definitions()
  * @method Client segments()
+ * @method Client singlesends()
+ *
  *
  * Devices
  * @method Client devices()
@@ -128,7 +124,7 @@ use SendGrid\Exception\InvalidRequest;
  * @method Client reputations()
  *
  * Supressions
- * @method Client suppressions()
+ * @method Client suppression()
  * @method Client global()
  * @method Client blocks()
  * @method Client bounces()
