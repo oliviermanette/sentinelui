@@ -23,6 +23,7 @@ use App\Models\Messages\Battery;
 use App\Models\Messages\Spectre;
 use App\Models\Messages\Alert;
 use App\Models\Settings\SettingSensorManager;
+use App\Models\SentiveAIManager;
 use PDO;
 
 
@@ -202,6 +203,15 @@ class RecordManager extends \Core\Model
         }
 
         //Update Sentive AI
+        $deveui = $message->deveui;
+        $device_number = $message->device_number;
+        //Create timeserie from spectre
+
+        $timeSerie = new TimeSeries();
+        $timeSerie->createFromMsg($message);
+        $timeSerie->setNetworkId($device_number);
+        $dataPayloadJson = $timeSerie->parseForSentiveAi();
+        SentiveAIManager::addDataToNetwork($device_number, $dataPayloadJson, $name = "DbTimeSeries");
       }
 
       return true;

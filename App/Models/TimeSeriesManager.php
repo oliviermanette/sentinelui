@@ -55,6 +55,48 @@ class TimeSeriesManager extends \Core\Model
  
     }
 
+    /**
+     * Insert Time Serie Data to Database
+     *
+     * @param int $record_id
+     * @param int $structure_id
+     * @param int $sensor_id
+     * @param int $date_time
+     * @param float $valueX x axis (frequency of the peak)
+     * @param float $valueY y axis (amplitude of the peak)
+     * @return true if the object has been saved correctly
+     */
+    private static function insertTimeSeriesData($record_id, $structure_id, $sensor_id, $date_time, $valueX, $valueY)
+    {
+        $db = static::getDB();
+
+        $sql = "INSERT INTO timeseries(record_id, structure_id, sensor_id, dataType_id, date_time, valueX, valueY)
+        SELECT :record_id, :structure_id, :sensor_id, (SELECT id FROM dataType WHERE nom = 'spectre'), :date_time, :valueX, :valueY
+        WHERE NOT EXISTS (
+            SELECT * FROM timeseries WHERE record_id = :record_id AND valueX = :valueX AND valueY = :valueY
+        ) LIMIT 1
+        ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':valueX', $valueX, PDO::PARAM_STR);
+        $stmt->bindValue(':valueY', $valueY, PDO::PARAM_STR);
+        $stmt->bindValue(':date_time', $date_time, PDO::PARAM_STR);
+        $stmt->bindValue(':sensor_id', $sensor_id, PDO::PARAM_INT);
+        $stmt->bindValue(':structure_id', $structure_id, PDO::PARAM_INT);
+        $stmt->bindValue(':record_id', $record_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $ok = $stmt->execute();
+
+        $db = null;
+
+        if ($ok) {
+            return true;
+        }
+        return false;
+    }
+
+
     public function getSpecificTimeSeriesFromSensorID($sensor_id, $structure_id, $date_time = "")
     {
         $db = static::getDB();

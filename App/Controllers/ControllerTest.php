@@ -74,7 +74,8 @@ class ControllerTest extends \Core\Controller
         //var_dump(RecordManager::getBriefInfoFromAllRecords());
 
         //$x = array_reverse($percentageVariationDayArr);
-
+        $dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+        var_dump($dataArr);
         //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
         //var_dump($x);
         //var_dump($percentageVariationDayArr);

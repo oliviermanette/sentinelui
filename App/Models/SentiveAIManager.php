@@ -22,15 +22,20 @@ class SentiveAIManager extends \Core\Model
         return $version;
     }
 
-    public static function addDataToNetwork($networkId, $timeserieData)
+    public static function addDataToNetwork($networkId, $timeserieDataJson, $name = "DbTimeSeries")
     {
-        $payload = "";
-        $version = SentiveAPI::addTimeSeries($networkId, $payload, $name = "DbTimeSeries");
-        return $version;
+        $data = SentiveAPI::addTimeSeries($networkId, $timeserieDataJson, $name);
+        return $data;
     }
 
 
+    public static function resetNetwork($deveui)
+    {
+        $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
+        $networkId = $deviceNumber;
 
+        SentiveAPI::reset($networkId);
+    }
     public static function initNetworkFromSensor($deveui)
     {
         $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
