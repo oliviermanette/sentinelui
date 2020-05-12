@@ -17,12 +17,14 @@ use App\Models\TemperatureManager;
 use \App\Models\API\SensorAPI;
 use \App\Models\API\SentiveAPI;
 use \App\Models\TimeSeries;
+use Spatie\Async\Pool;
 
 ini_set('error_reporting', E_ALL);
 error_reporting(-1); // reports all errors
 ini_set("display_errors", "1"); // shows all errors
 ini_set("log_errors", 1);
 ini_set("error_log", "./log/error.log");
+ini_set('max_execution_time', 0);
 /*
 ControllerDataObjenious.php
 author : Lirone Samoun
@@ -40,8 +42,28 @@ class ControllerTest extends \Core\Controller
 
         //print_r(SentiveAPI::reset());
         $deveui = '0004A30B00EB6979';
-        $this->initNetwork($deveui);
+        //$this->initNetwork($deveui);
+
+        $all_sensors = SensorManager::getAllDevices();
+        $pool = Pool::create();
+        foreach ($all_sensors as $sensor) {
+            $deveui = $sensor["deveui"];
+            $pool->add(function () use ($deveui) {
+                //Init network
+                $this->initNetwork($deveui);
+            })->then(function ($output) use ($deveui) {
+                echo "\n Network has been init for " . $deveui . "\n";
+            })->catch(function (Throwable $exception) {
+                echo "\n ERROR \n";
+                print_r($exception);
+            });
+        }
+        $pool->wait();
+
     }
+
+
+
     public function debugAction()
     {
 
@@ -77,7 +99,6 @@ class ControllerTest extends \Core\Controller
         $networkId = $deviceNumber;
         if ($reset) {
             SentiveAPI::reset($networkId);
-            exit();
         }
 
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
@@ -85,7 +106,7 @@ class ControllerTest extends \Core\Controller
         } else {
             $dataArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
         }
-
+        //$test_count = 0;
         foreach ($dataArr as $spectreArr) {
             $timeSerie = new TimeSeries();
             $timeSerie->createFromSpectreArr($spectreArr);
@@ -97,8 +118,14 @@ class ControllerTest extends \Core\Controller
             $timeSerie->setTimestamp($timestamp);
             $dataPayloadJson = $timeSerie->parseForSentiveAi();
             SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
-            exit();
+            //$test_count += 1;
+            /*if ($test_count > 3) {
+                return true;
+            }*/
         }
+        //SetImageBuffer : premier paramètre : fonction, fonction qui produisent un graphique puis après chaque slah, paramètre pour cette function
+        //Set : 
+        //Get recupere l'image static
     }
 
     public function runUnsupervisedLearning($networkId)

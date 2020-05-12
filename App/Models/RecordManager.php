@@ -200,6 +200,8 @@ class RecordManager extends \Core\Model
         if (!SpectreManager::insertSpectre($spectre)) {
           return false;
         }
+
+        //Update Sentive AI
       }
 
       return true;

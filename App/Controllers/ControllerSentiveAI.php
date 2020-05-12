@@ -9,7 +9,9 @@ use \App\Models\EquipementManager;
 use \App\Models\SiteManager;
 use \App\Auth;
 use \App\Flash;
+use App\Models\SensorManager;
 use \App\Utilities;
+use Spatie\Async\Pool;
 
 
 /**
@@ -39,5 +41,9 @@ class ControllerSentiveAI extends Authenticated
             'all_equipment' => $all_equipment,
         ];
         View::renderTemplate('SentiveAI/index.html', $context);
+    }
+
+    public function initAllNetworksAction()
+    {
     }
 }

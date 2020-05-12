@@ -14,10 +14,12 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '538ca81a9a966a6716601ecf48f4eaef' => __DIR__ . '/..' . '/opis/closure/functions.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         'fe81f4db7ca976f7e113f097866cf957' => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/BaseInterface.php',
         '3f8bdd3b35094c73a26f0106e3c0f8b2' => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/SendGrid.php',
         '0596c9fb5a9dba3cf8abc2fdaa05141c' => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/TwilioEmail.php',
+        '7dd996d98a91d095f100c75e0b9e2391' => __DIR__ . '/..' . '/spatie/async/src/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -37,6 +39,8 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Contracts\\Translation\\' => 30,
             'Symfony\\Component\\Translation\\' => 30,
+            'Symfony\\Component\\Process\\' => 26,
+            'Spatie\\Async\\' => 13,
             'SendGrid\\Stats\\' => 15,
             'SendGrid\\Mail\\' => 14,
             'SendGrid\\Contacts\\' => 18,
@@ -48,6 +52,7 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         ),
         'O' => 
         array (
+            'Opis\\Closure\\' => 13,
             'OpenCage\\Geocoder\\' => 18,
         ),
         'M' => 
@@ -104,6 +109,14 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         array (
             0 => __DIR__ . '/..' . '/symfony/translation',
         ),
+        'Symfony\\Component\\Process\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/process',
+        ),
+        'Spatie\\Async\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/spatie/async/src',
+        ),
         'SendGrid\\Stats\\' => 
         array (
             0 => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/stats',
@@ -123,6 +136,10 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Opis\\Closure\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/opis/closure/src',
         ),
         'OpenCage\\Geocoder\\' => 
         array (
