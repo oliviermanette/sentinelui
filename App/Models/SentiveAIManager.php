@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use \App\Models\API\SentiveAPI;
-
+use Spatie\Async\Pool;
 use PDO;
 
 /*
@@ -19,5 +19,95 @@ class SentiveAIManager extends \Core\Model
     {
         $version = SentiveAPI::getVersion();
         return $version;
+    }
+
+    public static function updateNetwork($networkId, $timeserieData)
+    {
+        $payload = "";
+        $version = SentiveAPI::addTimeSeries($networkId, $payload, $name = "DbTimeSeries");
+        return $version;
+    }
+
+
+
+    public static function initNetworkFromSensor($deveui)
+    {
+        $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
+        $networkId = $deviceNumber;
+
+        SentiveAPI::reset($networkId);
+
+        if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
+            $dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+        } else {
+            $dataArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
+        }
+        //$test_count = 0;
+        foreach ($dataArr as $spectreArr) {
+            $timeSerie = new TimeSeries();
+            $timeSerie->createFromSpectreArr($spectreArr);
+            $dataArr = $timeSerie->getTimeSerieData();
+
+            $dateTime = $spectreArr['date_time'];
+            $timestamp = strtotime($dateTime);
+            $timeSerie->setNetworkId($networkId);
+            $timeSerie->setTimestamp($timestamp);
+            $dataPayloadJson = $timeSerie->parseForSentiveAi();
+            SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
+        }
+        return true;
+        //SetImageBuffer : premier paramètre : fonction, fonction qui produisent un graphique puis après chaque slah, paramètre pour cette function
+        //Set : 
+        //Get recupere l'image static
+    }
+
+    public static function initAllNetworks()
+    {
+        //Get all the devices
+        $all_sensors = SensorManager::getAllDevices();
+
+        $pool = Pool::create();
+        foreach ($all_sensors as $sensor) {
+            $deveui = $sensor["deveui"];
+            $pool->add(function () use ($deveui) {
+                //Init network
+                SentiveAIManager::initNetworkFromSensor($deveui);
+            })->then(function ($output) use ($deveui) {
+                echo "\n Network has been init for " . $deveui . "\n";
+            })->catch(function (Throwable $exception) {
+                echo "\n ERROR \n";
+                print_r($exception);
+                return false;
+            });
+        }
+        $pool->wait();
+        return true;
+    }
+
+    public static function runUnsupervisedOnAllNetworks()
+    {
+        $all_sensors = SensorManager::getAllDevices();
+
+        $pool = Pool::create();
+        foreach ($all_sensors as $sensor) {
+            $networkId = $sensor["deveui"];
+            $pool->add(function () use ($networkId) {
+                //Init network
+                $run = SentiveAPI::runUnsupervised($networkId);
+            })->then(function ($output) use ($deveui) {
+                echo "\n Network has been init for " . $deveui . "\n";
+            })->catch(function (Throwable $exception) {
+                echo "\n ERROR \n";
+                print_r($exception);
+                return false;
+            });
+        }
+        $pool->wait();
+        return true;
+    }
+    public static function runUnsupervisedOnNetwork($networkId)
+    {
+
+        $run = SentiveAPI::runUnsupervised($networkId);
     }
 }

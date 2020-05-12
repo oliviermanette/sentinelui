@@ -37,16 +37,16 @@ class SentiveAPI
     public static function addTimeSeries($networkId, $payload, $name = "DbTimeSeries")
     {
         $url = self::$BASE_URL . "/appendDf/" . $name . "/" . $networkId;
-        //print_r($payload);
-        $data = API::CallAPI("POST", $url, $provider = "SENTIVE", $json_encode = false, $data = $payload);
-        //print_r($data);
+
+        $data = API::CallAPI2("POST", $url, $payload);
+
         return $data;
     }
 
     public static function runUnsupervised($networkId)
     {
         $url = self::$BASE_URL . "/runU/" . $networkId;
-        $run = API::CallAPI("GET", $url, $provider = "SENTIVE", $json_encode = false, $data = false);
+        $run = API::CallAPI2("GET", $url);
 
         return $run;
     }
