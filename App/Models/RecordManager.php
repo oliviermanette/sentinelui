@@ -203,10 +203,8 @@ class RecordManager extends \Core\Model
         }
 
         //Update Sentive AI
-        $deveui = $message->deveui;
         $device_number = $message->device_number;
         //Create timeserie from spectre
-
         $timeSerie = new TimeSeries();
         $timeSerie->createFromMsg($message);
         $timeSerie->setNetworkId($device_number);
