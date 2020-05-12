@@ -16,6 +16,7 @@ use App\Models\API\TemperatureAPI;
 use App\Models\TemperatureManager;
 use \App\Models\API\SensorAPI;
 use \App\Models\API\SentiveAPI;
+use App\Models\SentiveAIManager;
 use \App\Models\TimeSeries;
 use Spatie\Async\Pool;
 
@@ -41,25 +42,12 @@ class ControllerTest extends \Core\Controller
     {
 
         //print_r(SentiveAPI::reset());
-        $deveui = '0004A30B00EB6979';
+        $deveui = '0004A30B00E829A7';
         //$this->initNetwork($deveui);
-
-        $all_sensors = SensorManager::getAllDevices();
-        $pool = Pool::create();
-        foreach ($all_sensors as $sensor) {
-            $deveui = $sensor["deveui"];
-            $pool->add(function () use ($deveui) {
-                //Init network
-                $this->initNetwork($deveui);
-            })->then(function ($output) use ($deveui) {
-                echo "\n Network has been init for " . $deveui . "\n";
-            })->catch(function (Throwable $exception) {
-                echo "\n ERROR \n";
-                print_r($exception);
-            });
-        }
-        $pool->wait();
-
+        $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
+        $networkId = $deviceNumber;
+        //SentiveAIManager::runUnsupervisedForSensor($deveui);
+        SentiveAIManager::runUnsupervisedOnAllNetworks();
     }
 
 
@@ -93,50 +81,7 @@ class ControllerTest extends \Core\Controller
 
     }
 
-    public function initNetwork($deveui, $reset = True)
-    {
-        $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
-        $networkId = $deviceNumber;
-        if ($reset) {
-            SentiveAPI::reset($networkId);
-        }
 
-        if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
-            $dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        } else {
-            $dataArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
-        }
-        //$test_count = 0;
-        foreach ($dataArr as $spectreArr) {
-            $timeSerie = new TimeSeries();
-            $timeSerie->createFromSpectreArr($spectreArr);
-            $dataArr = $timeSerie->getTimeSerieData();
-
-            $dateTime = $spectreArr['date_time'];
-            $timestamp = strtotime($dateTime);
-            $timeSerie->setNetworkId($networkId);
-            $timeSerie->setTimestamp($timestamp);
-            $dataPayloadJson = $timeSerie->parseForSentiveAi();
-            SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
-            //$test_count += 1;
-            /*if ($test_count > 3) {
-                return true;
-            }*/
-        }
-        //SetImageBuffer : premier paramètre : fonction, fonction qui produisent un graphique puis après chaque slah, paramètre pour cette function
-        //Set : 
-        //Get recupere l'image static
-    }
-
-    public function runUnsupervisedLearning($networkId)
-    {
-        SentiveAPI::runUnsupervised($networkId);
-    }
-
-    public function addData($networkId, $dataPayloadJson)
-    {
-        SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
-    }
 
     public function testSentiveAIAction()
     {

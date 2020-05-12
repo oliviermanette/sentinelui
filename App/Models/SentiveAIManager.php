@@ -6,6 +6,7 @@ use \App\Models\API\SentiveAPI;
 use Spatie\Async\Pool;
 use PDO;
 
+ini_set('max_execution_time', 0);
 /*
 
 author : Lirone Samoun
@@ -21,7 +22,7 @@ class SentiveAIManager extends \Core\Model
         return $version;
     }
 
-    public static function updateNetwork($networkId, $timeserieData)
+    public static function addDataToNetwork($networkId, $timeserieData)
     {
         $payload = "";
         $version = SentiveAPI::addTimeSeries($networkId, $payload, $name = "DbTimeSeries");
@@ -90,12 +91,12 @@ class SentiveAIManager extends \Core\Model
 
         $pool = Pool::create();
         foreach ($all_sensors as $sensor) {
-            $networkId = $sensor["deveui"];
+            $networkId = $sensor["device_number"];
             $pool->add(function () use ($networkId) {
                 //Init network
-                $run = SentiveAPI::runUnsupervised($networkId);
-            })->then(function ($output) use ($deveui) {
-                echo "\n Network has been init for " . $deveui . "\n";
+                var_dump($run = SentiveAPI::runUnsupervised($networkId));
+            })->then(function ($output) use ($networkId) {
+                echo "\n Network has been init for " . $networkId . "\n";
             })->catch(function (Throwable $exception) {
                 echo "\n ERROR \n";
                 print_r($exception);
@@ -105,9 +106,10 @@ class SentiveAIManager extends \Core\Model
         $pool->wait();
         return true;
     }
-    public static function runUnsupervisedOnNetwork($networkId)
+    public static function runUnsupervisedForSensor($deveui)
     {
-
+        $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
+        $networkId = $deviceNumber;
         $run = SentiveAPI::runUnsupervised($networkId);
     }
 }
