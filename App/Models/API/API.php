@@ -80,19 +80,23 @@ class API
      */
     public static function callApi2($method, $url, $data = null)
     {
+
         $client = new \GuzzleHttp\Client();
         switch ($method) {
             case "POST":
-                $headers = ['Content-Type' => 'application/json'];
-                $body = $data;
-                $res = $client->post($url, $headers, $data);
+                $res = $client->request('POST', $url, [
+                    'body' => $data,
+                    'headers' => [
+                        'Content-Type' => 'application/json',
+                        'Content-Length' => strlen($data),
+                    ]
+                ]);
                 break;
             case "PUT":
                 $res = $client->put($url, []);
                 break;
             case "GET":
                 $res = $client->get($url);
-
                 break;
             default:
                 break;
