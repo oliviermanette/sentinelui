@@ -42,12 +42,13 @@ class ControllerTest extends \Core\Controller
     {
 
         //print_r(SentiveAPI::reset());
-        $deveui = '0004A30B00E829A7';
+        $deveui = '0004A30B00EB6979';
         //$this->initNetwork($deveui);
         $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
         $networkId = $deviceNumber;
-        //SentiveAIManager::runUnsupervisedForSensor($deveui);
-        SentiveAIManager::runUnsupervisedOnAllNetworks();
+        SentiveAIManager::initNetworkFromSensor($deveui);
+        SentiveAIManager::runUnsupervisedForSensor($deveui);
+        //SentiveAIManager::runUnsupervisedOnAllNetworks();
     }
 
 

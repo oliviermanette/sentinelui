@@ -210,6 +210,8 @@ class RecordManager extends \Core\Model
         $timeSerie->setNetworkId($device_number);
         $dataPayloadJson = $timeSerie->parseForSentiveAi();
         SentiveAIManager::addDataToNetwork($device_number, $dataPayloadJson, $name = "DbTimeSeries");
+        $networkId = $device_number;
+        SentiveAIManager::runUnsupervisedOnNetwork($networkId);
       }
 
       return true;

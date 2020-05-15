@@ -117,4 +117,9 @@ class SentiveAIManager extends \Core\Model
         $networkId = $deviceNumber;
         $run = SentiveAPI::runUnsupervised($networkId);
     }
+
+    public static function runUnsupervisedOnNetwork($networkId)
+    {
+        $run = SentiveAPI::runUnsupervised($networkId);
+    }
 }

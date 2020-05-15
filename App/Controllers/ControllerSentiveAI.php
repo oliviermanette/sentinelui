@@ -46,5 +46,8 @@ class ControllerSentiveAI extends Authenticated
 
     public function initAllNetworksAction()
     {
+        $deveui = '0004A30B00EB6979';
+        SentiveAIManager::initAllNetworks();
+        echo "OK INIT";
     }
 }
