@@ -14,6 +14,20 @@
         </div>
 
     </div>
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Init</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <input id="loadnetworks" type="button" value="Init all networks">
+                </div>
+                <div class="col-md-6">
+                    <input id="unsupervisednetworks" type="button" value="Run unsupervised on all networks">
+                </div>
+            </div>
+
+        </div>
+    </div>
     <form class="card">
         <div class="card-body">
             <h3 class="card-title">{{version}}</h3>
@@ -57,6 +71,13 @@
             </form>
         </div>
     </form>
+    <div id="loading">
+        <div class="row">
+            <div class="col text-center">
+                <p><img src="public/ressources/loading.gif" /> Please Wait</p>
+            </div>
+        </div>
+    </div>
 
 
 </div>
@@ -66,7 +87,35 @@
 {% block script %}
 
 <script>
+
+    function showLoading() {
+        $("#loading").show();
+    }
+
+    function hideLoading() {
+        $("#loading").hide();
+    }
+
+    function loadnetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/initAllNetworks',
+            //data: { action: 'call_this' },
+            success: function (data) {
+                alert("NEtwork has been init");
+                hideLoading();
+            }
+
+        });
+    }
+
     $(document).ready(function () {
+
+        var btn = document.querySelector('#loadnetworks');
+        btn.addEventListener('click', loadnetworks);
+
+
         $("#siteSentive").change(function () {
             var formData = new FormData();
             formData.append('site_id', $(this).children("option:selected").val());
@@ -94,6 +143,19 @@
                 alert("Selectionner un équipement");
                 return;
             }
+        });
+
+        $(".loadnetwork").click(function () {
+            event.preventDefault();
+            $.ajax({
+                type: 'GET',
+                //url: 'script.php',
+                success: function (data) {
+                    alert("Hello");
+                    //$("p").text(data);
+
+                }
+            });
         });
 
 
