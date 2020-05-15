@@ -68,7 +68,10 @@ class View
 			if (isset($_SESSION['group_name'])) {
 				$twig->addGlobal('current_alerts', \App\Models\AlertManager::getActiveAlertsInfoTable($_SESSION['group_name'], 3));
 			}
-			$twig->addGlobal('is_admin', \App\Auth::getUser()->isSuperAdmin());
+			if (isset($_SESSION['group_name'])) {
+				\App\Auth::getUser();
+				$twig->addGlobal('is_admin', \App\Auth::getUser()->isSuperAdmin());
+			}
 		}
 
 		return $twig->render($template, $args);
