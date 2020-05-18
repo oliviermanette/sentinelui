@@ -93,7 +93,7 @@
     </section>
 
 
-    <div class="results">
+    <section class="resultsCharts">
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
@@ -137,10 +137,13 @@
                         <div class="card-body">
                             <h3 class="card-title">Detected categories</h3>
                         </div>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    {% include "SentiveAI/viewTableDataTimeSeries.html" %}
 
 </div>
 
@@ -240,6 +243,7 @@
                 text_button = "Run unsupervised on Network " + device_number
                 addButton("unsupervised", text_button, "rununsupervised");
                 loadCharts(device_number);
+                loadTimeSeriesDatatable(device_number);
 
             },
 
@@ -316,7 +320,28 @@
         });
     }
 
+    function loadTimeSeriesDatatable(networkId) {
+        var url_timeseries = base_url + "/api/timeseries/" + networkId;
+        var table = $('#example').DataTable({
+            ajax: {
+                url: url_timeseries,
+                type: "get",
+                dataType: "json",
+                dataSrc: function (timeseries) {
+                    return timeseries
+                },
+                contentType: "application/json; charset=utf-8",
+            },
+            "columns": [
+                { "data": "FKNetworkID" },
+                { "data": "ValueX" },
+                { "data": "ValueY" },
+                { "data": "datetime" },
+            ]
+        });
+    }
     $(document).ready(function () {
+
 
         //loadCharts("2001002");
         var btn = document.querySelector('#initnetworks');

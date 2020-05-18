@@ -46,8 +46,66 @@ class ControllerSentiveAI extends Authenticated
 
     public function initAllNetworksAction()
     {
-        $deveui = '0004A30B00EB6979';
         SentiveAIManager::initAllNetworks();
         echo "OK INIT";
+    }
+
+    public function computeImagesNetworkAction()
+    {
+
+        SentiveAIManager::computeImagesOnNetwork("2001002");
+        echo "OK INIT";
+    }
+
+
+    public function runUnsupervisedOnNetworkAction()
+    {
+        if (isset($_GET['networkId'])) {
+            $networkId = $_GET['networkId'];
+            SentiveAIManager::runUnsupervisedOnNetwork($networkId);
+            SentiveAIManager::computeImagesOnNetwork($networkId);
+            echo "OK unsupervised";
+        }
+    }
+
+    public function runUnsupervisedOnNetworksAction()
+    {
+        SentiveAIManager::runUnsupervisedOnAllNetworks();
+    }
+
+    public function getInputGraphAction()
+    {
+        if (isset($_GET['networkId'])) {
+            $networkId = $_GET['networkId'];
+            $url = SentiveAIManager::getInputNetworkGraph($networkId);
+            echo $url;
+        }
+    }
+
+    public function getNetworkGraphAction()
+    {
+        if (isset($_GET['networkId'])) {
+            $networkId = $_GET['networkId'];
+            $url = SentiveAIManager::getChartNetworkGraph($networkId);
+            echo $url;
+        }
+    }
+
+    public function getActivitiesNeuronsCategoriesChartAction()
+    {
+        if (isset($_GET['networkId'])) {
+            $networkId = $_GET['networkId'];
+            $url = SentiveAIManager::getAtivityNeuronGraph($networkId);
+            echo $url;
+        }
+    }
+
+    public function getDetectedCategoriesChartAction()
+    {
+        if (isset($_GET['networkId'])) {
+            $networkId = $_GET['networkId'];
+            $url = SentiveAIManager::getChartDetectedCategory($networkId);
+            echo $url;
+        }
     }
 }

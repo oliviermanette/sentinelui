@@ -46,8 +46,11 @@ class ControllerTest extends \Core\Controller
         //$this->initNetwork($deveui);
         $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
         $networkId = $deviceNumber;
-        SentiveAIManager::initNetworkFromSensor($deveui);
-        SentiveAIManager::runUnsupervisedForSensor($deveui);
+        //SentiveAIManager::initNetworkFromSensor($deveui);
+        //SentiveAIManager::runUnsupervisedForSensor($deveui);
+        var_dump(SentiveAIManager::runUnsupervisedOnNetwork("2001003"));
+        //print_r(SentiveAPI::getChartNetworkGraph("2001002"));
+        //var_dump(SentiveAIManager::getChartNetworkGraph("2001002"));
         //SentiveAIManager::runUnsupervisedOnAllNetworks();
     }
 

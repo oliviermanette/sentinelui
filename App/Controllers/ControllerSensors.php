@@ -390,6 +390,14 @@ class ControllerSensors extends Authenticated
         }
     }
 
+    public function getDeviceNumberAction()
+    {
+
+        if (isset($_GET["deveui"])) {
+            $device_number = SensorManager::getDeviceNumberFromDeveui($_GET["deveui"]);
+            echo $device_number;
+        }
+    }
     /**
      * allow the user to download activity data from a specific sensor
      *

@@ -96,6 +96,7 @@ class SentiveAPI
     public static function getChartNetworkGraph($networkId)
     {
         $url = self::$BASE_URL . "/getImageBuffer/getNetworkGraph/" . $networkId;
+        //$url = self::$BASE_URL . "/getNetworkGraph/" . $networkId;
         $img = API::CallAPI2("GET", $url);
 
         return $img;
@@ -125,6 +126,31 @@ class SentiveAPI
         $img = API::CallAPI2("GET", $url);
 
         return $img;
+    }
+
+    /**
+     * get the detected category of a specific neuron type
+     * @param string $networkId the networkID
+     * @param string $neuronType SENSORS, RELATION, SEGMENT OR CATEGORY
+     * @return void
+     */
+    public static function getChartInputGraph($networkId)
+    {
+        $url = self::$BASE_URL . "/getImageBuffer/getInputGraph/" . $networkId;
+        $img = API::CallAPI2("GET", $url);
+
+        return $img;
+    }
+
+    /**
+     * compute and save the input graph
+     * @param string $networkId the networkID
+     * @return void
+     */
+    public static function setChartInputGraph($networkId)
+    {
+        $url = self::$BASE_URL . "/setImageBuffer/getInputGraph/" . $networkId;
+        $img = API::CallAPI2("GET", $url);
     }
 
 

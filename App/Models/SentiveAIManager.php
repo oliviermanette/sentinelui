@@ -122,4 +122,93 @@ class SentiveAIManager extends \Core\Model
     {
         $run = SentiveAPI::runUnsupervised($networkId);
     }
+
+    public static function computeImagesOnNetwork($networkId)
+    {
+        SentiveAIManager::setChartNetworkGraph($networkId);
+        SentiveAIManager::setInputNetworkGraph($networkId);
+        SentiveAIManager::setAtivityNeuronGraph($networkId);
+        SentiveAIManager::setChartDetectedCategory($networkId);
+    }
+
+    public static function computeImagesOnAllNetworks()
+    {
+        $all_sensors = SensorManager::getAllDevices();
+
+        $pool = Pool::create();
+        foreach ($all_sensors as $sensor) {
+            $networkId = $sensor["device_number"];
+            $pool->add(function () use ($networkId) {
+                //Init images
+                SentiveAIManager::setChartNetworkGraph($networkId);
+                SentiveAIManager::setInputNetworkGraph($networkId);
+                SentiveAIManager::setAtivityNeuronGraph($networkId);
+                SentiveAIManager::setChartDetectedCategory($networkId);
+            })->then(function ($output) use ($networkId) {
+                echo "\n Images have been computed for " . $networkId . "\n";
+            })->catch(function (Throwable $exception) {
+                echo "\n ERROR \n";
+                print_r($exception);
+                return false;
+            });
+        }
+        $pool->wait();
+        return true;
+    }
+
+    /**
+     * Chart 1 : Network graph
+     */
+    public static function getChartNetworkGraph($networkId)
+    {
+        $run = SentiveAPI::getChartNetworkGraph($networkId);
+
+        return $run;
+    }
+    private static function setChartNetworkGraph($networkId)
+    {
+        $run = SentiveAPI::setChartNetworkGraph($networkId);
+    }
+
+    /**
+     * Chart 2: input graph
+     */
+    public static function getInputNetworkGraph($networkId)
+    {
+        $run = SentiveAPI::getChartInputGraph($networkId);
+
+        return $run;
+    }
+    private static function setInputNetworkGraph($networkId)
+    {
+        $run = SentiveAPI::setChartInputGraph($networkId);
+    }
+
+    /**
+     * Chart 3: activity neurons categories
+     */
+    public static function getAtivityNeuronGraph($networkId, $neuronType = "CATEGORY")
+    {
+        $run = SentiveAPI::getChartActivityNeuron($networkId, $neuronType);
+
+        return $run;
+    }
+    private static function setAtivityNeuronGraph($networkId, $neuronType = "CATEGORY")
+    {
+        $run = SentiveAPI::setChartActivityNeuron($networkId, $neuronType);
+    }
+
+    /**
+     * Chart 4: activity neurons categories
+     */
+    public static function getChartDetectedCategory($networkId, $neuronType = "CATEGORY")
+    {
+        $run = SentiveAPI::getChartDetectedCategory($networkId, $neuronType);
+
+        return $run;
+    }
+    private static function setChartDetectedCategory($networkId, $neuronType = "CATEGORY")
+    {
+        $run = SentiveAPI::setChartDetectedCategory($networkId, $neuronType);
+    }
 }
