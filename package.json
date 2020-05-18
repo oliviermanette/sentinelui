@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/oliviermanette/sentinelui#readme",
   "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/preset-env": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
     "browser-sync": "latest",
     "del": "^5.1.0",
     "gulp-autoprefixer": "latest",
@@ -26,7 +26,7 @@
     "gulp-clean-css": "4.2.0",
     "gulp-cssbeautify": "^2.0.1",
     "gulp-csscomb": "latest",
-    "gulp-load-plugins": "^2.0.2",
+    "gulp-load-plugins": "^2.0.3",
     "gulp-plumber": "^1.2.1",
     "gulp-rename": "1.4.0",
     "gulp-sass": "4.0.2",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "chartjs-plugin-annotation": "^0.5.7",
-    "chartjs-plugin-zoom": "^0.7.5",
+    "chartjs-plugin-zoom": "^0.7.7",
     "gulp": "latest",
     "lightbox2": "^2.11.1"
   }
