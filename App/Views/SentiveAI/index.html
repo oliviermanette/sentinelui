@@ -18,11 +18,14 @@
         <div class="card-body">
             <h3 class="card-title">Init</h3>
             <div class="row">
-                <div class="col-md-6">
-                    <input id="loadnetworks" type="button" value="Init all networks">
+                <div class="col-md-4">
+                    <input id="initnetworks" type="button" value="Init all networks">
                 </div>
-                <div class="col-md-6">
-                    <input id="unsupervisednetworks" type="button" value="Run unsupervised on all networks">
+                <div class="col-md-4">
+                    <input id="runUnsupervisedOnAllNetworks" type="button" value="Run unsupervised on all networks">
+                </div>
+                <div class="col-md-4">
+                    <input id="setimages" type="button" value="Compute images">
                 </div>
             </div>
 
@@ -71,6 +74,7 @@
             </form>
         </div>
     </form>
+
     <div id="loading">
         <div class="row">
             <div class="col text-center">
@@ -79,6 +83,60 @@
         </div>
     </div>
 
+    <section>
+        <div class="row mt-5 mb-5">
+            <div class="col">
+                <div id="unsupervised"></div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <div class="results">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <img id="networkGraphChart" class="card-img-top" src="public/ressources/blank-image.png"
+                        alt="Card image cap">
+                    <div class="card-body">
+                        <h3 class="card-title">Network graph</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <img id="inputGraphChart" class="card-img-top" src="public/ressources/blank-image.png"
+                        alt="Card image cap">
+                    <div class="card-body">
+                        <h3 class="card-title">Input graph</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <img id="activitiesNeuronChart" class="card-img-top" src="public/ressources/blank-image.png"
+                        alt="Card image cap">
+                    <div class="card-body">
+                        <h3 class="card-title">Activities categories</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <img id="detectedCategoriesChart" class="card-img-top" src="public/ressources/blank-image.png"
+                        alt="Card image cap">
+                    <div class="card-body">
+                        <h3 class="card-title">Detected categories</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 </div>
 
@@ -87,6 +145,7 @@
 {% block script %}
 
 <script>
+    let base_url = "http://92.243.19.37:1807"
 
     function showLoading() {
         $("#loading").show();
@@ -96,24 +155,185 @@
         $("#loading").hide();
     }
 
-    function loadnetworks() {
+    function initnetworks() {
         showLoading();
         $.ajax({
             type: "GET",
             url: '/ControllerSentiveAI/initAllNetworks',
             //data: { action: 'call_this' },
             success: function (data) {
-                alert("NEtwork has been init");
+                alert("All Networks has been init");
                 hideLoading();
             }
 
         });
     }
 
+    function computesImagesOnNetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/computeImagesNetwork',
+            //data: { action: 'call_this' },
+            success: function (data) {
+                alert("Images has been computed");
+                hideLoading();
+            }
+
+        });
+    }
+
+    function loadCharts(networkId) {
+        loadinputgraphChart(networkId);
+        loadNetworkgraphChart(networkId);
+        loadActivitiesNeuronsCategoriesChart(networkId);
+        loadDetectedCategoriesChart(networkId);
+    }
+
+    function runUnsupervisedOnAllNetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/runUnsupervisedOnNetworks',
+            success: function (data) {
+                hideLoading();
+                alert("Unsupervised train done");
+
+            }
+        });
+    }
+
+    function runUnsupervisedOnNetwork(networkId) {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/runUnsupervisedOnNetwork',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                hideLoading();
+                console.log("runUnsupervisedOnNetwork -> data", data);
+
+
+            }
+        });
+    }
+    function getDeviceNumber(deveui) {
+        $.ajax({
+            type: "GET",
+            url: '/controllerSensors/getDeviceNumber',
+            dataType: 'text',
+            async: false,
+            data: {
+                deveui: deveui
+            },
+            success: function (data, status, response) {
+
+                var device_number = data;
+                text_button = "Run unsupervised on Network " + device_number
+                addButton("unsupervised", text_button, "rununsupervised");
+                loadCharts(device_number);
+
+            },
+
+        }).done(function (data) {
+            var device_number = data;
+            console.log("getDeviceNumber -> data", data);
+            var btnRunUnsupervised = document.querySelector('#rununsupervised');
+            btnRunUnsupervised.addEventListener('click', runUnsupervisedOnNetwork.bind(this, device_number));
+            return device_number
+        });
+
+
+    }
+
+    function loadinputgraphChart(networkId) {
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getInputGraph',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                console.log("loadinputgraphChart -> networkId", networkId);
+                console.log("loadinputgraphChart -> data", data);
+                url_image = base_url + data;
+                changeSrcImage("inputGraphChart", url_image)
+            }
+        });
+    }
+
+    function loadNetworkgraphChart(networkId) {
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getNetworkGraph',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                url_image = base_url + data;
+                changeSrcImage("networkGraphChart", url_image)
+            }
+        });
+    }
+
+    function loadActivitiesNeuronsCategoriesChart(networkId) {
+
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getActivitiesNeuronsCategoriesChart',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                url_image = base_url + data;
+                changeSrcImage("activitiesNeuronChart", url_image)
+            }
+        });
+    }
+
+    function loadDetectedCategoriesChart(networkId) {
+
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getDetectedCategoriesChart',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                console.log("loadDetectedCategoriesChart -> data", data);
+                url_image = base_url + data;
+                changeSrcImage("detectedCategoriesChart", url_image)
+
+            }
+        });
+    }
+
     $(document).ready(function () {
 
-        var btn = document.querySelector('#loadnetworks');
-        btn.addEventListener('click', loadnetworks);
+        //loadCharts("2001002");
+        var btn = document.querySelector('#initnetworks');
+        btn.addEventListener('click', initnetworks);
+        var btnComputeImages = document.querySelector('#setimages');
+        btnComputeImages.addEventListener('click', computesImagesOnNetworks);
+        var unsupervisedNetworks = document.querySelector('#runUnsupervisedOnAllNetworks');
+        unsupervisedNetworks.addEventListener('click', runUnsupervisedOnAllNetworks);
+
+
+        $(".initnetworks").click(function () {
+            event.preventDefault();
+            $.ajax({
+                type: 'GET',
+                //url: 'script.php',
+                success: function (data) {
+                    alert("Hello");
+                    //$("p").text(data);
+
+                }
+            });
+        });
+
 
 
         $("#siteSentive").change(function () {
@@ -143,22 +363,12 @@
                 alert("Selectionner un équipement");
                 return;
             }
+
+
+            let deveui = $('#equipmentField option:selected').val();
+            let device_number = getDeviceNumber(deveui);
+            console.log("device_number", device_number);
         });
-
-        $(".loadnetwork").click(function () {
-            event.preventDefault();
-            $.ajax({
-                type: 'GET',
-                //url: 'script.php',
-                success: function (data) {
-                    alert("Hello");
-                    //$("p").text(data);
-
-                }
-            });
-        });
-
-
 
     });
 
