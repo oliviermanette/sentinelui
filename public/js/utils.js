@@ -3,8 +3,10 @@
  */
 
 function changeSrcImage(id, url) {
-  var img = document.getElementById(id);
-  img.setAttribute("src", url);
+  var a = document.getElementById(id);
+  a.setAttribute("href", url);
+  var img = a.getElementsByTagName("img");
+  img[0].setAttribute("src", url);
 }
 
 /**
