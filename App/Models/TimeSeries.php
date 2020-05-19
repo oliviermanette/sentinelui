@@ -191,7 +191,7 @@ class TimeSeries extends \Core\Model
                 $X = $timeserieArr['x'];
                 $Y = $timeserieArr['y'];
                 array_push($X_arr, intval($X));
-                array_push($Y_arr, intval($Y));
+                array_push($Y_arr, floatval($Y));
             }
             //Set datetime attribute
             $dataArr["datetime"] = $this->timestamp;

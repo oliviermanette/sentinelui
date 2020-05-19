@@ -38,15 +38,33 @@ Briefly : for testing purpose
 class ControllerTest extends \Core\Controller
 {
 
+
+
     public function testApiAction()
     {
 
         //print_r(SentiveAPI::reset());
-        $deveui = '0004A30B00E7D410';
+        $device_number = "2001006";
+        $deveui = SensorManager::getDeveuiFromDeviceNumber($device_number);
         //$this->initNetwork($deveui);
-        $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
-        $networkId = $deviceNumber;
-        SentiveAIManager::initNetworkFromSensor($deveui);
+        $networkId = $device_number;
+        print_r(SentiveAIManager::initNetworkFromSensor($deveui));
+        /*$dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+        $count = 0;
+        foreach ($dataArr as $spectreArr) {
+            $timeSerie = new TimeSeries();
+            $timeSerie->createFromSpectreArr($spectreArr);
+            $dataArr = $timeSerie->getTimeSerieData();
+
+            $dateTime = $spectreArr['date_time'];
+            $timestamp = strtotime($dateTime);
+            $timeSerie->setNetworkId($networkId);
+            $timeSerie->setTimestamp($timestamp);
+            $dataPayloadJson = $timeSerie->parseForSentiveAi();
+            print_r($dataPayloadJson);
+            //SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
+            $count += 1;
+        }*/
         //SentiveAIManager::runUnsupervisedForSensor($deveui);
         //var_dump(SentiveAIManager::runUnsupervisedOnNetwork("2001003"));
         //print_r(SentiveAPI::getChartNetworkGraph("2001002"));
@@ -71,7 +89,8 @@ class ControllerTest extends \Core\Controller
     public function testSQLAction()
     {
         //06
-        $deveui = '0004A30B00E7D410';
+        $deveui = SensorManager::getDeveuiFromDeviceNumber("2001006");
+        //'0004A30B00E7D410';
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
             $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorSecondGeneration($deveui);
         } else {

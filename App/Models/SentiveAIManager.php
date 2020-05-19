@@ -43,12 +43,13 @@ class SentiveAIManager extends \Core\Model
 
         SentiveAPI::reset($networkId);
 
+        //Get all the spectrums received by a sensor
         if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
             $dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
         } else {
             $dataArr = SpectreManager::reconstituteAllSpectreForSensorFirstGeneration($deveui);
         }
-        //$test_count = 0;
+        $count = 0;
         foreach ($dataArr as $spectreArr) {
             $timeSerie = new TimeSeries();
             $timeSerie->createFromSpectreArr($spectreArr);
@@ -60,11 +61,10 @@ class SentiveAIManager extends \Core\Model
             $timeSerie->setTimestamp($timestamp);
             $dataPayloadJson = $timeSerie->parseForSentiveAi();
             SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
+            $count += 1;
         }
+        echo "\nNumber spectrum added : " . $count . "\n";
         return true;
-        //SetImageBuffer : premier paramètre : fonction, fonction qui produisent un graphique puis après chaque slah, paramètre pour cette function
-        //Set : 
-        //Get recupere l'image static
     }
 
     public static function initAllNetworks()
