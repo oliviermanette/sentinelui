@@ -246,6 +246,9 @@ class ControllerSensors extends Authenticated
         //Direction average inclinometer
         $variationAverageDirectionArr = InclinometerManager::computeAverageDirectionVariationForLast($deveui, -1);
         $variationAverageDirectionArr = json_encode($variationAverageDirectionArr);
+
+
+        
         //Speed average variation
         $variationAverageSpeedDirectionArr = InclinometerManager::computeAverageDerivativeSpeedVariation($deveui, -1);
         $variationAverageSpeedDirectionArr = json_encode($variationAverageSpeedDirectionArr);
