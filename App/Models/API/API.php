@@ -4,7 +4,11 @@
 namespace App\Models\API;
 
 use App\Utilities;
-
+use \GuzzleHttp\Exception\RequestException;
+use \GuzzleHttp\Exception\ClientException;
+use \GuzzleHttp\Exception\ServerException;
+use \GuzzleHttp\Exception\ConnectException;
+use \GuzzleHttp\Psr7;
 
 /**
  * 
@@ -84,25 +88,66 @@ class API
         $client = new \GuzzleHttp\Client();
         switch ($method) {
             case "POST":
-                $res = $client->request('POST', $url, [
-                    'body' => $data,
-                    'headers' => [
-                        'Content-Type' => 'application/json',
-                        'Content-Length' => strlen($data),
-                    ]
-                ]);
+                try {
+                    $res = $client->request('POST', $url, [
+                        'body' => $data,
+                        'headers' => [
+                            'Content-Type' => 'application/json',
+                            'Content-Length' => strlen($data),
+                        ]
+                    ]);
+                    if ($res->getStatusCode() == 200) {
+                        return $res->getBody()->getContents();
+                    }
+                } catch (RequestException $e) {
+                    $response = $e->getResponse();
+                    $responseBodyAsString = $response->getBody()->getContents();
+                    //print_r($response);
+                    //echo Psr7\str($e->getRequest());
+                    if ($e->hasResponse()) {
+                        echo "HELLO :" . Psr7\str($e->getResponse());
+                    }
+                }
                 break;
             case "PUT":
-                $res = $client->put($url, []);
+                try {
+                    $res = $client->put($url, []);
+                    if ($res->getStatusCode() == 200) {
+                        return $res->getBody()->getContents();
+                    }
+                } catch (RequestException $e) {
+                    echo Psr7\str($e->getRequest());
+                    if ($e->hasResponse()) {
+                        echo Psr7\str($e->getResponse());
+                    }
+                }
+
                 break;
             case "GET":
-                $res = $client->get($url);
+                try {
+                    $res = $client->get($url, []);
+                    if ($res->getStatusCode() == 200) {
+                        return $res->getBody()->getContents();
+                    }
+                } catch (RequestException $e) {
+                    // If there are network errors, we need to ensure the application doesn't crash.
+                    // if $e->hasResponse is not null we can attempt to get the message
+                    // Otherwise, we'll just pass a network unavailable message.
+                    $request = Psr7\str($e->getRequest());
+                    if ($e->hasResponse()) {
+                        $exception = (string) $e->getResponse()->getBody();
+                        $exception = json_decode($exception);
+                        return $exception;
+                        //return new JsonResponse($exception, $e->getCode());
+                    } else {
+                        //print_r($e->getMessage());
+                        return $e->getMessage();
+                        //return new JsonResponse($e->getMessage(), 503);
+                    }
+                }
                 break;
             default:
                 break;
-        }
-        if ($res->getStatusCode() == 200) {
-            return $res->getBody()->getContents();
         }
     }
 }
