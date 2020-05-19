@@ -270,6 +270,22 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getDeveuiFromDeviceNumber($device_number)
+  {
+    $db = static::getDB();
+
+    $sql_deviceNb_sensor = "SELECT deveui FROM `sensor`
+      WHERE device_number = :device_number ";
+
+    $stmt = $db->prepare($sql_deviceNb_sensor);
+    $stmt->bindValue(':device_number', $device_number, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $deveui = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $deveui;
+    }
+  }
+
   public static function getAllDevices()
   {
     $db = static::getDB();
