@@ -150,4 +150,18 @@ class API
                 break;
         }
     }
+
+    /**
+     * @return boolean
+     */
+    public static function exists($url)
+    {
+        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        try {
+            $response = $client->get($url, []);
+            return true;
+        } catch (ConnectException $e) {
+            return false;
+        }
+    }
 }

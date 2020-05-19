@@ -48,10 +48,15 @@ class ControllerTest extends \Core\Controller
         $networkId = $deviceNumber;
         //SentiveAIManager::initNetworkFromSensor($deveui);
         //SentiveAIManager::runUnsupervisedForSensor($deveui);
-        var_dump(SentiveAIManager::runUnsupervisedOnNetwork("2001003"));
+        //var_dump(SentiveAIManager::runUnsupervisedOnNetwork("2001003"));
         //print_r(SentiveAPI::getChartNetworkGraph("2001002"));
         //var_dump(SentiveAIManager::getChartNetworkGraph("2001002"));
         //SentiveAIManager::runUnsupervisedOnAllNetworks();
+        if (SentiveAPI::isConnected()) {
+            echo "CONNECTED";
+        } else {
+            echo "NOT CON";
+        }
     }
 
 

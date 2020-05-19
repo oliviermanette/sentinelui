@@ -13,6 +13,17 @@ class SentiveAPI
     private static $BASE_URL = "http://92.243.19.37:1807";
 
     /**
+     * Check connection
+     * @return boolean
+     */
+    public static function isConnected()
+    {
+        $isconnected = API::exists(self::$BASE_URL);
+        return $isconnected;
+    }
+
+
+    /**
      * Reset all data
      * @return void
      */
