@@ -45,6 +45,7 @@ class RecordManager extends \Core\Model
   public static function parseJsonDataAndInsert($data)
   {
 
+    //Take the raw data and decode it
     $message = new Message($data);
 
     //Check if the sensors is associated to an installation before dealing with a message
