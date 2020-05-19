@@ -152,7 +152,7 @@ function getCombination($n)
       return $res;
     }
     if ($numb / 64 > 1) {
-      $$res  = 16 * 12.5 + 16 * 25 + 16 * 50 + 16 * 100 + ($numb - 64) * 200;
+      $res  = 16 * 12.5 + 16 * 25 + 16 * 50 + 16 * 100 + ($numb - 64) * 200;
       return $res;
     }
     if ($numb / 48 > 1) {
