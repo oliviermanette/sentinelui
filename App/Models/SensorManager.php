@@ -270,6 +270,52 @@ class SensorManager extends \Core\Model
     }
   }
 
+  public static function getDeveuiFromDeviceNumber($device_number)
+  {
+    $db = static::getDB();
+
+    $sql_deviceNb_sensor = "SELECT deveui FROM `sensor`
+      WHERE device_number = :device_number ";
+
+    $stmt = $db->prepare($sql_deviceNb_sensor);
+    $stmt->bindValue(':device_number', $device_number, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $deveui = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $deveui;
+    }
+  }
+
+  public static function getAllDevices()
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT device_number, deveui FROM `sensor`";
+
+    $stmt = $db->prepare($sql);
+    if ($stmt->execute()) {
+      $all_devices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $all_devices;
+    }
+  }
+
+  public static function getId($deveui)
+  {
+    $db = static::getDB();
+
+    $sql_deviceNb_sensor = "SELECT id FROM `sensor`
+      WHERE deveui = :deveui ";
+
+    $stmt = $db->prepare($sql_deviceNb_sensor);
+    $stmt->bindValue(':deveui', $deveui, PDO::PARAM_STR);
+
+    if ($stmt->execute()) {
+      $id = $stmt->fetch(PDO::FETCH_COLUMN);
+      return $id;
+    }
+  }
+
+
 
   /**
    * Get last message received from a specific sensor

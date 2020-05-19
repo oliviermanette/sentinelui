@@ -15,12 +15,17 @@ use \App\Models\SensorManager;
 use App\Models\API\TemperatureAPI;
 use App\Models\TemperatureManager;
 use \App\Models\API\SensorAPI;
+use \App\Models\API\SentiveAPI;
+use App\Models\SentiveAIManager;
+use \App\Models\TimeSeries;
+use Spatie\Async\Pool;
 
 ini_set('error_reporting', E_ALL);
 error_reporting(-1); // reports all errors
 ini_set("display_errors", "1"); // shows all errors
 ini_set("log_errors", 1);
 ini_set("error_log", "./log/error.log");
+ini_set('max_execution_time', 0);
 /*
 ControllerDataObjenious.php
 author : Lirone Samoun
@@ -33,11 +38,46 @@ Briefly : for testing purpose
 class ControllerTest extends \Core\Controller
 {
 
+
+
     public function testApiAction()
     {
 
-        SensorAPI::getNbStatutsSensorsFromApi("RTE");
+        //print_r(SentiveAPI::reset());
+        $device_number = "2001006";
+        $deveui = SensorManager::getDeveuiFromDeviceNumber($device_number);
+        //$this->initNetwork($deveui);
+        $networkId = $device_number;
+        print_r(SentiveAIManager::initNetworkFromSensor($deveui));
+        /*$dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
+        $count = 0;
+        foreach ($dataArr as $spectreArr) {
+            $timeSerie = new TimeSeries();
+            $timeSerie->createFromSpectreArr($spectreArr);
+            $dataArr = $timeSerie->getTimeSerieData();
+
+            $dateTime = $spectreArr['date_time'];
+            $timestamp = strtotime($dateTime);
+            $timeSerie->setNetworkId($networkId);
+            $timeSerie->setTimestamp($timestamp);
+            $dataPayloadJson = $timeSerie->parseForSentiveAi();
+            print_r($dataPayloadJson);
+            //SentiveAPI::addTimeSeries($networkId, $dataPayloadJson, "DbTimeSeries");
+            $count += 1;
+        }*/
+        //SentiveAIManager::runUnsupervisedForSensor($deveui);
+        //var_dump(SentiveAIManager::runUnsupervisedOnNetwork("2001003"));
+        //print_r(SentiveAPI::getChartNetworkGraph("2001002"));
+        //var_dump(SentiveAIManager::getChartNetworkGraph("2001002"));
+        //SentiveAIManager::runUnsupervisedOnAllNetworks();
+        if (SentiveAPI::isConnected()) {
+            echo "CONNECTED";
+        } else {
+            echo "NOT CON";
+        }
     }
+
+
 
     public function debugAction()
     {
@@ -48,12 +88,17 @@ class ControllerTest extends \Core\Controller
 
     public function testSQLAction()
     {
+        //06
+        $deveui = SensorManager::getDeveuiFromDeviceNumber("2001006");
+        //'0004A30B00E7D410';
+        if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
+            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorSecondGeneration($deveui);
+        } else {
+            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorFirstGeneration($deveui);
+        }
 
-        $deveui = '0004A30B00E829A7';
-        $date_time_first_measure = '2020-03-29 20:49:36';
-        //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
-        //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-        //$dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
+        print_r($total_spectres);
+
 
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
         $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30);
@@ -66,9 +111,15 @@ class ControllerTest extends \Core\Controller
 
         //$x = array_reverse($percentageVariationDayArr);
 
-        //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        //var_dump($x);
-        //var_dump($percentageVariationDayArr);
+    }
+
+    public function testSentiveAIAction()
+    {
+        $deveui = '0004A30B00EB6979';
+        $sensorId = SensorManager::getDeviceNumberFromDeveui($deveui);
+        $networkId = $sensorId;
+        print_r($this->initNetwork($deveui, $reset = True));
+        print_r($this->runUnsupervisedLearning($networkId));
     }
 
 

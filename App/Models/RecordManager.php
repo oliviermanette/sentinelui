@@ -23,6 +23,8 @@ use App\Models\Messages\Battery;
 use App\Models\Messages\Spectre;
 use App\Models\Messages\Alert;
 use App\Models\Settings\SettingSensorManager;
+use App\Models\SentiveAIManager;
+use \App\Models\API\SentiveAPI;
 use PDO;
 
 
@@ -200,6 +202,27 @@ class RecordManager extends \Core\Model
         $spectre = new Spectre($message->msgDecoded);
         if (!SpectreManager::insertSpectre($spectre)) {
           return false;
+        }
+
+        //Update Sentive AI
+        $device_number = $message->device_number;
+        //Create timeserie from spectre
+        if (SentiveAPI::isConnected()) {
+          echo "\n SENTIVE CONNECTED \n";
+          //Check if timeseries empty to see if we need to reset the network
+
+          //
+
+          $timeSerie = new TimeSeries();
+          $timeSerie->createFromMsg($message);
+          $timeSerie->setNetworkId($device_number);
+          $dataPayloadJson = $timeSerie->parseForSentiveAi();
+          SentiveAIManager::addDataToNetwork($device_number, $dataPayloadJson, $name = "DbTimeSeries");
+          $networkId = $device_number;
+          SentiveAIManager::runUnsupervisedOnNetwork($networkId);
+          SentiveAIManager::computeImagesOnNetwork($networkId);
+        } else {
+          echo "\n SENTIVE NOT CONNECTED \n";
         }
       }
 

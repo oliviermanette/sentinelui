@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+
+{% block title %}Sentive AI{% endblock %}
+
+{% block body %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div class="row">
+            <div class="col">
+                <h1 class="h3 mb-0 text-gray-800">Sentive AI</h1>
+            </div>
+        </div>
+
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Init</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <input id="initnetworks" type="button" value="Init all networks">
+                </div>
+                <div class="col-md-3">
+                    <input id="resetNetworks" type="button" value="Reset all networks">
+                </div>
+                <div class="col-md-3">
+                    <input id="runUnsupervisedOnAllNetworks" type="button" value="Unsupervised all networks">
+                </div>
+                <div class="col-md-3">
+                    <input id="setimages" type="button" value="Compute images">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <form class="card">
+        <div class="card-body">
+            <h3 class="card-title">{{version}}</h3>
+            <form id="sentiveForm" class="ui form" method="post" action="#">
+                <div class="ui form d-flex justify-content-center">
+                    <div class="row four fields ">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-2">
+                                <label class="form-label">Choisissez un site</label>
+                                <select class="browser-default custom-select" name="siteSentive" id="siteSentive">
+                                    <option value="" selected>Choisissez un site</option>
+
+                                    {% for site in all_site %}
+                                    <option value={{ site.site_id }}>{{ site.site }} </option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-2">
+                                <label class="form-label">Choisissez un équipement</label>
+                                <select class="browser-default custom-select" name="equipmentField" id="equipmentField">
+                                    <option value="" selected>Choisissez un équipement associé</option>
+                                    {% for equipment in all_equipment %}
+                                    <option value={{ equipment.equipement_id }}>{{ equipment.equipement }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col text-center">
+                                    <input type="button" id="buttonSentive" value="Submit">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </form>
+
+    <div id="loading">
+        <div class="row">
+            <div class="col text-center">
+                <p><img src="public/ressources/loading.gif" /> Please Wait</p>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <div class="row mt-5 mb-5">
+            <div class="col">
+                <div id="unsupervised"></div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <section class="resultsCharts">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <a id="networkGraphChart" href="public/ressources/blank-image.png" data-lightbox="image-1">
+                        <img class="card-img-top" src="public/ressources/blank-image.png" alt="Card image cap">
+                        <div class="card-body">
+                            <h3 class="card-title">Network graph</h3>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <a id="inputGraphChart" href="public/ressources/blank-image.png" data-lightbox="image-1">
+                        <img class="card-img-top" src="public/ressources/blank-image.png" alt="Card image cap">
+                        <div class="card-body">
+                            <h3 class="card-title">Input graph</h3>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <a id="activitiesNeuronChart" href="public/ressources/blank-image.png" data-lightbox="image-1">
+                        <img class="card-img-top" src="public/ressources/blank-image.png" alt="Card image cap">
+                        <div class="card-body">
+                            <h3 class="card-title">Activities categories</h3>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <a id="detectedCategoriesChart" href="public/ressources/blank-image.png" data-lightbox="image-1">
+                        <img class="card-img-top" src="public/ressources/blank-image.png" alt="Card image cap">
+                        <div class="card-body">
+                            <h3 class="card-title">Detected categories</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include "SentiveAI/viewTableDataTimeSeries.html" %}
+
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    let base_url = "http://92.243.19.37:1807"
+
+    function showLoading() {
+        $("#loading").show();
+    }
+
+    function hideLoading() {
+        $("#loading").hide();
+    }
+
+    function initnetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/initAllNetworks',
+            //data: { action: 'call_this' },
+            success: function (data) {
+                alert("All Networks has been init");
+                hideLoading();
+            }
+
+        });
+    }
+
+    function resetNetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/resetAllNetworks',
+            //data: { action: 'call_this' },
+            success: function (data) {
+                alert("All Networks has been reset");
+                hideLoading();
+            }
+
+        });
+    }
+
+    function computesImagesOnNetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/computeImagesNetworks',
+            //data: { action: 'call_this' },
+            success: function (data) {
+                alert("Images has been computed");
+                hideLoading();
+            }
+
+        });
+    }
+
+    function loadCharts(networkId) {
+        loadinputgraphChart(networkId);
+        loadNetworkgraphChart(networkId);
+        loadActivitiesNeuronsCategoriesChart(networkId);
+        loadDetectedCategoriesChart(networkId);
+    }
+
+    function runUnsupervisedOnAllNetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/runUnsupervisedOnNetworks',
+            success: function (data) {
+                hideLoading();
+                alert("Unsupervised train done");
+
+            }
+        });
+    }
+
+    function runUnsupervisedOnNetwork(networkId) {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/runUnsupervisedOnNetwork',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                hideLoading();
+                console.log("runUnsupervisedOnNetwork -> data", data);
+
+
+            }
+        });
+    }
+    function getDeviceNumber(deveui) {
+        $.ajax({
+            type: "GET",
+            url: '/controllerSensors/getDeviceNumber',
+            dataType: 'text',
+            async: false,
+            data: {
+                deveui: deveui
+            },
+            success: function (data, status, response) {
+
+                var device_number = data;
+                text_button = "Run unsupervised on Network " + device_number
+                addButton("unsupervised", text_button, "rununsupervised");
+                loadCharts(device_number);
+                loadTimeSeriesDatatable(device_number);
+
+            },
+
+        }).done(function (data) {
+            var device_number = data;
+            console.log("getDeviceNumber -> data", data);
+            var btnRunUnsupervised = document.querySelector('#rununsupervised');
+            btnRunUnsupervised.addEventListener('click', runUnsupervisedOnNetwork.bind(this, device_number));
+            return device_number
+        });
+
+
+    }
+
+    function loadinputgraphChart(networkId) {
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getInputGraph',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                console.log("loadinputgraphChart -> networkId", networkId);
+                console.log("loadinputgraphChart -> data", data);
+                url_image = base_url + data;
+                changeSrcImage("inputGraphChart", url_image)
+            }
+        });
+    }
+
+    function loadNetworkgraphChart(networkId) {
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getNetworkGraph',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                url_image = base_url + data;
+                changeSrcImage("networkGraphChart", url_image)
+            }
+        });
+    }
+
+    function loadActivitiesNeuronsCategoriesChart(networkId) {
+
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getActivitiesNeuronsCategoriesChart',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                url_image = base_url + data;
+                changeSrcImage("activitiesNeuronChart", url_image)
+            }
+        });
+    }
+
+    function loadDetectedCategoriesChart(networkId) {
+
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/getDetectedCategoriesChart',
+            data: {
+                networkId: networkId
+            },
+            success: function (data) {
+                console.log("loadDetectedCategoriesChart -> data", data);
+                url_image = base_url + data;
+                changeSrcImage("detectedCategoriesChart", url_image)
+
+            }
+        });
+    }
+
+    function loadTimeSeriesDatatable(networkId) {
+        var url_timeseries = base_url + "/api/timeseries/" + networkId;
+        var table = $('#example').DataTable({
+            destroy: true,
+            ajax: {
+                url: url_timeseries,
+                type: "get",
+                dataType: "json",
+                dataSrc: function (timeseries) {
+                    return timeseries
+                },
+                contentType: "application/json; charset=utf-8",
+            },
+            "columns": [
+                { "data": "FKNetworkID" },
+                { "data": "ValueX" },
+                { "data": "ValueY" },
+                { "data": "datetime" },
+            ]
+        });
+    }
+
+
+    $(document).ready(function () {
+
+
+        //loadCharts("2001002");
+        var btn = document.querySelector('#initnetworks');
+        btn.addEventListener('click', initnetworks);
+        var btnReset = document.querySelector('#resetNetworks');
+        btnReset.addEventListener('click', resetNetworks);
+
+        var btnComputeImages = document.querySelector('#setimages');
+        btnComputeImages.addEventListener('click', computesImagesOnNetworks);
+        var unsupervisedNetworks = document.querySelector('#runUnsupervisedOnAllNetworks');
+        unsupervisedNetworks.addEventListener('click', runUnsupervisedOnAllNetworks);
+
+
+        $(".initnetworks").click(function () {
+            event.preventDefault();
+            $.ajax({
+                type: 'GET',
+                //url: 'script.php',
+                success: function (data) {
+                    alert("Hello");
+                    //$("p").text(data);
+
+                }
+            });
+        });
+
+
+
+        $("#siteSentive").change(function () {
+            var formData = new FormData();
+            formData.append('site_id', $(this).children("option:selected").val());
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = this.responseText;
+                    //console.log(posts);
+                    $('#equipmentField').html(response);
+                }
+            };
+            xhttp.open("POST", "/ControllerData/changeEquipement");
+            //Send the proper header information along with the request
+            xhttp.send(formData);
+        });
+
+        $("#buttonSentive").click(function () {
+            $("#sentiveForm").submit();
+            event.preventDefault();
+            if (!$('#siteSentive option:selected').val()) {
+                alert("Selectionnez un site");
+                return;
+            }
+            if (!$('#equipmentField option:selected').val()) {
+                alert("Selectionner un équipement");
+                return;
+            }
+
+            //Delete previous if it's the case
+            if (document.getElementById("rununsupervised")) {
+                document.getElementById("rununsupervised").remove();
+            }
+
+            let deveui = $('#equipmentField option:selected').val();
+            let device_number = getDeviceNumber(deveui);
+            console.log("device_number", device_number);
+        });
+
+    });
+
+
+
+
+
+</script>
+
+{% endblock %}

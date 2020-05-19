@@ -35,6 +35,9 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
     integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
     crossorigin="" />
+
+  <link href="public/vendor/lightbox/dist/css/lightbox.min.css" rel="stylesheet" />
+
   <link rel="stylesheet" href="public/css/style.css">
 
   <!-- Custom fonts for this template-->
@@ -127,6 +130,14 @@
           <i class="fas fa-ticket-alt"></i>
           <span>Support</span></a>
       </li>
+
+      {% if is_admin %}
+      <li class="nav-item">
+        <a class="nav-link" href="/sentive">
+          <i class="fas fa-chart-area"></i>
+          <span>Sentive AI</span></a>
+      </li>
+      {% endif %}
 
 
 
@@ -391,6 +402,7 @@
       crossorigin=""></script>
     <script src="public/vendor/leaflet/Leaflet.Control.Custom.js"></script>
 
+    <script src="public/vendor/lightbox/dist/js/lightbox.min.js" rel="stylesheet"></script>
     <script src="public/js/drawing.js"></script>
     <script src="public/js/utils.js"></script>
 </body>
