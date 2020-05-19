@@ -208,6 +208,10 @@ class RecordManager extends \Core\Model
         //Create timeserie from spectre
         if (SentiveAPI::isConnected()) {
           echo "\n SENTIVE CONNECTED \n";
+          //Check if timeseries empty to see if we need to reset the network
+
+          //
+
           $timeSerie = new TimeSeries();
           $timeSerie->createFromMsg($message);
           $timeSerie->setNetworkId($device_number);

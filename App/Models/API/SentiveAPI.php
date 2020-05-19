@@ -45,8 +45,21 @@ class SentiveAPI
         return $version;
     }
 
+    public static function getTimeSeriesData($networkId)
+    {
+        $url = self::$BASE_URL . "/api/timeseries/" . $networkId;
+        $data = API::CallAPI2("GET", $url);
+        return $data;
+    }
+
+
+
     public static function addTimeSeries($networkId, $payload, $name = "DbTimeSeries")
     {
+        //Check before if we need to reset the network
+        //SentiveAPI::getTimeSeriesData($networkId);
+
+        //Add timeseries
         $url = self::$BASE_URL . "/appendDf/" . $name . "/" . $networkId;
 
         $data = API::CallAPI2("POST", $url, $payload);
