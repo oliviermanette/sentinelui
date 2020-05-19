@@ -42,11 +42,11 @@ class ControllerTest extends \Core\Controller
     {
 
         //print_r(SentiveAPI::reset());
-        $deveui = '0004A30B00EB6979';
+        $deveui = '0004A30B00E7D410';
         //$this->initNetwork($deveui);
         $deviceNumber = SensorManager::getDeviceNumberFromDeveui($deveui);
         $networkId = $deviceNumber;
-        //SentiveAIManager::initNetworkFromSensor($deveui);
+        SentiveAIManager::initNetworkFromSensor($deveui);
         //SentiveAIManager::runUnsupervisedForSensor($deveui);
         //var_dump(SentiveAIManager::runUnsupervisedOnNetwork("2001003"));
         //print_r(SentiveAPI::getChartNetworkGraph("2001002"));
@@ -70,25 +70,15 @@ class ControllerTest extends \Core\Controller
 
     public function testSQLAction()
     {
+        //06
+        $deveui = '0004A30B00E7D410';
+        if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
+            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorSecondGeneration($deveui);
+        } else {
+            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorFirstGeneration($deveui);
+        }
 
-        $deveui = '0004A30B00EB6979';
-        $date_time_first_measure = '2020-03-29 20:49:36';
-        //$variationArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLast($deveui, false, -1);
-        //$height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-        //$dataArr = TemperatureAPI::getCurrentDataWeather('43.86801', '4.568677', $API_NAME = "DARKSKY");
-
-        //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        //$results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30);
-        //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        //var_dump(RecordManager::getBriefInfoFromAllRecords());
-
-        //$x = array_reverse($percentageVariationDayArr);
-        $dataArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        var_dump($dataArr);
-        //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, -1);
-        //var_dump($x);
-        //var_dump($percentageVariationDayArr);
-
+        print_r($total_spectres);
     }
 
 

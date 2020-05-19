@@ -24,9 +24,13 @@ abstract class Model
         static $db = null;
 
         if ($db === null) {
-            $dsn = 'mysql:host=' . Config::DB_HOST . ';dbname=' . Config::DB_NAME . ';charset=utf8';
-            $db = new PDO($dsn, Config::DB_USER, Config::DB_PASSWORD);
-
+            if (Config::DEV_MOD) {
+                $dsn = 'mysql:host=' . Config::DB_HOST_DEV . ';dbname=' . Config::DB_NAME_DEV . ';charset=utf8';
+                $db = new PDO($dsn, Config::DB_USER_DEV, Config::DB_PASSWORD_DEV);
+            } else {
+                $dsn = 'mysql:host=' . Config::DB_HOST_PROD . ';dbname=' . Config::DB_NAME_PROD . ';charset=utf8';
+                $db = new PDO($dsn, Config::DB_USER_PROD, Config::DB_PASSWORD_PROD);
+            }
             // Throw an Exception when an error occurs
             $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
@@ -34,5 +38,3 @@ abstract class Model
         return $db;
     }
 }
-
-?>
