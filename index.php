@@ -8,8 +8,11 @@ require dirname(__FILE__) . '/vendor/autoload.php';
 /*
  * Error and Exception handling
 */
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
+error_reporting(E_ALL); // Error/Exception engine, always use E_ALL
+ini_set('ignore_repeated_errors', true); // always use TRUE
+ini_set('display_errors', True);
+ini_set('log_errors', TRUE); // Error/Exception file logging engine.
+ini_set('error_log', '/var/log/apache2/errors_dashboard_sentive.log'); // Logging file path
 set_error_handler('Core\Error::errorHandler');
 set_exception_handler('Core\Error::exceptionHandler');
 

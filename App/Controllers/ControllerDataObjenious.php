@@ -41,7 +41,9 @@ class ControllerDataObjenious extends \Core\Controller
     //Get the JSON content from the HTTP request
     $data = json_decode(file_get_contents('php://input'), true);
     //Parse the JSON content to insert into the DB
-    error_log("\nData received\n" . json_encode($data));
+    $message_type = 0;
+    error_log("\nData received\n" . json_encode($data), $message_type);
+    error_log("\nData received\n" . json_encode($data), 3, "./logs/data_objenious.log");
     if (!empty($data)) {
       RecordManager::parseJsonDataAndInsert($data);
     } else {
