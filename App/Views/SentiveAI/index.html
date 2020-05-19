@@ -18,13 +18,16 @@
         <div class="card-body">
             <h3 class="card-title">Init</h3>
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input id="initnetworks" type="button" value="Init all networks">
                 </div>
-                <div class="col-md-4">
-                    <input id="runUnsupervisedOnAllNetworks" type="button" value="Run unsupervised on all networks">
+                <div class="col-md-3">
+                    <input id="resetNetworks" type="button" value="Reset all networks">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <input id="runUnsupervisedOnAllNetworks" type="button" value="Unsupervised all networks">
+                </div>
+                <div class="col-md-3">
                     <input id="setimages" type="button" value="Compute images">
                 </div>
             </div>
@@ -178,11 +181,25 @@
         });
     }
 
+    function resetNetworks() {
+        showLoading();
+        $.ajax({
+            type: "GET",
+            url: '/ControllerSentiveAI/resetAllNetworks',
+            //data: { action: 'call_this' },
+            success: function (data) {
+                alert("All Networks has been reset");
+                hideLoading();
+            }
+
+        });
+    }
+
     function computesImagesOnNetworks() {
         showLoading();
         $.ajax({
             type: "GET",
-            url: '/ControllerSentiveAI/computeImagesNetwork',
+            url: '/ControllerSentiveAI/computeImagesNetworks',
             //data: { action: 'call_this' },
             success: function (data) {
                 alert("Images has been computed");
@@ -323,6 +340,7 @@
     function loadTimeSeriesDatatable(networkId) {
         var url_timeseries = base_url + "/api/timeseries/" + networkId;
         var table = $('#example').DataTable({
+            destroy: true,
             ajax: {
                 url: url_timeseries,
                 type: "get",
@@ -340,12 +358,17 @@
             ]
         });
     }
+
+
     $(document).ready(function () {
 
 
         //loadCharts("2001002");
         var btn = document.querySelector('#initnetworks');
         btn.addEventListener('click', initnetworks);
+        var btnReset = document.querySelector('#resetNetworks');
+        btnReset.addEventListener('click', resetNetworks);
+
         var btnComputeImages = document.querySelector('#setimages');
         btnComputeImages.addEventListener('click', computesImagesOnNetworks);
         var unsupervisedNetworks = document.querySelector('#runUnsupervisedOnAllNetworks');
@@ -395,6 +418,10 @@
                 return;
             }
 
+            //Delete previous if it's the case
+            if (document.getElementById("rununsupervised")) {
+                document.getElementById("rununsupervised").remove();
+            }
 
             let deveui = $('#equipmentField option:selected').val();
             let device_number = getDeviceNumber(deveui);

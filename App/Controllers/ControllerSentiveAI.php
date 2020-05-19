@@ -50,11 +50,17 @@ class ControllerSentiveAI extends Authenticated
         echo "OK INIT";
     }
 
-    public function computeImagesNetworkAction()
+    public function resetAllNetworksAction()
+    {
+        SentiveAIManager::resetAllNetworks();
+        echo "OK RESET";
+    }
+
+    public function computeImagesNetworksAction()
     {
 
-        SentiveAIManager::computeImagesOnNetwork("2001002");
-        echo "OK INIT";
+        SentiveAIManager::computeImagesOnAllNetworks();
+        echo "Images computed";
     }
 
 

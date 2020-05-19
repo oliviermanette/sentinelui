@@ -71,13 +71,40 @@ class SentiveAIManager extends \Core\Model
     {
         //Get all the devices
         $all_sensors = SensorManager::getAllDevices();
+        //Add DATA
+        $pool = Pool::create();
+        foreach ($all_sensors as $sensor) {
+            $deveui = $sensor["deveui"];
+            $pool->add(function () use ($deveui) {
+                //Init network and add data
+                SentiveAIManager::initNetworkFromSensor($deveui);
+            })->then(function ($output) use ($deveui) {
+                echo "\n Network has been init for " . $deveui . "\n";
+            })->catch(function (Throwable $exception) {
+                echo "\n ERROR \n";
+                print_r($exception);
+                return false;
+            });
+        }
+        $pool->wait();
+        //Run unsupervised
+        SentiveAIManager::runUnsupervisedOnAllNetworks();
+        //Compute images
+        SentiveAIManager::computeImagesOnAllNetworks();
+        return true;
+    }
+
+    public static function resetAllNetworks()
+    {
+        //Get all the devices
+        $all_sensors = SensorManager::getAllDevices();
 
         $pool = Pool::create();
         foreach ($all_sensors as $sensor) {
             $deveui = $sensor["deveui"];
             $pool->add(function () use ($deveui) {
                 //Init network
-                SentiveAIManager::initNetworkFromSensor($deveui);
+                SentiveAIManager::resetNetwork($deveui);
             })->then(function ($output) use ($deveui) {
                 echo "\n Network has been init for " . $deveui . "\n";
             })->catch(function (Throwable $exception) {
