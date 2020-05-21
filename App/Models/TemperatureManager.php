@@ -68,16 +68,17 @@ class TemperatureManager extends \Core\Model
         $windgust = $dataArr["currently"]["windGust"];
         $cloudcover = $dataArr["currently"]["cloudCover"];
         if (isset($dataArr['alerts'])) {
-            $hasAlert = True;
+            $hasAlert = 1;
             $alert_description = $dataArr["alerts"][0]["title"];
             $alert_severity = $dataArr["alerts"][0]["severity"];
             $uri_alert = $dataArr["alerts"][0]["uri"];
         } else {
-            $hasAlert = False;
+            $hasAlert = 0;
             $alert_description = Null;
             $alert_severity = Null;
             $uri_alert = Null;
         }
+
 
         $db = static::getDB();
 
