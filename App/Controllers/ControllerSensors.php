@@ -245,10 +245,15 @@ class ControllerSensors extends Authenticated
 
         //Direction average inclinometer
         $variationAverageDirectionArr = InclinometerManager::computeAverageDirectionVariationForLast($deveui, -1);
-        $variationAverageDirectionArr = json_encode($variationAverageDirectionArr);
 
+        //If the current sensor is on the same tower that 11, we change the referential
+        if ($label_device == "2001006") {
+            $variationAverageSpeedDirectionAfterArr = InclinometerManager::applyAverageDirectionReferentialFromSensor("19010011", $variationAverageDirectionArr);
+            $variationAverageDirectionArr = json_encode($variationAverageSpeedDirectionAfterArr);
+        } else {
+            $variationAverageDirectionArr = json_encode($variationAverageDirectionArr);
+        }
 
-        
         //Speed average variation
         $variationAverageSpeedDirectionArr = InclinometerManager::computeAverageDerivativeSpeedVariation($deveui, -1);
         $variationAverageSpeedDirectionArr = json_encode($variationAverageSpeedDirectionArr);

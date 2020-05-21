@@ -7,7 +7,7 @@
         <h6 class="m-0 font-weight-bold text-primary text-center mb-5">Les données commencent à s'afficher à J+1 du jour
             de l'installation</h6>
 
-        
+
         <!--  Scatter chart direction et inclination chart  -->
         <div class="card-body">
             <div class="card-header py-3 d-flex justify-content-center">
@@ -19,16 +19,21 @@
             </div>
             {% if image_path %}
             <div class="row justify-content-center mt-5 ">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="img_sensor">
                         <img src='{{image_path}}' style="width:80%;height:90%;">
                     </div>
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-8">
                     <div class="canvasDirectionInclinometer">
                         <canvas id="chartDirectionInclinometer" width="600" height="600"></canvas>
                     </div>
                 </div>
+                <!--<div class="col-md-6">
+                    <div class="canvasDirectionInclinometerAfter">
+                        <canvas id="chartDirectionInclinometerAfter" width="600" height="600"></canvas>
+                    </div>
+                </div>-->
             </div>
             {% else%}
             <div class="row justify-content-center mt-5">

@@ -20,6 +20,8 @@ use App\Models\SentiveAIManager;
 use \App\Models\TimeSeries;
 use Spatie\Async\Pool;
 
+
+
 ini_set('error_reporting', E_ALL);
 error_reporting(-1); // reports all errors
 ini_set("display_errors", "1"); // shows all errors
@@ -97,16 +99,22 @@ class ControllerTest extends \Core\Controller
             $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorFirstGeneration($deveui);
         }
 
-        print_r($total_spectres);
+        //print_r($total_spectres);
 
 
         //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
         $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30);
-        $percentageVariationDayArr = InclinometerManager::computeAverageDirectionVariationForLast($deveui);
-        $percentageVariationDayAfterArr = InclinometerManager::computeAverageDirectionVariationForLastAfterTransform($deveui);
+        //$percentageVariationDayArr = InclinometerManager::computeAverageDirectionVariationForLast($deveui);
+        $deveui06 = SensorManager::getDeveuiFromDeviceNumber("2001006");
+        $deveui11 = SensorManager::getDeveuiFromDeviceNumber("19010011");
+        $variation11 = InclinometerManager::computeAverageDirectionVariationForLast($deveui11, -1);
+        $variation06 = InclinometerManager::computeAverageDirectionVariationForLast($deveui06, -1);
 
-        var_dump($percentageVariationDayArr[count($percentageVariationDayArr) - 1]);
-        var_dump($percentageVariationDayAfterArr[count($percentageVariationDayAfterArr) - 1]);
+        $variationAverageSpeedDirectionAfterArr = InclinometerManager::applyAverageDirectionReferentialFromSensor("19010011", $variation06);
+        //$newPoints = Utilities::applyReferentielData1ToData2UsingSlope($variation11, $variation06);
+        print_r($variationAverageSpeedDirectionAfterArr);
+        //var_dump($percentageVariationDayArr[count($percentageVariationDayArr) - 1]);
+        //var_dump($percentageVariationDayAfterArr[count($percentageVariationDayAfterArr) - 1]);
         //var_dump(RecordManager::getBriefInfoFromAllRecords());
 
         //$x = array_reverse($percentageVariationDayArr);

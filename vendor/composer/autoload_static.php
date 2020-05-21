@@ -58,6 +58,7 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         'M' => 
         array (
             'MyCLabs\\Enum\\' => 13,
+            'MathPHP\\' => 8,
         ),
         'G' => 
         array (
@@ -148,6 +149,10 @@ class ComposerStaticInit1afc655b346203bc7d2984eb7aa9161b
         'MyCLabs\\Enum\\' => 
         array (
             0 => __DIR__ . '/..' . '/myclabs/php-enum/src',
+        ),
+        'MathPHP\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markrogoyski/math-php/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (

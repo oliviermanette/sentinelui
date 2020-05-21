@@ -166,9 +166,9 @@ function searchJsonInArray(dataArr, searchField, searchVal) {
 function computeRatioAxis(dataArr) {
   //Compute ratio display chart
   var maxAxis = Math.round(Math.max.apply(Math, dataArr) * 2);
-  console.log("computeRatioAxis -> maxAxis", maxAxis);
+  //console.log("computeRatioAxis -> maxAxis", maxAxis);
   var minAxis = Math.round(Math.min.apply(Math, dataArr) * 2);
-  console.log("computeRatioAxis -> minAxis", minAxis);
+  //console.log("computeRatioAxis -> minAxis", minAxis);
 
   if (-maxAxis < minAxis) {
     var rangeHighAxis = maxAxis * 2;

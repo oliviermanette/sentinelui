@@ -1600,6 +1600,8 @@ function drawChartDirectionFromData(
   if (typeof directionData != "object") {
     directionData = JSON.parse(directionData);
   }
+
+  //console.log("directionData", directionData);
   //console.log("Setting :", settings);
   firstLevelXThresh = searchJsonInArray(
     settings,
@@ -1647,6 +1649,9 @@ function drawChartDirectionFromData(
     drawNoDataAvailable(canvaID);
   } else {
     var dataChartArr = [];
+    var dataRegressionArr = [];
+    var val1Reg = 0;
+    var val2Reg = 0;
     var deltaXArr = [];
     var deltaYArr = [];
     var mapDirectionDateTime = new Map();
@@ -1674,6 +1679,7 @@ function drawChartDirectionFromData(
     var data = {
       datasets: [
         {
+          type: "scatter",
           label: "Direction des déplacements",
           pointBackgroundColor: pointBackgroundColors,
           borderColor: borderColor,
@@ -1737,8 +1743,8 @@ function drawChartDirectionFromData(
               fontSize: 20,
             },
             ticks: {
-              min: ratioAxisY.rangeLow,
-              max: ratioAxisY.rangeHigh,
+              min: -10,
+              max: +10,
               beginAtZero: false,
               stepSize: 0.5,
               autoskip: true,
@@ -1758,8 +1764,8 @@ function drawChartDirectionFromData(
               fontSize: 20,
             },
             ticks: {
-              min: ratioAxisX.rangeLow,
-              max: ratioAxisX.rangeHigh,
+              min: -10,
+              max: +10,
               beginAtZero: false,
               stepSize: 0.5,
               autoskip: true,
@@ -1779,6 +1785,21 @@ function drawChartDirectionFromData(
         events: ["click"],
         drawTime: "afterDatasetsDraw",
         annotations: [
+          /*Trendline
+      {
+        type: 'line',
+        mode: 'horizontal',
+        scaleID: 'y-axis-0',
+        value: val1Reg,
+        endValue: val2Reg,
+        borderColor: 'rgb(75, 192, 192)',
+        borderWidth: 4,
+        label: {
+          enabled: true,
+          content: 'Trendline',
+
+        },
+      },*/
           //Vertical axis
           {
             id: "hline1",
@@ -1907,50 +1928,424 @@ function drawChartDirectionFromData(
     myChart.update();
 
     /*
-        function addData(chart, label, data) {
-          chart.data.labels.push(label);
-          chart.data.datasets.forEach((dataset) => {
-            dataset.data.push(data);
-          });
+    function addData(chart, label, data) {
+      chart.data.labels.push(label);
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data);
+      });
+      chart.update();
+    }
+    function removeData(chart) {
+      chart.data.labels.pop();
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+      });
+      chart.update();
+    }
+    const sleep = milliseconds => {
+      return new Promise(resolve => setTimeout(resolve, milliseconds));
+    };
+
+    /*Function to update the bar chart
+    function updateBarGraph(chart, data) {
+      chart.data.datasets.pop();
+
+      chart.data.datasets.push({
+        data: []
+      });
+      for (i = 0; i < data.length; i++) {
+        var obj = {
+          x: data[i].delta_x,
+          y: data[i].delta_y
+        };
+        sleep(2000).then(() => {
+          chart.data.datasets[0].data[i] = obj;
           chart.update();
-        }
-        function removeData(chart) {
-          chart.data.labels.pop();
-          chart.data.datasets.forEach((dataset) => {
-            dataset.data.pop();
-          });
-          chart.update();
-        }
-        const sleep = milliseconds => {
-          return new Promise(resolve => setTimeout(resolve, milliseconds));
+        });
+
+      }
+
+    }
+
+    /*Updating the bar chart with updated data in every second.
+    setInterval(function () {
+      updateBarGraph(myChart, directionData);
+    }, 1000);
+*/
+  }
+}
+
+function drawChartDirectionFromDataWithRegression(
+  directionData,
+  regressionArr = null,
+  canvaID = "chartDirectionInclinometer",
+  settings = []
+) {
+  if (typeof directionData != "object") {
+    directionData = JSON.parse(directionData);
+  }
+
+  //console.log("directionData", directionData);
+  //console.log("Setting :", settings);
+  firstLevelXThresh = searchJsonInArray(
+    settings,
+    "name_setting",
+    "first_inclinationX_thresh"
+  );
+  firstLevelYThresh = searchJsonInArray(
+    settings,
+    "name_setting",
+    "first_inclinationY_thresh"
+  );
+  secondLevelYThresh = searchJsonInArray(
+    settings,
+    "name_setting",
+    "second_inclinationY_thresh"
+  );
+  thirdLevelYThresh = searchJsonInArray(
+    settings,
+    "name_setting",
+    "third_inclinationY_thresh"
+  );
+
+  if (firstLevelXThresh != null) {
+    if (firstLevelXThresh.activated == 1) {
+      var firstLevelXThresh = firstLevelXThresh.value;
+    }
+  }
+  if (firstLevelYThresh != null) {
+    if (firstLevelYThresh.activated == 1) {
+      var firstLevelYThresh = firstLevelYThresh.value;
+    }
+  }
+  if (secondLevelYThresh != null) {
+    if (secondLevelYThresh.activated == 1) {
+      var secondLevelYThresh = secondLevelYThresh.value;
+    }
+  }
+  if (thirdLevelYThresh != null) {
+    if (thirdLevelYThresh.activated == 1) {
+      var thirdLevelYThresh = thirdLevelYThresh.value;
+    }
+  }
+
+  if (isEmpty(directionData)) {
+    drawNoDataAvailable(canvaID);
+  } else {
+    var dataChartArr = [];
+    var dataRegressionArr = [];
+    var val1Reg = 0;
+    var val2Reg = 0;
+    var deltaXArr = [];
+    var deltaYArr = [];
+    var mapDirectionDateTime = new Map();
+    for (var i in directionData) {
+      let date_time = directionData[i].date;
+      deltaXArr.push(directionData[i].delta_x);
+      deltaYArr.push(directionData[i].delta_y);
+      var obj = {
+        x: directionData[i].delta_x,
+        y: directionData[i].delta_y,
+      };
+      var key = directionData[i].delta_x * directionData[i].delta_y;
+      dataChartArr.push(obj);
+      mapDirectionDateTime.set(key, date_time);
+    }
+
+    if (regressionArr) {
+      if (typeof regressionArr != "object") {
+        regressionArr = JSON.parse(regressionArr);
+      }
+      const clean_data = dataChartArr.map(({ x, y }) => {
+        return [x, y]; // we need a list of [[x1, y1], [x2, y2], ...]
+      });
+
+      console.log("clean_data", clean_data);
+      console.log("regression", regressionArr);
+      console.log("Type", typeof regressionArr);
+      const result = regression.linear([clean_data]);
+      console.log("result", result);
+      const gradient = result.equation[0];
+      const yIntercept = result.equation[1];
+      for (var i in directionData) {
+        var obj = {
+          x: directionData[i].delta_x,
+
+          y:
+            directionData[i].delta_x * regressionArr["slope"] +
+            regressionArr["intercept"],
         };
 
-        /*Function to update the bar chart
-        function updateBarGraph(chart, data) {
-          chart.data.datasets.pop();
+        dataRegressionArr.push(obj);
+      }
+      val1RegX = -3;
+      val2RegX = 5;
+      val1RegY = val1RegX * regressionArr["slope"] + regressionArr["intercept"];
+      console.log("val1Reg", val1Reg);
+      val2RegY = val2RegX * regressionArr["slope"] + regressionArr["intercept"];
+      console.log("val2Reg", val2Reg);
+      console.log("Youhou dataRegressionArr", dataRegressionArr);
+      console.log("dataRegressionArr value init", dataRegressionArr[0]["x"]);
+    }
 
-          chart.data.datasets.push({
-            data: []
-          });
-          for (i = 0; i < data.length; i++) {
-            var obj = {
-              x: data[i].delta_x,
-              y: data[i].delta_y
-            };
-            sleep(2000).then(() => {
-              chart.data.datasets[0].data[i] = obj;
-              chart.update();
-            });
+    ratioAxisX = computeRatioAxis(deltaXArr);
+    ratioAxisY = computeRatioAxis(deltaYArr);
 
-          }
+    var ctx = document.getElementById(canvaID).getContext("2d");
+    // Define the data
+    var pointRadius = [];
+    var pointBackgroundColors = [];
+    var borderColor = [];
+    var data = {
+      datasets: [
+        {
+          type: "scatter",
+          label: "Direction des déplacements",
+          pointBackgroundColor: pointBackgroundColors,
+          borderColor: borderColor,
+          borderWidth: 2,
+          //showLine: true,
+          hoverBackgroundColor: "rgba(255,99,132,0.4)",
+          hoverBorderColor: "rgba(255,99,132,1)",
+          pointRadius: pointRadius,
+          data: dataChartArr,
+        },
+        {
+          type: "line",
+          label: "Trendline",
+          borderWidth: 2,
+          //showLine: true,
+          data: [
+            {
+              x: val1RegX,
+              y: val1RegY,
+            },
+            {
+              x: val2RegX,
+              y: val2RegY,
+            },
+          ],
+        },
+      ],
+    }; // Add data values to array
+    // End Defining data
+    var options = {
+      maintainAspectRatio: false,
+      responsive: false,
+      tooltips: {
+        callbacks: {
+          title: function (tooltipItem, data) {
+            //let date = data.labels[tooltipItem[0].index];
+            //console.log("tooltipItem.value : ", tooltipItem);
+            let date = mapDirectionDateTime.get(
+              tooltipItem[0].value * tooltipItem[0].label
+            );
+            //console.log("Date : ", date)
+            return "Le " + date;
+          },
+          label: function (tooltipItem, data) {
+            return "X = " + tooltipItem.xLabel + " Y =" + tooltipItem.yLabel;
+          },
+          afterLabel: function (tooltipItem, data) {
+            //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
+            //return "Heure : " + hour;
+          },
+        },
+        backgroundColor: "#FFF",
+        titleFontSize: 15,
+        titleFontColor: "#233754",
+        bodyFontColor: "#000",
+        bodyFontSize: 14,
+        displayColors: false,
+      },
+      title: {
+        display: false,
+        text: "Direction et inclinaison",
+      },
+      legend: {
+        display: false,
+      },
+      scales: {
+        yAxes: [
+          {
+            id: "y-axis-0",
+            gridLines: {
+              display: true,
+              color: "rgba(255,99,132,0.2)",
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Delta Y (cm)",
+              fontSize: 20,
+            },
+            ticks: {
+              min: -10,
+              max: +10,
+              beginAtZero: false,
+              stepSize: 0.5,
+              autoskip: true,
+            },
+          },
+        ],
+        xAxes: [
+          {
+            id: "x-axis-0",
+            gridLines: {
+              display: true,
+              color: "rgba(255,99,132,0.2)",
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Delta X (cm)",
+              fontSize: 20,
+            },
+            ticks: {
+              min: -10,
+              max: +10,
+              beginAtZero: false,
+              stepSize: 0.5,
+              autoskip: true,
+            },
+          },
+        ],
+      },
+      pan: {
+        enabled: true,
+        mode: "xy",
+      },
+      zoom: {
+        enabled: true,
+        mode: "xy",
+      },
+      annotation: {
+        events: ["click"],
+        drawTime: "afterDatasetsDraw",
+        annotations: [
+          {
+            id: "hline1",
+            type: "line",
+            mode: "vertical",
+            scaleID: "x-axis-0",
+            value: 0,
+            borderColor: "rgba(103, 128, 159, 0.7)",
+            label: {
+              enabled: true,
+              content: "Y",
+              position: "top",
+              backgroundColor: "rgba(103, 128, 159, 0.7)",
+            },
+          },
+          //horizontal axis
+          {
+            id: "hline2",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
+            value: 0,
+            borderColor: "rgba(103, 128, 159, 0.7)",
+            label: {
+              backgroundColor: "rgba(103, 128, 159, 0.7)",
+              content: "X",
+              position: "right",
+              enabled: true,
+            },
+          },
+          //first level Y thresh
+          {
+            id: "hline3",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
+            value: firstLevelYThresh,
+            borderColor: "rgba(240, 52, 52, 0.8)",
+            label: {
+              backgroundColor: "rgba(240, 52, 52, 0.8)",
+              content: "First level Y",
+              position: "top",
+              enabled: true,
+            },
+          },
+          //second level Y thresh
+          {
+            id: "hline4",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
+            value: secondLevelYThresh,
+            borderColor: "rgba(240, 52, 52, 0.8)",
+            label: {
+              backgroundColor: "rgba(240, 52, 52, 0.8)",
+              content: "Second level Y",
+              position: "top",
+              enabled: true,
+            },
+          },
+          //third level Y thresh
+          {
+            id: "hline5",
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
+            value: thirdLevelYThresh,
+            borderColor: "rgba(240, 52, 52, 0.8)",
+            label: {
+              backgroundColor: "rgba(240, 52, 52, 0.8)",
+              content: "Third level Y",
+              position: "top",
+              enabled: true,
+            },
+          },
+          //first level X thresh
+          {
+            id: "hline6",
+            type: "line",
+            mode: "vertical",
+            scaleID: "x-axis-0",
+            value: firstLevelXThresh,
+            borderColor: "rgba(240, 52, 52, 0.8)",
+            label: {
+              backgroundColor: "rgba(240, 52, 52, 0.8)",
+              content: "First level X",
+              position: "top",
+              enabled: true,
+            },
+          },
+        ],
+      },
+    };
 
-        }
+    // End Defining data
+    var myChart = new Chart(ctx, {
+      type: "scatter",
+      data: data,
+      options: options,
+    });
+    //console.log(myChart);
+    //Change color and size of last point
+    for (i = 0; i < myChart.data.datasets[0].data.length - 4; i++) {
+      pointBackgroundColors.push("rgba(103, 128, 159, 0.7)");
+      borderColor.push("rgba(103, 128, 159, 1)");
+      pointRadius.push(i * 0.01);
+    }
+    for (
+      i = myChart.data.datasets[0].data.length - 4;
+      i < myChart.data.datasets[0].data.length;
+      i++
+    ) {
+      if (i < myChart.data.datasets[0].data.length - 1) {
+        pointBackgroundColors.push("rgba(103, 128, 159, 0.7)");
+        borderColor.push("rgba(103, 128, 159, 1)");
+        pointRadius.push(i * 0.05);
+      } else {
+        pointBackgroundColors.push("rgba(255,99,132,1)");
+        pointRadius.push(7);
+      }
+    }
 
-        /*Updating the bar chart with updated data in every second.
-        setInterval(function () {
-          updateBarGraph(myChart, directionData);
-        }, 1000);
-    */
+    for (var i = 0; i < myChart.data.datasets[0].data.length; i++) {
+      //pointRadius.push(i);
+    }
+    myChart.update();
   }
 }
 

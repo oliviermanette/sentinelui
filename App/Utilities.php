@@ -2,6 +2,11 @@
 
 namespace App;
 
+use MathPHP\Statistics\Multivariate\PCA;
+use MathPHP\LinearAlgebra\MatrixFactory;
+
+include("{$_SERVER['DOCUMENT_ROOT']}/App/pca.php");
+
 /**
  * Utilities function
  *
@@ -356,6 +361,73 @@ function getCombination($n)
     return (($pt2[1] - $pt1[1]) / ($pt2[0] - $pt1[0]));
   }
 
+  public static function computeSlopeArray($xArr, $yArr)
+  {
+    $n     = count($xArr);     // number of items in the array
+    $x_sum = array_sum($xArr); // sum of all X values
+    $y_sum = array_sum($yArr); // sum of all Y values
+
+    $xx_sum = 0;
+    $xy_sum = 0;
+
+    for ($i = 0; $i < $n; $i++) {
+      $xy_sum += ($xArr[$i] * $yArr[$i]);
+      $xx_sum += ($xArr[$i] * $xArr[$i]);
+    }
+
+    // Slope
+    $slope = (($n * $xy_sum) - ($x_sum * $y_sum)) / (($n * $xx_sum) - ($x_sum * $x_sum));
+
+    // calculate intercept
+    $intercept = ($y_sum - ($slope * $x_sum)) / $n;
+
+    return array(
+      'slope'     => $slope,
+      'intercept' => $intercept,
+    );
+  }
+
+  /**
+   * linear regression function
+   * @param $x array x-coords
+   * @param $y array y-coords
+   * @returns array() m=>slope, b=>intercept
+   */
+  public static function linear_regression($x, $y)
+  {
+
+    // calculate number points
+    $n = count($x);
+
+    // ensure both arrays of points are the same size
+    if ($n != count($y)) {
+
+      trigger_error("linear_regression(): Number of elements in coordinate arrays do not match.", E_USER_ERROR);
+    }
+
+    // calculate sums
+    $x_sum = array_sum($x);
+    $y_sum = array_sum($y);
+
+    $xx_sum = 0;
+    $xy_sum = 0;
+
+    for ($i = 0; $i < $n; $i++) {
+
+      $xy_sum += ($x[$i] * $y[$i]);
+      $xx_sum += ($x[$i] * $x[$i]);
+    }
+
+    // calculate slope
+    $m = (($n * $xy_sum) - ($x_sum * $y_sum)) / (($n * $xx_sum) - ($x_sum * $x_sum));
+
+    // calculate intercept
+    $b = ($y_sum - ($m * $x_sum)) / $n;
+
+    // return result
+    return array("m" => $m, "b" => $b);
+  }
+
   public static function computeAreaTrianglePt($pt1, $pt2, $pt3)
   {
     $base = $pt3[0] - $pt1[0];
@@ -404,5 +476,237 @@ function getCombination($n)
       return true;
     }
     return false;
+  }
+
+
+  public static function angle_between($pt1, $pt2)
+  {
+    $ang1 = atan2($pt1[1], $pt1[0]);
+    $ang2 = atan2($pt2[1], $pt2[0]);
+    $delta = fmod(($ang1 - $ang2), 2 * pi());
+    $angle = rad2deg($delta);
+    return $angle;
+  }
+
+  public static function angle_between_line($slope1, $slope2)
+  {
+    $teta = atan(($slope2 - $slope1) / (1 + ($slope2 * $slope1)));
+    $angle = rad2deg($teta);
+    return $angle;
+  }
+
+  public static function rotate_point($pt1, $angleDeg)
+  {
+    $angleRad = $angleDeg * (pi() / 180);
+    $xprim = $pt1[0] * cos($angleRad) - $pt1[1] * sin($angleRad);
+    $yprim = $pt1[0] * sin($angleRad) + $pt1[1] * cos($angleRad);
+
+    $ptRotate = array($xprim, $yprim);
+    return $ptRotate;
+  }
+
+  public static function substract_point($pt2, $pt1)
+  {
+    $deltaX = $pt2[0] - $pt1[0];
+    $deltaY = $pt2[1] - $pt1[1];
+    $ptSub = array($deltaX, $deltaY);
+    return $ptSub;
+  }
+
+  public static function computeMeanDirectionArr($variationDirectionArr)
+  {
+    $sumX = 0;
+    $sumY = 0;
+
+    foreach ($variationDirectionArr as $dataArr) {
+      $deltaX = $dataArr["delta_x"];
+      $deltaY = $dataArr["delta_y"];
+      //echo $deltaX . "\n";
+      $sumX += $deltaX;
+      $sumY += $deltaY;
+    }
+    $deltaXavg =  $sumX / count($variationDirectionArr);
+    $deltaYavg =  $sumY / count($variationDirectionArr);
+
+    $ptMean = array($deltaXavg, $deltaYavg);
+    return $ptMean;
+  }
+
+  public static function computeRegressionDirectionArr($variationDirectionArr)
+  {
+    $deltaXarr = array();
+    $deltaYarr = array();
+    foreach ($variationDirectionArr as $dataArr) {
+      $deltaX = $dataArr["delta_x"];
+      $deltaY = $dataArr["delta_y"];
+
+      array_push($deltaXarr, $deltaX);
+      array_push($deltaYarr, $deltaY);
+    }
+    //print_r($deltaXarr);
+    $regression = Utilities::computeSlopeArray($deltaXarr, $deltaYarr);
+
+    return $regression;
+  }
+
+  public static function computePCADirectionArr($variationDirectionArr)
+  {
+    $deltaXarr = array();
+    $deltaYarr = array();
+    foreach ($variationDirectionArr as $dataArr) {
+      $deltaX = $dataArr["delta_x"];
+      $deltaY = $dataArr["delta_y"];
+
+      array_push($deltaXarr, $deltaX);
+      array_push($deltaYarr, $deltaY);
+    }
+    $points = [
+      $deltaXarr,
+      $deltaYarr,
+    ];
+    //print_r($points);
+    $p = new \PCA\PCA($points);
+    $p->changeDimension(2);
+    $p->applayingPca();
+    echo "Count : " . count($p->getPC()[0]);
+    return $p->getEigenVectors();
+  }
+
+  public static function applyReferentielData1ToData2($data1Arr, $data2Arr)
+  {
+    $variationDirectionArr = array();
+
+    //1. Compute Mean M1 and Mean M2
+    $M1 = Utilities::computeMeanDirectionArr($data1Arr);
+    $M2 = Utilities::computeMeanDirectionArr($data2Arr);
+    /*echo "M1 : \n";
+    print_r($M1);
+    echo "M2 : \n";
+    print_r($M2);*/
+
+    //2. Compute angle between M1 and M2
+    $angleDeg = Utilities::angle_between($M1, $M2);
+    //echo "AngleDeg : " . $angleDeg . "\n";
+
+    //3. Rotate M2 ==> M2'
+    $M2prim = Utilities::rotate_point($M2, $angleDeg);
+    /*echo "M2prim : \n";
+    print_r($M2prim);*/
+
+    //4. Find distance between M1 and M2'
+    $diffPt = Utilities::substract_point($M2prim, $M1);
+    /*echo "diffPt : \n";
+    print_r($diffPt);*/
+
+    //5. Apply rotation and translation to all the points
+    foreach ($data2Arr as $array) {
+      $deltaX = $array["delta_x"];
+      $deltaY = $array["delta_y"];
+      $date = $array["date"];
+
+      $ptToTransform = array($deltaX, $deltaY);
+      /*echo "Pt to transform : \n";
+      print_r($ptToTransform);*/
+      $deltaXRotate =  Utilities::rotate_point($ptToTransform, $angleDeg);
+      $deltaXTranslate =  Utilities::substract_point($deltaXRotate, $diffPt);
+      $deltaXTransfo = $deltaXTranslate;
+
+      /*echo "After transform: \n";
+      print_r($deltaXTransfo);*/
+
+
+      $tmpArr = array(
+        "date" => $date, "delta_x" => $deltaXTransfo[0], "delta_y" => $deltaXTransfo[1]
+      );
+      array_push($variationDirectionArr, $tmpArr);
+    }
+    $M2 = Utilities::computeMeanDirectionArr($variationDirectionArr);
+    /*echo "Mean after transform: \n";
+    print_r($M2);*/
+    return $variationDirectionArr;
+  }
+
+  public static function applyReferentielData1ToData2UsingSlope($data1Arr, $data2Arr, $normalizeSize = True)
+  {
+    $variationDirectionArr = array();
+
+    if ($normalizeSize) {
+      $countM1 = count($data1Arr);
+      $countM2 = count($data2Arr);
+      $diffCount = $countM1 - $countM2;
+
+      $data1Arr = array_slice($data1Arr, $diffCount);
+      /*echo "data1SlicedArr : \n";
+      print_r($data1Arr);
+      echo "data2Arr : \n";
+      print_r($data2Arr);*/
+    }
+
+
+    //0. Compute Mean M1 and Mean M2
+    $M1 = Utilities::computeMeanDirectionArr($data1Arr);
+    $M2 = Utilities::computeMeanDirectionArr($data2Arr);
+
+    /*echo "M1 : \n";
+    print_r($M1);
+    echo "M2 : \n";
+    print_r($M2);*/
+
+    //1 . Compute slope for M1 and M2
+    $regressionM1 = Utilities::computeRegressionDirectionArr($data1Arr);
+    $regressionM2 = Utilities::computeRegressionDirectionArr($data2Arr);
+    /*echo "Regression M1 : \n";
+    print_r($regressionM1);
+    echo "\n";
+    echo "Regression M2 : \n";
+    print_r($regressionM2);*/
+    $slopeM1 = $regressionM1['slope'];
+    $slopeM2 = $regressionM2['slope'];
+
+    /*echo "Slope M1 : \n";
+    print_r($slopeM1);
+    echo "\n";
+    echo "Slope M2 : \n";
+    print_r($slopeM2);
+    echo "\n";*/
+    //2. Compute angle between M1 and M2
+    $angleDeg = Utilities::angle_between_line($slopeM2, $slopeM1);
+    //echo "AngleDeg between Slope M1 and Slope M2: " . $angleDeg . "\n";
+
+    //3. Rotate M2 ==> M2'
+    $M2prim = Utilities::rotate_point($M2, $angleDeg);
+    /*echo "M2prim : \n";
+    print_r($M2prim);*/
+
+    //4. Find distance between M1 and M2'
+    $diffPt = Utilities::substract_point($M2prim, $M1);
+    /*echo "diffPt : \n";
+    print_r($diffPt);*/
+
+    //5. Apply rotation and translation to all the points
+    foreach ($data2Arr as $array) {
+      $deltaX = $array["delta_x"];
+      $deltaY = $array["delta_y"];
+      $date = $array["date"];
+
+      $ptToTransform = array($deltaX, $deltaY);
+      /*echo "Pt to transform : \n";
+      print_r($ptToTransform);*/
+      $deltaXRotate =  Utilities::rotate_point($ptToTransform, $angleDeg);
+      $deltaXTranslate =  Utilities::substract_point($deltaXRotate, $diffPt);
+      $deltaXTransfo = $deltaXTranslate;
+
+      /*echo "After transform: \n";
+      print_r($deltaXTransfo);*/
+
+      $tmpArr = array(
+        "date" => $date, "delta_x" => $deltaXTransfo[0], "delta_y" => $deltaXTransfo[1]
+      );
+      array_push($variationDirectionArr, $tmpArr);
+    }
+    $M2 = Utilities::computeMeanDirectionArr($variationDirectionArr);
+    /*echo "Mean after transform: \n";
+    print_r($M2);*/
+    return $variationDirectionArr;
   }
 }

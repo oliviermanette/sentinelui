@@ -81,9 +81,17 @@
         //Draw direction inclinometer
         let variationAverageDirection = '{{ variationAverageDirectionArr|raw}}';
         drawChartDirectionFromData(variationAverageDirection, "chartDirectionInclinometer", settingsArr);
+
+        //let variationAverageSpeedAfter = '{{ variationAverageSpeedDirectionAfterArr|raw}}';
+        //drawChartDirectionFromData(variationAverageSpeedAfter, "chartDirectionInclinometerAfter");
+
+
+
         //Draw speed variation
         let variationAverageSpeed = '{{ variationAverageSpeedDirectionArr|raw}}';
         drawChartSpeedVariationFromData(variationAverageSpeed, "chartVitesseInclinometer");
+
+
 
         //Draw chart variation inclinometer absolute variation
         let inclinometerVariationDailyData = '{{ percentageVariationDayArr|raw}}';

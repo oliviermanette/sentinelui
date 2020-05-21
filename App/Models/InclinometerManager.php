@@ -755,7 +755,6 @@ class InclinometerManager extends \Core\Model
       $delta_x_cm = (tan($x_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
       $delta_y_cm = (tan($y_rad) * $equipment_height) * 100;
 
-
       $tmpArr = array(
         "date" => $date, "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
       );
@@ -764,33 +763,16 @@ class InclinometerManager extends \Core\Model
     return $variationDirectionArr;
   }
 
-  public static function computeAverageDirectionVariationForLastAfterTransform($deveui, $time_period = -1)
+  public static function applyAverageDirectionReferentialFromSensor($device_number, $dataToTransform)
   {
-    //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
-    $percentageVariationDayArr = InclinometerManager::computeAverageDailyVariationPercentageAngleForLastAfterTransform($deveui, false, $time_period);
+    $deveui = SensorManager::getDeveuiFromDeviceNumber($device_number);
+    $variationRefArr = InclinometerManager::computeAverageDirectionVariationForLast($deveui, -1);
+    $variationAverageSpeedDirectionAfterArr = Utilities::applyReferentielData1ToData2UsingSlope($variationRefArr, $dataToTransform, True);
 
-    $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
-    $variationDirectionArr = array();
-
-    foreach ($percentageVariationDayArr as $array) {
-      $date = $array["date"];
-      $x_deg = $array["variationAngleX"];
-      $y_deg = $array["variationAngleY"];
-      #echo "(", $x_deg . ", " . $y_deg . ")\n";
-      $x_rad = (pi() / 180) * $x_deg;
-      $y_rad = (pi() / 180) * $y_deg;
-
-      $delta_x_cm = (tan($x_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
-      $delta_y_cm = (tan($y_rad) * $equipment_height) * 100;
-
-
-      $tmpArr = array(
-        "date" => $date, "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
-      );
-      array_push($variationDirectionArr, $tmpArr);
-    }
-    return $variationDirectionArr;
+    return $variationAverageSpeedDirectionAfterArr;
   }
+
+
 
   public static function computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30)
   {
@@ -810,6 +792,47 @@ class InclinometerManager extends \Core\Model
 
       $delta_x_cm = (tan($x_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
       $delta_y_cm = (tan($y_rad) * $equipment_height) * 100;
+
+      $tmpArr = array(
+        "date" => $date, "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
+      );
+      array_push($variationDirectionArr, $tmpArr);
+    }
+    return $variationDirectionArr;
+  }
+
+  public static function computeDirectionVariationForLastAfterTransform($deveui, $time_period = -1, $limit = 30)
+  {
+    //$percentageVariationDayArr = InclinometerManager::computeVariationPercentageAngleForLast($deveui, false, $time_period);
+    $percentageVariationDayArr = InclinometerManager::computeDailyVariationPercentageAngleForLast($deveui, false, $time_period, $limit);
+
+    $equipment_height = EquipementManager::getEquipementHeightBySensorDeveui($deveui);
+    $variationDirectionArr = array();
+
+    foreach ($percentageVariationDayArr as $array) {
+      $date = $array["date"];
+      $x_deg = $array["variationAngleX"];
+      $y_deg = $array["variationAngleY"];
+      #echo "(", $x_deg . ", " . $y_deg . ")\n";
+      $x_rad = (pi() / 180) * $x_deg;
+      $y_rad = (pi() / 180) * $y_deg;
+
+
+      $delta_x_cm = (tan($x_rad) * $equipment_height) * 100; //*100 for obtaining the result in cm
+      $delta_y_cm = (tan($y_rad) * $equipment_height) * 100;
+
+      $angle = 0.43;
+
+      $delta_x_cm2 = $delta_x_cm * cos($angle) - $delta_y_cm * sin($angle);
+      $delta_y_cm2 = $delta_x_cm * sin($angle) + $delta_y_cm * cos($angle);
+      echo "\n" . $date . " |New point with transformation angle " . $angle . " Rad \n";
+
+      $tmp1 = $delta_x_cm;
+      //$tmp2 = -$delta_y_cm;
+      $delta_x_cm2 = -$delta_y_cm2;
+      $delta_y_cm2 = $tmp1;
+      echo "\n  Before X : " . $delta_x_cm . " | After X : " . $delta_x_cm2 . "\n";
+      echo "\n  Before Y : " . $delta_y_cm .  "| After Y : " . $delta_y_cm2 . "\n";
 
       $tmpArr = array(
         "date" => $date, "delta_x" => $delta_x_cm, "delta_y" => $delta_y_cm
