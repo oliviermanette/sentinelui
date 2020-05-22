@@ -1,0 +1,91 @@
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
+        <div class="sidebar-brand-text mx-3">Sentive<sup> AI</sup></div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
+        <a class="nav-link" href="/">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Interface
+    </div>
+
+    <!-- Nav Item - Charts -->
+    <li class="nav-item">
+        <a class="nav-link" href="/search-spectre">
+            <i class="fas fa-fw fa-chart-area"></i>
+            <span>Spectres</span></a>
+    </li>
+
+    <!-- Nav Item - Choc -->
+    <li class="nav-item">
+        <a class="nav-link" href="/search-choc">
+            <i class="fas fa-fw fa-exclamation"></i>
+            <span>Chocs</span></a>
+    </li>
+
+    <!-- Nav Item - Alerte -->
+    <li class="nav-item">
+        <a class="nav-link" href="/alerts">
+            <i class="fas fa-bell"></i>
+            <span>Alertes</span></a>
+    </li>
+
+    <!-- Nav Item - Alerte -->
+    <li class="nav-item">
+        <a class="nav-link" href="/sensors">
+            <i class="fab fa-bandcamp"></i>
+            <span>Capteurs</span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Administration
+    </div>
+
+    <!-- Nav Item - Dashboard -->
+    <!-- 
+      <li class="nav-item">
+        <a class="nav-link" href="/settings">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Paramètres</span></a>
+      </li>
+      -->
+    <li class="nav-item">
+        <a class="nav-link" href="/support">
+            <i class="fas fa-ticket-alt"></i>
+            <span>Support</span></a>
+    </li>
+
+    {% if is_admin %}
+    <li class="nav-item">
+        <a class="nav-link" href="/sentive">
+            <i class="fas fa-chart-area"></i>
+            <span>Sentive AI</span></a>
+    </li>
+    {% endif %}
+
+
+
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
