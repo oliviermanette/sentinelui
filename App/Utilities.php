@@ -700,7 +700,7 @@ function getCombination($n)
       print_r($deltaXTransfo);*/
 
       $tmpArr = array(
-        "date" => $date, "delta_x" => $deltaXTransfo[0], "delta_y" => $deltaXTransfo[1]
+        "date" => $date, "delta_x" => -$deltaXTransfo[0], "delta_y" => $deltaXTransfo[1]
       );
       array_push($variationDirectionArr, $tmpArr);
     }

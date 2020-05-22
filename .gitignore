@@ -16,3 +16,5 @@ package-lock.json
 composer.lock
 node_modules
 sendgrid.env
+
+playground/*
