@@ -10,7 +10,7 @@ use App\Utilities;
 class SentiveAPI
 {
 
-    private static $BASE_URL = "http://92.243.19.37:1807";
+    private static $BASE_URL = "https://api.flod.ai";
 
     /**
      * Check connection
