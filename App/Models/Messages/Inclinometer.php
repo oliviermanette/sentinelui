@@ -20,6 +20,7 @@ class Inclinometer extends Message
         }
 
         $this->convertInclinometerDataToAngle();
+        $this->computeInclinations();
     }
 
     /**
@@ -73,6 +74,20 @@ class Inclinometer extends Message
         $tetaZ = atan($norm / $Z_g);
         $this->$tetaZ = $tetaZ;
         return $tetaZ;
+    }
+
+    public function computeInclinations()
+    {
+        $X_g = Utilities::mgToG($this->X);
+        $Y_g = Utilities::mgToG($this->Y);
+        $Z_g = Utilities::mgToG($this->Z);
+        $norm = sqrt(pow($X_g, 2) + pow($Y_g, 2) + pow($Z_g, 2));
+        #roulis
+        $this->roll = rad2deg(atan($X_g / $norm));
+        #tangage
+        $this->pitch = rad2deg(atan($Y_g / $norm));
+        #lacet
+        $this->yaw = rad2deg(atan($Z_g / $norm));
     }
 
     public function getAngleX()

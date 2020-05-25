@@ -445,11 +445,11 @@ class InclinometerManager extends \Core\Model
   public static function insertInclinometer($inclinometer)
   {
 
-    $sql_data_record_inclinometer = 'INSERT INTO  inclinometer (`record_id`, `nx`, `ny`, `nz`, `angle_x`, `angle_y`, `angle_z`, `temperature`, `battery_left` )
+    $sql_data_record_inclinometer = 'INSERT INTO  inclinometer (`record_id`, `nx`, `ny`, `nz`, `angle_x`, `angle_y`, `angle_z`, `roll`, `pitch`, `yaw`, `temperature`, `battery_left` )
       SELECT * FROM
       (SELECT (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui)) as record_id,
-      :nx AS nx, :ny AS ny, :nz AS nz, :angle_x AS angleX, :angle_y AS angleY, :angle_z AS angleZ, :temperature AS temperature, :battery_left AS battery) AS id_record
+      :nx AS nx, :ny AS ny, :nz AS nz, :angle_x AS angleX, :angle_y AS angleY, :angle_z AS angleZ, :roll AS roll, :pitch AS pitch, :yaw AS yaw, :temperature AS temperature, :battery_left AS battery) AS id_record
       WHERE NOT EXISTS (
       SELECT record_id FROM inclinometer WHERE record_id = (SELECT id FROM record WHERE date_time = :date_time AND msg_type = "inclinometre"
       AND sensor_id = (SELECT id FROM sensor WHERE deveui = :deveui))
@@ -466,6 +466,9 @@ class InclinometerManager extends \Core\Model
     $stmt->bindValue(':angle_x', $inclinometer->angleX, PDO::PARAM_STR);
     $stmt->bindValue(':angle_y', $inclinometer->angleY, PDO::PARAM_STR);
     $stmt->bindValue(':angle_z', $inclinometer->angleZ, PDO::PARAM_STR);
+    $stmt->bindValue(':roll', $inclinometer->roll, PDO::PARAM_STR);
+    $stmt->bindValue(':pitch', $inclinometer->pitch, PDO::PARAM_STR);
+    $stmt->bindValue(':yaw', $inclinometer->yaw, PDO::PARAM_STR);
     $stmt->bindValue(':temperature', $inclinometer->temperature, PDO::PARAM_STR);
     $battery_left = null;
     if (property_exists($inclinometer, 'battery_left')) {
