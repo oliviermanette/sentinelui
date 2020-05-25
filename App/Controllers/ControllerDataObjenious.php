@@ -43,7 +43,11 @@ class ControllerDataObjenious extends \Core\Controller
     //Parse the JSON content to insert into the DB
     $message_type = 0;
     error_log("\nData received\n" . json_encode($data), $message_type);
-    error_log("\nData received\n" . json_encode($data), 3, "./logs/data_objenious.log");
+    $log_data_objenious = "./logs/data_objenious.log";
+    if (is_writable($log_data_objenious)) {
+      error_log("\nData received\n" . json_encode($data), 3, $log_data_objenious);
+    }
+
     if (!empty($data)) {
       RecordManager::parseJsonDataAndInsert($data);
     } else {
