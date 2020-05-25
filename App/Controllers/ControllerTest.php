@@ -46,7 +46,7 @@ class ControllerTest extends \Core\Controller
     {
 
         //print_r(SentiveAPI::reset());
-        $device_number = "2001006";
+        $device_number = "2001002";
         $deveui = SensorManager::getDeveuiFromDeviceNumber($device_number);
         //$this->initNetwork($deveui);
         $networkId = $device_number;

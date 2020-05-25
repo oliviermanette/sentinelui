@@ -90,7 +90,7 @@ class SentiveAIManager extends \Core\Model
         //Run unsupervised
         SentiveAIManager::runUnsupervisedOnAllNetworks();
         //Compute images
-        SentiveAIManager::computeImagesOnAllNetworks();
+        //SentiveAIManager::computeImagesOnAllNetworks();
         return true;
     }
 

@@ -37,6 +37,8 @@
     "uglify-es": "3.3.9"
   },
   "dependencies": {
+    "bezier-easing": "^2.1.0",
+    "bezier-js": "^2.6.1",
     "chartjs-plugin-annotation": "^0.5.7",
     "chartjs-plugin-zoom": "^0.7.7",
     "gulp": "latest",
