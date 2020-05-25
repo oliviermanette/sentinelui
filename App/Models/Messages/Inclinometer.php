@@ -19,7 +19,7 @@ class Inclinometer extends Message
             $this->$key = $value;
         }
 
-        $this->convertInclinometerDataToAngle($this->X, $this->Y, $this->Z);
+        $this->convertInclinometerDataToAngle();
     }
 
     /**
@@ -30,11 +30,11 @@ class Inclinometer extends Message
      * @param float $nz inclination z
      * @return void  assign object value of angles
      */
-    private function convertInclinometerDataToAngle($nx, $ny, $nz)
+    private function convertInclinometerDataToAngle()
     {
-        $xData_g = Utilities::mgToG($nx);
-        $yData_g = Utilities::mgToG($ny);
-        $zData_g = Utilities::mgToG($nz);
+        $xData_g = Utilities::mgToG($this->X);
+        $yData_g = Utilities::mgToG($this->Y);
+        $zData_g = Utilities::mgToG($this->Z);
 
         if ($zData_g < -1) {
             $zData_g = -1;
@@ -62,6 +62,17 @@ class Inclinometer extends Message
         $this->angleX = $angleX;
         $this->angleY = $angleY;
         $this->angleZ = $angleZ;
+    }
+
+    public function computeInclinationZ()
+    {
+        $X_g = Utilities::mgToG($this->X);
+        $Y_g = Utilities::mgToG($this->Y);
+        $Z_g = Utilities::mgToG($this->Z);
+        $norm = sqrt(pow($X_g, 2) + pow($Y_g, 2));
+        $tetaZ = atan($norm / $Z_g);
+        $this->$tetaZ = $tetaZ;
+        return $tetaZ;
     }
 
     public function getAngleX()

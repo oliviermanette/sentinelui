@@ -323,6 +323,16 @@ function getCombination($n)
     }
   }
 
+  public static function computeResultantInclinationZ($nx, $ny, $nz)
+  {
+    $X_g = Utilities::mgToG($nx);
+    $Y_g = Utilities::mgToG($ny);
+    $Z_g = Utilities::mgToG($nz);
+    $norm = sqrt(pow($X_g, 2) + pow($Y_g, 2));
+    $tetaZ = atan($norm / $Z_g);
+    return $tetaZ;
+  }
+
   public static function normedSquare($nx, $ny, $nz)
   {
     return sqrt(pow($nx, 2) + pow($ny, 2) + pow($nz, 2));
