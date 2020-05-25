@@ -179,7 +179,7 @@ class EquipementManager extends \Core\Model
   {
     $db = static::getDB();
 
-    $sql_query_equipement_by_id = "SELECT s.device_number, s.deveui, site.nom AS site_name,  attr_transmission_line.name AS ligneHT, st.nom AS equipement, st.id AS equipement_id 
+    $sql_query_equipement_by_id = "SELECT DISTINCT s.device_number, s.deveui, site.nom AS site_name,  attr_transmission_line.name AS ligneHT, st.nom AS equipement, st.id AS equipement_id 
     FROM structure AS st
     LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
     LEFT JOIN sensor AS s ON (s.structure_id = st.id)
