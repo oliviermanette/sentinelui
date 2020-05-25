@@ -763,7 +763,7 @@ class ChocManager extends \Core\Model
     $db = static::getDB();
 
     $sql_nb_choc_per_hour = "SELECT
-        date_format( date_time, '%Y-%m-%d %H h' ) as date_hour,
+        date_format( date_time, '%Y-%m-%d %H:00:00' ) as date_hour,
         count(*) AS nb_choc
         FROM
     (
@@ -832,13 +832,38 @@ class ChocManager extends \Core\Model
 
     $stmt = $db->prepare($sql);
 
-    if (isset($startDate) && isset($endDate)) {
-      $stmt->bindValue(':startDate', $startDateHour, PDO::PARAM_STR);
-    }
+    $stmt->bindValue(':startDate', $startDateHour, PDO::PARAM_STR);
+
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;
     }
+  }
+
+  public static function groupChocsPerHour(){
+    $chocDataArr = ChocManager::getNbChocPerHour();
+    $chocDatatoRequest = array();
+    foreach ($chocDataArr as $chocArr) {
+      $nbChoc = $chocArr['nb_choc'];
+      if ($nbChoc > 1) {
+        $date_hour = $chocArr['date_hour'];
+        $sensorsChocArr = ChocManager::getSensorsChocBetweenHours($date_hour);
+        $date_hour = date_format(new \DateTime($date_hour), 'Y-m-d H:00:00');
+
+        $deviceNumberTMPArr = array();
+        $chocDataTmp = array();
+        foreach ($sensorsChocArr as $sensorsChoc) {
+          $device_number =  $sensorsChoc['device_number'];
+          array_push($deviceNumberTMPArr, $device_number);
+          array_push($chocDataTmp, $sensorsChoc);
+        }
+        if (count(array_count_values($deviceNumberTMPArr)) > 1) {
+          $chocDatatoRequest[$date_hour] = $chocDataTmp;
+          //array_push($chocDatatoRequest, $chocDataTmp);
+        }
+      }
+    }
+    return $chocDatatoRequest;
   }
 
 

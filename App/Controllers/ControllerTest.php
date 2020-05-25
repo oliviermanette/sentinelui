@@ -93,32 +93,10 @@ class ControllerTest extends \Core\Controller
         //06
         $deveui = SensorManager::getDeveuiFromDeviceNumber("2001006");
         //'0004A30B00E7D410';
-        if (SensorManager::checkProfileGenerationSensor($deveui) == 2) {
-            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorSecondGeneration($deveui);
-        } else {
-            $total_spectres = SpectreManager::countTotalNumberSpectresForForSensorFirstGeneration($deveui);
-        }
 
-        //print_r($total_spectres);
+        $chocDatatoRequest = ChocManager::groupChocsPerHour();
 
-
-        //$fullSpectreArr = SpectreManager::reconstituteAllSpectreForSensorSecondGeneration($deveui);
-        $results = InclinometerManager::computeDirectionVariationForLast($deveui, $time_period = -1, $limit = 30);
-        //$percentageVariationDayArr = InclinometerManager::computeAverageDirectionVariationForLast($deveui);
-        $deveui06 = SensorManager::getDeveuiFromDeviceNumber("2001006");
-        $deveui11 = SensorManager::getDeveuiFromDeviceNumber("19010011");
-        $variation11 = InclinometerManager::computeAverageDirectionVariationForLast($deveui11, -1);
-        $variation06 = InclinometerManager::computeAverageDirectionVariationForLast($deveui06, -1);
-
-        $variationAverageSpeedDirectionAfterArr = InclinometerManager::applyAverageDirectionReferentialFromSensor("19010011", $variation06);
-        //$newPoints = Utilities::applyReferentielData1ToData2UsingSlope($variation11, $variation06);
-        print_r($variationAverageSpeedDirectionAfterArr);
-        //var_dump($percentageVariationDayArr[count($percentageVariationDayArr) - 1]);
-        //var_dump($percentageVariationDayAfterArr[count($percentageVariationDayAfterArr) - 1]);
-        //var_dump(RecordManager::getBriefInfoFromAllRecords());
-
-        //$x = array_reverse($percentageVariationDayArr);
-
+        print_r($chocDatatoRequest);
     }
 
     public function testSentiveAIAction()
