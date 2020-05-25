@@ -38,9 +38,16 @@ class ControllerChocData extends Authenticated
         $user = Auth::getUser();
         $group_name = $user->getGroupName();
 
-        $choc_data_arr = ChocManager::getAllChocDataForGroup($group_name);
-        $all_equipment = EquipementManager::getEquipements($user->group_id);
-        $all_site = SiteManager::getSites($user->group_id);
+        if ($user->isSuperAdmin()) {
+            $all_equipment = EquipementManager::getAllEquipements();
+            $all_site = SiteManager::getAllSites();
+        } else {
+            //$choc_data_arr = ChocManager::getAllChocDataForGroup($group_name);
+            $all_equipment = EquipementManager::getEquipements($user->group_id);
+            $all_site = SiteManager::getSites($user->group_id);
+        }
+
+
         $date_min_max = RecordManager::getDateMinMaxFromRecord();
 
         $min_date = $date_min_max[0];
@@ -51,7 +58,7 @@ class ControllerChocData extends Authenticated
             'all_equipment' => $all_equipment,
             'min_date' => $min_date,
             'max_date' => $max_date,
-            'choc_data_array' => $choc_data_arr,
+            //'choc_data_array' => $choc_data_arr,
         ]);
     }
 
@@ -125,7 +132,11 @@ class ControllerChocData extends Authenticated
         } else {
 
             //Loop over all sensors in a specific site
-            $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSite($siteId, $user->group_id);
+            if ($user->isSuperAdmin()) {
+                $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSiteForGroup($siteId, -1);
+            } else {
+                $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSiteForGroup($siteId, $user->group_id);
+            }
             $count = 0;
             foreach ($sensorsInfoArr as $sensor) {
 
@@ -262,7 +273,12 @@ class ControllerChocData extends Authenticated
 
             $allStructureData["equipement_0"] = $dataArr;
         } else {
-            $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSite($siteId, $user->group_id);
+            if ($user->isSuperAdmin()) {
+                $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSiteForGroup($siteId, -1);
+            } else {
+                $sensorsInfoArr = SensorManager::getAllSensorsInfoFromSiteForGroup($siteId, $user->group_id);
+            }
+
             $count = 0;
             foreach ($sensorsInfoArr as $sensor) {
                 $index_array = "equipement_" . $count;

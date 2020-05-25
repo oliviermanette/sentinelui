@@ -145,10 +145,10 @@ class ChocManager extends \Core\Model
    *  sensor_id | sensor_deveui | site | equipement | date-time | payload | msg_type | amplitude_1
    * | amplitude_2 | time_1 | time_2 | freq_1 | freq_2 | power
    *
-   * @param string $group_name the name of the group we want to retrieve choc data
+   * @param int $group_id the id of the group we want to retrieve choc data
    * @return array  results from the query
    */
-  public static function getAllChocDataForGroup($group_name)
+  public static function getAllChocDataForGroup($group_id)
   {
     $db = static::getDB();
 
@@ -172,19 +172,19 @@ class ChocManager extends \Core\Model
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
-    INNER JOIN structure AS st ON st.id = r.structure_id
-    INNER JOIN site AS s ON s.id = st.site_id
-    INNER JOIN sensor ON (sensor.id = r.sensor_id)
-    INNER JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
-    INNER JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
+    LEFT JOIN structure AS st ON st.id = r.structure_id
+    LEFT JOIN site AS s ON s.id = st.site_id
+    LEFT JOIN sensor ON (sensor.id = r.sensor_id)
+    LEFT JOIN sensor_group AS gs ON (gs.sensor_id = sensor.id)
+    LEFT JOIN group_name AS gn ON (gn.group_id = gs.groupe_id)
     WHERE
-    gn.name = :group_name
+    gn.group_id = :group_id
     AND Date(r.date_time) >= Date(sensor.installation_date)
     ORDER BY r.date_time DESC
     ";
 
     $stmt = $db->prepare($sql_choc_data);
-    $stmt->bindValue(':group_name', $group_name, PDO::PARAM_STR);
+    $stmt->bindValue(':group_id', $group_id, PDO::PARAM_INT);
     if ($stmt->execute()) {
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $results;

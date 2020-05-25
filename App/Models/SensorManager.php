@@ -146,12 +146,49 @@ class SensorManager extends \Core\Model
 
 
   /**
+   * Get all sensors info installed on a specific site
+   *
+   * @param int $siteid site where we want to retrieve ell the sensors. -1 mean all and not specific to a group
+   * @return array sensors
+   */
+  public static function getAllSensorsInfoFromSiteForGroup($siteId, $groupId = -1)
+  {
+    $db = static::getDB();
+
+    $sql_sensor_id = "SELECT DISTINCT *, attr_transmission_line.name AS transmission_line_name, site.nom AS site_name, st.nom AS structure_name FROM sensor
+    LEFT JOIN structure as st ON st.id= sensor.structure_id
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
+    LEFT JOIN site ON site.id = st.site_id";
+
+    if ($groupId != -1) {
+      $sql_sensor_id .= " INNER JOIN sensor_group ON sensor_group.sensor_id = sensor.id
+    LEFT JOIN group_name ON group_name.group_id= sensor_group.groupe_id
+    WHERE site.id = :siteId AND group_name.group_id = :groupId";
+    } else {
+      $sql_sensor_id .= " WHERE site.id = :siteId";
+    }
+
+
+
+    $stmt = $db->prepare($sql_sensor_id);
+    $stmt->bindValue(':siteId', $siteId, PDO::PARAM_INT);
+    if ($groupId != -1) {
+      $stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+    }
+
+    if ($stmt->execute()) {
+      $sensorsInfoArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $sensorsInfoArr;
+    }
+  }
+
+  /**
    * Get sensor deveui on a specific structure
    *
    * @param int $structure_id structure id to get the sensor id
    * @return array  info from sensors
    */
-  public static function getAllSensorsInfoFromSite($siteId, $groupId)
+  public static function getAllSensorsInfoFromSite($siteId)
   {
     $db = static::getDB();
 
