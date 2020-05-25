@@ -11,6 +11,7 @@ public/data/*
 #Ignore node_module
 node_modules/**
 logs/data_objenious.log
+logs
 
 package-lock.json
 composer.lock
