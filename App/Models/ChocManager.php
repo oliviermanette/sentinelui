@@ -752,6 +752,95 @@ class ChocManager extends \Core\Model
     }
   }
 
+  /**
+   * Get number of choc per hour
+   *  date | number choc
+   *
+   * @return array  results from the query
+   */
+  public static function getNbChocPerHour($startDate = null, $endDate = null)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc_per_hour = "SELECT
+        date_format( date_time, '%Y-%m-%d %H h' ) as date_hour,
+        count(*) AS nb_choc
+        FROM
+    (
+      SELECT
+      s.device_number as device_number,
+      r.date_time as date_time,
+      `amplitude_1`,
+      `amplitude_2`,
+      `time_1`,
+      `time_2`,
+      `freq_1`,
+      `freq_2`,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
+      WHERE
+      `msg_type` = 'choc'
+      AND Date(r.date_time) >= Date(s.installation_date) ";
+
+    if (isset($startDate) && isset($endDate)) {
+      $sql_nb_choc_per_hour .= "AND Date(r.date_time) BETWEEN :startDate AND :endDate";
+    }
+
+
+    $sql_nb_choc_per_hour .= ") AS choc_data
+        GROUP BY date_hour
+        ORDER BY `date_hour`  DESC
+      ";
+
+    $stmt = $db->prepare($sql_nb_choc_per_hour);
+
+    if (isset($startDate) && isset($endDate)) {
+      $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+      $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+    }
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+  public static function getSensorsChocBetweenHours($startDateHour = null)
+  {
+    $db = static::getDB();
+
+    $sql = "SELECT
+      s.device_number as device_number,
+      r.date_time as date_time,
+      `amplitude_1`,
+      `amplitude_2`,
+      `time_1`,
+      `time_2`,
+      `freq_1`,
+      `freq_2`,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
+      WHERE
+      `msg_type` = 'choc'
+      AND Date(r.date_time) >= Date(s.installation_date)
+      AND date_time BETWEEN :startDate AND DATE_ADD(:startDate, INTERVAL 1 HOUR) ";
+
+    $stmt = $db->prepare($sql);
+
+    if (isset($startDate) && isset($endDate)) {
+      $stmt->bindValue(':startDate', $startDateHour, PDO::PARAM_STR);
+    }
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
 
   /**
    *
