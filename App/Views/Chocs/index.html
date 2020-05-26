@@ -18,6 +18,13 @@
             </div>
         </div>
     </div>
+
+    <!-- charts visualization -->
+    <div id="containerCharts">
+        <div id="containerResultsCharts">
+        </div>
+    </div>
+
     <!-- End charts visualization -->
 
     <!-- start activities chocs datatable -->
@@ -46,7 +53,7 @@
         let chocDataPerHour = '{{ chocDatatoRequest|raw}}';
         //console.log("chocDataPerHour", chocDataPerHour);
 
-        drawChartNbChocPerHour(chocDataPerHour, canvaID = "canvas_choc_nb_hour");
+        //drawChartNbChocPerHour(chocDataPerHour, canvaID = "canvas_choc_nb_hour");
 
         // When the user select a site, the equipement associated is displayed
         $("#siteID").change(function () {
