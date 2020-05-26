@@ -204,6 +204,181 @@ function drawChartNbChocPerDate(data, canvaID = "canvas_choc_nb") {
   }
 }
 
+function drawChartNbChocPerHour(data, canvaID = "canvas_choc_nb_hour") {
+  if (typeof data != "object") {
+    data = JSON.parse(data);
+  }
+  //console.log("drawChartNbChocPerDate -> data", data);
+  if (isEmpty(data)) {
+    drawNoDataAvailable(canvaID);
+  } else {
+    var mapPowerDateTime = new Map();
+    var barColorArr = [];
+    var nb_chocArr = [];
+    var dateArr = [];
+    for (var i in data) {
+      var date_hour = i;
+      //console.log("drawChartNbChocPerHour -> data", data[i]);
+
+      nb_chocArr.push(data[i].length);
+      dateArr.push(date_hour);
+      mapPowerDateTime.set(date_hour, data[i]);
+    }
+
+    //Create the dataset
+    var chartdata = {
+      labels: dateArr,
+      datasets: [
+        {
+          backgroundColor: barColorArr,
+          labels: dateArr,
+          data: nb_chocArr,
+        },
+      ],
+    };
+
+    var canva_id = "#" + canvaID;
+    var ctx = $(canva_id);
+
+    //Options for the chart
+    var options = {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: [ChartDataLabels],
+      tooltips: {
+        callbacks: {
+          title: function (tooltipItem, data) {
+            let date = data.labels[tooltipItem[0].index];
+            //console.log("drawChartNbChocPerHour -> date", date);
+
+            let dataChoc = mapPowerDateTime.get(date);
+            //console.log("drawChartNbChocPerHour -> hour", hour);
+            //console.log(tooltipItem[0]['value']);
+            //return "Le " + date + " à " + hour;*/
+          },
+          label: function (tooltipItem, data) {
+            let date = tooltipItem.label;
+            //console.log("drawChartNbChocPerHour -> date", date);
+            let dataChoc = mapPowerDateTime.get(date);
+            //console.log("drawChartNbChocPerHour -> dataChoc", dataChoc);
+            var stringArr = [];
+            for (var j = 0; j < dataChoc.length; j++) {
+              var device_number = dataChoc[j]["device_number"];
+              var power = dataChoc[j]["power"];
+              var time = dataChoc[j]["date_time"].split(" ")[1];
+              var string =
+                "\nCapteur " +
+                device_number +
+                "\nP:" +
+                power +
+                " G\nà " +
+                time +
+                "\n";
+              stringArr.push(string);
+            }
+            //console.log(stringArr);
+
+            return stringArr;
+          },
+          afterLabel: function (tooltipItem, data) {
+            //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
+            //return "Heure : " + hour;
+          },
+        },
+        backgroundColor: "#FFF",
+        titleFontSize: 15,
+        titleFontColor: "#233754",
+        bodyFontColor: "#000",
+        bodyFontSize: 14,
+        displayColors: false,
+      },
+
+      scales: {
+        xAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: "Date",
+            },
+            gridLines: {
+              display: false,
+            },
+          },
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              stepSize: 1,
+            },
+            gridLines: {
+              display: false,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Nombre Choc",
+            },
+            //type: 'logarithmic',
+          },
+        ],
+      },
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: "Nombre de choc par heure si au moins deux capteurs différents",
+        fontSize: 15,
+      },
+      pan: {
+        enabled: false,
+        mode: "xy",
+      },
+      zoom: {
+        enabled: false,
+        mode: "xy",
+      },
+      plugins: {
+        datalabels: {
+          display: true,
+          color: "#ffffff",
+          font: {
+            weight: "bold",
+            size: 13,
+          },
+        },
+      },
+    };
+    //Create the instance
+    var chartInstance = new Chart(ctx, {
+      type: "bar",
+      data: chartdata,
+      options: options,
+    });
+
+    var dataset = chartInstance.data.datasets[0];
+
+    var chartColors = {
+      red: "#ee5253",
+      orange: "#ff9f43",
+      blue: "#54a0ff",
+    };
+
+    for (var i = 0; i < dataset.data.length; i++) {
+      var nbChoc = dataset.data[i];
+      if (nbChoc > 6) {
+        barColorArr.push(chartColors.red);
+        //dataset.backgroundColor[i] = chartColors.red;
+      } else if (nbChoc > 3 && nbChoc < 7) {
+        barColorArr.push(chartColors.orange);
+      } else {
+        barColorArr.push(chartColors.blue);
+      }
+    }
+    chartInstance.update();
+  }
+}
+
 /**
  * @desc Draw chart for displaying the power of each choc per day
  * @param json data - data which contain power of each choc and date
