@@ -792,7 +792,7 @@ class ChocManager extends \Core\Model
 
     $sql_nb_choc_per_hour .= ") AS choc_data
         GROUP BY date_hour
-        ORDER BY `date_hour`  DESC
+        ORDER BY `date_hour` ASC
       ";
 
     $stmt = $db->prepare($sql_nb_choc_per_hour);
@@ -840,7 +840,8 @@ class ChocManager extends \Core\Model
     }
   }
 
-  public static function groupChocsPerHour(){
+  public static function groupChocsPerHour()
+  {
     $chocDataArr = ChocManager::getNbChocPerHour();
     $chocDatatoRequest = array();
     foreach ($chocDataArr as $chocArr) {
