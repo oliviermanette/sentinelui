@@ -807,6 +807,59 @@ class ChocManager extends \Core\Model
     }
   }
 
+  public static function getNbChocPerHourForSite($siteId, $startDate = null, $endDate = null)
+  {
+    $db = static::getDB();
+
+    $sql_nb_choc_per_hour = "SELECT
+        date_format( date_time, '%Y-%m-%d %H:00:00' ) as date_hour,
+        count(*) AS nb_choc
+        FROM
+    (
+      SELECT
+      s.device_number as device_number,
+      r.date_time as date_time,
+      `amplitude_1`,
+      `amplitude_2`,
+      `time_1`,
+      `time_2`,
+      `freq_1`,
+      `freq_2`,
+      `power`
+      FROM
+      choc
+      LEFT JOIN record AS r ON (r.id = choc.record_id)
+      LEFT JOIN sensor AS s ON (r.sensor_id = s.id)
+      LEFT JOIN structure AS st ON st.id = s.structure_id
+      LEFT JOIN site ON site.id = st.site_id
+      WHERE
+      `msg_type` = 'choc'
+      AND Date(r.date_time) >= Date(s.installation_date) 
+      AND site.id = :site_id ";
+
+    if (isset($startDate) && isset($endDate)) {
+      $sql_nb_choc_per_hour .= "AND Date(r.date_time) BETWEEN :startDate AND :endDate";
+    }
+
+
+    $sql_nb_choc_per_hour .= ") AS choc_data
+        GROUP BY date_hour
+        ORDER BY `date_hour` ASC
+      ";
+
+    $stmt = $db->prepare($sql_nb_choc_per_hour);
+    $stmt->bindValue(':site_id', $siteId, PDO::PARAM_INT);
+    if (isset($startDate) && isset($endDate)) {
+      $stmt->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+      $stmt->bindValue(':endDate', $endDate, PDO::PARAM_STR);
+    }
+    if ($stmt->execute()) {
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $results;
+    }
+  }
+
+
   public static function getSensorsChocBetweenHours($startDateHour = null)
   {
     $db = static::getDB();
@@ -840,9 +893,14 @@ class ChocManager extends \Core\Model
     }
   }
 
-  public static function groupChocsPerHour()
+  public static function groupChocsPerHour($siteId = -1)
   {
-    $chocDataArr = ChocManager::getNbChocPerHour();
+    if ($siteId != -1) {
+      $chocDataArr = ChocManager::getNbChocPerHourForSite($siteId);
+    } else {
+      $chocDataArr = ChocManager::getNbChocPerHour();
+    }
+
     $chocDatatoRequest = array();
     foreach ($chocDataArr as $chocArr) {
       $nbChoc = $chocArr['nb_choc'];

@@ -13,7 +13,7 @@
     <!-- charts visualization -->
     <div class="row">
         <div class="col-md-12">
-            <div class="chart-area">
+            <div id="chartChocHour" class="chart-area">
                 <canvas id="canvas_choc_nb_hour"></canvas>
             </div>
         </div>
@@ -171,7 +171,7 @@
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var jsonData = this.responseText;
-                //console.log("Refresh data : ", jsonData);
+
                 removeElementAndChilds("containerTableDataChoc");
                 removeElementAndChilds("containerResultsCharts");
                 addElement("containerCharts", "div", "containerResultsCharts");
@@ -209,6 +209,26 @@
         };
         xhttp1.open("POST", "/ControllerChocData/getChartsChoc", false);
         xhttp1.send(formData);
+
+
+        //Choc per hour chart
+        //Charts
+        xhttp2 = new XMLHttpRequest();
+        xhttp2.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var choc_data = this.responseText;
+                chocDataPerHour = JSON.parse(choc_data);
+                console.log("Refresh data : ", choc_data);
+                var nameCanvas = "canvas_choc_nb_hour";
+                var nameChartAreaCanvas = "chartChocHour"
+                removeElement(nameCanvas);
+                addElement(nameChartAreaCanvas, "canvas", nameCanvas);
+                drawChartNbChocPerHour(chocDataPerHour, canvaID = "canvas_choc_nb_hour");
+            }
+        }
+
+        xhttp2.open("POST", "/ControllerChocData/getChartsChocPerHour", false);
+        xhttp2.send(formData);
 
     });
 

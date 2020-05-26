@@ -297,4 +297,17 @@ class ControllerChocData extends Authenticated
 
         print json_encode($allStructureData);
     }
+
+    public function getChartsChocPerHourAction()
+    {
+        $user = Auth::getUser();
+
+        if (!empty($_POST['siteID'])) {
+            $siteId = $_POST['siteID'];
+        }
+
+        $chocDatatoRequest = ChocManager::groupChocsPerHour($siteId);
+
+        print json_encode($chocDatatoRequest);
+    }
 }
