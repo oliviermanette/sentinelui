@@ -41,12 +41,15 @@ class ControllerChocData extends Authenticated
         if ($user->isSuperAdmin()) {
             $all_equipment = EquipementManager::getAllEquipements();
             $all_site = SiteManager::getAllSites();
+            $chocDatatoRequest = ChocManager::groupChocsPerHour();
         } else {
             //$choc_data_arr = ChocManager::getAllChocDataForGroup($group_name);
             $all_equipment = EquipementManager::getEquipements($user->group_id);
             $all_site = SiteManager::getSites($user->group_id);
+            $chocDatatoRequest = array();
         }
 
+        $chocDatatoRequest = json_encode($chocDatatoRequest);
 
         $date_min_max = RecordManager::getDateMinMaxFromRecord();
 
@@ -58,6 +61,7 @@ class ControllerChocData extends Authenticated
             'all_equipment' => $all_equipment,
             'min_date' => $min_date,
             'max_date' => $max_date,
+            'chocDatatoRequest' => $chocDatatoRequest,
             //'choc_data_array' => $choc_data_arr,
         ]);
     }

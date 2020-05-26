@@ -10,16 +10,21 @@
     {% include "Chocs/viewFormSearch.html" %}
     <!-- end  form search choc -->
 
+    <!-- charts visualization -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-area">
+                <canvas id="canvas_choc_nb_hour"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- End charts visualization -->
+
     <!-- start activities chocs datatable -->
     {% include "Chocs/viewTableDataChocs.html" %}
     <!-- end  activities chocs datatable -->
 
-    <!-- charts visualization -->
-    <div id="containerCharts">
-        <div id="containerResultsCharts">
-        </div>
-    </div>
-    <!-- End charts visualization -->
+
 </div>
 
 {% endblock %}
@@ -37,6 +42,11 @@
         init_daterangepicker();
         initChocDatatable();
 
+        //Load choc
+        let chocDataPerHour = '{{ chocDatatoRequest|raw}}';
+        //console.log("chocDataPerHour", chocDataPerHour);
+
+        drawChartNbChocPerHour(chocDataPerHour, canvaID = "canvas_choc_nb_hour");
 
         // When the user select a site, the equipement associated is displayed
         $("#siteID").change(function () {
