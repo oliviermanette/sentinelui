@@ -21,3 +21,4 @@ sendgrid.env
 playground/*
 App/Controllers/ControllerTest.php
 public/css/sentive-admin.min.css
+public/js/drawing.min.js
