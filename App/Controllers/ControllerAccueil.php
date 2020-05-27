@@ -72,10 +72,11 @@ class ControllerAccueil extends Authenticated
   public function loadDataMapAction()
   {
     $user = Auth::getUser();
-
-    $group = UserManager::findGroupById($user->id);
-
-    $data_map = RecordManager::getDataMapForGroup($user->group_id);
+    if ($user->isSuperAdmin()) {
+      $data_map = RecordManager::getAllDataMap();
+    } else {
+      $data_map = RecordManager::getDataMapForGroup($user->group_id);
+    }
 
     $arr = [];
     $inc = 0;

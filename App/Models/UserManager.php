@@ -137,10 +137,11 @@ class UserManager extends \Core\Model
    */
   public static function findByID($id)
   {
-    $sql = "SELECT * , user.id as user_id,group_name.name AS group_name, group_parent.name AS group_parent FROM user 
+    $sql = "SELECT * , user.id as user_id,group_name.name AS group_name, group_parent.name AS group_parent, group_roles.name AS user_role FROM user 
     LEFT JOIN group_users ON user.id = group_users.user_id
     LEFT JOIN group_name ON group_name.group_id =group_users.group_id
     LEFT JOIN group_parent ON group_parent.parent_id = group_name.parent_id
+    LEFT JOIN group_roles ON group_roles.id=group_parent.group_role
     WHERE user.id = :id";
 
     $db = static::getDB();

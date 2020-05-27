@@ -13,7 +13,7 @@ use \App\Flash;
  *
  * PHP version 7.0
  */
-class ControllerRegistration extends \Core\Controller
+class ControllerRegistration extends AuthenticatedSuperAdmin
 {
   /**
    * Show the signup page
@@ -56,18 +56,4 @@ class ControllerRegistration extends \Core\Controller
    *
    * @return boolean  True if a record already exists with the specified email, false otherwise
    */
-
-
-  protected function before()
-  {
-  }
-
-  /**
-   * After filter
-   *
-   * @return void
-   */
-  protected function after()
-  {
-  }
 }

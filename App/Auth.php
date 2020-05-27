@@ -107,7 +107,20 @@ class Auth
     if (isset($_SESSION['user_id'])) {
 
       return UserManager::findByID($_SESSION['user_id']);
-      
+    } else {
+
+      return static::loginFromRememberCookie();
+    }
+  }
+
+  public static function getSuperAdmin()
+  {
+    if (isset($_SESSION['user_id'])) {
+      $user = UserManager::findByID($_SESSION['user_id']);
+      if ($user->user_role == "SuperAdmin") {
+        return true;
+      }
+      return false;
     } else {
 
       return static::loginFromRememberCookie();

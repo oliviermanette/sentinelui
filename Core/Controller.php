@@ -14,18 +14,18 @@ abstract class Controller
 {
 
   /**
-  * Parameters from the matched route
-  * @var array
-  */
+   * Parameters from the matched route
+   * @var array
+   */
   protected $route_params = [];
 
   /**
-  * Class constructor
-  *
-  * @param array $route_params  Parameters from the route
-  *
-  * @return void
-  */
+   * Class constructor
+   *
+   * @param array $route_params  Parameters from the route
+   *
+   * @return void
+   */
   public function __construct($route_params)
   {
     $this->view = new View();
@@ -33,16 +33,16 @@ abstract class Controller
   }
 
   /**
-  * Magic method called when a non-existent or inaccessible method is
-  * called on an object of this class. Used to execute before and after
-  * filter methods on action methods. Action methods need to be named
-  * with an "Action" suffix, e.g. indexAction, showAction etc.
-  *
-  * @param string $name  Method name
-  * @param array $args Arguments passed to the method
-  *
-  * @return void
-  */
+   * Magic method called when a non-existent or inaccessible method is
+   * called on an object of this class. Used to execute before and after
+   * filter methods on action methods. Action methods need to be named
+   * with an "Action" suffix, e.g. indexAction, showAction etc.
+   *
+   * @param string $name  Method name
+   * @param array $args Arguments passed to the method
+   *
+   * @return void
+   */
   public function __call($name, $args)
   {
     $method = $name . 'Action';
@@ -58,12 +58,12 @@ abstract class Controller
   }
 
   /**
-  * Redirect to a different page
-  *
-  * @param string $url  The relative URL
-  *
-  * @return void
-  */
+   * Redirect to a different page
+   *
+   * @param string $url  The relative URL
+   *
+   * @return void
+   */
   public function redirect($url)
   {
     header('Location: http://' . $_SERVER['HTTP_HOST'] . $url, true, 303);
@@ -71,14 +71,14 @@ abstract class Controller
   }
 
   /**
-  * Require the user to be logged in before giving access to the requested page.
-  * Remember the requested page for later, then redirect to the login page.
-  *
-  * @return void
-  */
+   * Require the user to be logged in before giving access to the requested page.
+   * Remember the requested page for later, then redirect to the login page.
+   *
+   * @return void
+   */
   public function requireLogin()
   {
-    if (! Auth::getUser()) {
+    if (!Auth::getUser()) {
 
       Auth::rememberRequestedPage();
 
@@ -86,20 +86,30 @@ abstract class Controller
     }
   }
 
+  public function requireSuperAdminLogin()
+  {
+    if (!Auth::getSuperAdmin()) {
+
+      Auth::rememberRequestedPage();
+
+      $this->redirect('/');
+    }
+  }
+
   /**
-  * Before filter - called before an action method.
-  *
-  * @return void
-  */
+   * Before filter - called before an action method.
+   *
+   * @return void
+   */
   protected function before()
   {
   }
 
   /**
-  * After filter - called after an action method.
-  *
-  * @return void
-  */
+   * After filter - called after an action method.
+   *
+   * @return void
+   */
   protected function after()
   {
   }
