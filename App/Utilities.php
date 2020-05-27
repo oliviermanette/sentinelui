@@ -352,7 +352,6 @@ function getCombination($n)
   {
     $slope =  Utilities::computeSlope($pt1, $pt2);
     $b = Utilities::computeIntersectB($slope, $pt1);
-
     return array($slope, $b);
   }
 

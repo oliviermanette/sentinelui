@@ -80,7 +80,6 @@ class RecordManager extends \Core\Model
 
     if ($success) {
       if ($message->typeMsg == "choc") {
-
         $choc = new Choc($message->msgDecoded);
         if (!ChocManager::insertChoc($choc)) {
           return false;
@@ -578,6 +577,24 @@ class RecordManager extends \Core\Model
 
     $stmt = $db->prepare($query_data_map);
     $stmt->bindValue(':group_id', $group_id, PDO::PARAM_INT);
+    if ($stmt->execute()) {
+      $data_map = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $data_map;
+    }
+  }
+
+  public static function getAllDataMap()
+  {
+    $db = static::getDB();
+
+    $query_data_map = "SELECT DISTINCT sensor.device_number, sensor.deveui, s.latitude AS latitude_site, s.longitude AS longitude_site,
+    st.latitude AS latitude_sensor, st.longitude AS longitude_sensor, attr_transmission_line.name AS transmission_line_name, s.nom AS site, st.nom AS equipement
+    FROM sensor
+    LEFT JOIN structure AS st ON sensor.structure_id = st.id
+    LEFT JOIN attr_transmission_line ON attr_transmission_line.id = st.attr_transmission_id
+    LEFT JOIN site AS s ON s.id = st.site_id";
+
+    $stmt = $db->prepare($query_data_map);
     if ($stmt->execute()) {
       $data_map = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $data_map;
