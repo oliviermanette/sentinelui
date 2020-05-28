@@ -218,8 +218,8 @@ class RecordManager extends \Core\Model
           $dataPayloadJson = $timeSerie->parseForSentiveAi();
           SentiveAIManager::addDataToNetwork($device_number, $dataPayloadJson, $name = "DbTimeSeries");
           $networkId = $device_number;
-          SentiveAIManager::runUnsupervisedOnNetwork($networkId);
-          SentiveAIManager::computeImagesOnNetwork($networkId);
+          //SentiveAIManager::runUnsupervisedOnNetwork($networkId);
+          //SentiveAIManager::computeImagesOnNetwork($networkId);
         } else {
           echo "\n SENTIVE NOT CONNECTED \n";
         }
