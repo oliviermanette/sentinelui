@@ -216,7 +216,7 @@ class RecordManager extends \Core\Model
           $timeSerie->createFromMsg($message);
           $timeSerie->setNetworkId($device_number);
           $dataPayloadJson = $timeSerie->parseForSentiveAi();
-          SentiveAIManager::addDataToNetwork($device_number, $dataPayloadJson, $name = "DbTimeSeries");
+          //SentiveAIManager::addDataToNetwork($device_number, $dataPayloadJson, $name = "DbTimeSeries");
           $networkId = $device_number;
           //SentiveAIManager::runUnsupervisedOnNetwork($networkId);
           //SentiveAIManager::computeImagesOnNetwork($networkId);
