@@ -212,9 +212,15 @@
         "visible": true,
         "data": "download_link",
         "render": function (data, type, row, meta) {
-          let sensor_id = row["sensor_id"];
-          let url = "/device/" + sensor_id + "/info";
-          return '<a href="' + url + '">En savoir plus</a>';
+          let status = row["status"];
+          if (status == "ACTIVE" || status == "active") {
+            let sensor_id = row["sensor_id"];
+            let url = "/device/" + sensor_id + "/info";
+            return '<a href="' + url + '">En savoir plus</a>';
+          } else {
+            return '<p></p>';
+          }
+
         }
       },
       /*{
