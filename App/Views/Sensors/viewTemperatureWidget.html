@@ -26,6 +26,8 @@
                                     <th>Rafale m/s</th>
                                     <th>Humidité</th>
                                     <th>Couverture nuageuse</th>
+                                    <th>Résumé</th>
+                                    <th>Alertes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -38,6 +40,8 @@
                                     <td>{{row.windGust}}</td>
                                     <td>{{row.humidity}}</td>
                                     <td>{{row.cloudCover}}</td>
+                                    <td>{{row.summary}}</td>
+                                    <td>{{row.alert_description}}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
