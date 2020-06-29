@@ -348,6 +348,11 @@ function getCombination($n)
     return $valueMg / 1E3;
   }
 
+  public static function wToMw($valueW)
+  {
+    return $valueW * 1E3;
+  }
+
   public static function computeLineEquation($pt1, $pt2)
   {
     $slope =  Utilities::computeSlope($pt1, $pt2);

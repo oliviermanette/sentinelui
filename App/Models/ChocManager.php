@@ -578,7 +578,7 @@ class ChocManager extends \Core\Model
 
     $sql_last_choc = "SELECT
     DATE_FORMAT(r.date_time, '%d/%m/%Y') AS date,
-    power
+    `power` * 1000 AS power
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
@@ -873,7 +873,7 @@ class ChocManager extends \Core\Model
       `time_2`,
       `freq_1`,
       `freq_2`,
-      `power`
+      `power` * 1000 AS power
       FROM
       choc
       LEFT JOIN record AS r ON (r.id = choc.record_id)
@@ -1021,7 +1021,7 @@ class ChocManager extends \Core\Model
 
     $sql_power_choc = "SELECT
       r.date_time AS date_d,
-      `power`
+      `power` * 1000 AS power
       FROM
       choc
       LEFT JOIN record AS r ON (r.id = choc.record_id)
@@ -1153,7 +1153,7 @@ class ChocManager extends \Core\Model
 
     $sql_power_choc = "SELECT
     DATE_FORMAT(r.date_time, '%d/%m/%Y %H:%i:%s') as date_d,
-    `power`
+    `power` * 1000 AS power
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
@@ -1164,7 +1164,7 @@ class ChocManager extends \Core\Model
     AND Date(r.date_time) >= Date(s.installation_date) ";
 
     if (isset($startDate) && isset($endDate)) {
-      $sql_nb_choc_per_day .= "AND Date(r.date_time) BETWEEN :startDate AND :endDate";
+      $sql_power_choc .= "AND Date(r.date_time) BETWEEN :startDate AND :endDate";
     }
 
     $sql_power_choc .= " ORDER BY r.date_time ASC";
@@ -1197,7 +1197,7 @@ class ChocManager extends \Core\Model
 
     $sql_power_choc = "SELECT
     CONCAT('semaine ', DATE_FORMAT(date_time, '%V, %M')) AS date_d,
-    `power`
+     `power` * 1000 AS power
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
@@ -1230,7 +1230,7 @@ class ChocManager extends \Core\Model
 
     $sql_power_choc = "SELECT
     DATE_FORMAT(date_time, '%M') AS date_d,
-    `power`
+     `power` * 1000 AS power
     FROM
     choc
     LEFT JOIN record AS r ON (r.id = choc.record_id)
