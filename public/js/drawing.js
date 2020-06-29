@@ -436,7 +436,7 @@ function drawChartPowerChocPerDate(data, canvaID = "canvas_choc_nb") {
     var chartdata = {
       datasets: [
         {
-          label: "Puissance du choc (g)",
+          label: "Puissance du choc (W)",
           data: dataChartArr,
           fill: false,
           showLine: false,
@@ -545,7 +545,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
           },
           label: function (tooltipItem, data) {
             let power = tooltipItem.value;
-            return "Puissance : " + power + " g";
+            return "Puissance : " + power + " W";
           },
           afterLabel: function (tooltipItem, data) {
             //let hour = mapPowerDateTime.get(tooltipItem['value']).split(" ")[1];
@@ -584,7 +584,7 @@ function drawChartPowerChocPerDateBar(data, canvaID = "canvas_choc_nb") {
             },
             scaleLabel: {
               display: true,
-              labelString: "Puissance du choc (g)",
+              labelString: "Puissance du choc (W)",
             },
             //type: 'logarithmic',
           },
